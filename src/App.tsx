@@ -1,0 +1,163 @@
+import React, { useState } from "react";
+import { ActiveTab } from "./types";
+import { ThemeProvider } from "./context/ThemeContext";
+import { Header } from "./components/Header";
+import { HeroStudioOS } from "./components/HeroStudioOS";
+import { ArtistContentBrain } from "./components/ArtistContentBrain";
+import { CoverStudio } from "./components/CoverStudio";
+import { BrandOS } from "./components/BrandOS";
+import { CreatorOS } from "./components/CreatorOS";
+import { EPKBuilder } from "./components/EPKBuilder";
+import { ProjectConsole } from "./components/ProjectConsole";
+import { ResourceVault } from "./components/ResourceVault";
+import { IntelHub } from "./components/IntelHub";
+import { LyricsStudio } from "./components/LyricsStudio";
+import { DSPPitcher } from "./components/DSPPitcher";
+import { MasteringSuite } from "./components/MasteringSuite";
+import { SplitsCalculator } from "./components/SplitsCalculator";
+import { PresaveHub } from "./components/PresaveHub";
+import { Footer } from "./components/Footer";
+import { CommandPalette } from "./components/CommandPalette";
+import { BriefModal } from "./components/BriefModal";
+import { Toast, ToastMessage } from "./components/Toast";
+import { PhoneCall, Search } from "lucide-react";
+
+function MainAppContent() {
+  const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [isBriefOpen, setIsBriefOpen] = useState(false);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addNotification = (text: string, type: "success" | "info" | "error" = "info") => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, text, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  return (
+    <div className="min-h-screen bg-[var(--bento-bg)] text-[var(--bento-text)] flex flex-col font-['Plus_Jakarta_Sans'] selection:bg-[var(--accent-color)] selection:text-[var(--accent-text)] transition-colors duration-200">
+      {/* Global Command Palette */}
+      <CommandPalette
+        isOpen={isCommandOpen}
+        onClose={() => setIsCommandOpen(false)}
+        setActiveTab={setActiveTab}
+        openBriefModal={() => setIsBriefOpen(true)}
+      />
+
+      {/* Global Quick Brief Modal */}
+      <BriefModal
+        isOpen={isBriefOpen}
+        onClose={() => setIsBriefOpen(false)}
+        onNotify={addNotification}
+      />
+
+      {/* Toast Notifications */}
+      <Toast toasts={toasts} onDismiss={removeToast} />
+
+      {/* Sticky OS Header */}
+      <Header
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        openCommandPalette={() => setIsCommandOpen(true)}
+        openBriefModal={() => setIsBriefOpen(true)}
+      />
+
+      {/* Main Content Viewport */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {activeTab === "overview" && (
+          <HeroStudioOS
+            setActiveTab={setActiveTab}
+            openBriefModal={() => setIsBriefOpen(true)}
+          />
+        )}
+
+        {activeTab === "artist-brain" && (
+          <ArtistContentBrain onNotify={addNotification} />
+        )}
+
+        {activeTab === "lyrics-studio" && (
+          <LyricsStudio onNotify={addNotification} />
+        )}
+
+        {activeTab === "dsp-pitcher" && (
+          <DSPPitcher onNotify={addNotification} />
+        )}
+
+        {activeTab === "mastering-suite" && (
+          <MasteringSuite onNotify={addNotification} />
+        )}
+
+        {activeTab === "splits-calculator" && (
+          <SplitsCalculator onNotify={addNotification} />
+        )}
+
+        {activeTab === "presave-hub" && (
+          <PresaveHub onNotify={addNotification} />
+        )}
+
+        {activeTab === "cover-studio" && (
+          <CoverStudio onNotify={addNotification} />
+        )}
+
+        {activeTab === "brand-os" && (
+          <BrandOS onNotify={addNotification} />
+        )}
+
+        {activeTab === "creator-os" && (
+          <CreatorOS onNotify={addNotification} />
+        )}
+
+        {activeTab === "epk-builder" && (
+          <EPKBuilder onNotify={addNotification} />
+        )}
+
+        {activeTab === "project-console" && (
+          <ProjectConsole onNotify={addNotification} />
+        )}
+
+        {activeTab === "resource-vault" && (
+          <ResourceVault onNotify={addNotification} />
+        )}
+
+        {activeTab === "intel-hub" && (
+          <IntelHub onNotify={addNotification} />
+        )}
+      </main>
+
+      {/* Floating Bottom Direct Chat Trigger */}
+      <div className="fixed bottom-4 sm:bottom-6 left-4 sm:left-6 z-40">
+        <a
+          id="floating-whatsapp-btn"
+          href="https://wa.me/2348104465924?text=Hi%20Keedohub!%20I%20am%20using%20the%20Creative%20OS%20and%20want%20to%20collaborate."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/50 border border-emerald-400/30 hover:scale-105 transition-all duration-200 cursor-pointer"
+          title="Chat on WhatsApp (+234-810-446-5924)"
+        >
+          <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="text-xs font-semibold tracking-tight">Chat with us</span>
+        </a>
+      </div>
+
+      {/* Footer */}
+      <Footer
+        setActiveTab={setActiveTab}
+        openBriefModal={() => setIsBriefOpen(true)}
+      />
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <MainAppContent />
+    </ThemeProvider>
+  );
+}

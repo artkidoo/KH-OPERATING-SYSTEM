@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Protect against environments where window.fetch is configured as getter-only
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          if (typeof originalFetch === 'function') {
+            try {
+              Object.defineProperty(window, 'fetch', {
+                get: function() {
+                  return originalFetch;
+                },
+                set: function(fn) {
+                  originalFetch = fn;
+                },
+                configurable: true,
+                enumerable: true
+              });
+            } catch (e1) {
+              try {
+                if (window.Window && window.Window.prototype) {
+                  Object.defineProperty(window.Window.prototype, 'fetch', {
+                    get: function() {
+                      return originalFetch;
+                    },
+                    set: function(fn) {
+                      originalFetch = fn;
+                    },
+                    configurable: true,
+                    enumerable: true
+                  });
+                }
+              } catch (e2) {}
+            }
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keedohub — Creative Operating System</title>
+    <meta name="description" content="The Creative Operating System for music artists, brands, creators, and startups. Design, build, launch, grow." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='110 115 295 220'%3E%3Cpath d='M 120 126 H 226 L 126 226 L 226 326 H 120 Z' fill='%23DC2626'/%3E%3Cpath d='M 180 226 L 286 126 V 202 H 346 V 126 H 396 V 326 H 346 V 250 H 286 V 326 Z' fill='%23FFFFFF'/%3E%3C/svg%3E" />
+    <meta name="theme-color" content="#9B1B1B" />
+  </head>
+  <body class="bg-[#0a0a0c] text-[#f0f0f2] antialiased selection:bg-[#9B1B1B] selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

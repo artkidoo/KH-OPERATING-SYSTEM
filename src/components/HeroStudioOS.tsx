@@ -1,0 +1,560 @@
+import React, { useState } from "react";
+import { ActiveTab } from "../types";
+import { useTheme } from "../context/ThemeContext";
+import { 
+  Disc3, 
+  Layers, 
+  Sparkles, 
+  Video, 
+  ArrowRight, 
+  Play, 
+  Pause,
+  Zap, 
+  Cpu,
+  Globe2
+} from "lucide-react";
+
+interface HeroStudioOSProps {
+  setActiveTab: (tab: ActiveTab) => void;
+  openBriefModal: () => void;
+}
+
+export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
+  setActiveTab,
+  openBriefModal,
+}) => {
+  const { currentThemeConfig } = useTheme();
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const [activeRole, setActiveRole] = useState<'artist' | 'brand' | 'creator' | 'startup'>('artist');
+
+  const roleConfigs = {
+    artist: {
+      tag: "MUSIC ARTIST OS",
+      title: "The Rollout Engine for Modern Musicians",
+      description: "You recorded the song. We engineer the 30-day promotional rollout, viral TikTok hooks, 3000x3000px artwork, DSP pitch letters, and press kits to dominate the algorithm.",
+      ctaTab: "artist-brain" as ActiveTab,
+      ctaText: "Launch Artist Brain OS",
+      metrics: [
+        { label: "DSP Pitch Rate", val: "94%" },
+        { label: "Avg First 48h Streams", val: "50K+" },
+        { label: "Artwork Spec", val: "3000px 300DPI" }
+      ]
+    },
+    brand: {
+      tag: "BRAND ARCHITECT OS",
+      title: "Design Systems & High-Conversion Brand Engines",
+      description: "Transform your company into a recognized cultural authority. Vector brand marks, mathematically paired typography, responsive web architecture, and full commercial rights.",
+      ctaTab: "brand-os" as ActiveTab,
+      ctaText: "Open Brand Architecture OS",
+      metrics: [
+        { label: "Turnaround Time", val: "48-72h" },
+        { label: "Commercial Rights", val: "100% Owned" },
+        { label: "Asset Formats", val: "SVG, AI, PDF, Web" }
+      ]
+    },
+    creator: {
+      tag: "CREATOR HOOK OS",
+      title: "Short-Form Content & Viral Retention Architecture",
+      description: "Stop posting into the void. Access 30+ data-backed 3-second hook structures, thumbnail click-through blueprints, and live sponsorship rate calculators.",
+      ctaTab: "creator-os" as ActiveTab,
+      ctaText: "Launch Creator OS",
+      metrics: [
+        { label: "Hook Retention Boost", val: "+140%" },
+        { label: "Rate Card Accuracy", val: "Industry Standard" },
+        { label: "Cadence Engine", val: "Daily Blueprint" }
+      ]
+    },
+    startup: {
+      tag: "STARTUP LAUNCH OS",
+      title: "MVP Design, Pitch Decks & Web Applications",
+      description: "From napkin sketch to high-growth tech platform. Pitch decks that close seed rounds, interactive web apps, and automated lead capture funnels.",
+      ctaTab: "project-console" as ActiveTab,
+      ctaText: "Open Startup Project Console",
+      metrics: [
+        { label: "Seed Pitch Success", val: "Top Tier" },
+        { label: "Full Stack Tech", val: "React + TS + Node" },
+        { label: "Sprint Duration", val: "14 Days" }
+      ]
+    }
+  };
+
+  const currentRole = roleConfigs[activeRole];
+
+  return (
+    <div className="relative overflow-hidden pt-2 sm:pt-4 pb-8 sm:pb-12">
+      {/* Background radial glows and cyber grid */}
+      <div className="absolute inset-0 bg-bento-grid opacity-40 pointer-events-none"></div>
+      <div 
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] rounded-full blur-[100px] sm:blur-[140px] pointer-events-none opacity-20"
+        style={{ backgroundColor: currentThemeConfig.primaryColor }}
+      ></div>
+
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10 space-y-5 sm:space-y-8">
+        {/* System Status Ticker Strip */}
+        <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 sm:p-3.5 px-3 sm:px-5 rounded-xl sm:rounded-2xl bg-[var(--bento-card)] border border-[var(--bento-border)] shadow-sm backdrop-blur-md">
+          <div className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-[var(--bento-text)]">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 -ml-4"></span>
+            <span className="text-[var(--bento-muted)] font-semibold uppercase tracking-wider hidden xs:inline">ENGINE:</span>
+            <span className="text-emerald-500 font-bold">ONLINE (OS)</span>
+          </div>
+
+          <div className="flex items-center gap-3 sm:gap-5 text-[10px] sm:text-[11px] font-mono text-[var(--bento-muted)]">
+            <div className="flex items-center gap-1">
+              <Cpu className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--accent-pill-text)]" />
+              <span className="text-[var(--bento-text)] font-medium">12 Studios</span>
+            </div>
+            <div className="hidden xs:flex items-center gap-1">
+              <Globe2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" />
+              <span>Remote</span>
+            </div>
+            <div className="flex items-center gap-1 text-[var(--accent-pill-text)] font-bold">
+              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span>48h SLA</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Hero Bento Matrix Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
+          {/* Main Left Bento Card: Mission & Interactive Role Engine (7 cols) */}
+          <div className="lg:col-span-7 bento-card p-4 sm:p-7 flex flex-col justify-between space-y-4 sm:space-y-6 text-left relative overflow-hidden">
+            {/* Ambient Bento glow */}
+            <div 
+              className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl to-transparent pointer-events-none rounded-tr-3xl opacity-15"
+              style={{ backgroundImage: `linear-gradient(to bottom left, ${currentThemeConfig.primaryColor}, transparent)` }}
+            ></div>
+
+            <div className="space-y-4 sm:space-y-5 relative z-10">
+              {/* Identity Role Badges (Forced 2x2 Grid on Mobile, Flex on Desktop) */}
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl bg-[var(--bento-elevated)] border border-[var(--bento-border)]">
+                {(['artist', 'brand', 'creator', 'startup'] as const).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setActiveRole(r)}
+                    className={`px-2.5 sm:px-3.5 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-mono font-semibold transition-all cursor-pointer uppercase text-center truncate ${
+                      activeRole === r
+                        ? "bg-theme-accent font-bold text-white shadow-sm"
+                        : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-card)]"
+                    }`}
+                  >
+                    {r === 'artist' ? '🎵 Music Artist' : r === 'brand' ? '💼 Brand' : r === 'creator' ? '🎬 Creator' : '🚀 Startup'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Main Headline */}
+              <div className="space-y-2 sm:space-y-3">
+                <div className="bento-pill text-[10px] sm:text-xs">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentThemeConfig.primaryColor }}></span>
+                  <span>{currentRole.tag}</span>
+                </div>
+                <h1 className="font-['Space_Grotesk'] text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[var(--bento-text)] leading-[1.15]">
+                  We Design <br className="hidden sm:block" />
+                  <span 
+                    className="text-transparent bg-clip-text bg-gradient-to-r"
+                    style={{
+                      backgroundImage: `linear-gradient(to right, ${currentThemeConfig.primaryColor}, ${currentThemeConfig.secondaryColor})`
+                    }}
+                  >
+                    Creative Empires
+                  </span>{" "}
+                  <br />
+                  For Bold Visionaries.
+                </h1>
+                <p className="text-xs sm:text-sm md:text-base text-[var(--bento-muted)] max-w-xl leading-relaxed">
+                  {currentRole.description}
+                </p>
+              </div>
+
+              {/* Quick Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 pt-1">
+                <button
+                  id="hero-primary-cta-btn"
+                  onClick={() => setActiveTab(currentRole.ctaTab)}
+                  className="flex items-center justify-center gap-1.5 px-3.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl bg-theme-accent font-bold text-xs font-['Space_Grotesk'] text-white shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-[var(--accent-border)]"
+                >
+                  <span>{currentRole.ctaText}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  id="hero-request-brief-btn"
+                  onClick={openBriefModal}
+                  className="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-[var(--bento-elevated)] hover:bg-[var(--bento-border)] text-[var(--bento-text)] font-semibold text-xs border border-[var(--bento-border)] transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                >
+                  <span>Request Custom Brief</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Role Specific Live Metrics Bento Row */}
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-3 pt-4 sm:pt-6 border-t border-[var(--bento-border)] relative z-10">
+              {currentRole.metrics.map((m, idx) => (
+                <div key={idx} className="p-2 sm:p-3 rounded-xl bg-[var(--bento-elevated)] border border-[var(--bento-border)] space-y-0.5 text-center sm:text-left">
+                  <div className="font-['Space_Grotesk'] text-sm sm:text-lg font-bold text-[var(--bento-text)] tracking-tight">
+                    {m.val}
+                  </div>
+                  <div className="text-[8px] sm:text-[10px] font-mono text-[var(--bento-muted)] uppercase tracking-wider truncate">
+                    {m.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column: Interactive Bento Phone Mockup Card (5 cols) */}
+          <div className="lg:col-span-5 bento-card p-4 sm:p-7 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="w-full max-w-xs sm:max-w-sm">
+              {/* Studio OS Phone Container */}
+              <div className="relative rounded-[28px] sm:rounded-[32px] bg-gradient-to-b from-[var(--bento-elevated)] to-[var(--bento-card)] p-2.5 sm:p-3 shadow-xl border border-[var(--bento-border)] overflow-hidden">
+                {/* Top Notch Status */}
+                <div className="flex items-center justify-between px-3 py-1.5 text-[10px] font-mono text-[var(--bento-muted)]">
+                  <span className="font-bold text-[var(--bento-text)]">9:41</span>
+                  <div className="w-12 sm:w-16 h-3 bg-black/40 rounded-full mx-auto"></div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: currentThemeConfig.primaryColor }}></span>
+                    <span className="font-bold text-[10px]" style={{ color: currentThemeConfig.primaryColor }}>LIVE</span>
+                  </div>
+                </div>
+
+                {/* Inner Screen */}
+                <div className="bg-[var(--bento-bg)] rounded-[20px] sm:rounded-[24px] p-3 sm:p-4 space-y-2.5 sm:space-y-3.5 border border-[var(--bento-border)]">
+                  {/* Studio Active Record Header */}
+                  <div className="flex items-center justify-between pb-2 border-b border-[var(--bento-border)]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[var(--accent-light)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent-pill-text)]">
+                        <Disc3 className={`w-3.5 h-3.5 ${isPlayingPreview ? 'animate-spin' : ''}`} />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-[11px] sm:text-xs font-bold text-[var(--bento-text)] truncate max-w-[150px] sm:max-w-none">ZACK KHALIFA — "VICTORIA"</div>
+                        <div className="text-[8px] sm:text-[9px] font-mono text-[var(--accent-pill-text)]">ROLLOUT ENGINE ACTIVE</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsPlayingPreview(!isPlayingPreview)}
+                      className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-theme-accent flex items-center justify-center cursor-pointer transition-colors shadow-sm font-bold text-white"
+                      title={isPlayingPreview ? "Pause Audio Preview" : "Play Audio Preview"}
+                    >
+                      {isPlayingPreview ? <Pause className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 ml-0.5 fill-current" />}
+                    </button>
+                  </div>
+
+                  {/* Album Cover 3D Canvas Preview */}
+                  <div className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-red-950/80 via-zinc-900 to-black p-3 sm:p-4 flex flex-col justify-between border border-[var(--accent-border)] shadow-inner group">
+                    {/* Vinyl spinning disc overlay */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 sm:w-44 h-36 sm:h-44 rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-800 via-zinc-950 to-black opacity-35 border-4 border-zinc-700 pointer-events-none group-hover:scale-105 transition-transform duration-500">
+                      <div className="absolute inset-[38%] rounded-full" style={{ backgroundColor: currentThemeConfig.primaryColor }}></div>
+                    </div>
+
+                    {/* Top tags */}
+                    <div className="flex items-center justify-between relative z-10">
+                      <span className="text-[8px] sm:text-[9px] font-mono font-bold tracking-widest px-1.5 py-0.2 rounded-full bg-black/70 text-white backdrop-blur-md border border-white/10 uppercase">
+                        MASTER
+                      </span>
+                      <span className="text-[8px] sm:text-[9px] font-mono text-amber-300 bg-amber-950/70 px-1.5 py-0.2 rounded-full border border-amber-500/30">
+                        3000px
+                      </span>
+                    </div>
+
+                    {/* Cover typography */}
+                    <div className="text-left relative z-10 space-y-0.5">
+                      <div className="text-[8px] sm:text-[10px] font-mono text-red-300 font-semibold tracking-widest uppercase">
+                        AFRO-FUSION SINGLE
+                      </div>
+                      <div className="font-['Space_Grotesk'] text-lg sm:text-2xl font-bold text-white tracking-tight leading-none drop-shadow-md">
+                        MIDNIGHT IN VI
+                      </div>
+                      <div className="text-[10px] sm:text-xs text-zinc-300 font-medium">
+                        PROD. BY KEEDOHUB
+                      </div>
+                    </div>
+
+                    {/* Bottom badges */}
+                    <div className="flex items-end justify-between relative z-10 pt-1">
+                      <div className="px-1 py-0.2 bg-black border border-white/20 text-[7px] sm:text-[8px] font-mono font-bold text-white uppercase tracking-tighter rounded">
+                        PARENTAL ADVISORY
+                      </div>
+                      <div className="text-[7px] sm:text-[8px] font-mono text-zinc-400">
+                        HIGH-FIDELITY
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Micro Rollout Dashboard Cards */}
+                  <div className="grid grid-cols-2 gap-1.5 text-left">
+                    <div 
+                      onClick={() => setActiveTab("artist-brain")}
+                      className="p-2 rounded-lg bg-[var(--bento-card)] border border-[var(--bento-border)] hover:border-[var(--accent-border)] cursor-pointer transition-colors"
+                    >
+                      <div className="text-[8px] font-mono text-[var(--bento-muted)]">30-DAY TIMELINE</div>
+                      <div className="text-[11px] font-bold text-[var(--bento-text)] flex items-center justify-between">
+                        <span>Pre-Save</span>
+                        <ArrowRight className="w-2.5 h-2.5 text-[var(--accent-pill-text)]" />
+                      </div>
+                    </div>
+                    <div 
+                      onClick={() => setActiveTab("cover-studio")}
+                      className="p-2 rounded-lg bg-[var(--bento-card)] border border-[var(--bento-border)] hover:border-amber-500/50 cursor-pointer transition-colors"
+                    >
+                      <div className="text-[8px] font-mono text-[var(--bento-muted)]">COVER STUDIO</div>
+                      <div className="text-[11px] font-bold text-[var(--bento-text)] flex items-center justify-between">
+                        <span>3D Canvas</span>
+                        <ArrowRight className="w-2.5 h-2.5 text-amber-500" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Launch Engine CTA Button */}
+                  <button
+                    onClick={() => setActiveTab("artist-brain")}
+                    className="w-full py-2 rounded-lg bg-theme-accent text-[11px] font-bold font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-md text-white"
+                  >
+                    <Zap className="w-3 h-3 fill-current" />
+                    <span>Run Rollout Campaign</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Operating Systems Workstation Suite Bento Grid (Forced 2-Column Mobile Grid) */}
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-1.5 text-left">
+            <div>
+              <div className="bento-pill text-[10px] sm:text-xs mb-1 sm:mb-2">
+                02 / WORKSTATION MODULES
+              </div>
+              <h2 className="font-['Space_Grotesk'] text-xl sm:text-3xl font-bold text-[var(--bento-text)] tracking-tight">
+                Creative Operating System Modules
+              </h2>
+            </div>
+            <p className="text-xs sm:text-sm text-[var(--bento-muted)] max-w-md">
+              Tap any module to enter dedicated creative engines.
+            </p>
+          </div>
+
+          {/* Forced 2-Column Grid on Mobile! */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+            {/* Module 1: Artist Content Brain */}
+            <div
+              onClick={() => setActiveTab("artist-brain")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-[var(--accent-border)]"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--accent-light)] border border-[var(--accent-border)] text-[var(--accent-pill-text)] flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Disc3 className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-[var(--accent-pill-text)] font-bold uppercase tracking-wider">
+                    FLAGSHIP
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-[var(--accent-pill-text)] transition-colors mt-0.5">
+                    Artist Content Brain
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    Complete 30-day release campaigns, viral TikTok hooks, and Spotify pitches.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-[var(--accent-pill-text)] font-bold">
+                <span>Enter</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Module 2: Lyric Studio */}
+            <div
+              onClick={() => setActiveTab("lyrics-studio")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-red-500/50"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-red-400 font-bold uppercase tracking-wider">
+                    LYRIC & SYNC
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-red-400 transition-colors mt-0.5">
+                    Lyric Studio & .LRC
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    Time-sync lyrics, generate Spotify .LRC files, and live 9:16 kinetic videos.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-red-400 font-bold">
+                <span>Launch</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Module 3: DSP Pitcher */}
+            <div
+              onClick={() => setActiveTab("dsp-pitcher")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-emerald-500/50"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Cpu className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
+                    SPOTIFY EDITORIAL
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-emerald-400 transition-colors mt-0.5">
+                    DSP Pitch Engine
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    Auto-generate 50-word editorial pitch notes, curator emails, and scorecards.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-emerald-400 font-bold">
+                <span>Pitch</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Module 4: Mastering Suite */}
+            <div
+              onClick={() => setActiveTab("mastering-suite")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-amber-500/50"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Globe2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-amber-400 font-bold uppercase tracking-wider">
+                    AUDIO LABS
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-amber-400 transition-colors mt-0.5">
+                    Mastering & LUFS
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    60fps spectrum analyzer, -14 LUFS loudness meter, and True Peak check.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-amber-400 font-bold">
+                <span>Inspect</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Module 5: Splits Calculator */}
+            <div
+              onClick={() => setActiveTab("splits-calculator")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-purple-500/50"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Disc3 className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-purple-400 font-bold uppercase tracking-wider">
+                    ROYALTY & LEGAL
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-purple-400 transition-colors mt-0.5">
+                    Splits & Revenue
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    Master vs. Publishing splits calculator and global DSP revenue simulator.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-purple-400 font-bold">
+                <span>Splits</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Module 6: Pre-Save Hub */}
+            <div
+              onClick={() => setActiveTab("presave-hub")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-cyan-500/50"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-wider">
+                    FAN CRM & LINK
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-cyan-400 transition-colors mt-0.5">
+                    Smart Link Hub
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    Custom bio landing page, fan email/WhatsApp collector, and marketing QR codes.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-cyan-400 font-bold">
+                <span>Build Link</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Module 7: Cover Art Studio */}
+            <div
+              onClick={() => setActiveTab("cover-studio")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-amber-500/50"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Layers className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-amber-500 font-bold uppercase tracking-wider">
+                    STUDIO
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-amber-500 transition-colors mt-0.5">
+                    Music Cover Studio
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    Interactive 3000x3000px canvas with vinyl spin simulation and parental badges.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-amber-500 font-bold">
+                <span>Canvas</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Module 8: Creator OS */}
+            <div
+              onClick={() => setActiveTab("creator-os")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-emerald-500/50"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Video className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-emerald-500 font-bold uppercase tracking-wider">
+                    VIRAL HOOKS
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-emerald-500 transition-colors mt-0.5">
+                    Creator OS & Hooks
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    High-retention 3-second hook bank, thumbnail layouts, and rate card calculator.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-emerald-500 font-bold">
+                <span>Creator OS</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

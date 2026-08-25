@@ -1,0 +1,6 @@
+{
+  "name": "Keedohub Creative OS",
+  "description": "The Creative Operating System for music artists, brands, creators, and startups. Features the Artist Content Brain, 9:16 Lyric Studio (.LRC), DSP Editorial Pitcher, Mastering & LUFS Radar, Royalty Splits Simulator, Smart Pre-Save Hub, Cover Studio, and Brand OS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
