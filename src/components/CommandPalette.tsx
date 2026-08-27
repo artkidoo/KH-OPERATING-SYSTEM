@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ActiveTab, ColorTheme } from "../types";
 import { useTheme } from "../context/ThemeContext";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { 
   Search, 
   Disc3, 
@@ -18,7 +19,13 @@ import {
   Moon,
   Flame,
   Leaf,
-  Crown
+  Crown,
+  HardDrive,
+  CheckSquare,
+  Target,
+  Music,
+  Megaphone,
+  Folder
 } from "lucide-react";
 
 interface CommandPaletteProps {
@@ -34,12 +41,81 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   setActiveTab,
   openBriefModal,
 }) => {
-  const { setColorTheme, setThemeMode, toggleThemeMode, themeMode, colorTheme } = useTheme();
+  const { setColorTheme, toggleThemeMode, themeMode } = useTheme();
+  const { 
+    workspace, 
+    projects, 
+    releases, 
+    assets, 
+    tasks, 
+    milestones, 
+    campaigns, 
+    performSearch 
+  } = useWorkspace();
+
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Dynamic Workspace Results
+  const workspaceItems = [
+    ...projects.map((p) => ({
+      id: `project-${p.id}`,
+      title: `Project: ${p.title}`,
+      description: `${p.category} • Budget: $${p.budget.toLocaleString()} • Deadline: ${p.deadline}`,
+      icon: <Briefcase className="w-4 h-4 text-blue-400" />,
+      action: () => {
+        setActiveTab("workspace-hub");
+        onClose();
+      },
+    })),
+    ...releases.map((r) => ({
+      id: `release-${r.id}`,
+      title: `Release: ${r.title} (${r.artistName})`,
+      description: `${r.genre} • Drop: ${r.releaseDate} • ISRC: ${r.isrc || "Pending"}`,
+      icon: <Music className="w-4 h-4 text-red-400" />,
+      action: () => {
+        setActiveTab("workspace-hub");
+        onClose();
+      },
+    })),
+    ...assets.map((a) => ({
+      id: `asset-${a.id}`,
+      title: `Asset: ${a.name}`,
+      description: `${a.category.toUpperCase()} • ${a.dimensions || "3000x3000px"} • ${(a.size / (1024 * 1024)).toFixed(2)} MB`,
+      icon: <HardDrive className="w-4 h-4 text-emerald-400" />,
+      action: () => {
+        setActiveTab("workspace-hub");
+        onClose();
+      },
+    })),
+    ...tasks.map((t) => ({
+      id: `task-${t.id}`,
+      title: `Task: ${t.text}`,
+      description: `Priority: ${t.priority.toUpperCase()} • ${t.completed ? "Completed" : "Pending"}`,
+      icon: <CheckSquare className="w-4 h-4 text-amber-400" />,
+      action: () => {
+        setActiveTab("workspace-hub");
+        onClose();
+      },
+    })),
+    ...milestones.map((m) => ({
+      id: `milestone-${m.id}`,
+      title: `Milestone: ${m.title}`,
+      description: `Target Date: ${m.targetDate} • Status: ${m.status}`,
+      icon: <Target className="w-4 h-4 text-purple-400" />,
+      action: () => {
+        setActiveTab("workspace-hub");
+        onClose();
+      },
+    })),
+  ];
+
   const commandItems = [
+    {
+      group: `Active Workspace (${workspace?.name || "Keedohub OS"})`,
+      items: workspaceItems,
+    },
     {
       group: "Theme & Display Appearance",
       items: [
@@ -98,6 +174,36 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     {
       group: "Core Operating Systems",
       items: [
+        {
+          id: "creative-brain",
+          title: "Keedohub Creative Brain Console",
+          description: "Autonomous intelligence operating over releases, campaigns, 7-pillar readiness & persistent memory",
+          icon: <Sparkles className="w-4 h-4 text-red-500" />,
+          action: () => {
+            setActiveTab("creative-brain");
+            onClose();
+          },
+        },
+        {
+          id: "artist-os",
+          title: "Artist OS (Central Release Brain & Readiness)",
+          description: "Persistent Release Command Center, 30-Day Pipeline, Timeline, Splits, Pre-Save & 7-Pillar Readiness",
+          icon: <Disc3 className="w-4 h-4 text-cyan-400" />,
+          action: () => {
+            setActiveTab("artist-os");
+            onClose();
+          },
+        },
+        {
+          id: "workspace-hub",
+          title: "Workspace Command Center & Vault",
+          description: "Intelligent command center, tasks, milestones, cloud assets, and release blueprints",
+          icon: <HardDrive className="w-4 h-4 text-red-500" />,
+          action: () => {
+            setActiveTab("workspace-hub");
+            onClose();
+          },
+        },
         {
           id: "artist-brain",
           title: "Music Artist Content Brain",
@@ -267,8 +373,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       ...group,
       items: group.items.filter(
         (item) =>
-          item.title.toLowerCase().includes(query.toLowerCase()) ||
-          item.description.toLowerCase().includes(query.toLowerCase())
+          (item.title || "").toLowerCase().includes((query || "").toLowerCase()) ||
+          (item.description || "").toLowerCase().includes((query || "").toLowerCase())
       ),
     }))
     .filter((group) => group.items.length > 0);
@@ -338,7 +444,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            placeholder="Search modules, themes, split sheets, blueprints... (or type 'theme')"
+            placeholder="Search projects, releases, assets, tasks, milestones, themes... (⌘K)"
             className="w-full bg-transparent text-sm text-[var(--bento-text)] placeholder-[var(--bento-subtle)] focus:outline-none font-medium"
           />
           <kbd className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-[var(--bento-elevated)] text-[var(--bento-muted)] border border-[var(--bento-border)] shrink-0">
@@ -350,7 +456,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         <div className="overflow-y-auto p-3 space-y-4 flex-1">
           {filteredItems.length === 0 ? (
             <div className="py-12 text-center text-[var(--bento-muted)] text-sm font-mono">
-              No matching modules or commands found for "{query}".
+              No matching workspace entities, modules, or commands found for "{query}".
             </div>
           ) : (
             filteredItems.map((group, gIdx) => (
@@ -403,7 +509,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             <span>↵ Select</span>
             <span>ESC Close</span>
           </div>
-          <div className="text-[var(--accent-pill-text)] font-semibold">Keedohub OS Engine</div>
+          <div className="text-[var(--accent-pill-text)] font-semibold">Keedohub Creative OS</div>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { PresavePageData, FanLead } from "../types";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { GeneralModuleSkeleton } from "./skeletons/ModuleSkeletons";
 import { 
   Radio, 
@@ -22,7 +23,8 @@ import {
   Code,
   Users,
   Layers,
-  Heart
+  Heart,
+  Save
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -31,7 +33,9 @@ interface PresaveHubProps {
 }
 
 export const PresaveHub: React.FC<PresaveHubProps> = ({ onNotify }) => {
+  const { workspace, activeRelease, updateRelease } = useWorkspace();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [pageData, setPageData] = useState<PresavePageData>({
     title: "Midnight in Victoria Island",
     artist: "ZACK KHALIFA",
@@ -58,6 +62,55 @@ export const PresaveHub: React.FC<PresaveHubProps> = ({ onNotify }) => {
     }, 320);
     return () => clearTimeout(timer);
   }, []);
+
+  // Sync with active master release
+  useEffect(() => {
+    if (activeRelease) {
+      setPageData((prev) => {
+        if (activeRelease.presaveData) {
+          return {
+            ...prev,
+            ...activeRelease.presaveData,
+            title: activeRelease.title || prev.title,
+            artist: activeRelease.artistName || prev.artist,
+            releaseDate: activeRelease.releaseDate || prev.releaseDate,
+            coverArtUrl: activeRelease.coverUrl || prev.coverArtUrl,
+            vanitySlug: activeRelease.presaveSlug || prev.vanitySlug,
+          };
+        }
+        return {
+          ...prev,
+          title: activeRelease.title || prev.title,
+          artist: activeRelease.artistName || prev.artist,
+          releaseDate: activeRelease.releaseDate || prev.releaseDate,
+          coverArtUrl: activeRelease.coverUrl || prev.coverArtUrl,
+          vanitySlug: activeRelease.presaveSlug || activeRelease.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        };
+      });
+    }
+  }, [activeRelease]);
+
+  const handleSaveToRelease = async () => {
+    if (!activeRelease) {
+      onNotify("No active master release found in workspace", "error");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await updateRelease(activeRelease.id, {
+        presaveSlug: pageData.vanitySlug,
+        presaveData: pageData,
+      });
+      onNotify(`Linked Pre-Save page to master release "${activeRelease.title}"!`, "success");
+      try {
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+      } catch (e) {}
+    } catch (err: any) {
+      onNotify(err.message || "Failed to save pre-save page to release", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Fan Leads CRM state
   const [fanLeads, setFanLeads] = useState<FanLead[]>([
@@ -155,12 +208,21 @@ export const PresaveHub: React.FC<PresaveHubProps> = ({ onNotify }) => {
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleSaveToRelease}
+            disabled={isSaving}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-theme-accent text-white text-xs font-bold shadow hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer transition-all"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span>{isSaving ? "Saving..." : "Save to Master Release"}</span>
+          </button>
+
           <button
             onClick={handleCopyLink}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-theme-accent text-white text-xs font-bold shadow hover:brightness-110 cursor-pointer transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[var(--bento-elevated)] border border-[var(--bento-border)] text-[var(--bento-text)] text-xs font-bold shadow hover:border-theme-accent cursor-pointer transition-all"
           >
-            {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
             <span>{copiedLink ? "Link Copied!" : "Share SmartLink"}</span>
           </button>
         </div>

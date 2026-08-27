@@ -32,8 +32,8 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
       tag: "MUSIC ARTIST OS",
       title: "The Rollout Engine for Modern Musicians",
       description: "You recorded the song. We engineer the 30-day promotional rollout, viral TikTok hooks, 3000x3000px artwork, DSP pitch letters, and press kits to dominate the algorithm.",
-      ctaTab: "artist-brain" as ActiveTab,
-      ctaText: "Launch Artist Brain OS",
+      ctaTab: "artist-os" as ActiveTab,
+      ctaText: "Launch Artist OS",
       metrics: [
         { label: "DSP Pitch Rate", val: "94%" },
         { label: "Avg First 48h Streams", val: "50K+" },

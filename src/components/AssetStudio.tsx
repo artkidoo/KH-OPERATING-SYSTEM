@@ -113,7 +113,7 @@ export const BRAND_TEMPLATES: BrandTemplate[] = [
   }
 ];
 
-export type SocialPlatform = "all" | "instagram-feed" | "tiktok-story" | "twitter-card" | "tiktok-sound";
+export type SocialPlatform = "all" | "side-by-side" | "instagram-feed" | "tiktok-story" | "twitter-card" | "tiktok-sound";
 
 export interface AssetStudioProps {
   trackTitle: string;
@@ -537,7 +537,10 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
 
     const link = document.createElement("a");
     link.href = dataUrl;
-    link.download = `${artistName.replace(/\s+/g, "_")}_${trackTitle.replace(/\s+/g, "_")}_${label.replace(/\s+/g, "_")}_Promo.png`;
+    const cleanArtist = (artistName || "Artist").replace(/\s+/g, "_");
+    const cleanTitle = (trackTitle || "Track").replace(/\s+/g, "_");
+    const cleanLabel = (label || "Asset").replace(/\s+/g, "_");
+    link.download = `${cleanArtist}_${cleanTitle}_${cleanLabel}_Promo.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -559,13 +562,16 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
       { format: "twitter", label: "Twitter_Card_16x9" },
     ];
 
+    const cleanArtist = (artistName || "Artist").replace(/\s+/g, "_");
+    const cleanTitle = (trackTitle || "Track").replace(/\s+/g, "_");
+
     for (let i = 0; i < formats.length; i++) {
       const item = formats[i];
       const dataUrl = await generateCanvasImage(item.format);
       if (dataUrl) {
         const link = document.createElement("a");
         link.href = dataUrl;
-        link.download = `${artistName.replace(/\s+/g, "_")}_${trackTitle.replace(/\s+/g, "_")}_${item.label}.png`;
+        link.download = `${cleanArtist}_${cleanTitle}_${item.label}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -582,9 +588,12 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
   };
 
   // Pre-formatted copy hooks
-  const igCaption = `🔥 ${badgeText}! "${trackTitle}" by @${artistName.replace(/\s+/g, "").toLowerCase()} is officially out now worldwide on all streaming platforms! 🎧✨\n\n${customSubtitle}\n\nStream now via the link in my bio. Tag someone who needs this on their playlist! 🚀\n\n#${genre.replace(/[^a-zA-Z0-9]/g, "")} #NewMusicAlert #NowStreaming #${artistName.replace(/[^a-zA-Z0-9]/g, "")} #KeedohubOS`;
-  const tiktokCaption = `"${trackTitle}" drops right now! Use this official sound for your next video ⚡ Drop your honest rating 1-10 in the comments! #NewMusic #${artistName.replace(/[^a-zA-Z0-9]/g, "")} #Afrobeats #TrendingSound`;
-  const twitterPost = `🚀 OFFICIAL RELEASE: "${trackTitle}" by ${artistName} is out now everywhere!\n\n🎧 Stream on Spotify, Apple Music & Audiomack:\n👉 [Your Pre-Save / SmartLink Here]\n\nRT & tell me your favorite lyric! #NewMusic #${artistName.replace(/[^a-zA-Z0-9]/g, "")}`;
+  const safeArtistTag = (artistName || "Artist").replace(/\s+/g, "").toLowerCase();
+  const safeGenreTag = (genre || "Music").replace(/[^a-zA-Z0-9]/g, "");
+  const safeArtistHash = (artistName || "Artist").replace(/[^a-zA-Z0-9]/g, "");
+  const igCaption = `🔥 ${badgeText}! "${trackTitle || 'New Track'}" by @${safeArtistTag} is officially out now worldwide on all streaming platforms! 🎧✨\n\n${customSubtitle}\n\nStream now via the link in my bio. Tag someone who needs this on their playlist! 🚀\n\n#${safeGenreTag} #NewMusicAlert #NowStreaming #${safeArtistHash} #KeedohubOS`;
+  const tiktokCaption = `"${trackTitle || 'New Track'}" drops right now! Use this official sound for your next video ⚡ Drop your honest rating 1-10 in the comments! #NewMusic #${safeArtistHash} #Afrobeats #TrendingSound`;
+  const twitterPost = `🚀 OFFICIAL RELEASE: "${trackTitle || 'New Track'}" by ${artistName || 'Artist'} is out now everywhere!\n\n🎧 Stream on Spotify, Apple Music & Audiomack:\n👉 [Your Pre-Save / SmartLink Here]\n\nRT & tell me your favorite lyric! #NewMusic #${safeArtistHash}`;
 
   return (
     <div className="space-y-6 text-left">
@@ -927,6 +936,19 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
           <div className="bento-card p-1.5 sm:p-2">
             <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth">
               <button
+                onClick={() => setActivePlatform("side-by-side")}
+                className={`py-2.5 px-3.5 sm:px-4 rounded-xl text-xs font-mono font-semibold flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer min-h-[44px] min-w-[44px] ${
+                  activePlatform === "side-by-side"
+                    ? "bg-[#F97316] text-black font-bold shadow-md shadow-[#F97316]/20"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                <Sliders className="w-4 h-4" />
+                <span>Side-by-Side Comparison (1:1 / 9:16 / 16:9)</span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/30 font-mono font-bold">PRO</span>
+              </button>
+
+              <button
                 onClick={() => setActivePlatform("all")}
                 className={`py-2.5 px-3.5 sm:px-4 rounded-xl text-xs font-mono font-semibold flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer min-h-[44px] min-w-[44px] ${
                   activePlatform === "all"
@@ -935,7 +957,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
                 }`}
               >
                 <Layers className="w-4 h-4" />
-                <span>All Platforms (Grid View)</span>
+                <span>All Platforms (Stack View)</span>
               </button>
 
               <button
@@ -978,6 +1000,224 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
 
           {/* Social Cards Visual Matrix */}
           <div className="space-y-6">
+
+            {/* 0. SIDE-BY-SIDE ASPECT RATIO COMPARISON SUITE (1:1, 9:16, 16:9) */}
+            {activePlatform === "side-by-side" && (
+              <div className="bento-card p-4 sm:p-6 space-y-5 border border-[var(--bento-border)]">
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--bento-border)]">
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-mono font-bold uppercase text-[var(--bento-text)] flex items-center gap-2">
+                      <Sliders className="w-4 h-4 text-[#F97316]" />
+                      <span>Side-by-Side Multi-Aspect Preview Matrix</span>
+                      <span className="px-2 py-0.5 text-[9px] font-mono rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                        SYNCHRONIZED
+                      </span>
+                    </h4>
+                    <p className="text-[11px] text-[var(--bento-muted)] mt-0.5">
+                      Real-time cross-platform rendering comparing Instagram 1:1, TikTok/Reels 9:16, and Twitter/X 16:9 aspect ratios side-by-side.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={downloadAllAssetsPack}
+                    disabled={isExportingAll}
+                    className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#F97316] hover:bg-[#EA580C] text-black font-bold text-xs font-mono flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#F97316]/20 transition-all"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download All 3 Formats</span>
+                  </button>
+                </div>
+
+                {/* 3-Column Side-by-Side Matrix */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                  
+                  {/* Aspect 1: Instagram Square (1:1) */}
+                  <div className="flex flex-col justify-between p-3.5 rounded-2xl bg-black/50 border border-[var(--bento-border)] space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-[var(--bento-border)]">
+                      <span className="text-[10px] font-mono font-bold text-[#F97316] uppercase">
+                        📸 Instagram 1:1 (Square)
+                      </span>
+                      <button
+                        onClick={() => downloadSingleCard("instagram", "Instagram_Feed_1x1")}
+                        className="p-1.5 rounded-lg bg-[var(--bento-card)] hover:bg-[var(--bento-elevated)] text-[var(--bento-text)] text-[10px] font-mono flex items-center gap-1 border border-[var(--bento-border)] cursor-pointer"
+                        title="Download 1:1 PNG"
+                      >
+                        <Download className="w-3 h-3 text-[#F97316]" />
+                        <span>PNG</span>
+                      </button>
+                    </div>
+
+                    <div className="flex-1 flex items-center justify-center py-2">
+                      <div 
+                        className="w-full max-w-[220px] aspect-square rounded-xl p-3 flex flex-col justify-between items-center text-center shadow-lg relative overflow-hidden transition-all"
+                        style={{ 
+                          backgroundColor: currentTemplate.canvasBg,
+                          border: `1px solid ${currentTemplate.accentColor}30`,
+                          color: currentTemplate.textColor
+                        }}
+                      >
+                        <div 
+                          className="absolute inset-0 pointer-events-none opacity-50"
+                          style={{ background: currentTemplate.glowGradient }}
+                        />
+                        <div 
+                          className="relative z-10 px-2 py-0.5 rounded-full text-[8px] font-mono font-bold uppercase tracking-wider truncate max-w-full"
+                          style={{ backgroundColor: currentTemplate.badgeBg, color: currentTemplate.badgeText }}
+                        >
+                          {badgeText}
+                        </div>
+                        <div 
+                          className="relative z-10 w-24 h-24 rounded-lg overflow-hidden my-1 shrink-0 shadow-md"
+                          style={{ border: `1.5px solid ${currentTemplate.accentColor}50` }}
+                        >
+                          <img src={effectiveArt} alt="Artwork" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="relative z-10 space-y-0.5 w-full">
+                          <h5 className="font-['Space_Grotesk'] text-xs font-bold truncate" style={{ color: currentTemplate.textColor }}>
+                            {trackTitle}
+                          </h5>
+                          <p className="text-[10px] truncate" style={{ color: currentTemplate.mutedColor }}>
+                            {artistName}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] font-mono text-center text-[var(--bento-muted)] pt-1 border-t border-[var(--bento-border)]">
+                      1080 × 1080 px • 1:1 Aspect
+                    </div>
+                  </div>
+
+                  {/* Aspect 2: TikTok / Reels / Story (9:16) */}
+                  <div className="flex flex-col justify-between p-3.5 rounded-2xl bg-black/50 border border-[var(--bento-border)] space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-[var(--bento-border)]">
+                      <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase">
+                        🎵 TikTok / Reels (9:16)
+                      </span>
+                      <button
+                        onClick={() => downloadSingleCard("story", "TikTok_Story_9x16")}
+                        className="p-1.5 rounded-lg bg-[var(--bento-card)] hover:bg-[var(--bento-elevated)] text-[var(--bento-text)] text-[10px] font-mono flex items-center gap-1 border border-[var(--bento-border)] cursor-pointer"
+                        title="Download 9:16 PNG"
+                      >
+                        <Download className="w-3 h-3 text-emerald-400" />
+                        <span>PNG</span>
+                      </button>
+                    </div>
+
+                    <div className="flex-1 flex items-center justify-center py-2">
+                      <div 
+                        className="w-36 aspect-[9/16] rounded-xl p-2.5 flex flex-col justify-between items-center text-center shadow-lg relative overflow-hidden transition-all"
+                        style={{ 
+                          backgroundColor: currentTemplate.canvasBg,
+                          border: `1px solid ${currentTemplate.accentColor}40`,
+                          color: currentTemplate.textColor
+                        }}
+                      >
+                        <div 
+                          className="absolute inset-0 bg-cover bg-center blur-lg opacity-25 scale-125"
+                          style={{ backgroundImage: `url(${effectiveArt})` }}
+                        />
+                        <div 
+                          className="absolute inset-0 pointer-events-none"
+                          style={{ background: currentTemplate.glowGradient }}
+                        />
+                        <div 
+                          className="relative z-10 px-1.5 py-0.5 rounded-full text-[7px] font-mono font-bold uppercase truncate max-w-full"
+                          style={{ backgroundColor: currentTemplate.accentColor, color: "#000" }}
+                        >
+                          🔥 {badgeText}
+                        </div>
+                        <div 
+                          className="relative z-10 w-20 h-20 rounded-lg overflow-hidden my-auto shrink-0 shadow-md"
+                          style={{ border: `1.5px solid ${currentTemplate.accentColor}60` }}
+                        >
+                          <img src={effectiveArt} alt="Artwork" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="relative z-10 space-y-1 w-full">
+                          <h5 className="font-['Space_Grotesk'] text-[11px] font-bold truncate" style={{ color: currentTemplate.textColor }}>
+                            {trackTitle}
+                          </h5>
+                          <div 
+                            className="py-1 px-1.5 rounded text-[8px] font-mono font-bold uppercase truncate"
+                            style={{ backgroundColor: currentTemplate.accentColor, color: "#000" }}
+                          >
+                            {ctaText}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] font-mono text-center text-[var(--bento-muted)] pt-1 border-t border-[var(--bento-border)]">
+                      1080 × 1920 px • 9:16 Aspect
+                    </div>
+                  </div>
+
+                  {/* Aspect 3: Twitter / X Landscape (16:9) */}
+                  <div className="flex flex-col justify-between p-3.5 rounded-2xl bg-black/50 border border-[var(--bento-border)] space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-[var(--bento-border)]">
+                      <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase">
+                        🐦 Twitter / X (16:9)
+                      </span>
+                      <button
+                        onClick={() => downloadSingleCard("twitter", "Twitter_Landscape_16x9")}
+                        className="p-1.5 rounded-lg bg-[var(--bento-card)] hover:bg-[var(--bento-elevated)] text-[var(--bento-text)] text-[10px] font-mono flex items-center gap-1 border border-[var(--bento-border)] cursor-pointer"
+                        title="Download 16:9 PNG"
+                      >
+                        <Download className="w-3 h-3 text-indigo-400" />
+                        <span>PNG</span>
+                      </button>
+                    </div>
+
+                    <div className="flex-1 flex items-center justify-center py-2">
+                      <div 
+                        className="w-full max-w-[240px] aspect-[16/9] rounded-xl p-2.5 flex items-center justify-between gap-2 shadow-lg relative overflow-hidden text-left transition-all"
+                        style={{ 
+                          backgroundColor: currentTemplate.canvasBg,
+                          border: `1px solid ${currentTemplate.accentColor}40`,
+                          color: currentTemplate.textColor
+                        }}
+                      >
+                        <div 
+                          className="absolute inset-0 pointer-events-none opacity-40"
+                          style={{ background: currentTemplate.glowGradient }}
+                        />
+                        <div 
+                          className="relative z-10 w-16 h-16 rounded-lg overflow-hidden shrink-0 shadow-md"
+                          style={{ border: `1.5px solid ${currentTemplate.accentColor}50` }}
+                        >
+                          <img src={effectiveArt} alt="Artwork" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="relative z-10 space-y-0.5 flex-1 min-w-0">
+                          <span 
+                            className="text-[7px] font-mono font-bold uppercase tracking-wider block truncate"
+                            style={{ color: currentTemplate.accentColor }}
+                          >
+                            • {badgeText}
+                          </span>
+                          <h5 className="font-['Space_Grotesk'] text-[11px] font-bold leading-tight truncate" style={{ color: currentTemplate.textColor }}>
+                            {trackTitle}
+                          </h5>
+                          <p className="text-[9px] truncate" style={{ color: currentTemplate.mutedColor }}>
+                            {artistName}
+                          </p>
+                          <div 
+                            className="inline-block px-1.5 py-0.5 rounded text-[7px] font-mono font-bold uppercase"
+                            style={{ backgroundColor: currentTemplate.accentColor, color: "#000" }}
+                          >
+                            {ctaText}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] font-mono text-center text-[var(--bento-muted)] pt-1 border-t border-[var(--bento-border)]">
+                      1920 × 1080 px • 16:9 Aspect
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
             
             {/* 1. INSTAGRAM FEED (1:1 SQUARE) */}
             {(activePlatform === "all" || activePlatform === "instagram-feed") && (

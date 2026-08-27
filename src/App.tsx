@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { ActiveTab } from "./types";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
+import { WorkspaceProvider } from "./context/WorkspaceContext";
+import { CreativeBrainProvider } from "./context/CreativeBrainContext";
 import { Header } from "./components/Header";
 import { HeroStudioOS } from "./components/HeroStudioOS";
+import { ArtistOS } from "./components/ArtistOS";
+import { WorkspaceHub } from "./components/WorkspaceHub";
 import { ArtistContentBrain } from "./components/ArtistContentBrain";
 import { CoverStudio } from "./components/CoverStudio";
 import { BrandOS } from "./components/BrandOS";
@@ -16,9 +21,11 @@ import { DSPPitcher } from "./components/DSPPitcher";
 import { MasteringSuite } from "./components/MasteringSuite";
 import { SplitsCalculator } from "./components/SplitsCalculator";
 import { PresaveHub } from "./components/PresaveHub";
+import { CreativeBrainConsole } from "./components/CreativeBrainConsole";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
+import { CreativeBrainSlideOver } from "./components/CreativeBrainSlideOver";
 import { Toast, ToastMessage } from "./components/Toast";
 import { PhoneCall, Search } from "lucide-react";
 
@@ -57,6 +64,9 @@ function MainAppContent() {
         onNotify={addNotification}
       />
 
+      {/* Creative Brain Slide-over Assistant */}
+      <CreativeBrainSlideOver setActiveTab={setActiveTab} />
+
       {/* Toast Notifications */}
       <Toast toasts={toasts} onDismiss={removeToast} />
 
@@ -77,8 +87,23 @@ function MainAppContent() {
           />
         )}
 
+        {activeTab === "artist-os" && (
+          <ArtistOS onNavigateTab={setActiveTab} />
+        )}
+
+        {activeTab === "workspace-hub" && (
+          <WorkspaceHub
+            setActiveTab={setActiveTab}
+            onNotify={addNotification}
+          />
+        )}
+
         {activeTab === "artist-brain" && (
           <ArtistContentBrain onNotify={addNotification} />
+        )}
+
+        {activeTab === "creative-brain" && (
+          <CreativeBrainConsole setActiveTab={setActiveTab} />
         )}
 
         {activeTab === "lyrics-studio" && (
@@ -106,7 +131,7 @@ function MainAppContent() {
         )}
 
         {activeTab === "brand-os" && (
-          <BrandOS onNotify={addNotification} />
+          <BrandOS onNotify={addNotification} onNavigateTab={setActiveTab} />
         )}
 
         {activeTab === "creator-os" && (
@@ -157,7 +182,13 @@ function MainAppContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <MainAppContent />
+      <AuthProvider>
+        <WorkspaceProvider>
+          <CreativeBrainProvider>
+            <MainAppContent />
+          </CreativeBrainProvider>
+        </WorkspaceProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

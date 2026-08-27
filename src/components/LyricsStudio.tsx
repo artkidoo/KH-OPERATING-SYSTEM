@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { LyricProject, LyricLine } from "../types";
 import { PRESET_LYRICS_PROJECTS } from "../data/mockData";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { AudioStudioSkeleton } from "./skeletons/ModuleSkeletons";
 import { 
   Play, 
@@ -25,7 +26,8 @@ import {
   Share2,
   Wand2,
   Smartphone,
-  Maximize2
+  Maximize2,
+  Save
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -34,7 +36,9 @@ interface LyricsStudioProps {
 }
 
 export const LyricsStudio: React.FC<LyricsStudioProps> = ({ onNotify }) => {
+  const { workspace, activeRelease, updateRelease, saveAsset } = useWorkspace();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   // Current active lyric project state
   const [project, setProject] = useState<LyricProject>(PRESET_LYRICS_PROJECTS[0]);
   
@@ -52,6 +56,27 @@ export const LyricsStudio: React.FC<LyricsStudioProps> = ({ onNotify }) => {
     }, 320);
     return () => clearTimeout(timer);
   }, []);
+
+  // Sync with active master release
+  useEffect(() => {
+    if (activeRelease) {
+      setProject((prev) => {
+        if (activeRelease.lyrics && activeRelease.lyrics.lines && activeRelease.lyrics.lines.length > 0) {
+          return {
+            ...prev,
+            ...activeRelease.lyrics,
+            title: activeRelease.title || prev.title,
+            artist: activeRelease.artistName || prev.artist,
+          };
+        }
+        return {
+          ...prev,
+          title: activeRelease.title || prev.title,
+          artist: activeRelease.artistName || prev.artist,
+        };
+      });
+    }
+  }, [activeRelease]);
   
   // Editor state
   const [copiedLRC, setCopiedLRC] = useState(false);
@@ -257,6 +282,41 @@ export const LyricsStudio: React.FC<LyricsStudioProps> = ({ onNotify }) => {
     onNotify("Copied .LRC format for Spotify & Musixmatch!", "success");
   };
 
+  const handleSaveToRelease = async () => {
+    if (!activeRelease) {
+      onNotify("No active master release selected in workspace", "error");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const fullText = project.lines.map((l) => `[${l.timeFormatted}] ${l.text}`).join("\n");
+      await updateRelease(activeRelease.id, {
+        lyrics: {
+          ...project,
+          fullText,
+        },
+      });
+      // Also register asset in Vault
+      await saveAsset({
+        name: `${project.title} — Synced Lyrics (.LRC)`,
+        category: "document",
+        url: `data:text/plain;charset=utf-8,${encodeURIComponent(generateLrcString())}`,
+        size: fullText.length,
+        mimeType: "text/plain",
+        releaseId: activeRelease.id,
+        tags: ["Lyrics", "LRC", "Sync", activeRelease.genre || "Afro-Fusion"],
+      });
+      onNotify(`Saved synced lyrics to "${activeRelease.title}" and Vault!`, "success");
+      try {
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      } catch (e) {}
+    } catch (err: any) {
+      onNotify(err.message || "Failed to save lyrics to release", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Download .lrc file
   const handleDownloadLrcFile = () => {
     const lrcContent = generateLrcString();
@@ -264,7 +324,7 @@ export const LyricsStudio: React.FC<LyricsStudioProps> = ({ onNotify }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${project.artist.replace(/\s+/g, "_")}_${project.title.replace(/\s+/g, "_")}.lrc`;
+    link.download = `${(project.artist || "Artist").replace(/\s+/g, "_")}_${(project.title || "Lyrics").replace(/\s+/g, "_")}.lrc`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -425,6 +485,16 @@ export const LyricsStudio: React.FC<LyricsStudioProps> = ({ onNotify }) => {
 
         {/* Preset Selector & Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Save to Master Release */}
+          <button
+            onClick={handleSaveToRelease}
+            disabled={isSaving}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-theme-accent text-xs font-bold text-white shadow-md cursor-pointer transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span>{isSaving ? "Saving..." : "Save to Master Release"}</span>
+          </button>
+
           {/* Preset Buttons */}
           <div className="flex items-center gap-1 bg-[var(--bento-elevated)] p-1 rounded-2xl border border-[var(--bento-border)]">
             {PRESET_LYRICS_PROJECTS.map((p) => (

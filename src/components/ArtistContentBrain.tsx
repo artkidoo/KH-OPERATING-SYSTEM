@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { RolloutPlan, RolloutPhase, RolloutDayAction } from "../types";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { ArtistBrainSkeleton } from "./skeletons/ModuleSkeletons";
 import { AssetStudio } from "./AssetStudio";
 import { 
@@ -34,7 +35,9 @@ import {
   Palette,
   Volume2,
   Headphones,
-  CheckSquare
+  CheckSquare,
+  Save,
+  HardDrive
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -44,7 +47,9 @@ interface ArtistContentBrainProps {
 }
 
 export const ArtistContentBrain: React.FC<ArtistContentBrainProps> = ({ onNotify, openBriefModal }) => {
+  const { activeWorkspace, saveRelease, saveCampaign, saveContentItem, addActivity } = useWorkspace();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isSavingToWorkspace, setIsSavingToWorkspace] = useState(false);
   
   // Track parameters
   const [trackTitle, setTrackTitle] = useState("Midnight in Victoria Island");
@@ -341,11 +346,74 @@ export const ArtistContentBrain: React.FC<ArtistContentBrainProps> = ({ onNotify
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rolloutPlan, null, 2));
     const downloadAnchor = document.createElement("a");
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `${artistName.replace(/\s+/g, "_")}_${trackTitle.replace(/\s+/g, "_")}_Rollout_Plan.json`);
+    downloadAnchor.setAttribute("download", `${(artistName || "Artist").replace(/\s+/g, "_")}_${(trackTitle || "Track").replace(/\s+/g, "_")}_Rollout_Plan.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
     onNotify("Exported Rollout JSON blueprint!", "success");
+  };
+
+  const handleCommitCampaign = async () => {
+    setIsSavingToWorkspace(true);
+    try {
+      // 1. Save or update release
+      const release = await saveRelease({
+        title: trackTitle,
+        artistName: artistName,
+        releaseType: releaseType as any,
+        genre: genre,
+        status: readinessPercent >= 75 ? "ready-to-distribute" : "in-progress",
+        releaseDate: releaseDate,
+        coverArtUrl: coverArtUrl,
+        upc: `859${Math.floor(100000000 + Math.random() * 900000000)}`,
+        isrc: `US-KDH-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
+        platforms: ["Spotify", "Apple Music", "Audiomack", "YouTube Music", "TikTok"],
+        dspPitchStatus: rolloutPlan.dspPitch ? "ready" : "drafted",
+        notes: `Key Theme: ${keyTheme}. Target: ${targetAudience}. Tagline: ${rolloutPlan.tagline}`
+      });
+
+      // 2. Save campaign
+      const campaign = await saveCampaign({
+        releaseId: release.id,
+        title: `${trackTitle} — 30-Day Master Rollout`,
+        tagline: rolloutPlan.tagline,
+        targetAudience: targetAudience,
+        status: "active",
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: releaseDate,
+        budget: "$2,500.00",
+        channels: ["TikTok", "Instagram Reels", "Spotify Editorial", "YouTube Shorts", "WhatsApp Superfans"]
+      });
+
+      // 3. Batch save first key content deliverables
+      if (rolloutPlan.phases && rolloutPlan.phases.length > 0) {
+        for (const phase of rolloutPlan.phases) {
+          for (const item of phase.items.slice(0, 3)) {
+            await saveContentItem({
+              campaignId: campaign.id,
+              title: `${item.format}: ${item.action.slice(0, 40)}...`,
+              format: item.format.toLowerCase().includes("video") ? "short-video" : "social-post",
+              platform: item.platform || "Instagram Reels",
+              scheduledDate: releaseDate,
+              status: "draft",
+              hook: item.action,
+              caption: item.hookIdea || item.audioDirective || "",
+              audioStem: "Official Master Audio",
+              callToAction: "Pre-Save Now via Keedohub Smart Link"
+            });
+          }
+        }
+      }
+
+      onNotify(`Rollout for "${trackTitle}" committed to ${activeWorkspace?.name || 'Workspace'} Engine!`, "success");
+      try {
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+      } catch (e) {}
+    } catch (err: any) {
+      onNotify(err.message || "Failed to commit campaign to workspace", "error" as any);
+    } finally {
+      setIsSavingToWorkspace(false);
+    }
   };
 
   const applyPreset = (pTrack: string, pGenre: string, pTheme: string) => {
@@ -382,6 +450,20 @@ export const ArtistContentBrain: React.FC<ArtistContentBrainProps> = ({ onNotify
                   {readinessPercent}%
                 </span>
               </div>
+
+              <button
+                onClick={handleCommitCampaign}
+                disabled={isSavingToWorkspace}
+                className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-[var(--bento-card)] hover:bg-[var(--bento-elevated)] border border-emerald-500/30 text-xs font-mono text-emerald-400 font-bold cursor-pointer transition-all hover:scale-102 min-h-[44px] min-w-[44px] disabled:opacity-50"
+                title="Commit this 30-Day Rollout, DSP pitch, and release blueprint into Workspace Database"
+              >
+                {isSavingToWorkspace ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                <span className="hidden md:inline">{isSavingToWorkspace ? "Committing..." : "Commit to Workspace"}</span>
+              </button>
 
               <button
                 onClick={exportRolloutJSON}

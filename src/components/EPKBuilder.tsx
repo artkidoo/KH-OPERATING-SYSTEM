@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { INITIAL_EPK_DATA } from "../data/mockData";
 import { EPKData } from "../types";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { EPKBuilderSkeleton } from "./skeletons/ModuleSkeletons";
 import { EPKExportModal } from "./EPKExportModal";
 import { downloadEPKPdf } from "../utils/epkPdfGenerator";
@@ -23,7 +24,8 @@ import {
   Trash2,
   Sliders,
   FileCheck,
-  Printer
+  Printer,
+  Save
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -32,7 +34,9 @@ interface EPKBuilderProps {
 }
 
 export const EPKBuilder: React.FC<EPKBuilderProps> = ({ onNotify }) => {
+  const { workspace, activeRelease, updateRelease, saveAsset } = useWorkspace();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [epk, setEpk] = useState<EPKData>(INITIAL_EPK_DATA);
   const [activePlayingIndex, setActivePlayingIndex] = useState<number | null>(null);
   const [isLoadingBio, setIsLoadingBio] = useState(false);
@@ -53,6 +57,59 @@ export const EPKBuilder: React.FC<EPKBuilderProps> = ({ onNotify }) => {
     }, 320);
     return () => clearTimeout(timer);
   }, []);
+
+  // Sync with active master release
+  useEffect(() => {
+    if (activeRelease) {
+      setEpk((prev) => {
+        if (activeRelease.epkData) {
+          return {
+            ...prev,
+            ...activeRelease.epkData,
+            artistName: activeRelease.artistName || prev.artistName,
+            genre: activeRelease.genre || prev.genre,
+          };
+        }
+        return {
+          ...prev,
+          artistName: activeRelease.artistName || prev.artistName,
+          genre: activeRelease.genre || prev.genre,
+          heroImage: activeRelease.coverUrl || prev.heroImage,
+        };
+      });
+    }
+  }, [activeRelease]);
+
+  const handleSaveToRelease = async () => {
+    if (!activeRelease) {
+      onNotify("No active master release selected in workspace", "info");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await updateRelease(activeRelease.id, {
+        epkData: epk,
+      });
+      // Save EPK asset in Vault
+      await saveAsset({
+        name: `${epk.artistName} — Official Press EPK Dossier`,
+        category: "document",
+        url: epk.heroImage,
+        size: 3200000,
+        mimeType: "application/pdf",
+        releaseId: activeRelease.id,
+        tags: ["EPK", "Press", "Bio", epk.genre, epk.artistName],
+      });
+      onNotify(`Saved EPK Dossier to "${activeRelease.title}" and Vault!`, "success");
+      try {
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      } catch (e) {}
+    } catch (err: any) {
+      onNotify(err.message || "Failed to save EPK to release", "info");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleGenerateAIBio = async () => {
     setIsLoadingBio(true);
@@ -171,7 +228,16 @@ export const EPKBuilder: React.FC<EPKBuilderProps> = ({ onNotify }) => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <button
+              onClick={handleSaveToRelease}
+              disabled={isSaving}
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold font-['Space_Grotesk'] text-xs sm:text-sm flex items-center justify-center gap-2 border border-zinc-700 shadow-md cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+            >
+              <Save className="w-4 h-4 stroke-[2.5]" />
+              <span>{isSaving ? "Saving..." : "Save EPK to Release"}</span>
+            </button>
+
             <button
               onClick={() => setIsExportModalOpen(true)}
               className="w-full sm:w-auto px-4 py-2.5 sm:px-5 sm:py-2.5 rounded-xl bg-[#F97316] hover:bg-[#ea580c] text-black font-bold font-['Space_Grotesk'] text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#F97316]/20 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]"

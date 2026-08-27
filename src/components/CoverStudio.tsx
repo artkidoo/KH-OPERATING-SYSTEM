@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { CoverStudioState } from "../types";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { KeedohubLogo } from "./KeedohubLogo";
 import { CoverStudioSkeleton } from "./skeletons/ModuleSkeletons";
 import { 
@@ -16,7 +17,9 @@ import {
   RefreshCw,
   Eye,
   Radio,
-  FileCheck2
+  FileCheck2,
+  Save,
+  HardDrive
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -25,7 +28,9 @@ interface CoverStudioProps {
 }
 
 export const CoverStudio: React.FC<CoverStudioProps> = ({ onNotify }) => {
+  const { workspace, activeRelease, updateRelease, saveAsset, createRelease } = useWorkspace();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isSavingToVault, setIsSavingToVault] = useState(false);
   const [state, setState] = useState<CoverStudioState>({
     title: "MIDNIGHT IN VI",
     artist: "ZACK KHALIFA",
@@ -43,6 +48,18 @@ export const CoverStudio: React.FC<CoverStudioProps> = ({ onNotify }) => {
     textureOverlay: "vinyl-dust",
     previewMode: "canvas",
   });
+
+  // Sync with active master release
+  useEffect(() => {
+    if (activeRelease) {
+      setState((prev) => ({
+        ...prev,
+        title: activeRelease.title ? activeRelease.title.toUpperCase() : prev.title,
+        artist: activeRelease.artistName ? activeRelease.artistName.toUpperCase() : prev.artist,
+        genreTag: activeRelease.genre ? activeRelease.genre.toUpperCase() : prev.genreTag,
+      }));
+    }
+  }, [activeRelease]);
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -132,13 +149,77 @@ COLOR PALETTE TOKENS:
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${state.artist.replace(/\s+/g, "_")}_${state.title.replace(/\s+/g, "_")}_Artwork_Specs.txt`;
+    link.download = `${(state.artist || "Artist").replace(/\s+/g, "_")}_${(state.title || "Track").replace(/\s+/g, "_")}_Artwork_Specs.txt`;
     link.click();
     URL.revokeObjectURL(url);
     onNotify("Exported Artwork Technical Specs Sheet!", "success");
     try {
       confetti({ particleCount: 60, spread: 50, origin: { y: 0.7 } });
     } catch (e) {}
+  };
+
+  const handleSaveToVault = async () => {
+    setIsSavingToVault(true);
+    try {
+      const coverImgUrl = `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80`;
+
+      // 1. Commit artwork asset to active workspace linked to release
+      const asset = await saveAsset({
+        name: `${state.title} — Official Cover Master`,
+        category: "artwork",
+        url: coverImgUrl,
+        size: 4800000,
+        mimeType: "image/png",
+        dimensions: "3000x3000px",
+        releaseId: activeRelease?.id,
+        tags: [state.genreTag, "DSP Ready", state.themePreset, state.artist],
+        metadata: {
+          title: state.title,
+          artist: state.artist,
+          subtitle: state.subtitle,
+          genreTag: state.genreTag,
+          themePreset: state.themePreset,
+          bgGradient: state.bgGradient,
+          textColor: state.textColor,
+          accentColor: state.accentColor,
+          showParentalAdvisory: state.showParentalAdvisory,
+          parentalAdvisoryStyle: state.parentalAdvisoryStyle,
+        }
+      });
+
+      // 2. If active release exists, update it directly; otherwise create new release
+      if (activeRelease) {
+        await updateRelease(activeRelease.id, {
+          coverUrl: coverImgUrl,
+          coverAssetId: asset.id,
+        });
+      } else {
+        await createRelease({
+          title: state.title,
+          artistName: state.artist,
+          releaseType: "Single",
+          genre: state.genreTag,
+          status: "ready-to-distribute",
+          releaseDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          coverUrl: coverImgUrl,
+          coverAssetId: asset.id,
+          upc: `859${Math.floor(100000000 + Math.random() * 900000000)}`,
+          isrc: `US-KDH-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
+          platforms: ["Spotify", "Apple Music", "Audiomack", "YouTube Music", "Boomplay", "Tidal", "Amazon Music"],
+          dspPitchStatus: "drafted",
+          notes: `Production: ${state.subtitle}. Theme preset: ${state.themePreset}. Stored from Cover Studio Workstation.`
+        });
+      }
+
+      onNotify(`Artwork "${state.title}" saved to ${workspace?.name || 'Workspace'} Vault & Release Registry!`, "success");
+      try {
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      } catch (e) {}
+    } catch (err: any) {
+      onNotify(err.message || "Failed to commit asset to vault", "error" as any);
+    } finally {
+      setIsSavingToVault(false);
+    }
   };
 
   if (isInitializing) {
@@ -543,15 +624,31 @@ COLOR PALETTE TOKENS:
           {/* Action Export Button Bento Card */}
           <div className="flex flex-wrap items-center justify-between gap-3 p-4 bento-card">
             <div className="text-xs text-[#A1A1AA]">
-              <span className="font-bold text-white">Production Ready:</span> Meets all Spotify & Apple Music 3000x3000px upload mandates.
+              <span className="font-bold text-white">Production Ready:</span> Meets Spotify & Apple Music 3000x3000px upload mandates.
             </div>
-            <button
-              onClick={handleDownloadSpecs}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#F97316] hover:bg-[#EA580C] text-black font-bold text-xs font-mono uppercase tracking-wider cursor-pointer shadow-lg shadow-[#F97316]/20 transition-transform hover:-translate-y-0.5"
-            >
-              <Download className="w-4 h-4" />
-              <span>Download Master Specifications</span>
-            </button>
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={handleSaveToVault}
+                disabled={isSavingToVault}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[var(--bento-card)] hover:bg-[var(--bento-elevated)] text-emerald-400 border border-emerald-500/30 font-bold text-xs font-mono uppercase tracking-wider cursor-pointer transition-all hover:scale-102 disabled:opacity-50"
+                title="Save master artwork directly into Workspace Assets and Release Blueprints"
+              >
+                {isSavingToVault ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                <span>{isSavingToVault ? "Committing..." : "Save to Workspace Vault"}</span>
+              </button>
+
+              <button
+                onClick={handleDownloadSpecs}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#F97316] hover:bg-[#EA580C] text-black font-bold text-xs font-mono uppercase tracking-wider cursor-pointer shadow-lg shadow-[#F97316]/20 transition-transform hover:-translate-y-0.5"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download Master Specs</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

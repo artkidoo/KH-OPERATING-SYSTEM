@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CollaboratorSplit } from "../types";
 import { PRESET_SPLIT_TEMPLATES, DSP_STREAM_RATES } from "../data/mockData";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { SplitsCalculatorSkeleton } from "./skeletons/ModuleSkeletons";
 import { 
   DollarSign, 
@@ -17,7 +18,8 @@ import {
   TrendingUp,
   Percent,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Save
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -26,7 +28,9 @@ interface SplitsCalculatorProps {
 }
 
 export const SplitsCalculator: React.FC<SplitsCalculatorProps> = ({ onNotify }) => {
+  const { workspace, activeRelease, updateRelease, saveAsset } = useWorkspace();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [trackTitle, setTrackTitle] = useState("Midnight in Victoria Island");
   const [collaborators, setCollaborators] = useState<CollaboratorSplit[]>(
     PRESET_SPLIT_TEMPLATES[0].collaborators
@@ -44,6 +48,16 @@ export const SplitsCalculator: React.FC<SplitsCalculatorProps> = ({ onNotify }) 
     }, 320);
     return () => clearTimeout(timer);
   }, []);
+
+  // Sync with active master release
+  useEffect(() => {
+    if (activeRelease) {
+      setTrackTitle(activeRelease.title || "Untitled Master");
+      if (activeRelease.splits && activeRelease.splits.splitsList && activeRelease.splits.splitsList.length > 0) {
+        setCollaborators(activeRelease.splits.splitsList);
+      }
+    }
+  }, [activeRelease]);
 
   // Sum check
   const totalMaster = collaborators.reduce((sum, c) => sum + (c.masterPercentage || 0), 0);
@@ -139,13 +153,48 @@ export const SplitsCalculator: React.FC<SplitsCalculatorProps> = ({ onNotify }) 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `SPLIT_SHEET_${trackTitle.replace(/\s+/g, "_")}.txt`;
+    link.download = `SPLIT_SHEET_${(trackTitle || "Track").replace(/\s+/g, "_")}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
     onNotify("Downloaded official legal split sheet", "success");
+  };
+
+  const handleSaveToRelease = async () => {
+    if (!activeRelease) {
+      onNotify("No active master release selected in workspace", "error");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await updateRelease(activeRelease.id, {
+        splits: {
+          splitsList: collaborators,
+          isExecuted: isMasterBalanced && isPubBalanced,
+          executedDate: new Date().toISOString(),
+        },
+      });
+      // Also register split sheet document asset in Vault
+      await saveAsset({
+        name: `${trackTitle} — Legal Split Sheet Agreement`,
+        category: "document",
+        url: `data:text/plain;charset=utf-8,${encodeURIComponent(generateAgreementText())}`,
+        size: generateAgreementText().length,
+        mimeType: "text/plain",
+        releaseId: activeRelease.id,
+        tags: ["Splits", "Legal", "Publishing", "Master", activeRelease.genre || "Music"],
+      });
+      onNotify(`Saved split sheet agreement to "${activeRelease.title}" and Vault!`, "success");
+      try {
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      } catch (e) {}
+    } catch (err: any) {
+      onNotify(err.message || "Failed to save splits to release", "error");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Color palette for collaborator pie slices
@@ -176,8 +225,18 @@ export const SplitsCalculator: React.FC<SplitsCalculatorProps> = ({ onNotify }) 
           </p>
         </div>
 
-        {/* Template Buttons */}
+        {/* Actions & Template Buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Save to Master Release */}
+          <button
+            onClick={handleSaveToRelease}
+            disabled={isSaving}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-theme-accent text-xs font-bold text-white shadow-md cursor-pointer transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span>{isSaving ? "Saving..." : "Save to Master Release"}</span>
+          </button>
+
           {PRESET_SPLIT_TEMPLATES.map((t) => (
             <button
               key={t.name}

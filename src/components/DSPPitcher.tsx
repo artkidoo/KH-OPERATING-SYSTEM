@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { DSPPitchData, PlaylistTarget } from "../types";
 import { PRESET_PLAYLIST_TARGETS } from "../data/mockData";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { ArtistBrainSkeleton } from "./skeletons/ModuleSkeletons";
 import { 
   Sparkles, 
@@ -20,7 +21,8 @@ import {
   Users,
   Compass,
   FileCheck,
-  Disc
+  Disc,
+  Save
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -29,7 +31,9 @@ interface DSPPitcherProps {
 }
 
 export const DSPPitcher: React.FC<DSPPitcherProps> = ({ onNotify }) => {
+  const { workspace, activeRelease, updateRelease } = useWorkspace();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [pitchData, setPitchData] = useState<DSPPitchData>({
     trackTitle: "Midnight in Victoria Island",
     artistName: "ZACK KHALIFA",
@@ -62,6 +66,31 @@ export const DSPPitcher: React.FC<DSPPitcherProps> = ({ onNotify }) => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Sync with active master release
+  useEffect(() => {
+    if (activeRelease) {
+      setPitchData((prev) => {
+        if (activeRelease.dspPitch) {
+          return {
+            ...prev,
+            ...activeRelease.dspPitch,
+            trackTitle: activeRelease.title || prev.trackTitle,
+            artistName: activeRelease.artistName || prev.artistName,
+            releaseDate: activeRelease.releaseDate || prev.releaseDate,
+            primaryGenre: activeRelease.genre || prev.primaryGenre,
+          };
+        }
+        return {
+          ...prev,
+          trackTitle: activeRelease.title || prev.trackTitle,
+          artistName: activeRelease.artistName || prev.artistName,
+          releaseDate: activeRelease.releaseDate || prev.releaseDate,
+          primaryGenre: activeRelease.genre || prev.primaryGenre,
+        };
+      });
+    }
+  }, [activeRelease]);
+
   // Calculate dynamic pitch health score
   const calculateScore = () => {
     let score = 50;
@@ -76,6 +105,32 @@ export const DSPPitcher: React.FC<DSPPitcherProps> = ({ onNotify }) => {
   };
 
   const currentScore = calculateScore();
+
+  const handleSaveToRelease = async () => {
+    if (!activeRelease) {
+      onNotify("No active master release found in workspace", "error");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await updateRelease(activeRelease.id, {
+        dspPitch: {
+          ...pitchData,
+          pitchScore: currentScore,
+        },
+        dspPitchStatus: "ready",
+        marketingBudget: pitchData.marketingBudgetUSD,
+      });
+      onNotify(`Saved DSP pitch blueprint to release "${activeRelease.title}"!`, "success");
+      try {
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+      } catch (e) {}
+    } catch (err: any) {
+      onNotify(err.message || "Failed to save pitch to release", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleCopy = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
@@ -138,17 +193,28 @@ export const DSPPitcher: React.FC<DSPPitcherProps> = ({ onNotify }) => {
           </p>
         </div>
 
-        {/* Pitch Score Badge */}
-        <div className="flex items-center gap-3 bg-[var(--bento-elevated)] p-3 rounded-2xl border border-[var(--bento-border)]">
-          <div className="w-12 h-12 rounded-xl bg-theme-accent flex flex-col items-center justify-center text-white shadow-md">
-            <span className="text-lg font-black font-mono leading-none">{currentScore}%</span>
-            <span className="text-[8px] font-mono uppercase tracking-tight">SCORE</span>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-[var(--bento-text)]">Curator Acceptance Rating</p>
-            <p className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" /> Ready for Spotify Editorial
-            </p>
+        {/* Actions & Pitch Score Badge */}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleSaveToRelease}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-theme-accent text-white text-xs font-bold shadow-lg hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all cursor-pointer"
+          >
+            <Save className="w-4 h-4" />
+            <span>{isSaving ? "Saving..." : "Save Pitch to Master Release"}</span>
+          </button>
+
+          <div className="flex items-center gap-3 bg-[var(--bento-elevated)] p-3 rounded-2xl border border-[var(--bento-border)]">
+            <div className="w-12 h-12 rounded-xl bg-theme-accent flex flex-col items-center justify-center text-white shadow-md">
+              <span className="text-lg font-black font-mono leading-none">{currentScore}%</span>
+              <span className="text-[8px] font-mono uppercase tracking-tight">SCORE</span>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-[var(--bento-text)]">Curator Acceptance Rating</p>
+              <p className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> Ready for Spotify Editorial
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { PRESET_AUDIO_STEMS } from "../data/mockData";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { AudioStudioSkeleton } from "./skeletons/ModuleSkeletons";
 import { 
   Activity, 
@@ -17,7 +18,8 @@ import {
   FileAudio,
   Layers,
   Wand2,
-  RefreshCw
+  RefreshCw,
+  Save
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -26,7 +28,9 @@ interface MasteringSuiteProps {
 }
 
 export const MasteringSuite: React.FC<MasteringSuiteProps> = ({ onNotify }) => {
+  const { workspace, activeRelease, updateRelease, saveAsset } = useWorkspace();
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [selectedStem, setSelectedStem] = useState(PRESET_AUDIO_STEMS[0]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [lufs, setLufs] = useState(selectedStem.defaultLufs);
@@ -188,6 +192,44 @@ export const MasteringSuite: React.FC<MasteringSuiteProps> = ({ onNotify }) => {
     }
   };
 
+  const handleSaveToRelease = async () => {
+    if (!activeRelease) {
+      onNotify("No active master release selected in workspace", "error");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await updateRelease(activeRelease.id, {
+        masterAudioDetails: {
+          integratedLufs: lufs,
+          truePeakDbtp: truePeak,
+          dynamicRangeDr: dynamicRange,
+          stereoWidthPct: stereoWidth,
+          validated: true,
+          targetDsp: "Spotify / Apple Music / Audiomack Certified",
+        },
+      });
+      // Save Master WAV asset in Vault
+      await saveAsset({
+        name: `${activeRelease.title || selectedStem.name} — Certified Master WAV (24-bit 44.1kHz)`,
+        category: "audio",
+        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        size: 52400000,
+        mimeType: "audio/wav",
+        releaseId: activeRelease.id,
+        tags: ["Master Audio", "24-bit", "DSP Certified", `${lufs} LUFS`, activeRelease.genre || "Afro-Fusion"],
+      });
+      onNotify(`Certified & saved Master Audio to release "${activeRelease.title}" and Vault!`, "success");
+      try {
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      } catch (e) {}
+    } catch (err: any) {
+      onNotify(err.message || "Failed to certify master audio", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isInitializing) {
     return <AudioStudioSkeleton />;
   }
@@ -213,21 +255,33 @@ export const MasteringSuite: React.FC<MasteringSuiteProps> = ({ onNotify }) => {
           </p>
         </div>
 
-        {/* Stem Switcher */}
-        <div className="flex items-center gap-2 bg-[var(--bento-elevated)] p-1.5 rounded-2xl border border-[var(--bento-border)]">
-          {PRESET_AUDIO_STEMS.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => handleSelectStem(s)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all ${
-                selectedStem.id === s.id
-                  ? "bg-theme-accent text-white font-bold shadow"
-                  : "text-[var(--bento-muted)] hover:text-[var(--bento-text)]"
-              }`}
-            >
-              {s.genre}
-            </button>
-          ))}
+        {/* Actions & Stem Switcher */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Save & Certify Button */}
+          <button
+            onClick={handleSaveToRelease}
+            disabled={isSaving}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-theme-accent text-xs font-bold text-white shadow-md cursor-pointer transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span>{isSaving ? "Saving..." : "Certify & Save to Release"}</span>
+          </button>
+
+          <div className="flex items-center gap-2 bg-[var(--bento-elevated)] p-1.5 rounded-2xl border border-[var(--bento-border)]">
+            {PRESET_AUDIO_STEMS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => handleSelectStem(s)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all ${
+                  selectedStem.id === s.id
+                    ? "bg-theme-accent text-white font-bold shadow"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)]"
+                }`}
+              >
+                {s.genre}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
