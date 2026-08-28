@@ -1,6 +1,7 @@
 export type ActiveTab = 
   | 'overview'
   | 'artist-os'
+  | 'content-engine'
   | 'workspace-hub'
   | 'artist-brain'
   | 'creative-brain'
@@ -95,7 +96,110 @@ export interface CampaignReadinessSummary {
   daysUntilLaunch: number | null;
   formattedDays: string;
 }
-export type ContentStatus = 'idea' | 'drafted' | 'ready' | 'published';
+export type ContentStatus = 
+  | 'idea' 
+  | 'draft' 
+  | 'drafted' 
+  | 'review' 
+  | 'approved' 
+  | 'ready' 
+  | 'scheduled' 
+  | 'published' 
+  | 'archived';
+
+export type ContentPlatform = 
+  | 'instagram' 
+  | 'tiktok' 
+  | 'youtube' 
+  | 'facebook' 
+  | 'twitter' 
+  | 'x' 
+  | 'linkedin' 
+  | 'threads' 
+  | 'spotify' 
+  | 'website' 
+  | 'blog' 
+  | 'other';
+
+export interface ContentPillar {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string;
+  color: string;
+  icon?: string;
+  targetRatio?: number; // e.g. 25 (%)
+  createdAt?: string;
+}
+
+export interface ContentQualityIssue {
+  id: string;
+  contentId: string;
+  type: 'missing_hook' | 'missing_cta' | 'missing_asset' | 'missing_objective' | 'platform_mismatch' | 'missing_relationship';
+  severity: 'warning' | 'suggestion';
+  message: string;
+  fixHint: string;
+}
+
+export interface ContentGapRecommendation {
+  id: string;
+  type: 'release_content' | 'campaign_content' | 'unused_asset' | 'calendar_gap' | 'milestone_coverage' | 'quality_alert';
+  title: string;
+  entityType?: 'release' | 'campaign' | 'asset' | 'milestone' | 'product';
+  entityId?: string;
+  entityTitle?: string;
+  whatIsMissing: string;
+  whyItMatters: string;
+  whatToDoNext: string;
+  priority: 'critical' | 'high' | 'medium';
+  suggestedPlatform?: ContentPlatform;
+  suggestedContentType?: string;
+  suggestedPillar?: string;
+  suggestedDate?: string;
+  suggestedAssetId?: string;
+  suggestedHook?: string;
+  suggestedConcept?: string;
+  suggestedCta?: string;
+}
+
+export interface ContentItem {
+  id: string;
+  workspaceId: string;
+  releaseId?: string;
+  releaseTitle?: string;
+  campaignId?: string;
+  campaignTitle?: string;
+  projectId?: string;
+  productId?: string;
+  productName?: string;
+  contentPillar?: string;
+  title: string;
+  concept: string;
+  hook?: string;
+  captionHook: string; // backwards compatibility
+  copy?: string; // full post copy / body text
+  caption?: string;
+  contentType: string;
+  platform: ContentPlatform;
+  status: ContentStatus;
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  scheduledDate?: string;
+  scheduledTime?: string;
+  cta?: string;
+  notes?: string;
+  soundSnippet?: string;
+  assetId?: string;
+  assetIds?: string[];
+  attachedAssets?: Asset[];
+  aiMetadata?: {
+    generatedByBrain?: boolean;
+    promptUsed?: string;
+    stage?: 'pre-release' | 'launch' | 'post-release' | 'sprint' | 'evergreen';
+    suggestedReason?: string;
+  };
+  createdAt: string;
+  updatedAt?: string;
+}
 
 export interface User {
   id: string;
@@ -398,25 +502,6 @@ export interface Campaign {
 
   createdAt: string;
   updatedAt: string;
-}
-
-export interface ContentItem {
-  id: string;
-  workspaceId: string;
-  releaseId?: string;
-  campaignId?: string;
-  projectId?: string;
-  assetId?: string;
-  title: string;
-  platform: 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'spotify' | 'linkedin';
-  contentType: string;
-  concept: string;
-  captionHook: string;
-  soundSnippet?: string;
-  scheduledDate?: string;
-  status: ContentStatus;
-  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM';
-  createdAt: string;
 }
 
 export interface CreativeMemoryDecision {

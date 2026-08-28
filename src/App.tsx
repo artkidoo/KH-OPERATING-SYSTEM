@@ -7,6 +7,7 @@ import { CreativeBrainProvider } from "./context/CreativeBrainContext";
 import { Header } from "./components/Header";
 import { HeroStudioOS } from "./components/HeroStudioOS";
 import { ArtistOS } from "./components/ArtistOS";
+import { ContentEngine } from "./components/ContentEngine";
 import { WorkspaceHub } from "./components/WorkspaceHub";
 import { ArtistContentBrain } from "./components/ArtistContentBrain";
 import { CoverStudio } from "./components/CoverStudio";
@@ -89,6 +90,10 @@ function MainAppContent() {
 
         {activeTab === "artist-os" && (
           <ArtistOS onNavigateTab={setActiveTab} />
+        )}
+
+        {activeTab === "content-engine" && (
+          <ContentEngine />
         )}
 
         {activeTab === "workspace-hub" && (

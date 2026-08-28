@@ -195,6 +195,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           },
         },
         {
+          id: "content-engine",
+          title: "Content Engine (Production-Grade Operating System)",
+          description: "Strategic Content Command Center, Calendar, Pipeline, Gap Radar, Pillar Strategy & Batch Engine",
+          icon: <Layers className="w-4 h-4 text-red-500" />,
+          action: () => {
+            setActiveTab("content-engine");
+            onClose();
+          },
+        },
+        {
           id: "workspace-hub",
           title: "Workspace Command Center & Vault",
           description: "Intelligent command center, tasks, milestones, cloud assets, and release blueprints",

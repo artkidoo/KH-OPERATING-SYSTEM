@@ -747,6 +747,52 @@ apiRouter.delete("/workspaces/:workspaceId/campaigns/:campaignId", requireAuth, 
   res.json({ message: "Campaign deleted successfully" });
 });
 
+// --- Content Pillars Routes ---
+apiRouter.get("/workspaces/:workspaceId/content-pillars", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const pillars = db.getContentPillars(req.params.workspaceId);
+  res.json({ contentPillars: pillars });
+});
+
+apiRouter.post("/workspaces/:workspaceId/content-pillars", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { name, description, color, icon, targetRatio } = req.body;
+  if (!name) return res.status(400).json({ error: "Pillar name is required" });
+
+  const pillar = db.createContentPillar(req.params.workspaceId, {
+    name,
+    description,
+    color,
+    icon,
+    targetRatio: targetRatio !== undefined ? Number(targetRatio) : 20,
+  });
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "CREATE_PILLAR",
+    "content_pillar",
+    pillar.id,
+    `Added content pillar: "${name}"`
+  );
+
+  res.status(201).json({ contentPillar: pillar });
+});
+
+apiRouter.put("/workspaces/:workspaceId/content-pillars/:pillarId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const updated = db.updateContentPillar(req.params.pillarId, req.params.workspaceId, req.body);
+    res.json({ contentPillar: updated });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message || "Failed to update content pillar" });
+  }
+});
+
+apiRouter.delete("/workspaces/:workspaceId/content-pillars/:pillarId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const success = db.deleteContentPillar(req.params.pillarId, req.params.workspaceId);
+  if (!success) return res.status(404).json({ error: "Content pillar not found" });
+  res.json({ message: "Content pillar deleted successfully" });
+});
+
 // --- Content Items Routes ---
 apiRouter.get("/workspaces/:workspaceId/content-items", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
   const contentItems = db.getContentItems(req.params.workspaceId);
@@ -754,7 +800,13 @@ apiRouter.get("/workspaces/:workspaceId/content-items", requireAuth, requireWork
 });
 
 apiRouter.post("/workspaces/:workspaceId/content-items", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
-  const { title, platform, contentType, concept, captionHook, soundSnippet, scheduledDate, status, priority, releaseId, campaignId } = req.body;
+  const { 
+    title, platform, contentType, concept, hook, captionHook, copy, caption,
+    soundSnippet, scheduledDate, scheduledTime, cta, notes, status, priority, 
+    releaseId, releaseTitle, campaignId, campaignTitle, projectId, productId, productName,
+    contentPillar, assetId, assetIds, aiMetadata 
+  } = req.body;
+
   if (!title || !platform) {
     return res.status(400).json({ error: "Title and platform are required" });
   }
@@ -764,16 +816,80 @@ apiRouter.post("/workspaces/:workspaceId/content-items", requireAuth, requireWor
     platform,
     contentType: contentType || "Post",
     concept: concept || "",
-    captionHook: captionHook || "",
+    hook: hook || captionHook || "",
+    captionHook: captionHook || hook || "",
+    copy: copy || caption || "",
+    caption: caption || copy || "",
     soundSnippet,
     scheduledDate: scheduledDate || new Date().toISOString().split("T")[0],
+    scheduledTime: scheduledTime || "12:00",
+    cta,
+    notes,
     status: status || "idea",
     priority: priority || "MEDIUM",
     releaseId,
+    releaseTitle,
     campaignId,
+    campaignTitle,
+    projectId,
+    productId,
+    productName,
+    contentPillar,
+    assetId,
+    assetIds,
+    aiMetadata,
   });
 
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "CREATE_CONTENT",
+    "content_item",
+    item.id,
+    `Created ${platform} content: "${title}" (${status || 'idea'})`
+  );
+
   res.status(201).json({ contentItem: item });
+});
+
+apiRouter.post("/workspaces/:workspaceId/content-items/batch", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { items } = req.body;
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: "Items array is required" });
+  }
+
+  const createdItems = db.createContentItemsBatch(req.params.workspaceId, items);
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "BATCH_CREATE_CONTENT",
+    "content_item",
+    createdItems[0]?.id || "",
+    `Batch created ${createdItems.length} content items`
+  );
+
+  res.status(201).json({ contentItems: createdItems });
+});
+
+apiRouter.post("/workspaces/:workspaceId/content-items/:itemId/duplicate", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const duplicated = db.duplicateContentItem(req.params.itemId, req.params.workspaceId);
+    db.logActivity(
+      req.params.workspaceId,
+      req.user!.id,
+      req.user!.email,
+      "DUPLICATE_CONTENT",
+      "content_item",
+      duplicated.id,
+      `Duplicated content item: "${duplicated.title}"`
+    );
+    res.status(201).json({ contentItem: duplicated });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message || "Failed to duplicate content item" });
+  }
 });
 
 apiRouter.put("/workspaces/:workspaceId/content-items/:itemId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
@@ -789,6 +905,412 @@ apiRouter.delete("/workspaces/:workspaceId/content-items/:itemId", requireAuth, 
   const success = db.deleteContentItem(req.params.itemId, req.params.workspaceId);
   if (!success) return res.status(404).json({ error: "Content item not found" });
   res.json({ message: "Content item deleted successfully" });
+});
+
+// --- Content Gap Radar & Intelligence Route ---
+apiRouter.get("/workspaces/:workspaceId/content-gaps", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const workspaceId = req.params.workspaceId;
+  const releases = db.getReleases(workspaceId);
+  const campaigns = db.getCampaigns(workspaceId);
+  const assets = db.getAssets(workspaceId);
+  const contentItems = db.getContentItems(workspaceId);
+  const pillars = db.getContentPillars(workspaceId);
+  const brandCore = db.getBrandCore(workspaceId);
+
+  const gaps: any[] = [];
+  const qualityIssues: any[] = [];
+
+  // 1. Release Gaps Check
+  releases.forEach((rel) => {
+    const relItems = contentItems.filter((c) => c.releaseId === rel.id);
+    const relDate = rel.releaseDate ? new Date(rel.releaseDate) : null;
+    const now = new Date();
+
+    // Check Pre-Release
+    const hasPreRelease = relItems.some((c) => {
+      if (!c.scheduledDate || !relDate) return false;
+      return new Date(c.scheduledDate) < relDate;
+    });
+    if (!hasPreRelease && relDate && relDate > now) {
+      gaps.push({
+        id: `gap_pre_${rel.id}`,
+        type: 'release_content',
+        title: `No Pre-Release Teaser for "${rel.title}"`,
+        entityType: 'release',
+        entityId: rel.id,
+        entityTitle: rel.title,
+        whatIsMissing: `Zero teaser, studio memo, or artwork reveal content scheduled before ${rel.releaseDate}.`,
+        whyItMatters: `Pre-save and DSP editorial momentum require early creator sound waves and community anticipation at least 7-14 days prior to drop.`,
+        whatToDoNext: `Schedule 2 teaser posts (Behind-The-Scenes studio clip and Cover Artwork reveal) to build momentum.`,
+        priority: 'critical',
+        suggestedPlatform: 'tiktok',
+        suggestedContentType: 'Reel / Short Video',
+        suggestedPillar: 'Behind The Scenes',
+        suggestedDate: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
+        suggestedHook: `When the melody hits before you even write the words...`,
+        suggestedConcept: `Studio mixing desk reaction as bassline drops with unreleased sound snippet.`,
+        suggestedCta: `Pre-save link in bio`,
+      });
+    }
+
+    // Check Launch Day
+    const hasLaunchDay = relItems.some((c) => {
+      if (!c.scheduledDate || !relDate) return false;
+      return c.scheduledDate === rel.releaseDate;
+    });
+    if (!hasLaunchDay && relDate) {
+      gaps.push({
+        id: `gap_launch_${rel.id}`,
+        type: 'release_content',
+        title: `Missing Launch-Day Velocity Blast for "${rel.title}"`,
+        entityType: 'release',
+        entityId: rel.id,
+        entityTitle: rel.title,
+        whatIsMissing: `No official launch post scheduled on release date (${rel.releaseDate}).`,
+        whyItMatters: `Streaming algorithms heavily weight Day-1 first-listen velocity and playlist saves within the first 24 hours of dropping.`,
+        whatToDoNext: `Schedule an "Out Now Worldwide" multi-platform announcement with direct streaming links.`,
+        priority: 'critical',
+        suggestedPlatform: 'instagram',
+        suggestedContentType: 'Out Now Announcement',
+        suggestedPillar: 'Music & Drops',
+        suggestedDate: rel.releaseDate,
+        suggestedHook: `OUT NOW EVERYWHERE 🌍 Stream '${rel.title}' on all DSPs!`,
+        suggestedConcept: `High-impact visual blast with kinetic typography snippet and direct streaming links.`,
+        suggestedCta: `Stream now on Spotify, Apple Music & Audiomack`,
+      });
+    }
+
+    // Check Post-Release
+    const hasPostRelease = relItems.some((c) => {
+      if (!c.scheduledDate || !relDate) return false;
+      return new Date(c.scheduledDate) > relDate;
+    });
+    if (!hasPostRelease) {
+      gaps.push({
+        id: `gap_post_${rel.id}`,
+        type: 'release_content',
+        title: `Post-Release Momentum Coverage for "${rel.title}"`,
+        entityType: 'release',
+        entityId: rel.id,
+        entityTitle: rel.title,
+        whatIsMissing: `No follow-up content scheduled after drop week (acoustic take, fan reaction, producer breakdown).`,
+        whyItMatters: `70% of long-tail streaming traction happens between Day 7 and Day 30 through lifestyle clips and creator audio adoption.`,
+        whatToDoNext: `Plan a lyric breakdown or POV lifestyle clip for week 2.`,
+        priority: 'high',
+        suggestedPlatform: 'tiktok',
+        suggestedContentType: 'POV Lifestyle / Audio Hook',
+        suggestedPillar: 'Lifestyle & Culture',
+        suggestedDate: relDate ? new Date(relDate.getTime() + 5 * 86400000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        suggestedHook: `This track was made for late night city drives.`,
+        suggestedConcept: `Cinematic night drive clip showcasing the vibe of '${rel.title}'.`,
+        suggestedCta: `Use this sound in your videos`,
+      });
+    }
+  });
+
+  // 2. Unused Vault Assets Check
+  const attachedAssetIds = new Set<string>();
+  contentItems.forEach((c) => {
+    if (c.assetId) attachedAssetIds.add(c.assetId);
+    if (Array.isArray(c.assetIds)) c.assetIds.forEach((id) => attachedAssetIds.add(id));
+  });
+
+  const unusedHighValueAssets = assets.filter((a) => !attachedAssetIds.has(a.id) && (a.category === 'cover' || a.category === 'audio' || a.category === 'epk'));
+  if (unusedHighValueAssets.length > 0) {
+    const topUnused = unusedHighValueAssets[0];
+    gaps.push({
+      id: `gap_asset_${topUnused.id}`,
+      type: 'unused_asset',
+      title: `Unactivated Vault Asset: "${topUnused.name}"`,
+      entityType: 'asset',
+      entityId: topUnused.id,
+      entityTitle: topUnused.name,
+      whatIsMissing: `High-fidelity ${topUnused.category} asset in Resource Vault has 0 connected content pieces.`,
+      whyItMatters: `Every polished master asset created should be leveraged across visual reveals, teasers, or editorial pitches.`,
+      whatToDoNext: `Instantiate a carousel or video spotlight utilizing this asset.`,
+      priority: 'medium',
+      suggestedAssetId: topUnused.id,
+      suggestedPlatform: topUnused.category === 'cover' ? 'instagram' : 'tiktok',
+      suggestedContentType: topUnused.category === 'cover' ? 'Artwork Spotlight' : 'Audio Snippet',
+      suggestedPillar: 'Identity & Vibe',
+      suggestedDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      suggestedHook: `The visual aesthetic behind the sound.`,
+      suggestedConcept: `High-resolution visual breakdown of ${topUnused.name}.`,
+      suggestedCta: `Check out the full release in bio`,
+    });
+  }
+
+  // 3. Campaign Coverage Gaps
+  campaigns.forEach((camp) => {
+    const campItems = contentItems.filter((c) => c.campaignId === camp.id);
+    if (campItems.length < 2) {
+      gaps.push({
+        id: `gap_camp_${camp.id}`,
+        type: 'campaign_content',
+        title: `Campaign "${camp.title}" Needs Content Pipeline`,
+        entityType: 'campaign',
+        entityId: camp.id,
+        entityTitle: camp.title,
+        whatIsMissing: `Campaign has only ${campItems.length} content items assigned.`,
+        whyItMatters: `Structured campaigns require continuous touchpoints across target channels to achieve impression & conversion goals.`,
+        whatToDoNext: `Generate a 3-part content sprint for this campaign.`,
+        priority: 'high',
+        suggestedPlatform: 'instagram',
+        suggestedContentType: 'Campaign Spotlight',
+        suggestedDate: camp.startDate || new Date().toISOString().split('T')[0],
+        suggestedHook: `${camp.title}: Engineered for high impact.`,
+        suggestedConcept: `Spotlight on the core value proposition and offering behind this campaign.`,
+        suggestedCta: `Learn more via link in bio`,
+      });
+    }
+  });
+
+  // 4. Quality Audits
+  contentItems.forEach((c) => {
+    if (!c.hook && !c.captionHook) {
+      qualityIssues.push({
+        id: `qual_hook_${c.id}`,
+        contentId: c.id,
+        type: 'missing_hook',
+        severity: 'warning',
+        message: `Content "${c.title}" is missing a strong opening hook`,
+        fixHint: `Add a 1-sentence hook to capture attention in the first 3 seconds.`,
+      });
+    }
+    if (!c.cta) {
+      qualityIssues.push({
+        id: `qual_cta_${c.id}`,
+        contentId: c.id,
+        type: 'missing_cta',
+        severity: 'suggestion',
+        message: `"${c.title}" does not specify a clear Call-to-Action (CTA)`,
+        fixHint: `Provide a direct action (e.g., 'Pre-save in bio', 'Stream on Spotify', 'Claim pre-order').`,
+      });
+    }
+    if (!c.releaseId && !c.campaignId && !c.productId) {
+      qualityIssues.push({
+        id: `qual_rel_${c.id}`,
+        contentId: c.id,
+        type: 'missing_relationship',
+        severity: 'suggestion',
+        message: `"${c.title}" is unlinked (not connected to a Release, Campaign, or Product)`,
+        fixHint: `Link this item to a release or campaign to maximize ecosystem compounding.`,
+      });
+    }
+  });
+
+  const scheduledCount = contentItems.filter((c) => c.status === 'scheduled').length;
+  const publishedCount = contentItems.filter((c) => c.status === 'published').length;
+
+  res.json({
+    gaps,
+    qualityIssues,
+    summary: {
+      totalContent: contentItems.length,
+      scheduledCount,
+      publishedCount,
+      gapCount: gaps.length,
+      qualityIssueCount: qualityIssues.length,
+    }
+  });
+});
+
+// --- AI Brain Content Opportunity Batch Generator ---
+apiRouter.post("/workspaces/:workspaceId/content-items/generate-opportunity-batch", requireAuth, requireWorkspaceAccess, async (req: AuthenticatedRequest, res: Response) => {
+  const workspaceId = req.params.workspaceId;
+  const { stage, releaseId, campaignId, productId, platform, count = 3, customGoal } = req.body;
+
+  const ws = db.getWorkspaceById(workspaceId);
+  const memory = db.getCreativeMemory(workspaceId);
+  const brandCore = db.getBrandCore(workspaceId);
+  const releases = db.getReleases(workspaceId);
+  const campaigns = db.getCampaigns(workspaceId);
+  const products = db.getProducts(workspaceId);
+  const assets = db.getAssets(workspaceId);
+  const pillars = db.getContentPillars(workspaceId);
+
+  const targetRelease = releaseId ? releases.find((r) => r.id === releaseId) : releases[0];
+  const targetCampaign = campaignId ? campaigns.find((c) => c.id === campaignId) : campaigns[0];
+  const targetProduct = productId ? products.find((p) => p.id === productId) : products[0];
+
+  const brandName = brandCore?.brandName || ws?.name || "Keedohub Creator";
+  const identityType = ws?.identityType || "artist";
+  const releaseTitle = targetRelease?.title || (identityType === "artist" ? "Upcoming Single" : "");
+  const releaseDate = targetRelease?.releaseDate || new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0];
+
+  const suggestions: any[] = [];
+
+  // Deterministic high-craft templates with contextual dynamic synthesis
+  if (stage === 'pre-release' || (!stage && identityType === 'artist')) {
+    suggestions.push({
+      title: `${releaseTitle ? `'${releaseTitle}' ` : ''}Studio Late Night Vocal & Bassline Memo`,
+      platform: platform || 'tiktok',
+      contentType: 'Reel / Short Video',
+      contentPillar: pillars.find((p) => p.name.includes("Behind") || p.name.includes("Process"))?.name || "Behind The Scenes",
+      hook: "When the rhythm hits before you even write the words...",
+      captionHook: "When the rhythm hits before you even write the words... Out soon! Pre-save in bio 🎵",
+      copy: `We spent hours rebuilding the bass groove until 3 AM. When the vocal pocket locked in, we knew this had to be the lead single.\n\n'${releaseTitle || 'New Track'}' drops ${releaseDate}.\n\nPre-save link active now in bio 🔗\n#StudioVibes #${brandName.replace(/\s+/g, '')} #NewMusicDrop`,
+      cta: "Pre-save via link in bio",
+      soundSnippet: "Verse 1 intro pocket (0:00 - 0:15)",
+      releaseId: targetRelease?.id,
+      releaseTitle: targetRelease?.title,
+      campaignId: targetCampaign?.id,
+      campaignTitle: targetCampaign?.title,
+      assetId: targetRelease?.coverAssetId || assets.find((a) => a.category === 'cover')?.id,
+      scheduledDate: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
+      scheduledTime: "18:30",
+      status: "idea",
+      priority: "CRITICAL",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "pre-release",
+        suggestedReason: `Build pre-release sonic anticipation for ${releaseTitle || 'upcoming drop'}.`,
+      }
+    });
+
+    suggestions.push({
+      title: `3D Master Artwork & Packaging Reveal`,
+      platform: platform || 'instagram',
+      contentType: 'Carousel / Visual Reveal',
+      contentPillar: pillars.find((p) => p.name.includes("Identity") || p.name.includes("Vibe"))?.name || "Identity & Vibe",
+      hook: `The official visual identity of '${releaseTitle || 'our new era'}'.`,
+      captionHook: `Official Artwork for '${releaseTitle || 'New Drop'}'. Swipe to explore details.`,
+      copy: `Crafted with uncompromising visual fidelity. Every texture on this 3000x3000px master artwork reflects the energy of this project.\n\nDrop a 💿 if you have your notifications turned on.\n\n#CoverArtwork #VisualDirection #${brandName.replace(/\s+/g, '')}`,
+      cta: "Comment your favorite detail below",
+      releaseId: targetRelease?.id,
+      releaseTitle: targetRelease?.title,
+      assetId: targetRelease?.coverAssetId || assets.find((a) => a.category === 'cover')?.id,
+      scheduledDate: new Date(Date.now() + 6 * 86400000).toISOString().split('T')[0],
+      scheduledTime: "19:00",
+      status: "idea",
+      priority: "HIGH",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "pre-release",
+        suggestedReason: `Activate visual aesthetic milestone and drive Instagram save/share actions.`,
+      }
+    });
+
+    suggestions.push({
+      title: `Fan Chorus Duet & Vocal Stems Challenge`,
+      platform: platform || 'tiktok',
+      contentType: 'Interactive Duet / Sound Hook',
+      contentPillar: pillars.find((p) => p.name.includes("Community") || p.name.includes("Music"))?.name || "Community & Superfans",
+      hook: "Sing or rap the second verse with me 🎙️",
+      captionHook: "Open verse challenge for the unreleased track! Best duet gets featured on drop week.",
+      copy: `Leaving this 16-bar pocket completely open. Show me what you hear on this groove.\n\nTap 'Use Sound' and duet this video!\n\n#OpenVerse #AfrobeatsDuet #DuetThis`,
+      cta: "Tap Use Sound to duet this clip",
+      soundSnippet: "Chorus + 16 Bar Open Pocket",
+      releaseId: targetRelease?.id,
+      releaseTitle: targetRelease?.title,
+      scheduledDate: new Date(Date.now() + 9 * 86400000).toISOString().split('T')[0],
+      scheduledTime: "17:00",
+      status: "idea",
+      priority: "MEDIUM",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "pre-release",
+        suggestedReason: `Drive user-generated sound creation and community engagement before drop day.`,
+      }
+    });
+  } else if (stage === 'launch') {
+    suggestions.push({
+      title: `OUT NOW Everywhere: '${releaseTitle || 'Drop Day'}' Official Streaming Blast`,
+      platform: platform || 'instagram',
+      contentType: 'Launch Announcement Video',
+      contentPillar: pillars.find((p) => p.name.includes("Music") || p.name.includes("Product"))?.name || "Music & Drops",
+      hook: `IT'S MIDNIGHT. '${releaseTitle || 'The Project'}' IS OFFICIALLY OUT NOW 🌍`,
+      captionHook: `'${releaseTitle || 'The Track'}' is out now on Spotify, Apple Music & all platforms!`,
+      copy: `The wait is over. '${releaseTitle || 'Our new work'}' is streaming everywhere worldwide.\n\nThank you to everyone who supported through the making of this project.\n\nListen, add to your favorite playlist, and share with someone who needs this vibe today.\n\n#OutNow #NewRelease #${brandName.replace(/\s+/g, '')}`,
+      cta: "Stream now via link in bio",
+      releaseId: targetRelease?.id,
+      releaseTitle: targetRelease?.title,
+      campaignId: targetCampaign?.id,
+      campaignTitle: targetCampaign?.title,
+      assetId: targetRelease?.coverAssetId || assets[0]?.id,
+      scheduledDate: releaseDate,
+      scheduledTime: "00:01",
+      status: "idea",
+      priority: "CRITICAL",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "launch",
+        suggestedReason: "Mandatory Day-1 streaming algorithmic surge.",
+      }
+    });
+
+    suggestions.push({
+      title: `Official Kinetic Lyrics & Visualizer Premiere on YouTube`,
+      platform: platform || 'youtube',
+      contentType: 'Kinetic Lyric Video (.LRC)',
+      contentPillar: pillars.find((p) => p.name.includes("Music"))?.name || "Music & Drops",
+      hook: `Watch the full official synchronized lyrics visualizer now.`,
+      captionHook: `Full official kinetic lyric visualizer playing now on YouTube!`,
+      copy: `Sing along with every word. Full official lyric video for '${releaseTitle || 'the track'}' is live now on our official channel.\n\nDrop a comment with your favorite line!\n\n#LyricVideo #${brandName.replace(/\s+/g, '')}`,
+      cta: "Watch full visualizer on YouTube",
+      releaseId: targetRelease?.id,
+      releaseTitle: targetRelease?.title,
+      scheduledDate: releaseDate,
+      scheduledTime: "12:00",
+      status: "idea",
+      priority: "HIGH",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "launch",
+        suggestedReason: "Long-form search & lyric indexing on YouTube.",
+      }
+    });
+  } else {
+    // Post-release / Sprint / Evergreen
+    suggestions.push({
+      title: `POV: Late Night Drive Listening Experience`,
+      platform: platform || 'tiktok',
+      contentType: 'POV Lifestyle Clip',
+      contentPillar: pillars.find((p) => p.name.includes("Lifestyle") || p.name.includes("Culture"))?.name || "Lifestyle & Culture",
+      hook: "This track was literally recorded for late night highway drives.",
+      captionHook: "Lagos at 4 AM hits different with this track playing. Save this sound 🏎️",
+      copy: `Driving through the city lights with '${releaseTitle || 'this track'}' playing.\n\nSave this sound to your favorites.\n\n#NightDrive #CityVibes #${brandName.replace(/\s+/g, '')}`,
+      cta: "Save and use this sound in your clips",
+      soundSnippet: "Chorus & Drop (0:45 - 1:15)",
+      releaseId: targetRelease?.id,
+      releaseTitle: targetRelease?.title,
+      scheduledDate: new Date(Date.now() + 12 * 86400000).toISOString().split('T')[0],
+      scheduledTime: "21:00",
+      status: "idea",
+      priority: "MEDIUM",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "post-release",
+        suggestedReason: "Cultivate long-tail lifestyle sound virality.",
+      }
+    });
+
+    if (targetProduct) {
+      suggestions.push({
+        title: `Collector Showcase: ${targetProduct.name}`,
+        platform: platform || 'instagram',
+        contentType: 'Product Reel / Showcase',
+        contentPillar: pillars.find((p) => p.name.includes("Community") || p.name.includes("Product"))?.name || "Community & Superfans",
+        hook: `Crafted for collectors. Inside the ${targetProduct.name}.`,
+        captionHook: `Limited physical editions of ${targetProduct.name} are shipping now.`,
+        copy: `Engineered for pure craftsmanship. Includes master quality materials, custom packaging, and exclusive access.\n\nSecure yours via the link in bio.\n\n#CollectorEdition #${brandName.replace(/\s+/g, '')}`,
+        cta: "Order via link in bio",
+        productId: targetProduct.id,
+        productName: targetProduct.name,
+        scheduledDate: new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0],
+        scheduledTime: "16:00",
+        status: "idea",
+        priority: "HIGH",
+        aiMetadata: {
+          generatedByBrain: true,
+          stage: "post-release",
+          suggestedReason: "Superfan physical merchandise monetization.",
+        }
+      });
+    }
+  }
+
+  res.json({ suggestions: suggestions.slice(0, count) });
 });
 
 // --- Creative Memory Routes ---

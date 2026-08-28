@@ -487,8 +487,8 @@ export const ArtistOS: React.FC<ArtistOSProps> = ({ onNavigateTab }) => {
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">
                       {activeRelease.releaseType}
                     </span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${readiness.stageColor}`}>
-                      {readiness.stage}
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${readiness?.stageColor || 'text-slate-400 bg-slate-800'}`}>
+                      {readiness?.stage || 'Planning'}
                     </span>
                   </div>
 
@@ -503,7 +503,7 @@ export const ArtistOS: React.FC<ArtistOSProps> = ({ onNavigateTab }) => {
                     <Calendar className="w-3.5 h-3.5 text-cyan-400" />
                     <span>{activeRelease.releaseDate}</span>
                     <span className="font-semibold text-cyan-300 bg-cyan-950/50 px-1.5 py-0.5 rounded border border-cyan-800/40">
-                      {readiness.formattedDays}
+                      {readiness?.formattedDays || 'No date'}
                     </span>
                   </div>
                 </div>
@@ -520,10 +520,10 @@ export const ArtistOS: React.FC<ArtistOSProps> = ({ onNavigateTab }) => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-slate-400">
-                      {readiness.completedCount} of {readiness.totalCount} Verified
+                      {readiness?.completedCount ?? 0} of {readiness?.totalCount ?? 7} Verified
                     </span>
                     <span className="text-base font-black text-cyan-400 font-mono">
-                      {readiness.score}%
+                      {readiness?.score ?? 0}%
                     </span>
                   </div>
                 </div>
@@ -532,13 +532,13 @@ export const ArtistOS: React.FC<ArtistOSProps> = ({ onNavigateTab }) => {
                 <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-800">
                   <div
                     className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 transition-all duration-500 ease-out"
-                    style={{ width: `${Math.max(readiness.score, 4)}%` }}
+                    style={{ width: `${Math.max(readiness?.score ?? 0, 4)}%` }}
                   />
                 </div>
 
                 {/* Quick Check Icons */}
                 <div className="grid grid-cols-7 gap-1 pt-1">
-                  {readiness.requirements.map((req) => (
+                  {(readiness?.requirements || []).map((req) => (
                     <button
                       key={req.id}
                       onClick={() => onNavigateTab(req.actionTab)}
@@ -564,7 +564,7 @@ export const ArtistOS: React.FC<ArtistOSProps> = ({ onNavigateTab }) => {
 
               {/* Fast Action Launchers */}
               <div className="lg:col-span-3 flex flex-col justify-center gap-2">
-                {readiness.missingItems.length > 0 ? (
+                {(readiness?.missingItems && readiness.missingItems.length > 0) ? (
                   <div className="space-y-1.5">
                     <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
                       <AlertTriangle className="w-3.5 h-3.5" />
@@ -759,12 +759,12 @@ export const ArtistOS: React.FC<ArtistOSProps> = ({ onNavigateTab }) => {
                     </p>
                   </div>
                   <span className="text-xs font-mono font-bold text-slate-300">
-                    {readiness.completedCount} / {readiness.totalCount} OK
+                    {readiness?.completedCount ?? 0} / {readiness?.totalCount ?? 7} OK
                   </span>
                 </div>
 
                 <div className="space-y-2.5">
-                  {readiness.requirements.map((req) => (
+                  {(readiness?.requirements || []).map((req) => (
                     <div
                       key={req.id}
                       className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border transition-all ${
@@ -1058,11 +1058,16 @@ export const ArtistOS: React.FC<ArtistOSProps> = ({ onNavigateTab }) => {
                     (contentPlatformFilter === 'all' || c.platform === contentPlatformFilter)
                 );
 
-                const statusTitles: Record<ContentStatus, { label: string; color: string }> = {
+                const statusTitles: Record<string, { label: string; color: string }> = {
                   idea: { label: '💡 Ideas & Hooks', color: 'text-amber-400 border-amber-500/30' },
+                  draft: { label: '📝 In Production', color: 'text-blue-400 border-blue-500/30' },
                   drafted: { label: '📝 In Production', color: 'text-blue-400 border-blue-500/30' },
+                  review: { label: '🔍 In Review', color: 'text-indigo-400 border-indigo-500/30' },
+                  approved: { label: '✨ Approved', color: 'text-cyan-400 border-cyan-500/30' },
                   ready: { label: '✅ Ready to Post', color: 'text-emerald-400 border-emerald-500/30' },
+                  scheduled: { label: '📅 Scheduled', color: 'text-amber-400 border-amber-500/30' },
                   published: { label: '🚀 Live / Broadcast', color: 'text-purple-400 border-purple-500/30' },
+                  archived: { label: '📦 Archived', color: 'text-slate-400 border-slate-500/30' },
                 };
 
                 return (

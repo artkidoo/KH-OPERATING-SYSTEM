@@ -6,6 +6,9 @@ import {
   Release,
   Campaign,
   ContentItem,
+  ContentPillar,
+  ContentGapRecommendation,
+  ContentQualityIssue,
   CreativeMemory,
   NotificationItem,
   ActivityLog,
@@ -506,6 +509,7 @@ interface WorkspaceContextType {
   activeRelease: Release | null;
   setActiveReleaseId: (id: string | null) => void;
   calculateReleaseReadiness: (release?: Release | null) => ReleaseReadinessSummary;
+  releaseReadiness: ReleaseReadinessSummary;
   
   // Brand & Business Master Objects
   brandCore: BrandCore | null;
@@ -515,6 +519,7 @@ interface WorkspaceContextType {
   activeCampaign: Campaign | null;
   setActiveCampaignId: (id: string | null) => void;
   calculateCampaignReadiness: (campaign?: Campaign | null) => CampaignReadinessSummary;
+  campaignReadiness: CampaignReadinessSummary;
 
   contentItems: ContentItem[];
   folders: Folder[];
@@ -583,10 +588,20 @@ interface WorkspaceContextType {
   saveActiveCampaign: (updates: Partial<Campaign>) => Promise<Campaign>;
   deleteCampaign: (campaignId: string) => Promise<void>;
   
-  // Content Items
+  // Content Items & Pillars (Phase 6 Content Operating System)
+  contentPillars: ContentPillar[];
+  contentGaps: ContentGapRecommendation[];
+  qualityIssues: ContentQualityIssue[];
+  createContentPillar: (pillar: Partial<ContentPillar> & { name: string }) => Promise<ContentPillar>;
+  updateContentPillar: (pillarId: string, updates: Partial<ContentPillar>) => Promise<ContentPillar>;
+  deleteContentPillar: (pillarId: string) => Promise<void>;
   createContentItem: (item: Partial<ContentItem>) => Promise<ContentItem>;
+  createContentItemBatch: (items: Partial<ContentItem>[]) => Promise<ContentItem[]>;
+  duplicateContentItem: (itemId: string) => Promise<ContentItem>;
   updateContentItem: (itemId: string, updates: Partial<ContentItem>) => Promise<ContentItem>;
   deleteContentItem: (itemId: string) => Promise<void>;
+  fetchContentGaps: () => Promise<{ gaps: ContentGapRecommendation[]; qualityIssues: ContentQualityIssue[] }>;
+  generateOpportunityBatch: (params: { stage?: string; releaseId?: string; campaignId?: string; productId?: string; platform?: string; count?: number; customGoal?: string }) => Promise<Partial<ContentItem>[]>;
   
   // Creative Memory
   updateCreativeMemory: (memory: Partial<CreativeMemory>) => Promise<CreativeMemory>;
@@ -626,6 +641,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   });
 
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
+  const [contentPillars, setContentPillars] = useState<ContentPillar[]>([]);
+  const [contentGaps, setContentGaps] = useState<ContentGapRecommendation[]>([]);
+  const [qualityIssues, setQualityIssues] = useState<ContentQualityIssue[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [tasks, setTasks] = useState<TaskItem[]>([]);
@@ -709,6 +727,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     return computeCampaignReadiness(targetCampaign, brandCore, products, contentItems, assets, tasks);
   }, [activeCampaign, brandCore, products, contentItems, assets, tasks]);
 
+  const releaseReadiness = useMemo(() => {
+    return calculateReleaseReadiness(activeRelease);
+  }, [calculateReleaseReadiness, activeRelease]);
+
+  const campaignReadiness = useMemo(() => {
+    return calculateCampaignReadiness(activeCampaign);
+  }, [calculateCampaignReadiness, activeCampaign]);
+
   const fetchWorkspaceData = useCallback(async () => {
     if (!activeWorkspace) return;
     setIsLoading(true);
@@ -722,6 +748,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         brandCoreRes,
         productsRes,
         contentRes,
+        pillarsRes,
+        gapsRes,
         foldersRes,
         milestonesRes,
         tasksRes,
@@ -738,6 +766,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         api.brandCore.get(activeWorkspace.id).catch(() => ({ brandCore: null })),
         api.products.list(activeWorkspace.id).catch(() => ({ products: [] })),
         api.contentItems.list(activeWorkspace.id).catch(() => ({ contentItems: [] })),
+        api.contentPillars.list(activeWorkspace.id).catch(() => ({ contentPillars: [] })),
+        api.contentItems.getGaps(activeWorkspace.id).catch(() => ({ gaps: [], qualityIssues: [] })),
         api.folders.list(activeWorkspace.id).catch(() => ({ folders: [] })),
         api.milestones.list(activeWorkspace.id).catch(() => ({ milestones: [] })),
         api.tasks.list(activeWorkspace.id).catch(() => ({ tasks: [] })),
@@ -759,6 +789,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       if (brandCoreRes.brandCore) setBrandCore(brandCoreRes.brandCore);
       setProducts(productsRes.products || []);
       setContentItems(contentRes.contentItems || []);
+      setContentPillars(pillarsRes.contentPillars || []);
+      setContentGaps(gapsRes.gaps || []);
+      setQualityIssues(gapsRes.qualityIssues || []);
       setFolders(foldersRes.folders || []);
       setMilestones(milestonesRes.milestones || []);
       setTasks(tasksRes.tasks || []);
@@ -1043,10 +1076,50 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     await fetchWorkspaceData();
   };
 
+  // Content Pillars & Items
+  const createContentPillar = async (pillar: Partial<ContentPillar> & { name: string }) => {
+    if (!activeWorkspace) throw new Error("No active workspace");
+    const res = await api.contentPillars.create(activeWorkspace.id, pillar);
+    setContentPillars((prev) => [...prev, res.contentPillar]);
+    await fetchWorkspaceData();
+    return res.contentPillar;
+  };
+
+  const updateContentPillar = async (pillarId: string, updates: Partial<ContentPillar>) => {
+    if (!activeWorkspace) throw new Error("No active workspace");
+    const res = await api.contentPillars.update(activeWorkspace.id, pillarId, updates);
+    setContentPillars((prev) => prev.map((p) => (p.id === pillarId ? res.contentPillar : p)));
+    await fetchWorkspaceData();
+    return res.contentPillar;
+  };
+
+  const deleteContentPillar = async (pillarId: string) => {
+    if (!activeWorkspace) return;
+    await api.contentPillars.delete(activeWorkspace.id, pillarId);
+    setContentPillars((prev) => prev.filter((p) => p.id !== pillarId));
+    await fetchWorkspaceData();
+  };
+
   // Content Items
   const createContentItem = async (item: Partial<ContentItem>) => {
     if (!activeWorkspace) throw new Error("No active workspace");
     const res = await api.contentItems.create(activeWorkspace.id, item);
+    setContentItems((prev) => [res.contentItem, ...prev]);
+    await fetchWorkspaceData();
+    return res.contentItem;
+  };
+
+  const createContentItemBatch = async (items: Partial<ContentItem>[]) => {
+    if (!activeWorkspace) throw new Error("No active workspace");
+    const res = await api.contentItems.createBatch(activeWorkspace.id, items);
+    setContentItems((prev) => [...(res.contentItems || []), ...prev]);
+    await fetchWorkspaceData();
+    return res.contentItems || [];
+  };
+
+  const duplicateContentItem = async (itemId: string) => {
+    if (!activeWorkspace) throw new Error("No active workspace");
+    const res = await api.contentItems.duplicate(activeWorkspace.id, itemId);
     setContentItems((prev) => [res.contentItem, ...prev]);
     await fetchWorkspaceData();
     return res.contentItem;
@@ -1065,6 +1138,28 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     await api.contentItems.delete(activeWorkspace.id, itemId);
     setContentItems((prev) => prev.filter((c) => c.id !== itemId));
     await fetchWorkspaceData();
+  };
+
+  const fetchContentGaps = async () => {
+    if (!activeWorkspace) return { gaps: [], qualityIssues: [] };
+    const res = await api.contentItems.getGaps(activeWorkspace.id);
+    setContentGaps(res.gaps || []);
+    setQualityIssues(res.qualityIssues || []);
+    return { gaps: res.gaps || [], qualityIssues: res.qualityIssues || [] };
+  };
+
+  const generateOpportunityBatch = async (params: {
+    stage?: string;
+    releaseId?: string;
+    campaignId?: string;
+    productId?: string;
+    platform?: string;
+    count?: number;
+    customGoal?: string;
+  }) => {
+    if (!activeWorkspace) return [];
+    const res = await api.contentItems.generateOpportunityBatch(activeWorkspace.id, params);
+    return res.suggestions || [];
   };
 
   // Creative Memory
@@ -1104,6 +1199,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         activeRelease,
         setActiveReleaseId,
         calculateReleaseReadiness,
+        releaseReadiness,
         brandCore,
         products,
         campaigns,
@@ -1111,7 +1207,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         activeCampaign,
         setActiveCampaignId,
         calculateCampaignReadiness,
+        campaignReadiness,
         contentItems,
+        contentPillars,
+        contentGaps,
+        qualityIssues,
+        createContentPillar,
+        updateContentPillar,
+        deleteContentPillar,
+        createContentItemBatch,
+        duplicateContentItem,
+        fetchContentGaps,
+        generateOpportunityBatch,
         folders,
         milestones,
         tasks,

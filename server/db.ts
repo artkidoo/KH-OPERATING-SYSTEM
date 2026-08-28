@@ -29,7 +29,6 @@ export type ReleaseStatus =
   | 'post-release' 
   | 'scheduled' 
   | 'in-progress';
-export type ContentStatus = 'idea' | 'drafted' | 'ready' | 'published';
 export type TaskPriority = 'urgent' | 'high' | 'medium' | 'low';
 export type TaskStatus = 'todo' | 'in_progress' | 'completed';
 
@@ -335,23 +334,78 @@ export interface CampaignRecord {
   updatedAt: string;
 }
 
+export type ContentStatus = 
+  | 'idea' 
+  | 'draft' 
+  | 'drafted' 
+  | 'review' 
+  | 'approved' 
+  | 'ready' 
+  | 'scheduled' 
+  | 'published' 
+  | 'archived';
+
+export type ContentPlatform = 
+  | 'instagram' 
+  | 'tiktok' 
+  | 'youtube' 
+  | 'facebook' 
+  | 'twitter' 
+  | 'x' 
+  | 'linkedin' 
+  | 'threads' 
+  | 'spotify' 
+  | 'website' 
+  | 'blog' 
+  | 'other';
+
+export interface ContentPillarRecord {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string;
+  color: string;
+  icon?: string;
+  targetRatio?: number;
+  createdAt: string;
+}
+
 export interface ContentItemRecord {
   id: string;
   workspaceId: string;
   releaseId?: string;
+  releaseTitle?: string;
   campaignId?: string;
+  campaignTitle?: string;
   projectId?: string;
-  assetId?: string;
+  productId?: string;
+  productName?: string;
+  contentPillar?: string;
   title: string;
-  platform: 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'spotify' | 'linkedin';
-  contentType: string;
   concept: string;
+  hook?: string;
   captionHook: string;
-  soundSnippet?: string;
-  scheduledDate?: string;
+  copy?: string;
+  caption?: string;
+  contentType: string;
+  platform: ContentPlatform;
   status: ContentStatus;
-  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM';
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  scheduledDate?: string;
+  scheduledTime?: string;
+  cta?: string;
+  notes?: string;
+  soundSnippet?: string;
+  assetId?: string;
+  assetIds?: string[];
+  aiMetadata?: {
+    generatedByBrain?: boolean;
+    promptUsed?: string;
+    stage?: 'pre-release' | 'launch' | 'post-release' | 'sprint' | 'evergreen';
+    suggestedReason?: string;
+  };
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CreativeMemoryRecord {
@@ -424,6 +478,7 @@ export interface DatabaseSchema {
   assets: AssetRecord[];
   releases: ReleaseRecord[];
   campaigns: CampaignRecord[];
+  content_pillars: ContentPillarRecord[];
   content_items: ContentItemRecord[];
   creative_memories: CreativeMemoryRecord[];
   notifications: NotificationRecord[];
@@ -598,50 +653,221 @@ function generateInitialSeed(): DatabaseSchema {
     updatedAt: new Date().toISOString(),
   };
 
+  const contentPillars: ContentPillarRecord[] = [
+    {
+      id: "pil_identity",
+      workspaceId: defaultWorkspaceId,
+      name: "Identity & Vibe",
+      description: "Brand aesthetic, cultural heritage, styling, and artist ethos",
+      color: "#EF4444",
+      icon: "Sparkles",
+      targetRatio: 25,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "pil_music",
+      workspaceId: defaultWorkspaceId,
+      name: "Music & Drops",
+      description: "Audio snippets, hooks, master audio drops, pre-saves, and DSP links",
+      color: "#3B82F6",
+      icon: "Music",
+      targetRatio: 30,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "pil_bts",
+      workspaceId: defaultWorkspaceId,
+      name: "Behind The Scenes",
+      description: "Studio process, songwriting sessions, engineering breakdowns, and raw takes",
+      color: "#8B5CF6",
+      icon: "Layers",
+      targetRatio: 20,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "pil_lifestyle",
+      workspaceId: defaultWorkspaceId,
+      name: "Lifestyle & Culture",
+      description: "Lagos nightlife, fashion, diaspora connections, and daily routines",
+      color: "#F59E0B",
+      icon: "Flame",
+      targetRatio: 15,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "pil_community",
+      workspaceId: defaultWorkspaceId,
+      name: "Community & Superfans",
+      description: "Q&A, fan duets, exclusive merch, Discord listening parties, and shoutouts",
+      color: "#10B981",
+      icon: "Users",
+      targetRatio: 10,
+      createdAt: new Date().toISOString(),
+    },
+  ];
+
   const contentItems: ContentItemRecord[] = [
     {
       id: "cnt_1",
       workspaceId: defaultWorkspaceId,
       releaseId: release.id,
-      title: "Late Night Studio Vocal Memo",
+      releaseTitle: release.title,
+      campaignId: campaign.id,
+      campaignTitle: campaign.title,
+      assetId: asset.id,
+      assetIds: [asset.id],
+      contentPillar: "Behind The Scenes",
+      title: "Late Night Studio Vocal Memo (T-14)",
       platform: "tiktok",
-      contentType: "Behind The Scenes",
-      concept: "Camera resting on mixing console as bassline drops at 3am",
-      captionHook: "When the rhythm hits before you even write the words... Out Friday! Pre-save in bio 🎵",
-      soundSnippet: "Verse 1 intro pocket",
-      scheduledDate: "2026-09-12",
-      status: "ready",
+      contentType: "Reel / Short Video",
+      concept: "Camera resting on mixing console as bassline drops at 3am with producer reaction",
+      hook: "When the melody hits before you even write the words...",
+      captionHook: "When the melody hits before you even write the words... Out Friday! Pre-save in bio 🎵",
+      copy: "We spent 9 hours rebuilding the log drum pattern until 4am. When the vocal harmonies slotted in, the entire room went dead silent. 'Midnight in Victoria Island' official drop countdown is live.\n\nPre-save link active in bio 🔗\n#Afrobeats2026 #StudioSession #NewMusic",
+      cta: "Pre-save via link in bio",
+      soundSnippet: "Verse 1 intro pocket (0:00 - 0:15)",
+      scheduledDate: "2026-09-08",
+      scheduledTime: "18:00",
+      status: "scheduled",
       priority: "CRITICAL",
-      createdAt: new Date().toISOString(),
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "pre-release",
+        suggestedReason: "Build pre-release anticipation 10 days before DSP pitch cutoff.",
+      },
+      createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
     },
     {
       id: "cnt_2",
       workspaceId: defaultWorkspaceId,
       releaseId: release.id,
-      title: "Cover Artwork Reveal Motion Carousel",
+      releaseTitle: release.title,
+      assetId: asset.id,
+      assetIds: [asset.id],
+      contentPillar: "Identity & Vibe",
+      title: "3D Spinning Vinyl Cover Artwork Reveal",
       platform: "instagram",
-      contentType: "Visual Reveal",
-      concept: "Swipe carousel moving from raw hand sketch to 3D spinning vinyl mockup",
+      contentType: "Carousel / 3D Render",
+      concept: "High-contrast carousel revealing the 3000x3000px artwork, gatefold packaging, and colorway",
+      hook: "The official visual identity of 'Midnight in Victoria Island'.",
       captionHook: "Official Artwork for 'Midnight in Victoria Island'. Track 1 drops next week.",
-      soundSnippet: "Main Chorus Hook",
-      scheduledDate: "2026-09-14",
-      status: "drafted",
+      copy: "Visual direction engineered with @Keedohub. Every detail on this 3000x3000px master artwork represents the raw energy of late-night Lagos. Swipe to explore the gatefold vinyl specs.\n\nDrop a 💿 if you're ready for drop day.\n#CoverArt #GraphicDesign #AfroFusion",
+      cta: "Comment your favorite detail below",
+      soundSnippet: "Main Chorus Hook (0:45 - 1:05)",
+      scheduledDate: "2026-09-11",
+      scheduledTime: "19:30",
+      status: "approved",
       priority: "HIGH",
-      createdAt: new Date().toISOString(),
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "pre-release",
+        suggestedReason: "Visual milestone reveal to activate Instagram share-to-story velocity.",
+      },
+      createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
     },
     {
       id: "cnt_3",
       workspaceId: defaultWorkspaceId,
       releaseId: release.id,
-      title: "POV: Leaving the Club in Lagos at 4 AM",
-      platform: "tiktok",
-      contentType: "POV Lifestyle",
-      concept: "Car headlights gliding through Lekki-Ikoyi Link Bridge with dynamic sync",
-      captionHook: "This song was made for this exact highway. Tap sound to use in your videos.",
-      soundSnippet: "Log drum drop",
+      releaseTitle: release.title,
+      campaignId: campaign.id,
+      campaignTitle: campaign.title,
+      contentPillar: "Music & Drops",
+      title: "Midnight Release Blast & Kinetic Lyrics",
+      platform: "youtube",
+      contentType: "Kinetic Lyric Video (.LRC)",
+      concept: "Synchronized vertical kinetic typography video highlighting the diaspora anthem verse",
+      hook: "OUT NOW GLOBALLY ON ALL PLATFORMS 🌍",
+      captionHook: "Midnight in Victoria Island is officially OUT NOW everywhere! Stream now.",
+      copy: "It's midnight. 'Midnight in Victoria Island' is officially streaming everywhere worldwide on Spotify, Apple Music, and Audiomack.\n\nProduced with live log drums and brass. Full official lyric visualizer playing now.\n\nStream & Add to your playlist now!\n#AfroVibe #MidnightInVI #NewRelease",
+      cta: "Stream on Spotify & Apple Music now",
+      soundSnippet: "Full Master Audio WAV",
       scheduledDate: "2026-09-18",
-      status: "idea",
+      scheduledTime: "00:01",
+      status: "ready",
       priority: "CRITICAL",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "launch",
+        suggestedReason: "Mandatory launch-day algorithmic spike on DSP release hour.",
+      },
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "cnt_4",
+      workspaceId: defaultWorkspaceId,
+      releaseId: release.id,
+      releaseTitle: release.title,
+      contentPillar: "Lifestyle & Culture",
+      title: "POV: Driving Across Lekki-Ikoyi Link Bridge at 4 AM",
+      platform: "tiktok",
+      contentType: "POV Lifestyle / Atmosphere",
+      concept: "Cinematic night drive across the bridge with audio drop synced to bridge cable lights",
+      hook: "This track was literally recorded for this exact stretch of road.",
+      captionHook: "This song was made for this exact highway. Tap sound to use in your videos.",
+      copy: "Lagos at 4 AM hits completely different with this playing. Use this sound for your late-night drive clips 🏎️\n\n#LagosNightlife #AltéScene #DriveVibes",
+      cta: "Use this sound in your TikTok videos",
+      soundSnippet: "Log drum drop (1:15 - 1:35)",
+      scheduledDate: "2026-09-21",
+      scheduledTime: "21:00",
+      status: "review",
+      priority: "MEDIUM",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "post-release",
+        suggestedReason: "Post-release lifestyle seeding for creator sound adoption.",
+      },
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "cnt_5",
+      workspaceId: defaultWorkspaceId,
+      campaignId: campaign.id,
+      campaignTitle: campaign.title,
+      productId: "prd_demo_1",
+      productName: "Midnight in Victoria Island — Limited 180g Vinyl & Digital Master Bundle",
+      contentPillar: "Community & Superfans",
+      title: "Collector Vinyl Unboxing & Foil Stamp Showcase",
+      platform: "instagram",
+      contentType: "Product Reel / Unboxing",
+      concept: "Macro close-up video showing the translucent crimson vinyl pressing, foil lyric booklet, and numbered cert",
+      hook: "Only 500 pressed worldwide. Here is what inside the Collector Box.",
+      captionHook: "The limited 180g translucent crimson vinyl is officially pressing. Only 500 copies.",
+      copy: "We engineered this 180g audiophile vinyl for maximum analog warmth. Each copy includes a 12x12 foil-stamped lyric booklet and uncompressed 24-bit WAV master access.\n\nPre-orders are 60% claimed. Lock yours now before drop week.\n\nLink in bio to reserve your copy.\n#VinylCollector #LimitedEdition #AfrobeatsOnVinyl",
+      cta: "Order vinyl bundle via link in bio",
+      soundSnippet: "Acoustic Live Cut (0:00 - 0:30)",
+      scheduledDate: "2026-09-24",
+      scheduledTime: "17:00",
+      status: "draft",
+      priority: "HIGH",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "post-release",
+        suggestedReason: "Merchandise monetization sprint for high-intent superfans.",
+      },
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "cnt_6",
+      workspaceId: defaultWorkspaceId,
+      contentPillar: "Behind The Scenes",
+      title: "Producer Breakdown: How the Amapiano Log Drum was Synthesized",
+      platform: "youtube",
+      contentType: "Tutorial / Breakdown Short",
+      concept: "Screen recording inside DAW showing the EQ curve, saturation, and pitch envelope on the bass",
+      hook: "Why 90% of producers get the log drum sub frequency wrong.",
+      captionHook: "Quick masterclass: The exact harmonic distortion chain used on 'Midnight in VI'.",
+      copy: "Tuned strictly between 35Hz and 55Hz with subtle analog tape saturation. Watch how we keep the low end punchy without muddying the vocal pocket.\n\nSample pack dropping next week on Keedohub!\n#MusicProduction #FLStudio #AudioEngineering",
+      cta: "Subscribe for full DAW walkthrough",
+      scheduledDate: "2026-09-28",
+      scheduledTime: "16:00",
+      status: "idea",
+      priority: "LOW",
+      aiMetadata: {
+        generatedByBrain: true,
+        stage: "post-release",
+        suggestedReason: "Producer niche thought leadership and sample pack lead capture.",
+      },
       createdAt: new Date().toISOString(),
     },
   ];
@@ -1009,6 +1235,7 @@ function generateInitialSeed(): DatabaseSchema {
     assets: [asset],
     releases: [release],
     campaigns: [campaign],
+    content_pillars: contentPillars,
     content_items: contentItems,
     creative_memories: [creativeMemory],
     notifications: [notification],
@@ -1044,6 +1271,7 @@ class Database {
           assets: parsed.assets || seed.assets,
           releases: parsed.releases || seed.releases,
           campaigns: parsed.campaigns || seed.campaigns,
+          content_pillars: parsed.content_pillars || seed.content_pillars,
           content_items: parsed.content_items || seed.content_items,
           creative_memories: parsed.creative_memories || seed.creative_memories,
           notifications: parsed.notifications || seed.notifications,
@@ -1615,27 +1843,144 @@ class Database {
     return deleted;
   }
 
+  // --- Content Pillars ---
+  public getContentPillars(workspaceId: string): ContentPillarRecord[] {
+    return this.data.content_pillars.filter((p) => p.workspaceId === workspaceId);
+  }
+
+  public createContentPillar(workspaceId: string, pillarData: Partial<ContentPillarRecord> & { name: string }): ContentPillarRecord {
+    const pillar: ContentPillarRecord = {
+      id: "pil_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      name: pillarData.name,
+      description: pillarData.description || "",
+      color: pillarData.color || "#EF4444",
+      icon: pillarData.icon || "Sparkles",
+      targetRatio: pillarData.targetRatio ?? 20,
+      createdAt: new Date().toISOString(),
+    };
+    this.data.content_pillars.push(pillar);
+    this.save();
+    return pillar;
+  }
+
+  public updateContentPillar(pillarId: string, workspaceId: string, updates: Partial<ContentPillarRecord>): ContentPillarRecord {
+    const pillar = this.data.content_pillars.find((p) => p.id === pillarId && p.workspaceId === workspaceId);
+    if (!pillar) throw new Error("Content pillar not found");
+    Object.assign(pillar, updates);
+    this.save();
+    return pillar;
+  }
+
+  public deleteContentPillar(pillarId: string, workspaceId: string): boolean {
+    const initialLen = this.data.content_pillars.length;
+    this.data.content_pillars = this.data.content_pillars.filter((p) => !(p.id === pillarId && p.workspaceId === workspaceId));
+    const deleted = this.data.content_pillars.length < initialLen;
+    if (deleted) this.save();
+    return deleted;
+  }
+
   // --- Content Items ---
   public getContentItems(workspaceId: string): ContentItemRecord[] {
-    return this.data.content_items.filter((c) => c.workspaceId === workspaceId);
+    const items = this.data.content_items.filter((c) => c.workspaceId === workspaceId);
+    const releases = this.data.releases.filter((r) => r.workspaceId === workspaceId);
+    const campaigns = this.data.campaigns.filter((c) => c.workspaceId === workspaceId);
+    const products = this.data.products.filter((p) => p.workspaceId === workspaceId);
+    const assets = this.data.assets.filter((a) => a.workspaceId === workspaceId);
+
+    return items.map((item) => {
+      const release = item.releaseId ? releases.find((r) => r.id === item.releaseId) : undefined;
+      const campaign = item.campaignId ? campaigns.find((c) => c.id === item.campaignId) : undefined;
+      const product = item.productId ? products.find((p) => p.id === item.productId) : undefined;
+
+      const attachedAssetIds = new Set<string>();
+      if (item.assetId) attachedAssetIds.add(item.assetId);
+      if (Array.isArray(item.assetIds)) item.assetIds.forEach((id) => attachedAssetIds.add(id));
+
+      const attachedAssets = Array.from(attachedAssetIds)
+        .map((id) => assets.find((a) => a.id === id))
+        .filter(Boolean);
+
+      return {
+        ...item,
+        releaseTitle: item.releaseTitle || release?.title,
+        campaignTitle: item.campaignTitle || campaign?.title,
+        productName: item.productName || product?.name,
+        attachedAssets: attachedAssets as any,
+      };
+    });
   }
 
   public createContentItem(workspaceId: string, itemData: Omit<ContentItemRecord, "id" | "workspaceId" | "createdAt">): ContentItemRecord {
+    const releases = this.data.releases.filter((r) => r.workspaceId === workspaceId);
+    const campaigns = this.data.campaigns.filter((c) => c.workspaceId === workspaceId);
+    const products = this.data.products.filter((p) => p.workspaceId === workspaceId);
+
+    const release = itemData.releaseId ? releases.find((r) => r.id === itemData.releaseId) : undefined;
+    const campaign = itemData.campaignId ? campaigns.find((c) => c.id === itemData.campaignId) : undefined;
+    const product = itemData.productId ? products.find((p) => p.id === itemData.productId) : undefined;
+
     const item: ContentItemRecord = {
       id: "cnt_" + crypto.randomUUID().substring(0, 8),
       workspaceId,
       ...itemData,
+      releaseTitle: itemData.releaseTitle || release?.title,
+      campaignTitle: itemData.campaignTitle || campaign?.title,
+      productName: itemData.productName || product?.name,
+      status: itemData.status || "idea",
+      priority: itemData.priority || "MEDIUM",
+      captionHook: itemData.captionHook || itemData.hook || itemData.concept || "",
+      hook: itemData.hook || itemData.captionHook || "",
+      copy: itemData.copy || itemData.caption || "",
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     this.data.content_items.unshift(item);
     this.save();
     return item;
   }
 
+  public createContentItemsBatch(workspaceId: string, items: Array<Omit<ContentItemRecord, "id" | "workspaceId" | "createdAt">>): ContentItemRecord[] {
+    const createdList: ContentItemRecord[] = [];
+    for (const itemData of items) {
+      const created = this.createContentItem(workspaceId, itemData);
+      createdList.push(created);
+    }
+    return createdList;
+  }
+
+  public duplicateContentItem(itemId: string, workspaceId: string): ContentItemRecord {
+    const item = this.data.content_items.find((c) => c.id === itemId && c.workspaceId === workspaceId);
+    if (!item) throw new Error("Content item not found");
+    const cloneData = {
+      ...item,
+      title: `${item.title} (Copy)`,
+      status: "draft" as ContentStatus,
+    };
+    delete (cloneData as any).id;
+    delete (cloneData as any).createdAt;
+    delete (cloneData as any).updatedAt;
+    return this.createContentItem(workspaceId, cloneData);
+  }
+
   public updateContentItem(itemId: string, workspaceId: string, updates: Partial<ContentItemRecord>): ContentItemRecord {
     const item = this.data.content_items.find((c) => c.id === itemId && c.workspaceId === workspaceId);
     if (!item) throw new Error("Content item not found");
-    Object.assign(item, updates);
+
+    if (updates.releaseId && !updates.releaseTitle) {
+      const rel = this.data.releases.find((r) => r.id === updates.releaseId && r.workspaceId === workspaceId);
+      if (rel) updates.releaseTitle = rel.title;
+    }
+    if (updates.campaignId && !updates.campaignTitle) {
+      const camp = this.data.campaigns.find((c) => c.id === updates.campaignId && c.workspaceId === workspaceId);
+      if (camp) updates.campaignTitle = camp.title;
+    }
+    if (updates.productId && !updates.productName) {
+      const prod = this.data.products.find((p) => p.id === updates.productId && p.workspaceId === workspaceId);
+      if (prod) updates.productName = prod.name;
+    }
+
+    Object.assign(item, updates, { updatedAt: new Date().toISOString() });
     this.save();
     return item;
   }

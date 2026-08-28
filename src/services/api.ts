@@ -426,6 +426,29 @@ export const api = {
     },
   },
 
+  contentPillars: {
+    list: async (workspaceId: string) => {
+      return request<{ contentPillars: any[] }>(`/api/workspaces/${workspaceId}/content-pillars`);
+    },
+    create: async (workspaceId: string, pillar: any) => {
+      return request<{ contentPillar: any }>(`/api/workspaces/${workspaceId}/content-pillars`, {
+        method: "POST",
+        body: JSON.stringify(pillar),
+      });
+    },
+    update: async (workspaceId: string, pillarId: string, updates: any) => {
+      return request<{ contentPillar: any }>(`/api/workspaces/${workspaceId}/content-pillars/${pillarId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+    delete: async (workspaceId: string, pillarId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/content-pillars/${pillarId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
   contentItems: {
     list: async (workspaceId: string) => {
       return request<{ contentItems: ContentItem[] }>(`/api/workspaces/${workspaceId}/content-items`);
@@ -435,6 +458,19 @@ export const api = {
       return request<{ contentItem: ContentItem }>(`/api/workspaces/${workspaceId}/content-items`, {
         method: "POST",
         body: JSON.stringify(item),
+      });
+    },
+
+    createBatch: async (workspaceId: string, items: Partial<ContentItem>[]) => {
+      return request<{ contentItems: ContentItem[] }>(`/api/workspaces/${workspaceId}/content-items/batch`, {
+        method: "POST",
+        body: JSON.stringify({ items }),
+      });
+    },
+
+    duplicate: async (workspaceId: string, itemId: string) => {
+      return request<{ contentItem: ContentItem }>(`/api/workspaces/${workspaceId}/content-items/${itemId}/duplicate`, {
+        method: "POST",
       });
     },
 
@@ -448,6 +484,35 @@ export const api = {
     delete: async (workspaceId: string, itemId: string) => {
       return request<{ message: string }>(`/api/workspaces/${workspaceId}/content-items/${itemId}`, {
         method: "DELETE",
+      });
+    },
+
+    getGaps: async (workspaceId: string) => {
+      return request<{
+        gaps: any[];
+        qualityIssues: any[];
+        summary: {
+          totalContent: number;
+          scheduledCount: number;
+          publishedCount: number;
+          gapCount: number;
+          qualityIssueCount: number;
+        };
+      }>(`/api/workspaces/${workspaceId}/content-gaps`);
+    },
+
+    generateOpportunityBatch: async (workspaceId: string, params: {
+      stage?: string;
+      releaseId?: string;
+      campaignId?: string;
+      productId?: string;
+      platform?: string;
+      count?: number;
+      customGoal?: string;
+    }) => {
+      return request<{ suggestions: Partial<ContentItem>[] }>(`/api/workspaces/${workspaceId}/content-items/generate-opportunity-batch`, {
+        method: "POST",
+        body: JSON.stringify(params),
       });
     },
   },

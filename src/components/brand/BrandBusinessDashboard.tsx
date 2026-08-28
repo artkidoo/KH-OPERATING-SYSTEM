@@ -111,7 +111,7 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
               <div className="h-6 w-px bg-zinc-800" />
               <div>
                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Readiness</span>
-                <span className="text-xs font-bold text-red-400">{readiness.score}% ({readiness.stage})</span>
+                <span className="text-xs font-bold text-red-400">{readiness?.score ?? 0}% ({readiness?.stage || 'Planning'})</span>
               </div>
             </div>
           )}
@@ -124,7 +124,7 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
           { id: 'campaigns', label: 'Master Campaign Engine', icon: Rocket, count: activeCampaign ? 'Active' : undefined },
           { id: 'brand_core', label: 'Brand Core & Identity', icon: Compass, count: 'Master Spec' },
           { id: 'products', label: 'Products & Services Catalog', icon: Package, count: `${products.length}` },
-          { id: 'readiness_radar', label: 'Launch Readiness Radar', icon: ShieldCheck, count: `${readiness.score}%` },
+          { id: 'readiness_radar', label: 'Launch Readiness Radar', icon: ShieldCheck, count: `${readiness?.score ?? 0}%` },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -186,16 +186,16 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl font-black text-red-500">{readiness.score}%</span>
-                  <div className={`px-3 py-1 rounded-full text-xs font-bold border ${readiness.stageColor}`}>
-                    {readiness.stage}
+                  <span className="text-3xl font-black text-red-500">{readiness?.score ?? 0}%</span>
+                  <div className={`px-3 py-1 rounded-full text-xs font-bold border ${readiness?.stageColor || 'text-zinc-400 bg-zinc-800'}`}>
+                    {readiness?.stage || 'Planning'}
                   </div>
                 </div>
               </div>
 
               {/* 7 Pillars Detail Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {readiness.requirements.map((req, idx) => (
+                {(readiness?.requirements || []).map((req, idx) => (
                   <div
                     key={req.id}
                     className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 transition-all ${

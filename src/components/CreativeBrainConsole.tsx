@@ -52,13 +52,18 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
     workspace,
     projects,
     releases,
+    activeRelease,
     campaigns,
+    activeCampaign,
     assets,
     creativeMemory,
     contentItems,
-    releaseReadiness,
-    campaignReadiness,
+    calculateReleaseReadiness,
+    calculateCampaignReadiness,
   } = useWorkspace();
+
+  const activeRelReadiness = calculateReleaseReadiness(activeRelease);
+  const activeCmpReadiness = calculateCampaignReadiness(activeCampaign);
 
   const [input, setInput] = useState("");
   const [activeRightTab, setActiveRightTab] = useState<"recommendations" | "memory" | "pillars">("recommendations");
@@ -243,7 +248,8 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
               <div className="space-y-2">
                 {releases.map((rel) => {
                   const isPinned = pinnedContext?.id === rel.id;
-                  const readinessScore = releaseReadiness.score;
+                  const relSummary = calculateReleaseReadiness(rel);
+                  const readinessScore = relSummary?.score ?? 0;
                   return (
                     <div
                       key={rel.id}
@@ -300,7 +306,8 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
               <div className="space-y-2">
                 {campaigns.map((cmp) => {
                   const isPinned = pinnedContext?.id === cmp.id;
-                  const readinessScore = campaignReadiness.score;
+                  const cmpSummary = calculateCampaignReadiness(cmp);
+                  const readinessScore = cmpSummary?.score ?? 0;
                   return (
                     <div
                       key={cmp.id}
@@ -318,7 +325,7 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
                         </span>
                       </div>
                       <p className="text-[11px] text-zinc-400 mt-0.5">
-                        {cmp.objective} • Sprint {cmp.sprintDays.length}d
+                        {cmp.objective} • Sprint {cmp.sprintDays?.length || 0}d
                       </p>
                       <div className="w-full bg-zinc-800 h-1 rounded-full mt-2 overflow-hidden">
                         <div
@@ -621,10 +628,10 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-zinc-200">Release Blueprint</span>
-                  <span className="font-mono text-zinc-400">{releaseReadiness.score}%</span>
+                  <span className="font-mono text-zinc-400">{activeRelReadiness?.score ?? 0}%</span>
                 </div>
                 <div className="space-y-1.5">
-                  {releaseReadiness.pillars.map((p) => (
+                  {(activeRelReadiness?.requirements || []).map((p) => (
                     <div
                       key={p.id}
                       className="p-2 rounded-lg bg-zinc-950 border border-zinc-800/80 flex items-center justify-between text-[11px]"
@@ -647,10 +654,10 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
               <div className="space-y-2 pt-2 border-t border-zinc-800">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-zinc-200">Campaign Blueprint</span>
-                  <span className="font-mono text-zinc-400">{campaignReadiness.score}%</span>
+                  <span className="font-mono text-zinc-400">{activeCmpReadiness?.score ?? 0}%</span>
                 </div>
                 <div className="space-y-1.5">
-                  {campaignReadiness.pillars.map((p) => (
+                  {(activeCmpReadiness?.requirements || []).map((p) => (
                     <div
                       key={p.id}
                       className="p-2 rounded-lg bg-zinc-950 border border-zinc-800/80 flex items-center justify-between text-[11px]"

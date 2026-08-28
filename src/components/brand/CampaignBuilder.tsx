@@ -361,22 +361,22 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({ onNotify, onNa
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-950 border border-zinc-800">
               <div className="text-xs text-zinc-400">Readiness Score:</div>
               <div className="text-sm font-bold text-zinc-100 flex items-center gap-1.5">
-                <span className="text-red-400">{readiness.score}%</span>
+                <span className="text-red-400">{readiness?.score ?? 0}%</span>
                 <div className="w-16 h-2 rounded-full bg-zinc-800 overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-red-600 to-amber-500 transition-all duration-500" 
-                    style={{ width: `${readiness.score}%` }} 
+                    style={{ width: `${readiness?.score ?? 0}%` }} 
                   />
                 </div>
               </div>
             </div>
 
-            <div className={`px-3 py-1 rounded-full text-xs font-bold border ${readiness.stageColor}`}>
-              Stage: {readiness.stage}
+            <div className={`px-3 py-1 rounded-full text-xs font-bold border ${readiness?.stageColor || 'text-zinc-400 bg-zinc-800'}`}>
+              Stage: {readiness?.stage || 'Planning'}
             </div>
 
             <div className="text-xs text-zinc-400 font-medium px-2.5 py-1 rounded-lg bg-zinc-800/80">
-              {readiness.formattedDays}
+              {readiness?.formattedDays || 'No schedule'}
             </div>
 
             <button
@@ -433,7 +433,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({ onNotify, onNa
                       <h3 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
                         <span>7-Pillar Campaign Readiness Engine</span>
                         <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-zinc-800 text-zinc-300">
-                          {readiness.completedCount} of {readiness.totalCount} Pillars Active
+                          {readiness?.completedCount ?? 0} of {readiness?.totalCount ?? 7} Pillars Active
                         </span>
                       </h3>
                       <p className="text-xs text-zinc-400 mt-1">
@@ -442,14 +442,14 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({ onNotify, onNa
                     </div>
 
                     <div className="text-right">
-                      <span className="text-3xl font-extrabold text-red-500">{readiness.score}%</span>
+                      <span className="text-3xl font-extrabold text-red-500">{readiness?.score ?? 0}%</span>
                       <span className="block text-[11px] text-zinc-500 uppercase tracking-wider">Score</span>
                     </div>
                   </div>
 
                   {/* Requirements List */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    {readiness.requirements.map((req) => (
+                    {(readiness?.requirements || []).map((req) => (
                       <div
                         key={req.id}
                         className={`p-3 rounded-xl border flex items-start gap-3 transition-all ${
