@@ -3,6 +3,7 @@ export type ActiveTab =
   | 'artist-os'
   | 'content-engine'
   | 'studio'
+  | 'creative-memory'
   | 'workspace-hub'
   | 'artist-brain'
   | 'creative-brain'
@@ -1126,4 +1127,90 @@ export interface StudioProject {
   createdAt: string;
   updatedAt: string;
 }
+
+// ==========================================
+// PHASE 8: CREATIVE MEMORY & LONG-TERM INTELLIGENCE
+// ==========================================
+
+export type CreativeMemoryCategory = 
+  | 'identity'      // artist, creator, brand, business, startup identity
+  | 'preference'    // visual preferences, tone, writing style, recurring formats
+  | 'strategy'      // audience ICP, positioning, recurring objectives, playbooks
+  | 'project'       // key decisions, approved directions, requirements
+  | 'asset'         // relationships to vault assets, color palettes, cover specs
+  | 'rule';         // do say, don't say, guardrails, non-negotiable standards
+
+export type CreativeMemoryScope = 
+  | 'workspace'     // global to workspace
+  | 'identity'      // identity-specific
+  | 'release'       // release-specific
+  | 'campaign'      // campaign-specific
+  | 'project'       // project-specific
+  | 'content'       // content-specific
+  | 'studio_project'; // studio order/deliverable specific
+
+export type CreativeMemorySource = 
+  | 'user_explicit'    // created directly by user
+  | 'ai_extracted'     // proposed by AI and approved by user
+  | 'studio_decision'  // derived from studio production decisions
+  | 'system_inferred'; // verified system pattern
+
+export interface CreativeMemoryItem {
+  id: string;
+  workspaceId: string;
+  userId?: string;
+  category: CreativeMemoryCategory;
+  scope: CreativeMemoryScope;
+  entityType?: 'release' | 'campaign' | 'project' | 'studio_project' | 'identity' | 'product' | 'asset';
+  entityId?: string;
+  entityName?: string;
+  title: string;
+  content: string;
+  tags: string[];
+  source: CreativeMemorySource;
+  confidence: number; // 0 - 100
+  status: 'active' | 'archived';
+  isPinned: boolean; // Marked as Key Memory
+  supersedesMemoryId?: string; // Creative evolution: old era/positioning
+  supersededByMemoryId?: string;
+  assetReferenceId?: string;
+  assetReferenceName?: string;
+  assetReferenceUrl?: string;
+  metadata?: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MemoryCandidate {
+  id: string;
+  workspaceId: string;
+  title: string;
+  content: string;
+  category: CreativeMemoryCategory;
+  scope: CreativeMemoryScope;
+  entityType?: string;
+  entityId?: string;
+  entityName?: string;
+  sourceContext: string;
+  confidence: number;
+  tags: string[];
+  status: 'pending' | 'saved' | 'dismissed';
+  createdAt: string;
+}
+
+export interface MemoryBlockRule {
+  id: string;
+  workspaceId: string;
+  pattern: string;
+  reason: string;
+  createdAt: string;
+}
+
+export interface MemoryRetrievalResult {
+  memories: CreativeMemoryItem[];
+  relevanceScores: Record<string, number>;
+  usedMemorySummaries: string[];
+  retrievalReasons: Record<string, string>;
+}
+
 

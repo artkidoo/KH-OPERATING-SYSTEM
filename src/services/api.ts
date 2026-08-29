@@ -10,6 +10,10 @@ import {
   BrandStrategy,
   ContentItem,
   CreativeMemory,
+  CreativeMemoryItem,
+  MemoryCandidate,
+  MemoryBlockRule,
+  MemoryRetrievalResult,
   NotificationItem,
   ActivityLog,
   CreativeRequest,
@@ -535,6 +539,106 @@ export const api = {
       return request<{ creativeMemory: CreativeMemory }>(`/api/workspaces/${workspaceId}/creative-memory`, {
         method: "PUT",
         body: JSON.stringify(memory),
+      });
+    },
+
+    // Phase 8: Structured Memory Items CRUD & Actions
+    getItems: async (workspaceId: string, filters?: {
+      category?: string;
+      scope?: string;
+      status?: 'active' | 'archived';
+      entityType?: string;
+      entityId?: string;
+      search?: string;
+    }) => {
+      const params = new URLSearchParams();
+      if (filters?.category) params.append("category", filters.category);
+      if (filters?.scope) params.append("scope", filters.scope);
+      if (filters?.status) params.append("status", filters.status);
+      if (filters?.entityType) params.append("entityType", filters.entityType);
+      if (filters?.entityId) params.append("entityId", filters.entityId);
+      if (filters?.search) params.append("search", filters.search);
+      const queryStr = params.toString() ? `?${params.toString()}` : "";
+      return request<{ items: CreativeMemoryItem[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items${queryStr}`);
+    },
+
+    createItem: async (workspaceId: string, data: Partial<CreativeMemoryItem>) => {
+      return request<{ item: CreativeMemoryItem }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    updateItem: async (workspaceId: string, itemId: string, updates: Partial<CreativeMemoryItem>) => {
+      return request<{ item: CreativeMemoryItem }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items/${encodeURIComponent(itemId)}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    deleteItem: async (workspaceId: string, itemId: string) => {
+      return request<{ success: boolean }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items/${encodeURIComponent(itemId)}`, {
+        method: "DELETE",
+      });
+    },
+
+    supersedeItem: async (workspaceId: string, itemId: string, data: { title?: string; content: string; category?: any; tags?: string[]; reason?: string }) => {
+      return request<{ item: CreativeMemoryItem }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items/${encodeURIComponent(itemId)}/supersede`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    togglePin: async (workspaceId: string, itemId: string, isPinned: boolean) => {
+      return request<{ item: CreativeMemoryItem }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items/${encodeURIComponent(itemId)}/pin`, {
+        method: "POST",
+        body: JSON.stringify({ isPinned }),
+      });
+    },
+
+    // Phase 8: AI Candidates (User Approval Workflow)
+    getCandidates: async (workspaceId: string) => {
+      return request<{ candidates: MemoryCandidate[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/candidates`);
+    },
+
+    resolveCandidate: async (
+      workspaceId: string,
+      candidateId: string,
+      action: 'approve' | 'reject' | 'edit',
+      editedData?: Partial<CreativeMemoryItem>
+    ) => {
+      return request<{ success: boolean; createdItem?: CreativeMemoryItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/memory/candidates/${encodeURIComponent(candidateId)}/resolve`,
+        {
+          method: "POST",
+          body: JSON.stringify({ action, editedData }),
+        }
+      );
+    },
+
+    // Phase 8: Block Rules & Privacy Guardrails
+    getBlockRules: async (workspaceId: string) => {
+      return request<{ rules: MemoryBlockRule[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/block-rules`);
+    },
+
+    createBlockRule: async (workspaceId: string, data: { pattern: string; ruleType?: string; reason?: string; entityType?: string }) => {
+      return request<{ rule: MemoryBlockRule }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/block-rules`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    deleteBlockRule: async (workspaceId: string, ruleId: string) => {
+      return request<{ success: boolean }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/block-rules/${encodeURIComponent(ruleId)}`, {
+        method: "DELETE",
+      });
+    },
+
+    // Phase 8: Test & Verify Retrieval Engine
+    retrieve: async (workspaceId: string, params: { query?: string; category?: string; scope?: string; entityType?: string; entityId?: string; limit?: number }) => {
+      return request<MemoryRetrievalResult>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/retrieve`, {
+        method: "POST",
+        body: JSON.stringify(params),
       });
     },
   },

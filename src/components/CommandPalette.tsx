@@ -25,7 +25,8 @@ import {
   Target,
   Music,
   Megaphone,
-  Folder
+  Folder,
+  BrainCircuit
 } from "lucide-react";
 
 interface CommandPaletteProps {
@@ -174,6 +175,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     {
       group: "Core Operating Systems",
       items: [
+        {
+          id: "creative-memory",
+          title: "Keedohub Creative Memory System (Phase 8)",
+          description: "Multi-scope persistent intelligence, decision history, AI memory candidate approvals & privacy guardrails",
+          icon: <BrainCircuit className="w-4 h-4 text-purple-400" />,
+          action: () => {
+            setActiveTab("creative-memory");
+            onClose();
+          },
+        },
         {
           id: "studio",
           title: "Keedohub Studio (Creative Services & Production)",

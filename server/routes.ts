@@ -1,7 +1,8 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { db, IdentityType, UserRecord, SessionRecord, AssetCategory } from "./db";
+import { db, IdentityType, UserRecord, SessionRecord, AssetCategory, CreativeMemoryCategory, CreativeMemoryScope } from "./db";
 import { GoogleGenAI } from "@google/genai";
 import { CreativeBrainService, compileWorkspaceContext, executeBrainTool } from "./ai/creativeBrainService";
+import { MemoryRetrievalService } from "./ai/memoryRetrievalService";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -1313,7 +1314,7 @@ apiRouter.post("/workspaces/:workspaceId/content-items/generate-opportunity-batc
   res.json({ suggestions: suggestions.slice(0, count) });
 });
 
-// --- Creative Memory Routes ---
+// --- Creative Memory Routes (Phase 8 Multi-Scope Creative Memory System) ---
 apiRouter.get("/workspaces/:workspaceId/creative-memory", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
   const memory = db.getCreativeMemory(req.params.workspaceId);
   res.json({ creativeMemory: memory });
@@ -1335,6 +1336,234 @@ apiRouter.put("/workspaces/:workspaceId/creative-memory", requireAuth, requireWo
   } catch (err: any) {
     res.status(400).json({ error: err.message || "Failed to update creative memory" });
   }
+});
+
+// Phase 8: Get Scoped Structured Memory Items
+apiRouter.get("/workspaces/:workspaceId/memory/items", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { category, scope, status, entityType, entityId, search } = req.query as Record<string, string>;
+  const items = db.getCreativeMemoryItems(req.params.workspaceId, {
+    category: category as CreativeMemoryCategory,
+    scope: scope as CreativeMemoryScope,
+    status: status as any,
+    entityType: entityType as any,
+    entityId,
+    search,
+  });
+  res.json({ items });
+});
+
+// Phase 8: Create Structured Memory Item
+apiRouter.post("/workspaces/:workspaceId/memory/items", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { title, content, category, scope, entityType, entityId, entityName, tags, source, confidence, isPinned } = req.body;
+  if (!content || !category) {
+    return res.status(400).json({ error: "Content and category are required" });
+  }
+
+  const memoryItem = db.createCreativeMemoryItem(req.params.workspaceId, {
+    userId: req.user!.id,
+    title: title || `${category.toUpperCase()}: ${content.substring(0, 40)}...`,
+    content,
+    category,
+    scope: scope || "workspace",
+    entityType,
+    entityId,
+    entityName,
+    tags: tags || [],
+    source: source || "user_explicit",
+    confidence: confidence !== undefined ? confidence : 100,
+    status: "active",
+    isPinned: Boolean(isPinned),
+  });
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "CREATE_MEMORY_ITEM",
+    "creative_memory",
+    memoryItem.id,
+    `Added memory item: "${memoryItem.title}"`
+  );
+
+  res.status(201).json({ item: memoryItem });
+});
+
+// Phase 8: Update Structured Memory Item
+apiRouter.put("/workspaces/:workspaceId/memory/items/:itemId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const updated = db.updateCreativeMemoryItem(req.params.itemId, req.params.workspaceId, req.body);
+  if (!updated) {
+    return res.status(404).json({ error: "Memory item not found" });
+  }
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "UPDATE_MEMORY_ITEM",
+    "creative_memory",
+    updated.id,
+    `Updated memory item: "${updated.title}"`
+  );
+
+  res.json({ item: updated });
+});
+
+// Phase 8: Delete Structured Memory Item
+apiRouter.delete("/workspaces/:workspaceId/memory/items/:itemId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const success = db.deleteCreativeMemoryItem(req.params.itemId, req.params.workspaceId);
+  if (!success) {
+    return res.status(404).json({ error: "Memory item not found" });
+  }
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "DELETE_MEMORY_ITEM",
+    "creative_memory",
+    req.params.itemId,
+    `Deleted memory item ${req.params.itemId}`
+  );
+
+  res.json({ success: true });
+});
+
+// Phase 8: Supersede Memory Item (Evolution Handling)
+apiRouter.post("/workspaces/:workspaceId/memory/items/:itemId/supersede", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { title, content, category, tags, reason } = req.body;
+  if (!content) {
+    return res.status(400).json({ error: "New memory content is required to supersede" });
+  }
+
+  const existing = db.getCreativeMemoryItemById(req.params.workspaceId, req.params.itemId);
+  if (!existing) {
+    return res.status(404).json({ error: "Target memory item not found or unauthorized" });
+  }
+
+  const result = db.supersedeCreativeMemory(req.params.workspaceId, req.params.itemId, {
+    userId: req.user!.id,
+    title: title || `${existing.title} (Updated)`,
+    content,
+    category: category || existing.category,
+    scope: existing.scope,
+    entityType: existing.entityType,
+    entityId: existing.entityId,
+    entityName: existing.entityName,
+    tags: tags || existing.tags,
+    source: "user_explicit",
+    confidence: existing.confidence || 95,
+    status: "active",
+    isPinned: existing.isPinned,
+    metadata: {
+      supersedeReason: reason || "Creative evolution",
+      previousVersionId: req.params.itemId,
+    },
+  });
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "SUPERSEDE_MEMORY",
+    "creative_memory",
+    result.newMemory.id,
+    `Superseded memory item ${req.params.itemId} with new evolution "${result.newMemory.title}"`
+  );
+
+  res.status(201).json({ item: result.newMemory, oldItem: result.oldMemory });
+});
+
+// Phase 8: Pin / Unpin Memory Item
+apiRouter.post("/workspaces/:workspaceId/memory/items/:itemId/pin", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const isPinned = Boolean(req.body.isPinned);
+  const updated = db.updateCreativeMemoryItem(req.params.workspaceId, req.params.itemId, { isPinned });
+  if (!updated) {
+    return res.status(404).json({ error: "Memory item not found" });
+  }
+  res.json({ item: updated });
+});
+
+// Phase 8: Memory Candidates (AI Proposed Knowledge)
+apiRouter.get("/workspaces/:workspaceId/memory/candidates", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const candidates = db.getMemoryCandidates(req.params.workspaceId);
+  res.json({ candidates });
+});
+
+apiRouter.post("/workspaces/:workspaceId/memory/candidates/:candidateId/resolve", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { action, editedData } = req.body; // action: 'approve' | 'reject' | 'edit'
+  if (!action || !['approve', 'reject', 'edit', 'save', 'dismiss'].includes(action)) {
+    return res.status(400).json({ error: "Valid action ('approve' | 'reject' | 'edit') is required" });
+  }
+
+  const dbAction = (action === 'reject' || action === 'dismiss') ? 'dismiss' : 'save';
+  const result = db.resolveMemoryCandidate(req.params.workspaceId, req.params.candidateId, dbAction, editedData);
+  if (!result) {
+    return res.status(404).json({ error: "Candidate not found or already resolved" });
+  }
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "RESOLVE_MEMORY_CANDIDATE",
+    "creative_memory",
+    req.params.candidateId,
+    `Resolved AI memory candidate: ${action}`
+  );
+
+  res.json({ success: true, createdItem: result.savedMemory, candidate: result.candidate });
+});
+
+// Phase 8: Memory Block Rules (Privacy & Exclusions)
+apiRouter.get("/workspaces/:workspaceId/memory/block-rules", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const rules = db.getMemoryBlockRules(req.params.workspaceId);
+  res.json({ rules });
+});
+
+apiRouter.post("/workspaces/:workspaceId/memory/block-rules", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { pattern, reason } = req.body;
+  if (!pattern) {
+    return res.status(400).json({ error: "Pattern/keyword is required" });
+  }
+
+  const rule = db.createMemoryBlockRule(req.params.workspaceId, {
+    pattern,
+    reason: reason || 'User specified exclusion rule',
+  });
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "CREATE_MEMORY_BLOCK_RULE",
+    "creative_memory",
+    rule.id,
+    `Created memory block rule for pattern: "${pattern}"`
+  );
+
+  res.status(201).json({ rule });
+});
+
+apiRouter.delete("/workspaces/:workspaceId/memory/block-rules/:ruleId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const success = db.deleteMemoryBlockRule(req.params.ruleId, req.params.workspaceId);
+  if (!success) {
+    return res.status(404).json({ error: "Block rule not found" });
+  }
+  res.json({ success: true });
+});
+
+// Phase 8: Targeted Memory Retrieval Test & Verification
+apiRouter.post("/workspaces/:workspaceId/memory/retrieve", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { query, category, scope, entityType, entityId, limit } = req.body;
+  const result = MemoryRetrievalService.retrieve(req.params.workspaceId, {
+    query,
+    category,
+    scope,
+    entityType,
+    entityId,
+    limit: limit || 10,
+  });
+  res.json(result);
 });
 
 // --- Notifications & Activity Routes ---

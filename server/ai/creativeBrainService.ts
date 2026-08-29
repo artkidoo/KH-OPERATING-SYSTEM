@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
-import { db, IdentityType, ProjectRecord, ReleaseRecord, CampaignRecord, ProductServiceRecord, TaskItem, CreativeMemoryRecord, AssetRecord, ContentItemRecord } from "../db.js";
+import { db, IdentityType, ProjectRecord, ReleaseRecord, CampaignRecord, ProductServiceRecord, TaskItem, CreativeMemoryRecord, CreativeMemoryItemRecord, AssetRecord, ContentItemRecord } from "../db.js";
+import { MemoryRetrievalService, MemoryRetrievalResponse } from "./memoryRetrievalService.js";
 
 // --- Readiness Calculators (Server-Side Source of Truth) ---
 
@@ -501,6 +502,7 @@ export interface CompiledWorkspaceContext {
     platforms: Record<string, number>;
   };
   creativeMemory?: CreativeMemoryRecord;
+  retrievedMemories?: MemoryRetrievalResponse;
   pinnedContext?: {
     type: 'release' | 'campaign' | 'project' | 'brand_core' | 'general';
     id?: string;
@@ -511,7 +513,8 @@ export interface CompiledWorkspaceContext {
 
 export function compileWorkspaceContext(
   workspaceId: string,
-  pinnedContext?: { type: 'release' | 'campaign' | 'project' | 'brand_core' | 'general'; id?: string }
+  pinnedContext?: { type: 'release' | 'campaign' | 'project' | 'brand_core' | 'general'; id?: string },
+  queryPrompt?: string
 ): CompiledWorkspaceContext | null {
   const ws = db.getWorkspaceById(workspaceId);
   if (!ws) return null;
@@ -524,6 +527,14 @@ export function compileWorkspaceContext(
   const rawAssets = db.getAssets(workspaceId);
   const rawContent = db.getContentItems(workspaceId);
   const memory = db.getCreativeMemory(workspaceId);
+
+  // Retrieve structured, relevance-ranked memories
+  const retrievedMemories = MemoryRetrievalService.retrieve(workspaceId, {
+    query: queryPrompt,
+    entityType: pinnedContext?.type === 'release' ? 'release' : pinnedContext?.type === 'campaign' ? 'campaign' : pinnedContext?.type === 'project' ? 'project' : undefined,
+    entityId: pinnedContext?.id,
+    limit: 8,
+  });
 
   // Calculate readiness for all releases
   const releases = rawReleases.map((rel) => ({
@@ -686,6 +697,7 @@ export function compileWorkspaceContext(
       platforms,
     },
     creativeMemory: memory,
+    retrievedMemories,
     pinnedContext: resolvedPinned,
   };
 }
@@ -1019,20 +1031,46 @@ export function executeBrainTool(params: ExecuteToolParams): BrainActionReceipt 
       }
 
       case 'save_creative_memory': {
-        const type = args.type || 'decision';
+        const type = args.type || args.category || 'preference';
+        const title = args.title || `Memory: ${type}`;
         const content = args.content || args.text;
         if (!content) throw new Error('Memory content is required');
 
-        const memory = db.getCreativeMemory(workspaceId);
+        // 1. Create structured CreativeMemoryItemRecord
+        let category: any = 'preference';
+        if (type === 'tone' || type === 'voice' || type === 'visual' || type === 'preference') category = 'preference';
+        else if (type === 'narrative' || type === 'identity') category = 'identity';
+        else if (type === 'strategy' || type === 'goal' || type === 'learning') category = 'strategy';
+        else if (type === 'rule' || type === 'guardrail') category = 'rule';
+        else if (type === 'project' || type === 'decision') category = 'project';
+
+        const memoryItem = db.createCreativeMemoryItem(workspaceId, {
+          userId,
+          title: args.title || `${category.toUpperCase()}: ${content.substring(0, 45)}...`,
+          content,
+          category,
+          scope: args.scope || 'workspace',
+          entityType: args.entityType,
+          entityId: args.entityId,
+          entityName: args.entityName,
+          tags: args.tags || ['creative-brain', category],
+          source: 'user_explicit',
+          confidence: args.confidence !== undefined ? args.confidence : 95,
+          status: 'active',
+          isPinned: args.isPinned !== undefined ? args.isPinned : false,
+        });
+
+        // 2. Also keep legacy memory record in sync
+        const legacyMemory = db.getCreativeMemory(workspaceId);
         const updates: Partial<CreativeMemoryRecord> = {};
 
         if (type === 'tone' || type === 'voice') {
-          const currentTraits = memory?.toneTraits || [];
+          const currentTraits = legacyMemory?.toneTraits || [];
           if (!currentTraits.includes(content)) {
             updates.toneTraits = [...currentTraits, content];
           }
         } else if (type === 'decision') {
-          const decisions = (memory as any)?.keyDecisions || [];
+          const decisions = (legacyMemory as any)?.keyDecisions || [];
           updates.keyDecisions = [
             ...decisions,
             {
@@ -1045,17 +1083,17 @@ export function executeBrainTool(params: ExecuteToolParams): BrainActionReceipt 
         } else if (type === 'narrative') {
           updates.coreNarrative = content;
         } else if (type === 'learning') {
-          const learnings = memory?.recentLearnings || [];
+          const learnings = legacyMemory?.recentLearnings || [];
           updates.recentLearnings = [...learnings, content];
         } else if (type === 'goal') {
-          const goals = (memory as any)?.recurringGoals || [];
+          const goals = (legacyMemory as any)?.recurringGoals || [];
           updates.recurringGoals = [...goals, content];
         } else if (type === 'visual') {
-          const visual = memory?.visualRules || [];
+          const visual = legacyMemory?.visualRules || [];
           updates.visualRules = [...visual, content];
         }
 
-        const savedMemory = db.updateCreativeMemory(workspaceId, updates);
+        db.updateCreativeMemory(workspaceId, updates);
 
         db.logActivity(
           workspaceId,
@@ -1063,19 +1101,19 @@ export function executeBrainTool(params: ExecuteToolParams): BrainActionReceipt 
           userEmail,
           'UPDATE_MEMORY',
           'creative_memory',
-          savedMemory.id,
-          `Creative Brain saved memory (${type}): "${content.substring(0, 40)}..."`
+          memoryItem.id,
+          `Creative Brain saved structured memory (${category}): "${content.substring(0, 40)}..."`
         );
 
         return {
           id: "act_" + Math.random().toString(36).substring(2, 9),
           toolName: 'save_creative_memory',
-          actionSummary: `Saved creative memory (${type}): "${content}"`,
+          actionSummary: `Saved creative memory (${category}): "${content}"`,
           entityType: 'creative_memory',
-          entityId: savedMemory.id,
-          actionTab: 'workspace-hub',
-          actionLabel: 'View Creative Memory',
-          payload: savedMemory,
+          entityId: memoryItem.id,
+          actionTab: 'creative-memory',
+          actionLabel: 'View Creative Memory Hub',
+          payload: memoryItem,
           status: 'executed',
           timestamp: new Date().toISOString(),
         };
@@ -1530,10 +1568,12 @@ export class CreativeBrainService {
     suggestedActions: { label: string; actionTab: string }[];
     executedActions: BrainActionReceipt[];
     contextAnalyzed: CompiledWorkspaceContext | null;
+    usedMemories?: { id: string; title: string; category: string; scope: string; reason: string; snippet: string }[];
+    potentialMemoryCandidate?: any;
   }> {
     const { workspaceId, userId, userEmail, message, pinnedContext, directActionRequest } = params;
 
-    const context = compileWorkspaceContext(workspaceId, pinnedContext);
+    const context = compileWorkspaceContext(workspaceId, pinnedContext, message);
     if (!context) {
       throw new Error(`Workspace not found or unauthorized: ${workspaceId}`);
     }
@@ -1626,11 +1666,12 @@ WORKSPACE CONTEXT:
 - Projects & Tasks: ${JSON.stringify(context.projects)}
 - Stored Assets: ${JSON.stringify(context.assetsSummary)}
 - Content Pipeline: ${JSON.stringify(context.contentSummary)}
-- Creative Memory: ${JSON.stringify(context.creativeMemory || {})}
 - Pinned Focus Context: ${JSON.stringify(context.pinnedContext || {})}
 
+${context.retrievedMemories?.promptContext || ''}
+
 CORE DIRECTIVES:
-1. Always base answers strictly on the workspace data above.
+1. Always base answers strictly on the workspace data and persistent creative memory above.
 2. For Artist release inquiries: Inspect the 7 release pillars (Cover Artwork, Master WAV Audio, DSP Pitch, Pre-Save, Synchronized Lyrics, Split Sheets, Promo Wave) and list exact missing items.
 3. For Brand/Business campaign inquiries: Inspect the 7 campaign pillars (Objective, Product Link, Creative Direction, Hero Asset, Content Pipeline, Sprint Milestones, Approvals) and list exact blockers.
 4. For general or project questions: Provide tactical, high-impact guidance, prioritization, and concrete next steps.
@@ -1644,9 +1685,7 @@ CORE DIRECTIVES:
               parts: [{ text: `${systemInstruction}\n\nUSER PROMPT: ${message}` }],
             },
           ],
-          // Support tool calling if needed
           config: {
-            // Include client headers as recommended
             httpOptions: {
               headers: {
                 "Client-Info": "aistudio-build",
@@ -1662,13 +1701,14 @@ CORE DIRECTIVES:
         if (context.workspace.identityType === 'artist') {
           suggestedActions.push(
             { label: "Audit Release Core", actionTab: "artist-os" },
+            { label: "Creative Memory Hub", actionTab: "creative-memory" },
             { label: "Open Cover Studio", actionTab: "cover-studio" },
-            { label: "Mastering Suite", actionTab: "mastering-suite" },
             { label: "DSP Pitcher", actionTab: "dsp-pitcher" }
           );
         } else {
           suggestedActions.push(
             { label: "Campaign Hub", actionTab: "brand-os" },
+            { label: "Creative Memory Hub", actionTab: "creative-memory" },
             { label: "Resource Vault", actionTab: "resource-vault" },
             { label: "Project Console", actionTab: "project-console" }
           );
@@ -1682,11 +1722,26 @@ CORE DIRECTIVES:
           });
         }
 
+        // Memory Candidate Detection (AI Extraction with User Approval)
+        const candidateDetection = MemoryRetrievalService.detectMemoryCandidate(workspaceId, message, fullResponse);
+        let potentialMemoryCandidate: any = undefined;
+        if (candidateDetection.shouldPropose && candidateDetection.candidate) {
+          potentialMemoryCandidate = db.createMemoryCandidate(workspaceId, {
+            ...candidateDetection.candidate,
+            scope: 'workspace',
+            sourceContext: 'Creative Brain Interaction',
+            confidence: 88,
+            status: 'pending',
+          });
+        }
+
         return {
           response: fullResponse,
           suggestedActions,
           executedActions,
           contextAnalyzed: context,
+          usedMemories: context.retrievedMemories?.transparencySummaries || [],
+          potentialMemoryCandidate,
         };
       } catch (err: any) {
         console.error("[CreativeBrain AI Service Error]", err);
@@ -1696,11 +1751,27 @@ CORE DIRECTIVES:
 
     // Fallback: Algorithmic Intelligence Engine
     const algorithmic = generateAlgorithmicBrainResponse(context, message, executedActions);
+
+    // Also check memory candidate detection for offline mode
+    const candidateDetection = MemoryRetrievalService.detectMemoryCandidate(workspaceId, message, algorithmic.response);
+    let potentialMemoryCandidate: any = undefined;
+    if (candidateDetection.shouldPropose && candidateDetection.candidate) {
+      potentialMemoryCandidate = db.createMemoryCandidate(workspaceId, {
+        ...candidateDetection.candidate,
+        scope: 'workspace',
+        sourceContext: 'Creative Brain Interaction (Direct)',
+        confidence: 90,
+        status: 'pending',
+      });
+    }
+
     return {
       response: algorithmic.response,
       suggestedActions: algorithmic.suggestedActions,
       executedActions,
       contextAnalyzed: context,
+      usedMemories: context.retrievedMemories?.transparencySummaries || [],
+      potentialMemoryCandidate,
     };
   }
 }

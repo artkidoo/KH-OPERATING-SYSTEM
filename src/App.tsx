@@ -24,6 +24,7 @@ import { MasteringSuite } from "./components/MasteringSuite";
 import { SplitsCalculator } from "./components/SplitsCalculator";
 import { PresaveHub } from "./components/PresaveHub";
 import { CreativeBrainConsole } from "./components/CreativeBrainConsole";
+import { CreativeMemoryDashboard } from "./components/CreativeMemoryDashboard";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
@@ -114,6 +115,13 @@ function MainAppContent() {
 
         {activeTab === "creative-brain" && (
           <CreativeBrainConsole setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === "creative-memory" && (
+          <CreativeMemoryDashboard
+            onNotify={addNotification}
+            onNavigateTab={setActiveTab}
+          />
         )}
 
         {activeTab === "lyrics-studio" && (

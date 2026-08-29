@@ -427,6 +427,84 @@ export interface CreativeMemoryRecord {
   updatedAt: string;
 }
 
+// ==========================================
+// PHASE 8: CREATIVE MEMORY & LONG-TERM INTEL RECORDS
+// ==========================================
+
+export type CreativeMemoryCategory = 
+  | 'identity'
+  | 'preference'
+  | 'strategy'
+  | 'project'
+  | 'asset'
+  | 'rule';
+
+export type CreativeMemoryScope = 
+  | 'workspace'
+  | 'identity'
+  | 'release'
+  | 'campaign'
+  | 'project'
+  | 'content'
+  | 'studio_project';
+
+export type CreativeMemorySource = 
+  | 'user_explicit'
+  | 'ai_extracted'
+  | 'studio_decision'
+  | 'system_inferred';
+
+export interface CreativeMemoryItemRecord {
+  id: string;
+  workspaceId: string;
+  userId?: string;
+  category: CreativeMemoryCategory;
+  scope: CreativeMemoryScope;
+  entityType?: 'release' | 'campaign' | 'project' | 'studio_project' | 'identity' | 'product' | 'asset';
+  entityId?: string;
+  entityName?: string;
+  title: string;
+  content: string;
+  tags: string[];
+  source: CreativeMemorySource;
+  confidence: number;
+  status: 'active' | 'archived';
+  isPinned: boolean;
+  supersedesMemoryId?: string;
+  supersededByMemoryId?: string;
+  assetReferenceId?: string;
+  assetReferenceName?: string;
+  assetReferenceUrl?: string;
+  metadata?: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MemoryCandidateRecord {
+  id: string;
+  workspaceId: string;
+  title: string;
+  content: string;
+  category: CreativeMemoryCategory;
+  scope: CreativeMemoryScope;
+  entityType?: string;
+  entityId?: string;
+  entityName?: string;
+  sourceContext: string;
+  confidence: number;
+  tags: string[];
+  status: 'pending' | 'saved' | 'dismissed';
+  createdAt: string;
+}
+
+export interface MemoryBlockRuleRecord {
+  id: string;
+  workspaceId: string;
+  pattern: string;
+  reason: string;
+  createdAt: string;
+}
+
 export interface NotificationRecord {
   id: string;
   workspaceId: string;
@@ -686,6 +764,9 @@ export interface DatabaseSchema {
   content_pillars: ContentPillarRecord[];
   content_items: ContentItemRecord[];
   creative_memories: CreativeMemoryRecord[];
+  creative_memory_items: CreativeMemoryItemRecord[];
+  memory_candidates: MemoryCandidateRecord[];
+  memory_block_rules: MemoryBlockRuleRecord[];
   notifications: NotificationRecord[];
   activity_logs: ActivityLogRecord[];
   creative_requests: CreativeRequestRecord[];
@@ -1652,6 +1733,184 @@ function generateInitialSeed(): DatabaseSchema {
         createdAt: new Date(Date.now() - 12 * 3600000).toISOString()
       }
     ],
+    creative_memory_items: [
+      {
+        id: "mem_demo_1",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        category: "identity",
+        scope: "workspace",
+        title: "AfroVibe World Identity & Core Narrative",
+        content: "Pioneering African sonic craftsmanship that bridges traditional syncopated percussion with futuristic synth architecture for a global audience.",
+        tags: ["identity", "afro-fusion", "global", "storytelling", "artist-vision"],
+        source: "user_explicit",
+        confidence: 100,
+        status: "active",
+        isPinned: true,
+        createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "mem_demo_2",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        category: "preference",
+        scope: "workspace",
+        title: "Alté Lagos Noir Visual Aesthetic",
+        content: "Always maintain high-contrast obsidian canvases (#09090B), subtle cinematic 35mm grain, moody crimson accent lighting (#EF4444), and tight display typography.",
+        tags: ["visual", "lighting", "noir", "alte", "crimson", "typography", "palette"],
+        source: "user_explicit",
+        confidence: 98,
+        status: "active",
+        isPinned: true,
+        createdAt: new Date(Date.now() - 20 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "mem_demo_3",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        category: "preference",
+        scope: "workspace",
+        title: "Concise, Punchy & Magnetic Editorial Tone",
+        content: "Keep all captions, marketing hooks, and press releases concise, authentic, and culturally resonant. Avoid flowery corporate fluff or spammy viral phrases.",
+        tags: ["tone", "voice", "editorial", "punchy", "copywriting"],
+        source: "user_explicit",
+        confidence: 95,
+        status: "active",
+        isPinned: true,
+        createdAt: new Date(Date.now() - 15 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "mem_demo_4",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        category: "strategy",
+        scope: "workspace",
+        title: "Target Audience: Independent Music Tastemakers & Global Diaspora",
+        content: "Primary listener base is 18-34 music enthusiasts, playlist curators, and diaspora creatives in London, Lagos, New York, and Toronto who value authentic cultural soundscapes.",
+        tags: ["audience", "demographics", "icp", "superfans", "strategy"],
+        source: "user_explicit",
+        confidence: 92,
+        status: "active",
+        isPinned: true,
+        createdAt: new Date(Date.now() - 10 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "mem_demo_5",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        category: "project",
+        scope: "release",
+        entityType: "release",
+        entityId: release.id,
+        entityName: "Midnight in Victoria Island",
+        title: "'Midnight in Victoria Island' 180g Vinyl Master & Packaging Spec",
+        content: "Approved physical edition uses 180-gram translucent crimson wax, custom gatefold liner notes, 24-bit 96kHz lossless masters, and gold foil-stamped lyrics poster.",
+        tags: ["vinyl", "mastering", "packaging", "release-spec", "audiophile"],
+        source: "studio_decision",
+        confidence: 100,
+        status: "active",
+        isPinned: false,
+        assetReferenceId: asset.id,
+        assetReferenceName: asset.name,
+        assetReferenceUrl: asset.url,
+        createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "mem_demo_6",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        category: "asset",
+        scope: "workspace",
+        title: "3000x3000px 300DPI Hi-Res Artwork Delivery Standard",
+        content: "All single and EP releases must strictly feature 3000x3000px 300DPI RGB master covers without borders or non-standard text to pass Apple Music and Spotify QA checks.",
+        tags: ["spec", "cover", "spotify", "apple-music", "dsp-standard"],
+        source: "system_inferred",
+        confidence: 100,
+        status: "active",
+        isPinned: false,
+        createdAt: new Date(Date.now() - 18 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "mem_demo_7",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        category: "strategy",
+        scope: "workspace",
+        title: "Era 1: Raw Afro-Soul (2024–2025)",
+        content: "Acoustic organic live instrumentation with earth-tone visual palettes and intimate bedroom recording aesthetics.",
+        tags: ["era", "history", "evolution", "acoustic"],
+        source: "user_explicit",
+        confidence: 90,
+        status: "active",
+        isPinned: false,
+        supersededByMemoryId: "mem_demo_8",
+        createdAt: new Date(Date.now() - 120 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+      },
+      {
+        id: "mem_demo_8",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        category: "strategy",
+        scope: "workspace",
+        title: "Era 2: Afro-Futurist Alté-Noir (2026–Present)",
+        content: "Evolved soundscape integrating heavy analog synthesizers, 3D kinetic visuals, and global crossover collaborations. Supersedes Era 1 organic acoustic era.",
+        tags: ["era", "current", "evolution", "futurist", "alte-noir"],
+        source: "user_explicit",
+        confidence: 98,
+        status: "active",
+        isPinned: true,
+        supersedesMemoryId: "mem_demo_7",
+        createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "mem_demo_9",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        category: "rule",
+        scope: "workspace",
+        title: "Brand Guardrails: Do Not Use Generic Promotional Slang",
+        content: "Strictly ban generic clickbait hooks ('Check this out', 'Going viral', '#fyp') and corporate jargon. Always frame announcements as cultural moments and creative craftsmanship.",
+        tags: ["rules", "guardrails", "dont-say", "brand-safety"],
+        source: "user_explicit",
+        confidence: 100,
+        status: "active",
+        isPinned: true,
+        createdAt: new Date(Date.now() - 25 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    ],
+    memory_candidates: [
+      {
+        id: "mcand_demo_1",
+        workspaceId: defaultWorkspaceId,
+        title: "Prioritize 9:16 Vertical Motion Loops for All Single Drops",
+        content: "Creative Brain identified recurring high engagement on TikTok and Spotify Canvas when motion loops are rendered concurrently with static cover art.",
+        category: "preference",
+        scope: "workspace",
+        sourceContext: "Creative Brain Release Analysis & Studio Review",
+        confidence: 88,
+        tags: ["motion", "canvas", "tiktok", "reels"],
+        status: "pending",
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+      }
+    ],
+    memory_block_rules: [
+      {
+        id: "mblock_demo_1",
+        workspaceId: defaultWorkspaceId,
+        pattern: "Personal bank account numbers, private phone numbers, or confidential passwords",
+        reason: "Strict privacy and personal credential protection across all AI workspace memory",
+        createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+      }
+    ],
   };
 }
 
@@ -1685,6 +1944,9 @@ class Database {
           content_pillars: parsed.content_pillars || seed.content_pillars,
           content_items: parsed.content_items || seed.content_items,
           creative_memories: parsed.creative_memories || seed.creative_memories,
+          creative_memory_items: parsed.creative_memory_items || seed.creative_memory_items,
+          memory_candidates: parsed.memory_candidates || seed.memory_candidates,
+          memory_block_rules: parsed.memory_block_rules || seed.memory_block_rules,
           notifications: parsed.notifications || seed.notifications,
           activity_logs: parsed.activity_logs || seed.activity_logs,
           creative_requests: parsed.creative_requests || seed.creative_requests,
@@ -2437,6 +2699,326 @@ class Database {
     Object.assign(memory, updates, { updatedAt: new Date().toISOString() });
     this.save();
     return memory;
+  }
+
+  // ==========================================
+  // PHASE 8: STRUCTURED CREATIVE MEMORY METHODS
+  // ==========================================
+
+  public getCreativeMemoryItems(
+    workspaceId: string,
+    options?: {
+      category?: CreativeMemoryCategory;
+      scope?: CreativeMemoryScope;
+      entityType?: string;
+      entityId?: string;
+      status?: 'active' | 'archived';
+      isPinned?: boolean;
+      search?: string;
+    }
+  ): CreativeMemoryItemRecord[] {
+    let items = (this.data.creative_memory_items || []).filter(
+      (m) => m.workspaceId === workspaceId
+    );
+
+    if (options?.category) {
+      items = items.filter((m) => m.category === options.category);
+    }
+    if (options?.scope) {
+      items = items.filter((m) => m.scope === options.scope);
+    }
+    if (options?.entityType) {
+      items = items.filter((m) => m.entityType === options.entityType);
+    }
+    if (options?.entityId) {
+      items = items.filter((m) => m.entityId === options.entityId);
+    }
+    if (options?.status) {
+      items = items.filter((m) => m.status === options.status);
+    }
+    if (options?.isPinned !== undefined) {
+      items = items.filter((m) => m.isPinned === options.isPinned);
+    }
+    if (options?.search && options.search.trim()) {
+      const q = options.search.toLowerCase().trim();
+      items = items.filter(
+        (m) =>
+          m.title.toLowerCase().includes(q) ||
+          m.content.toLowerCase().includes(q) ||
+          (m.tags && m.tags.some((t) => t.toLowerCase().includes(q))) ||
+          (m.entityName && m.entityName.toLowerCase().includes(q))
+      );
+    }
+
+    return items.sort((a, b) => {
+      // Pinned first, then newest
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }
+
+  public getCreativeMemoryItemById(
+    workspaceId: string,
+    memoryId: string
+  ): CreativeMemoryItemRecord | undefined {
+    return (this.data.creative_memory_items || []).find(
+      (m) => m.workspaceId === workspaceId && m.id === memoryId
+    );
+  }
+
+  public createCreativeMemoryItem(
+    workspaceId: string,
+    data: Omit<CreativeMemoryItemRecord, 'id' | 'workspaceId' | 'createdAt' | 'updatedAt'>
+  ): CreativeMemoryItemRecord {
+    if (!this.data.creative_memory_items) {
+      this.data.creative_memory_items = [];
+    }
+
+    const item: CreativeMemoryItemRecord = {
+      id: "mem_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      userId: data.userId,
+      category: data.category || 'preference',
+      scope: data.scope || 'workspace',
+      entityType: data.entityType,
+      entityId: data.entityId,
+      entityName: data.entityName,
+      title: data.title,
+      content: data.content,
+      tags: data.tags || [],
+      source: data.source || 'user_explicit',
+      confidence: data.confidence !== undefined ? data.confidence : 100,
+      status: data.status || 'active',
+      isPinned: !!data.isPinned,
+      supersedesMemoryId: data.supersedesMemoryId,
+      supersededByMemoryId: data.supersededByMemoryId,
+      assetReferenceId: data.assetReferenceId,
+      assetReferenceName: data.assetReferenceName,
+      assetReferenceUrl: data.assetReferenceUrl,
+      metadata: data.metadata,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // If supersedes another memory, update the parent memory to point to this new one
+    if (item.supersedesMemoryId) {
+      const oldMem = this.getCreativeMemoryItemById(workspaceId, item.supersedesMemoryId);
+      if (oldMem) {
+        oldMem.supersededByMemoryId = item.id;
+        oldMem.updatedAt = new Date().toISOString();
+      }
+    }
+
+    this.data.creative_memory_items.unshift(item);
+    this.save();
+    return item;
+  }
+
+  public updateCreativeMemoryItem(
+    workspaceId: string,
+    memoryId: string,
+    updates: Partial<CreativeMemoryItemRecord>
+  ): CreativeMemoryItemRecord {
+    const item = this.getCreativeMemoryItemById(workspaceId, memoryId);
+    if (!item) {
+      throw new Error(`Creative memory item ${memoryId} not found in workspace ${workspaceId}`);
+    }
+
+    Object.assign(item, updates, {
+      updatedAt: new Date().toISOString(),
+    });
+    this.save();
+    return item;
+  }
+
+  public deleteCreativeMemoryItem(workspaceId: string, memoryId: string): boolean {
+    if (!this.data.creative_memory_items) return false;
+    const initialLen = this.data.creative_memory_items.length;
+    this.data.creative_memory_items = this.data.creative_memory_items.filter(
+      (m) => !(m.workspaceId === workspaceId && m.id === memoryId)
+    );
+    if (this.data.creative_memory_items.length !== initialLen) {
+      this.save();
+      return true;
+    }
+    return false;
+  }
+
+  public archiveCreativeMemoryItem(
+    workspaceId: string,
+    memoryId: string,
+    archive: boolean = true
+  ): CreativeMemoryItemRecord {
+    return this.updateCreativeMemoryItem(workspaceId, memoryId, {
+      status: archive ? 'archived' : 'active',
+    });
+  }
+
+  public togglePinCreativeMemoryItem(
+    workspaceId: string,
+    memoryId: string
+  ): CreativeMemoryItemRecord {
+    const item = this.getCreativeMemoryItemById(workspaceId, memoryId);
+    if (!item) {
+      throw new Error(`Creative memory item ${memoryId} not found`);
+    }
+    return this.updateCreativeMemoryItem(workspaceId, memoryId, {
+      isPinned: !item.isPinned,
+    });
+  }
+
+  public supersedeCreativeMemory(
+    workspaceId: string,
+    oldMemoryId: string,
+    newMemoryData: Omit<CreativeMemoryItemRecord, 'id' | 'workspaceId' | 'createdAt' | 'updatedAt'>
+  ): { oldMemory: CreativeMemoryItemRecord; newMemory: CreativeMemoryItemRecord } {
+    const oldMem = this.getCreativeMemoryItemById(workspaceId, oldMemoryId);
+    if (!oldMem) {
+      throw new Error(`Old memory item ${oldMemoryId} not found to supersede`);
+    }
+
+    const newMem = this.createCreativeMemoryItem(workspaceId, {
+      ...newMemoryData,
+      supersedesMemoryId: oldMemoryId,
+    });
+
+    oldMem.supersededByMemoryId = newMem.id;
+    oldMem.updatedAt = new Date().toISOString();
+    this.save();
+
+    return { oldMemory: oldMem, newMemory: newMem };
+  }
+
+  // --- Memory Candidates (AI Inferences awaiting confirmation) ---
+  public getMemoryCandidates(
+    workspaceId: string,
+    status?: 'pending' | 'saved' | 'dismissed'
+  ): MemoryCandidateRecord[] {
+    let list = (this.data.memory_candidates || []).filter(
+      (c) => c.workspaceId === workspaceId
+    );
+    if (status) {
+      list = list.filter((c) => c.status === status);
+    }
+    return list.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  public createMemoryCandidate(
+    workspaceId: string,
+    data: Omit<MemoryCandidateRecord, 'id' | 'workspaceId' | 'createdAt'>
+  ): MemoryCandidateRecord {
+    if (!this.data.memory_candidates) {
+      this.data.memory_candidates = [];
+    }
+
+    const candidate: MemoryCandidateRecord = {
+      id: "mcand_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      title: data.title,
+      content: data.content,
+      category: data.category || 'preference',
+      scope: data.scope || 'workspace',
+      entityType: data.entityType,
+      entityId: data.entityId,
+      entityName: data.entityName,
+      sourceContext: data.sourceContext || 'Creative Brain Intelligence',
+      confidence: data.confidence !== undefined ? data.confidence : 85,
+      tags: data.tags || [],
+      status: data.status || 'pending',
+      createdAt: new Date().toISOString(),
+    };
+
+    this.data.memory_candidates.unshift(candidate);
+    this.save();
+    return candidate;
+  }
+
+  public resolveMemoryCandidate(
+    workspaceId: string,
+    candidateId: string,
+    action: 'save' | 'dismiss',
+    edits?: Partial<CreativeMemoryItemRecord>
+  ): { candidate: MemoryCandidateRecord; savedMemory?: CreativeMemoryItemRecord } {
+    const candidate = (this.data.memory_candidates || []).find(
+      (c) => c.workspaceId === workspaceId && c.id === candidateId
+    );
+    if (!candidate) {
+      throw new Error(`Candidate ${candidateId} not found in workspace`);
+    }
+
+    if (action === 'dismiss') {
+      candidate.status = 'dismissed';
+      this.save();
+      return { candidate };
+    }
+
+    // Save as active memory
+    candidate.status = 'saved';
+    const savedMemory = this.createCreativeMemoryItem(workspaceId, {
+      title: edits?.title || candidate.title,
+      content: edits?.content || candidate.content,
+      category: edits?.category || candidate.category,
+      scope: edits?.scope || candidate.scope,
+      entityType: (edits?.entityType || candidate.entityType) as any,
+      entityId: edits?.entityId || candidate.entityId,
+      entityName: edits?.entityName || candidate.entityName,
+      tags: edits?.tags || candidate.tags,
+      source: 'ai_extracted',
+      confidence: candidate.confidence,
+      status: 'active',
+      isPinned: edits?.isPinned !== undefined ? edits.isPinned : false,
+      metadata: {
+        candidateId: candidate.id,
+        sourceContext: candidate.sourceContext,
+      },
+    });
+
+    this.save();
+    return { candidate, savedMemory };
+  }
+
+  // --- Memory Block Rules (Guardrails) ---
+  public getMemoryBlockRules(workspaceId: string): MemoryBlockRuleRecord[] {
+    return (this.data.memory_block_rules || []).filter(
+      (r) => r.workspaceId === workspaceId
+    );
+  }
+
+  public createMemoryBlockRule(
+    workspaceId: string,
+    data: { pattern: string; reason: string }
+  ): MemoryBlockRuleRecord {
+    if (!this.data.memory_block_rules) {
+      this.data.memory_block_rules = [];
+    }
+
+    const rule: MemoryBlockRuleRecord = {
+      id: "mblock_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      pattern: data.pattern,
+      reason: data.reason,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.data.memory_block_rules.unshift(rule);
+    this.save();
+    return rule;
+  }
+
+  public deleteMemoryBlockRule(workspaceId: string, ruleId: string): boolean {
+    if (!this.data.memory_block_rules) return false;
+    const initialLen = this.data.memory_block_rules.length;
+    this.data.memory_block_rules = this.data.memory_block_rules.filter(
+      (r) => !(r.workspaceId === workspaceId && r.id === ruleId)
+    );
+    if (this.data.memory_block_rules.length !== initialLen) {
+      this.save();
+      return true;
+    }
+    return false;
   }
 
   // --- Notifications & Activity ---

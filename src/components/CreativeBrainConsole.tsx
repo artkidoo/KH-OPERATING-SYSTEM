@@ -686,7 +686,13 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
                   <Palette className="w-3.5 h-3.5 text-red-400" />
                   <span>Creative Memory</span>
                 </h3>
-                <span className="text-[10px] text-zinc-500">Persistent Tokens</span>
+                <button
+                  onClick={() => setActiveTab("creative-memory")}
+                  className="text-[10px] text-red-400 hover:text-red-300 font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <span>Open Full OS</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </button>
               </div>
 
               <div className="space-y-3 text-xs">
@@ -728,6 +734,14 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
                     </ul>
                   </div>
                 )}
+
+                <button
+                  onClick={() => setActiveTab("creative-memory")}
+                  className="w-full py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold flex items-center justify-center gap-2 border border-zinc-700 transition-colors cursor-pointer"
+                >
+                  <BrainCircuit className="w-3.5 h-3.5 text-purple-400" />
+                  Manage Long-Term Memory (Phase 8)
+                </button>
               </div>
             </div>
           )}
