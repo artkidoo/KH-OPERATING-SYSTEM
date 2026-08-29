@@ -67,7 +67,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openBriefModal }) 
               <KeedohubLogo size="md" showText={true} badge="OS" />
             </div>
             <p className="text-xs text-[var(--bento-muted)] max-w-sm leading-relaxed">
-              The Creative Operating System for music artists, brands, creators, and startups. Studios, resources, tools, knowledge, and production — engineered in Lagos, Nigeria for global creators.
+              Keedohub is a creative operating system that gives artists, brands, businesses and creators the infrastructure to organize their creative identity, produce work, launch campaigns, manage content, store assets and continuously move their ideas forward — with professional human creative services built directly into the system.
             </p>
             <div className="flex items-center gap-3 pt-2 text-[var(--bento-muted)] font-mono text-[11px]">
               <span>Founder & Lead: <strong className="text-[var(--bento-text)]">Ojo Abdulkareem</strong></span>

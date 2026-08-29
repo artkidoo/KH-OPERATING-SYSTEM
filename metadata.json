@@ -1,6 +1,6 @@
 {
   "name": "Keedohub Creative OS",
-  "description": "The Operating System for music artists, brands, creators, and startups. Features the Keedohub Creative Brain Contextual Intelligence Engine, Phase 8 Persistent Creative Memory & Long-Term Intelligence, Phase 7 Keedohub Studio Creative Services & Production Pipeline, 7-Pillar Release & Campaign Readiness, Artist OS, Brand OS, Content Engine, 30-Day Rollout Pipeline, 9:16 Lyric Studio (.LRC), DSP Editorial Pitcher, Mastering & LUFS Radar, Royalty Splits Simulator, Smart Pre-Save Hub, and Cover Studio.",
+  "description": "Keedohub is a creative operating system that gives artists, brands, businesses and creators the infrastructure to organize their creative identity, produce work, launch campaigns, manage content, store assets and continuously move their ideas forward — with professional human creative services built directly into the system.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
