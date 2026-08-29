@@ -93,6 +93,7 @@ export const Header: React.FC<HeaderProps> = ({
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: "artist-os", label: "Artist OS", icon: <Disc3 className="w-3.5 h-3.5" />, badge: "PHASE 3" },
     { id: "content-engine", label: "Content Engine", icon: <Layers className="w-3.5 h-3.5" />, badge: "PHASE 6" },
+    { id: "studio", label: "Keedohub Studio", icon: <Palette className="w-3.5 h-3.5" />, badge: "PHASE 7" },
     { id: "creative-brain", label: "Creative Brain", icon: <BrainCircuit className="w-3.5 h-3.5" />, badge: "OS AI" },
     { id: "workspace-hub", label: "Workspace OS", icon: <HardDrive className="w-3.5 h-3.5" />, badge: "HUB" },
     { id: "brand-os", label: "Brand OS", icon: <Sparkles className="w-3.5 h-3.5" /> },

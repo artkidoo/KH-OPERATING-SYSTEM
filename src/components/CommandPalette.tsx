@@ -175,6 +175,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       group: "Core Operating Systems",
       items: [
         {
+          id: "studio",
+          title: "Keedohub Studio (Creative Services & Production)",
+          description: "Commission professional cover design, brand identities, motion graphics, UI/UX, and review quotes & deliverables",
+          icon: <Palette className="w-4 h-4 text-red-500" />,
+          action: () => {
+            setActiveTab("studio");
+            onClose();
+          },
+        },
+        {
           id: "creative-brain",
           title: "Keedohub Creative Brain Console",
           description: "Autonomous intelligence operating over releases, campaigns, 7-pillar readiness & persistent memory",

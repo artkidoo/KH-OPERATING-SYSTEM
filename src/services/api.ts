@@ -22,6 +22,15 @@ import {
   CreativeBrainRecommendation,
   BrainActionReceipt,
   GlobalSearchResult,
+  StudioRequest,
+  StudioQuote,
+  StudioProject,
+  StudioDeliverable,
+  StudioRevision,
+  StudioMessage,
+  StudioBrief,
+  StudioQuoteStatus,
+  StudioRevisionStatus,
 } from "../types";
 
 const TOKEN_KEY = "keedohub_session_token";
@@ -619,6 +628,174 @@ export const api = {
       return request<{ plan: any }>("/api/ai/campaign-builder", {
         method: "POST",
         body: JSON.stringify({ workspaceId, ...data }),
+      });
+    },
+  },
+
+  studio: {
+    requests: {
+      getAll: async (workspaceId: string) => {
+        return request<{ requests: StudioRequest[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests`);
+      },
+      getById: async (workspaceId: string, requestId: string) => {
+        return request<{ request: StudioRequest }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests/${encodeURIComponent(requestId)}`);
+      },
+      create: async (workspaceId: string, data: Partial<StudioRequest> & { serviceId: string; serviceName: string; title: string; brief: StudioBrief }) => {
+        return request<{ request: StudioRequest; quote?: StudioQuote }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+      update: async (workspaceId: string, requestId: string, updates: Partial<StudioRequest>) => {
+        return request<{ request: StudioRequest }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests/${encodeURIComponent(requestId)}`, {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        });
+      },
+      delete: async (workspaceId: string, requestId: string) => {
+        return request<{ success: boolean }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests/${encodeURIComponent(requestId)}`, {
+          method: "DELETE",
+        });
+      },
+    },
+
+    quotes: {
+      getAll: async (workspaceId: string, requestId?: string) => {
+        let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/quotes`;
+        if (requestId) url += `?requestId=${encodeURIComponent(requestId)}`;
+        return request<{ quotes: StudioQuote[] }>(url);
+      },
+      create: async (workspaceId: string, data: Partial<StudioQuote>) => {
+        return request<{ quote: StudioQuote }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/quotes`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+      updateStatus: async (
+        workspaceId: string,
+        quoteId: string,
+        status: StudioQuoteStatus,
+        payload?: { approvedBy?: string; declinedReason?: string; clarificationNotes?: string }
+      ) => {
+        return request<{ quote: StudioQuote; project?: StudioProject }>(
+          `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/quotes/${encodeURIComponent(quoteId)}/status`,
+          {
+            method: "POST",
+            body: JSON.stringify({ status, ...payload }),
+          }
+        );
+      },
+    },
+
+    projects: {
+      getAll: async (workspaceId: string) => {
+        return request<{ projects: StudioProject[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/projects`);
+      },
+      getById: async (workspaceId: string, projectId: string) => {
+        return request<{ project: StudioProject }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/projects/${encodeURIComponent(projectId)}`);
+      },
+      update: async (workspaceId: string, projectId: string, updates: Partial<StudioProject>) => {
+        return request<{ project: StudioProject }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/projects/${encodeURIComponent(projectId)}`, {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        });
+      },
+    },
+
+    deliverables: {
+      getAll: async (workspaceId: string, projectId?: string) => {
+        let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/deliverables`;
+        if (projectId) url += `?projectId=${encodeURIComponent(projectId)}`;
+        return request<{ deliverables: StudioDeliverable[] }>(url);
+      },
+      create: async (workspaceId: string, data: Partial<StudioDeliverable> & { projectId: string; name: string }) => {
+        return request<{ deliverable: StudioDeliverable }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/deliverables`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+      update: async (workspaceId: string, deliverableId: string, updates: Partial<StudioDeliverable>) => {
+        return request<{ deliverable: StudioDeliverable }>(
+          `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/deliverables/${encodeURIComponent(deliverableId)}`,
+          {
+            method: "PUT",
+            body: JSON.stringify(updates),
+          }
+        );
+      },
+      syncToVault: async (workspaceId: string, deliverableId: string) => {
+        return request<{ success: boolean; asset: Asset }>(
+          `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/deliverables/${encodeURIComponent(deliverableId)}/sync-to-vault`,
+          {
+            method: "POST",
+          }
+        );
+      },
+    },
+
+    revisions: {
+      getAll: async (workspaceId: string, projectId?: string, deliverableId?: string) => {
+        let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/revisions`;
+        const params: string[] = [];
+        if (projectId) params.push(`projectId=${encodeURIComponent(projectId)}`);
+        if (deliverableId) params.push(`deliverableId=${encodeURIComponent(deliverableId)}`);
+        if (params.length > 0) url += `?${params.join("&")}`;
+        return request<{ revisions: StudioRevision[] }>(url);
+      },
+      create: async (
+        workspaceId: string,
+        data: { projectId: string; deliverableId: string; deliverableName?: string; version?: string; reason: string; requestedChanges: string }
+      ) => {
+        return request<{ revision: StudioRevision }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/revisions`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+      updateStatus: async (workspaceId: string, revisionId: string, status: StudioRevisionStatus) => {
+        return request<{ revision: StudioRevision }>(
+          `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/revisions/${encodeURIComponent(revisionId)}/status`,
+          {
+            method: "PUT",
+            body: JSON.stringify({ status }),
+          }
+        );
+      },
+    },
+
+    messages: {
+      getAll: async (workspaceId: string, projectId?: string, requestId?: string) => {
+        let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/messages`;
+        const params: string[] = [];
+        if (projectId) params.push(`projectId=${encodeURIComponent(projectId)}`);
+        if (requestId) params.push(`requestId=${encodeURIComponent(requestId)}`);
+        if (params.length > 0) url += `?${params.join("&")}`;
+        return request<{ messages: StudioMessage[] }>(url);
+      },
+      send: async (
+        workspaceId: string,
+        data: { projectId?: string; requestId?: string; content: string; attachments?: any[] }
+      ) => {
+        return request<{ message: StudioMessage }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/messages`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+    },
+
+    aiBriefAssist: async (workspaceId: string, serviceCategory: string, draftBrief: Partial<StudioBrief>) => {
+      return request<{
+        assist: {
+          refinedConcept: string;
+          suggestedVisualDirection: string;
+          suggestedDeliverables: string[];
+          missingElements: string[];
+          clarifyingQuestions: string[];
+          estimatedDays: string;
+          confidenceScore: number;
+        };
+      }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/ai-brief-assist`, {
+        method: "POST",
+        body: JSON.stringify({ serviceCategory, draftBrief }),
       });
     },
   },

@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { db, IdentityType, UserRecord, SessionRecord } from "./db";
+import { db, IdentityType, UserRecord, SessionRecord, AssetCategory } from "./db";
 import { GoogleGenAI } from "@google/genai";
 import { CreativeBrainService, compileWorkspaceContext, executeBrainTool } from "./ai/creativeBrainService";
 import dotenv from "dotenv";
@@ -1387,6 +1387,449 @@ apiRouter.post("/workspaces/:workspaceId/creative-requests", requireAuth, requir
   );
 
   res.status(201).json({ request: creativeRequest });
+});
+
+// ==========================================
+// PHASE 7: KEEDOHUB STUDIO PRODUCTION ROUTES
+// ==========================================
+
+// 1. Studio Requests
+apiRouter.get("/workspaces/:workspaceId/studio/requests", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const requests = db.getStudioRequests(req.params.workspaceId);
+  res.json({ requests });
+});
+
+apiRouter.post("/workspaces/:workspaceId/studio/requests", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { serviceId, serviceName, title, brief, origin, releaseId, releaseTitle, campaignId, campaignTitle } = req.body;
+  
+  if (!serviceId || !serviceName || !title || !brief) {
+    return res.status(400).json({ error: "serviceId, serviceName, title, and brief are required" });
+  }
+
+  const newRequest = db.createStudioRequest(req.params.workspaceId, {
+    userId: req.user!.id,
+    serviceId,
+    serviceName,
+    title,
+    origin: origin || "direct",
+    releaseId,
+    releaseTitle,
+    campaignId,
+    campaignTitle,
+    brief,
+    status: "REQUEST",
+  });
+
+  // Auto-generate realistic quote draft for fast interactive testing
+  const estimatedPrice = brief.targetBudget || (
+    serviceId === "brand_identity" ? 450 :
+    serviceId === "cover_design" ? 280 :
+    serviceId === "web_ui_ux" ? 650 :
+    serviceId === "motion_animation" ? 380 :
+    serviceId === "social_media" ? 220 : 300
+  );
+
+  const quote = db.createStudioQuote(req.params.workspaceId, {
+    requestId: newRequest.id,
+    serviceName: `${serviceName} Production Suite`,
+    scopeSummary: `Full end-to-end creative production for "${title}". Includes initial concept exploration, hi-res master rendering, and full commercial copyright transfer.`,
+    deliverables: brief.requiredDeliverables && brief.requiredDeliverables.length > 0 
+      ? brief.requiredDeliverables 
+      : ["Master Hi-Res Asset Package", "Social Format Cuts", "Source Files & Commercial License"],
+    price: estimatedPrice,
+    currency: brief.currency || "USD",
+    timeline: serviceId === "cover_design" ? "48-72 Hours" : "3-5 Business Days",
+    revisionAllowance: 3,
+    notes: "Keedohub Studio Lead Producer assigned. 100% satisfaction guarantee with structured revision cycles.",
+    expirationDate: new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
+    status: "SENT",
+  });
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "CREATE_STUDIO_REQUEST",
+    "studio_request",
+    newRequest.id,
+    `Submitted Studio request for '${title}' (${serviceName})`
+  );
+
+  db.addNotification(
+    req.params.workspaceId,
+    "Studio Request & Quote Ready",
+    `Your request for '${title}' has been received and Quote #${quote.id.substring(0, 8)} is ready for your review.`,
+    "request",
+    "studio",
+    req.user!.id
+  );
+
+  res.status(201).json({ request: newRequest, quote });
+});
+
+apiRouter.get("/workspaces/:workspaceId/studio/requests/:requestId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const request = db.getStudioRequestById(req.params.requestId);
+  if (!request || request.workspaceId !== req.params.workspaceId) {
+    return res.status(404).json({ error: "Studio request not found" });
+  }
+  res.json({ request });
+});
+
+apiRouter.put("/workspaces/:workspaceId/studio/requests/:requestId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const updated = db.updateStudioRequest(req.params.workspaceId, req.params.requestId, req.body);
+    res.json({ request: updated });
+  } catch (err: any) {
+    res.status(404).json({ error: err.message || "Failed to update request" });
+  }
+});
+
+apiRouter.delete("/workspaces/:workspaceId/studio/requests/:requestId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const deleted = db.deleteStudioRequest(req.params.workspaceId, req.params.requestId);
+  if (!deleted) return res.status(404).json({ error: "Request not found" });
+  res.json({ success: true });
+});
+
+// 2. Studio Quotes
+apiRouter.get("/workspaces/:workspaceId/studio/quotes", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const requestId = typeof req.query.requestId === "string" ? req.query.requestId : undefined;
+  const quotes = db.getStudioQuotes(req.params.workspaceId, requestId);
+  res.json({ quotes });
+});
+
+apiRouter.post("/workspaces/:workspaceId/studio/quotes", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const quote = db.createStudioQuote(req.params.workspaceId, req.body);
+  res.status(201).json({ quote });
+});
+
+apiRouter.post("/workspaces/:workspaceId/studio/quotes/:quoteId/status", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { status, approvedBy, declinedReason, clarificationNotes } = req.body;
+  if (!status) return res.status(400).json({ error: "Status is required" });
+
+  try {
+    const result = db.updateStudioQuoteStatus(req.params.workspaceId, req.params.quoteId, status, {
+      approvedBy,
+      declinedReason,
+      clarificationNotes,
+    });
+
+    if (status === "APPROVED") {
+      db.logActivity(
+        req.params.workspaceId,
+        req.user!.id,
+        req.user!.email,
+        "APPROVE_STUDIO_QUOTE",
+        "studio_quote",
+        req.params.quoteId,
+        `Approved quote for '${result.quote.serviceName}' ($${result.quote.price})`
+      );
+
+      db.addNotification(
+        req.params.workspaceId,
+        "Studio Project Activated",
+        `Quote approved! Project '${result.project?.title || result.quote.serviceName}' is now active in Keedohub Studio production.`,
+        "success",
+        "studio",
+        req.user!.id
+      );
+    } else if (status === "DECLINED") {
+      db.logActivity(
+        req.params.workspaceId,
+        req.user!.id,
+        req.user!.email,
+        "DECLINE_STUDIO_QUOTE",
+        "studio_quote",
+        req.params.quoteId,
+        `Declined quote #${req.params.quoteId}`
+      );
+    }
+
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message || "Failed to update quote status" });
+  }
+});
+
+// 3. Studio Projects
+apiRouter.get("/workspaces/:workspaceId/studio/projects", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const projects = db.getStudioProjects(req.params.workspaceId);
+  res.json({ projects });
+});
+
+apiRouter.get("/workspaces/:workspaceId/studio/projects/:projectId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const project = db.getStudioProjectById(req.params.projectId);
+  if (!project || project.workspaceId !== req.params.workspaceId) {
+    return res.status(404).json({ error: "Studio project not found" });
+  }
+  res.json({ project });
+});
+
+apiRouter.put("/workspaces/:workspaceId/studio/projects/:projectId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const updated = db.updateStudioProject(req.params.workspaceId, req.params.projectId, req.body);
+    res.json({ project: updated });
+  } catch (err: any) {
+    res.status(404).json({ error: err.message || "Failed to update project" });
+  }
+});
+
+// 4. Studio Deliverables
+apiRouter.get("/workspaces/:workspaceId/studio/deliverables", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const projectId = typeof req.query.projectId === "string" ? req.query.projectId : undefined;
+  const deliverables = db.getStudioDeliverables(req.params.workspaceId, projectId);
+  res.json({ deliverables });
+});
+
+apiRouter.post("/workspaces/:workspaceId/studio/deliverables", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { projectId, name, description, format, version, dueDate, previewUrl, assetUrl } = req.body;
+  if (!projectId || !name) return res.status(400).json({ error: "projectId and name are required" });
+
+  const deliverable = db.createStudioDeliverable(req.params.workspaceId, projectId, {
+    name,
+    description: description || "",
+    format: format || "Master Asset",
+    version: version || "V1",
+    status: "ready_for_review",
+    dueDate: dueDate || new Date().toISOString().split("T")[0],
+    previewUrl,
+    assetUrl,
+    approvalStatus: "pending",
+  });
+
+  res.status(201).json({ deliverable });
+});
+
+apiRouter.put("/workspaces/:workspaceId/studio/deliverables/:deliverableId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const updated = db.updateStudioDeliverable(req.params.workspaceId, req.params.deliverableId, req.body);
+    res.json({ deliverable: updated });
+  } catch (err: any) {
+    res.status(404).json({ error: err.message || "Failed to update deliverable" });
+  }
+});
+
+// Sync approved Studio deliverable directly to Workspace Asset Vault
+apiRouter.post("/workspaces/:workspaceId/studio/deliverables/:deliverableId/sync-to-vault", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const deliverables = db.getStudioDeliverables(req.params.workspaceId);
+  const del = deliverables.find((d) => d.id === req.params.deliverableId);
+  if (!del) return res.status(404).json({ error: "Deliverable not found" });
+
+  // Map category
+  const category: AssetCategory = del.name.toLowerCase().includes("cover") || del.name.toLowerCase().includes("artwork")
+    ? "cover"
+    : del.name.toLowerCase().includes("logo") || del.name.toLowerCase().includes("brand")
+    ? "brand"
+    : del.name.toLowerCase().includes("video") || del.name.toLowerCase().includes("motion")
+    ? "video"
+    : "image";
+
+  const asset = db.createAsset(req.params.workspaceId, {
+    name: del.name,
+    category,
+    url: del.assetUrl || del.previewUrl || "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80",
+    size: del.fileSize || 3500000,
+    mimeType: del.format?.toLowerCase().includes("mp4") ? "video/mp4" : "image/png",
+    dimensions: "3000x3000px",
+    tags: ["studio-delivered", "approved", category],
+    metadata: {
+      projectId: del.projectId,
+      deliverableId: del.id,
+      version: del.version || "V1",
+      deliveredBy: "Keedohub Studio",
+      approvedBy: req.user!.email,
+      approvedAt: new Date().toISOString(),
+    },
+  });
+
+  db.updateStudioDeliverable(req.params.workspaceId, del.id, {
+    assetId: asset.id,
+    approvalStatus: "approved",
+    status: "delivered",
+    deliveredAt: new Date().toISOString(),
+  });
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "SYNC_STUDIO_DELIVERABLE_TO_VAULT",
+    "asset",
+    asset.id,
+    `Archived Studio deliverable '${del.name}' into Asset Vault`
+  );
+
+  res.json({ success: true, asset });
+});
+
+// 5. Studio Revisions
+apiRouter.get("/workspaces/:workspaceId/studio/revisions", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const projectId = typeof req.query.projectId === "string" ? req.query.projectId : undefined;
+  const deliverableId = typeof req.query.deliverableId === "string" ? req.query.deliverableId : undefined;
+  const revisions = db.getStudioRevisions(req.params.workspaceId, projectId, deliverableId);
+  res.json({ revisions });
+});
+
+apiRouter.post("/workspaces/:workspaceId/studio/revisions", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { projectId, deliverableId, deliverableName, version, reason, requestedChanges } = req.body;
+  if (!projectId || !deliverableId || !requestedChanges) {
+    return res.status(400).json({ error: "projectId, deliverableId, and requestedChanges are required" });
+  }
+
+  const revision = db.createStudioRevision(req.params.workspaceId, {
+    projectId,
+    deliverableId,
+    deliverableName: deliverableName || "Studio Deliverable",
+    userId: req.user!.id,
+    version: version || "V1",
+    reason: reason || "Adjustment requested",
+    requestedChanges,
+    status: "OPEN",
+  });
+
+  // Post automatic studio message notification
+  db.createStudioMessage(req.params.workspaceId, {
+    projectId,
+    senderId: req.user!.id,
+    senderName: req.user!.fullName || req.user!.email,
+    senderRole: "client",
+    content: `[Revision Logged for ${revision.deliverableName}] Reason: ${reason}. Changes requested: ${requestedChanges}`,
+  });
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "LOG_STUDIO_REVISION",
+    "studio_revision",
+    revision.id,
+    `Logged revision for '${revision.deliverableName}'`
+  );
+
+  res.status(201).json({ revision });
+});
+
+apiRouter.put("/workspaces/:workspaceId/studio/revisions/:revisionId/status", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { status } = req.body;
+  if (!status) return res.status(400).json({ error: "Status is required" });
+
+  try {
+    const updated = db.updateStudioRevisionStatus(req.params.workspaceId, req.params.revisionId, status);
+    res.json({ revision: updated });
+  } catch (err: any) {
+    res.status(404).json({ error: err.message || "Failed to update revision" });
+  }
+});
+
+// 6. Studio Messages
+apiRouter.get("/workspaces/:workspaceId/studio/messages", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const projectId = typeof req.query.projectId === "string" ? req.query.projectId : undefined;
+  const requestId = typeof req.query.requestId === "string" ? req.query.requestId : undefined;
+  const messages = db.getStudioMessages(req.params.workspaceId, projectId, requestId);
+  res.json({ messages });
+});
+
+apiRouter.post("/workspaces/:workspaceId/studio/messages", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { projectId, requestId, content, attachments } = req.body;
+  if (!content) return res.status(400).json({ error: "Message content is required" });
+
+  const msg = db.createStudioMessage(req.params.workspaceId, {
+    projectId,
+    requestId,
+    senderId: req.user!.id,
+    senderName: req.user!.fullName || req.user!.email,
+    senderRole: "client",
+    content,
+    attachments,
+  });
+
+  res.status(201).json({ message: msg });
+});
+
+// 7. AI-Assisted Brief Optimizer & Clarification Engine
+apiRouter.post("/workspaces/:workspaceId/studio/ai-brief-assist", requireAuth, requireWorkspaceAccess, async (req: AuthenticatedRequest, res: Response) => {
+  const { serviceCategory, draftBrief } = req.body;
+  const memory = db.getCreativeMemory(req.params.workspaceId);
+  const brandCore = db.getBrandCore(req.params.workspaceId);
+
+  try {
+    let aiResponse = {
+      refinedConcept: draftBrief?.concept || "High-impact creative execution tailored to your audience.",
+      suggestedVisualDirection: draftBrief?.visualDirection || (memory?.visualRules?.join(", ") || "High-contrast dark modern aesthetic with bold accent highlights."),
+      suggestedDeliverables: draftBrief?.requiredDeliverables || [
+        "Master High-Res Package (300 DPI)",
+        "Digital Social Formats (Feed, Story)",
+        "Raw Working Files (PSD / Figma)"
+      ],
+      missingElements: [] as string[],
+      clarifyingQuestions: [
+        "What is the primary mood or emotion your audience should feel within the first 2 seconds?",
+        "Are there any specific color codes or typography constraints we must strictly follow?",
+        "Do you require custom 3D motion assets alongside the static deliverable?"
+      ],
+      estimatedDays: serviceCategory === "cover_design" ? "2-3 days" : "4-6 days",
+      confidenceScore: 94,
+    };
+
+    if (process.env.GEMINI_API_KEY) {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const prompt = `You are the Executive Creative Director of Keedohub Studio, assisting a creator with their professional creative brief.
+Workspace Identity:
+- Name: ${brandCore?.brandName || "Creative Workspace"}
+- Narrative: ${memory?.coreNarrative || "Modern Cultural Artistry"}
+- Tone: ${memory?.toneTraits?.join(", ") || "Bold, Magnetic"}
+- Service Category: ${serviceCategory}
+- Current Brief Details: ${JSON.stringify(draftBrief || {})}
+
+Analyze the brief and output strict JSON with:
+{
+  "refinedConcept": "string (clear, inspiring 2-sentence creative angle)",
+  "suggestedVisualDirection": "string (concrete lighting, palette, framing guidance)",
+  "suggestedDeliverables": ["string", "string", "string"],
+  "missingElements": ["string (e.g. Dimensions not specified, Reference links missing)"],
+  "clarifyingQuestions": ["string", "string", "string"],
+  "estimatedDays": "string"
+}`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        config: {
+          responseMimeType: "application/json",
+          temperature: 0.2,
+        },
+      });
+
+      const parsed = JSON.parse(response.text || "{}");
+      aiResponse = {
+        refinedConcept: parsed.refinedConcept || aiResponse.refinedConcept,
+        suggestedVisualDirection: parsed.suggestedVisualDirection || aiResponse.suggestedVisualDirection,
+        suggestedDeliverables: parsed.suggestedDeliverables || aiResponse.suggestedDeliverables,
+        missingElements: parsed.missingElements || [],
+        clarifyingQuestions: parsed.clarifyingQuestions || aiResponse.clarifyingQuestions,
+        estimatedDays: parsed.estimatedDays || aiResponse.estimatedDays,
+        confidenceScore: 98,
+      };
+    }
+
+    res.json({ assist: aiResponse });
+  } catch (err: any) {
+    console.error("[Studio AI Brief Assist Error]", err);
+    res.json({
+      assist: {
+        refinedConcept: draftBrief?.concept || "High-impact creative production aligned with your workspace identity.",
+        suggestedVisualDirection: "Clean high-contrast aesthetic with sharp typography and signature color highlights.",
+        suggestedDeliverables: ["Master Deliverable (PNG/WAV/MP4)", "Social Format Exports", "Commercial License"],
+        missingElements: [],
+        clarifyingQuestions: [
+          "What is the priority launch date for this asset?",
+          "Would you like an animated 9:16 vertical companion cut included?",
+          "Are there specific competitor or visual references you want our lead designer to inspect?"
+        ],
+        estimatedDays: "3-5 business days",
+        confidenceScore: 90,
+      }
+    });
+  }
 });
 
 // --- Contextual Creative Brain (AI + Workspace Memory Engine & Real Tools) ---

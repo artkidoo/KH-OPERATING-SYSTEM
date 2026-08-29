@@ -2,6 +2,7 @@ export type ActiveTab =
   | 'overview'
   | 'artist-os'
   | 'content-engine'
+  | 'studio'
   | 'workspace-hub'
   | 'artist-brain'
   | 'creative-brain'
@@ -914,5 +915,215 @@ export interface FanLead {
   phone: string;
   country: string;
   subscribedAt: string;
+}
+
+// ==========================================
+// PHASE 7: KEEDOHUB STUDIO (CREATIVE SERVICES OS)
+// ==========================================
+
+export type StudioServiceCategory = 
+  | 'brand_identity'
+  | 'cover_design'
+  | 'web_ui_ux'
+  | 'social_media'
+  | 'print_design'
+  | 'motion_animation'
+  | 'artist_promotion'
+  | 'digital_marketing'
+  | 'content_creation'
+  | 'custom_creative';
+
+export type StudioRequestStatus = 
+  | 'REQUEST'
+  | 'BRIEF'
+  | 'REVIEW'
+  | 'QUOTE_PENDING'
+  | 'QUOTE_SENT'
+  | 'CLIENT_APPROVED'
+  | 'PROJECT_ACTIVE'
+  | 'IN_PRODUCTION'
+  | 'DELIVERABLE_REVIEW'
+  | 'REVISION_REQUESTED'
+  | 'APPROVED'
+  | 'DELIVERED'
+  | 'COMPLETED'
+  | 'DECLINED'
+  | 'CANCELLED';
+
+export type StudioQuoteStatus = 
+  | 'DRAFT'
+  | 'SENT'
+  | 'VIEWED'
+  | 'APPROVED'
+  | 'DECLINED'
+  | 'EXPIRED';
+
+export type StudioProjectStatus = 
+  | 'PLANNING'
+  | 'PRODUCTION'
+  | 'REVIEW'
+  | 'REVISION'
+  | 'APPROVAL'
+  | 'DELIVERY'
+  | 'COMPLETED';
+
+export type StudioDeliverableStatus = 
+  | 'in_progress'
+  | 'ready_for_review'
+  | 'revision_requested'
+  | 'approved'
+  | 'delivered';
+
+export type StudioRevisionStatus = 
+  | 'OPEN'
+  | 'IN_PROGRESS'
+  | 'READY_FOR_REVIEW'
+  | 'ACCEPTED';
+
+export interface StudioBrief {
+  serviceCategory: StudioServiceCategory;
+  title: string;
+  // Specific to category
+  artistOrBrandName?: string;
+  releaseTitle?: string;
+  genreOrIndustry?: string;
+  concept?: string;
+  visualDirection?: string;
+  references?: string[];
+  dimensions?: string;
+  targetAudience?: string;
+  positioning?: string;
+  personalityTraits?: string[];
+  identityAssetsRequired?: string[];
+  durationSeconds?: number;
+  motionFormat?: string;
+  aspectRatio?: string;
+  scriptOrHook?: string;
+  requiredDeliverables?: string[];
+  deadline?: string;
+  targetBudget?: number;
+  currency?: 'USD' | 'NGN';
+  additionalNotes?: string;
+  // AI assist metadata
+  aiAssisted?: boolean;
+  aiSuggestedQuestions?: string[];
+  aiClarifications?: string[];
+  missingElementsDetected?: string[];
+}
+
+export interface StudioRequest {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  serviceId: StudioServiceCategory;
+  serviceName: string;
+  title: string;
+  origin: 'direct' | 'artist_release' | 'brand_campaign' | 'brain_assisted';
+  releaseId?: string;
+  releaseTitle?: string;
+  campaignId?: string;
+  campaignTitle?: string;
+  brief: StudioBrief;
+  status: StudioRequestStatus;
+  quoteId?: string;
+  projectId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudioQuote {
+  id: string;
+  workspaceId: string;
+  requestId: string;
+  projectId?: string;
+  serviceName: string;
+  scopeSummary: string;
+  deliverables: string[];
+  price: number;
+  currency: 'USD' | 'NGN';
+  timeline: string; // e.g. "48-72 Hours", "3-5 Business Days"
+  revisionAllowance: number;
+  notes: string;
+  expirationDate: string;
+  status: StudioQuoteStatus;
+  approvedAt?: string;
+  approvedBy?: string;
+  declinedAt?: string;
+  declinedReason?: string;
+  clarificationNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudioDeliverable {
+  id: string;
+  projectId: string;
+  workspaceId: string;
+  name: string;
+  description: string;
+  format: string; // e.g. "PNG (3000x3000px)", "MP4 4K", "Figma Design System", "PDF Manual"
+  version: string; // e.g. "V1", "V2", "Final Master"
+  status: StudioDeliverableStatus;
+  assetId?: string; // Connected to Asset Vault
+  assetUrl?: string;
+  previewUrl?: string;
+  fileSize?: number;
+  dueDate: string;
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  approvedAt?: string;
+  deliveredAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudioRevision {
+  id: string;
+  projectId: string;
+  deliverableId: string;
+  deliverableName?: string;
+  workspaceId: string;
+  userId: string;
+  version: string;
+  reason: string;
+  requestedChanges: string;
+  status: StudioRevisionStatus;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+export interface StudioMessage {
+  id: string;
+  workspaceId: string;
+  projectId?: string;
+  requestId?: string;
+  senderId: string;
+  senderName: string;
+  senderRole: 'client' | 'producer' | 'lead_designer' | 'studio_admin';
+  content: string;
+  attachments?: { id: string; name: string; url: string; category?: string }[];
+  createdAt: string;
+}
+
+export interface StudioProject {
+  id: string;
+  workspaceId: string;
+  requestId: string;
+  quoteId: string;
+  releaseId?: string;
+  campaignId?: string;
+  title: string;
+  serviceCategory: StudioServiceCategory;
+  status: StudioProjectStatus;
+  budget: number;
+  currency: 'USD' | 'NGN';
+  deadline: string;
+  brief: StudioBrief;
+  deliverables: StudioDeliverable[];
+  revisions: StudioRevision[];
+  messages: StudioMessage[];
+  milestones: { id: string; title: string; targetDate: string; completed: boolean }[];
+  leadProducer: { name: string; role: string; avatarUrl: string };
+  createdAt: string;
+  updatedAt: string;
 }
 

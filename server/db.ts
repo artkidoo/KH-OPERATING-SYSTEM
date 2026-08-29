@@ -465,6 +465,211 @@ export interface CreativeRequestRecord {
   createdAt: string;
 }
 
+// ==========================================
+// PHASE 7: KEEDOHUB STUDIO (CREATIVE SERVICES OS)
+// ==========================================
+
+export type StudioServiceCategory = 
+  | 'brand_identity'
+  | 'cover_design'
+  | 'web_ui_ux'
+  | 'social_media'
+  | 'print_design'
+  | 'motion_animation'
+  | 'artist_promotion'
+  | 'digital_marketing'
+  | 'content_creation'
+  | 'custom_creative';
+
+export type StudioRequestStatus = 
+  | 'REQUEST'
+  | 'BRIEF'
+  | 'REVIEW'
+  | 'QUOTE_PENDING'
+  | 'QUOTE_SENT'
+  | 'CLIENT_APPROVED'
+  | 'PROJECT_ACTIVE'
+  | 'IN_PRODUCTION'
+  | 'DELIVERABLE_REVIEW'
+  | 'REVISION_REQUESTED'
+  | 'APPROVED'
+  | 'DELIVERED'
+  | 'COMPLETED'
+  | 'DECLINED'
+  | 'CANCELLED';
+
+export type StudioQuoteStatus = 
+  | 'DRAFT'
+  | 'SENT'
+  | 'VIEWED'
+  | 'APPROVED'
+  | 'DECLINED'
+  | 'EXPIRED';
+
+export type StudioProjectStatus = 
+  | 'PLANNING'
+  | 'PRODUCTION'
+  | 'REVIEW'
+  | 'REVISION'
+  | 'APPROVAL'
+  | 'DELIVERY'
+  | 'COMPLETED';
+
+export type StudioDeliverableStatus = 
+  | 'in_progress'
+  | 'ready_for_review'
+  | 'revision_requested'
+  | 'approved'
+  | 'delivered';
+
+export type StudioRevisionStatus = 
+  | 'OPEN'
+  | 'IN_PROGRESS'
+  | 'READY_FOR_REVIEW'
+  | 'ACCEPTED';
+
+export interface StudioBriefRecord {
+  serviceCategory: StudioServiceCategory;
+  title: string;
+  artistOrBrandName?: string;
+  releaseTitle?: string;
+  genreOrIndustry?: string;
+  concept?: string;
+  visualDirection?: string;
+  references?: string[];
+  dimensions?: string;
+  targetAudience?: string;
+  positioning?: string;
+  personalityTraits?: string[];
+  identityAssetsRequired?: string[];
+  durationSeconds?: number;
+  motionFormat?: string;
+  aspectRatio?: string;
+  scriptOrHook?: string;
+  requiredDeliverables?: string[];
+  deadline?: string;
+  targetBudget?: number;
+  currency?: 'USD' | 'NGN';
+  additionalNotes?: string;
+  aiAssisted?: boolean;
+  aiSuggestedQuestions?: string[];
+  aiClarifications?: string[];
+  missingElementsDetected?: string[];
+}
+
+export interface StudioRequestRecord {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  serviceId: StudioServiceCategory;
+  serviceName: string;
+  title: string;
+  origin: 'direct' | 'artist_release' | 'brand_campaign' | 'brain_assisted';
+  releaseId?: string;
+  releaseTitle?: string;
+  campaignId?: string;
+  campaignTitle?: string;
+  brief: StudioBriefRecord;
+  status: StudioRequestStatus;
+  quoteId?: string;
+  projectId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudioQuoteRecord {
+  id: string;
+  workspaceId: string;
+  requestId: string;
+  projectId?: string;
+  serviceName: string;
+  scopeSummary: string;
+  deliverables: string[];
+  price: number;
+  currency: 'USD' | 'NGN';
+  timeline: string;
+  revisionAllowance: number;
+  notes: string;
+  expirationDate: string;
+  status: StudioQuoteStatus;
+  approvedAt?: string;
+  approvedBy?: string;
+  declinedAt?: string;
+  declinedReason?: string;
+  clarificationNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudioDeliverableRecord {
+  id: string;
+  projectId: string;
+  workspaceId: string;
+  name: string;
+  description: string;
+  format: string;
+  version: string;
+  status: StudioDeliverableStatus;
+  assetId?: string;
+  assetUrl?: string;
+  previewUrl?: string;
+  fileSize?: number;
+  dueDate: string;
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  approvedAt?: string;
+  deliveredAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudioRevisionRecord {
+  id: string;
+  projectId: string;
+  deliverableId: string;
+  deliverableName?: string;
+  workspaceId: string;
+  userId: string;
+  version: string;
+  reason: string;
+  requestedChanges: string;
+  status: StudioRevisionStatus;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+export interface StudioMessageRecord {
+  id: string;
+  workspaceId: string;
+  projectId?: string;
+  requestId?: string;
+  senderId: string;
+  senderName: string;
+  senderRole: 'client' | 'producer' | 'lead_designer' | 'studio_admin';
+  content: string;
+  attachments?: { id: string; name: string; url: string; category?: string }[];
+  createdAt: string;
+}
+
+export interface StudioProjectRecord {
+  id: string;
+  workspaceId: string;
+  requestId: string;
+  quoteId: string;
+  releaseId?: string;
+  campaignId?: string;
+  title: string;
+  serviceCategory: StudioServiceCategory;
+  status: StudioProjectStatus;
+  budget: number;
+  currency: 'USD' | 'NGN';
+  deadline: string;
+  brief: StudioBriefRecord;
+  milestones: { id: string; title: string; targetDate: string; completed: boolean }[];
+  leadProducer: { name: string; role: string; avatarUrl: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DatabaseSchema {
   users: UserRecord[];
   sessions: SessionRecord[];
@@ -484,6 +689,12 @@ export interface DatabaseSchema {
   notifications: NotificationRecord[];
   activity_logs: ActivityLogRecord[];
   creative_requests: CreativeRequestRecord[];
+  studio_requests: StudioRequestRecord[];
+  studio_quotes: StudioQuoteRecord[];
+  studio_projects: StudioProjectRecord[];
+  studio_deliverables: StudioDeliverableRecord[];
+  studio_revisions: StudioRevisionRecord[];
+  studio_messages: StudioMessageRecord[];
 }
 
 function hashPassword(password: string): string {
@@ -1241,6 +1452,206 @@ function generateInitialSeed(): DatabaseSchema {
     notifications: [notification],
     activity_logs: [activity],
     creative_requests: [],
+    studio_requests: [
+      {
+        id: "sreq_demo_cover_1",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        serviceId: "cover_design",
+        serviceName: "Album / Single / EP Cover Design",
+        title: "Midnight in Victoria Island — Master Artwork & Motion Visualizer",
+        origin: "artist_release",
+        releaseId: release.id,
+        releaseTitle: release.title,
+        brief: {
+          serviceCategory: "cover_design",
+          title: "Midnight in Victoria Island — Master Artwork & Motion Visualizer",
+          artistOrBrandName: "AfroVibe World",
+          releaseTitle: "Midnight in Victoria Island",
+          genreOrIndustry: "Afro-Fusion / Alté",
+          concept: "Cinematic night-time Lagos atmosphere with glowing crimson ambient neon, moody architectural silhouettes, and futuristic typography.",
+          visualDirection: "High-contrast dark-first design, subtle tactile grain, 3000x3000px square master with 3D canvas motion visualizer loop.",
+          references: ["Burna Boy — I Told Them Artwork", "Travis Scott — Utopia Visuals"],
+          dimensions: "3000x3000px (300 DPI)",
+          requiredDeliverables: [
+            "3000x3000px Master Cover PNG",
+            "Spotify Canvas Motion Loop (9:16 MP4)",
+            "Gatefold Vinyl Mockup Suite",
+            "Social Media Launch Banners"
+          ],
+          deadline: "2026-09-10",
+          targetBudget: 280,
+          currency: "USD",
+          additionalNotes: "Must comply with Spotify & Apple Music editorial submission specs without borders.",
+          aiAssisted: true,
+          missingElementsDetected: [],
+          aiSuggestedQuestions: ["Do you require an animated 9:16 vertical canvas loop for Spotify? (Confirmed Yes)"],
+          aiClarifications: ["Standard 3000x3000px 300DPI RGB color format chosen."]
+        },
+        status: "PROJECT_ACTIVE",
+        quoteId: "squote_demo_1",
+        projectId: "sproj_demo_1",
+        createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ],
+    studio_quotes: [
+      {
+        id: "squote_demo_1",
+        workspaceId: defaultWorkspaceId,
+        requestId: "sreq_demo_cover_1",
+        projectId: "sproj_demo_1",
+        serviceName: "Album / Single / EP Cover Design & 3D Motion Suite",
+        scopeSummary: "Comprehensive 3000x3000px master artwork packaging, 9:16 animated Spotify canvas, high-res social media launch suite, and full commercial copyright transfer.",
+        deliverables: [
+          "3000x3000px 300DPI Master Artwork (PNG/JPG)",
+          "Spotify 9:16 Canvas Motion Loop (Lossless MP4)",
+          "Tracklist Back Cover & Gatefold Vinyl Render",
+          "Social Media Launch Kit (IG Story, Feed, Banner)",
+          "Exclusive Commercial IP Certificate"
+        ],
+        price: 280,
+        currency: "USD",
+        timeline: "48-72 Hours (Fast-Track)",
+        revisionAllowance: 3,
+        notes: "Keedohub lead art director assigned. Full source Figma and PSD layers included upon final delivery.",
+        expirationDate: "2026-09-25",
+        status: "APPROVED",
+        approvedAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+        approvedBy: "AfroVibe World OS (Lead Artist)",
+        createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 4 * 86400000).toISOString()
+      }
+    ],
+    studio_projects: [
+      {
+        id: "sproj_demo_1",
+        workspaceId: defaultWorkspaceId,
+        requestId: "sreq_demo_cover_1",
+        quoteId: "squote_demo_1",
+        releaseId: release.id,
+        title: "Midnight in Victoria Island — Cover Suite & Motion",
+        serviceCategory: "cover_design",
+        status: "PRODUCTION",
+        budget: 280,
+        currency: "USD",
+        deadline: "2026-09-10",
+        brief: {
+          serviceCategory: "cover_design",
+          title: "Midnight in Victoria Island — Master Artwork & Motion Visualizer",
+          artistOrBrandName: "AfroVibe World",
+          releaseTitle: "Midnight in Victoria Island",
+          genreOrIndustry: "Afro-Fusion / Alté",
+          concept: "Cinematic night-time Lagos atmosphere with glowing crimson ambient neon, moody architectural silhouettes, and futuristic typography.",
+          visualDirection: "High-contrast dark-first design, subtle tactile grain, 3000x3000px square master with 3D canvas motion visualizer loop.",
+          requiredDeliverables: [
+            "3000x3000px Master Cover PNG",
+            "Spotify Canvas Motion Loop (9:16 MP4)",
+            "Gatefold Vinyl Mockup Suite"
+          ],
+          deadline: "2026-09-10",
+          targetBudget: 280,
+          currency: "USD"
+        },
+        milestones: [
+          { id: "sm_1", title: "Concept Directions & Mood Explorations (3 Options)", targetDate: "2026-09-03", completed: true },
+          { id: "sm_2", title: "V1 Hi-Res Master Render Review", targetDate: "2026-09-06", completed: true },
+          { id: "sm_3", title: "V2 Revisions & Typography Lock", targetDate: "2026-09-08", completed: false },
+          { id: "sm_4", title: "Final Master Package & Spotify Canvas Delivery", targetDate: "2026-09-10", completed: false }
+        ],
+        leadProducer: {
+          name: "Dare Balogun",
+          role: "Executive Creative Director @ Keedohub Studio",
+          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
+        },
+        createdAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ],
+    studio_deliverables: [
+      {
+        id: "sdel_demo_1",
+        projectId: "sproj_demo_1",
+        workspaceId: defaultWorkspaceId,
+        name: "Midnight in VI — 3000x3000px Master Cover Artwork",
+        description: "Hi-res 300DPI square artwork with crimson lighting, metallic typography, and texture overlays.",
+        format: "PNG / 3000x3000px 300DPI RGB",
+        version: "V1",
+        status: "ready_for_review",
+        assetId: asset.id,
+        assetUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80",
+        previewUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80",
+        fileSize: 4820000,
+        dueDate: "2026-09-08",
+        approvalStatus: "pending",
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 1 * 86400000).toISOString()
+      },
+      {
+        id: "sdel_demo_2",
+        projectId: "sproj_demo_1",
+        workspaceId: defaultWorkspaceId,
+        name: "Spotify Canvas 9:16 3D Kinetic Loop",
+        description: "Seamless 8-second vertical loop for Spotify now playing background visualizer.",
+        format: "MP4 1080x1920 (H.264, 60fps)",
+        version: "V1",
+        status: "in_progress",
+        dueDate: "2026-09-10",
+        approvalStatus: "pending",
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ],
+    studio_revisions: [
+      {
+        id: "srev_demo_1",
+        projectId: "sproj_demo_1",
+        deliverableId: "sdel_demo_1",
+        deliverableName: "Midnight in VI — 3000x3000px Master Cover Artwork",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        version: "V1",
+        reason: "Typography adjustment & contrast refinement",
+        requestedChanges: "Please tighten the letter spacing on 'VICTORIA ISLAND' by -2% and amplify the ambient crimson reflection on the metallic edges.",
+        status: "IN_PROGRESS",
+        createdAt: new Date(Date.now() - 1 * 86400000).toISOString()
+      }
+    ],
+    studio_messages: [
+      {
+        id: "smsg_demo_1",
+        workspaceId: defaultWorkspaceId,
+        projectId: "sproj_demo_1",
+        requestId: "sreq_demo_cover_1",
+        senderId: "usr_studio_dare",
+        senderName: "Dare Balogun",
+        senderRole: "producer",
+        content: "Welcome to Keedohub Studio! We have reviewed your creative brief and locked the initial moodboard. V1 master artwork draft is ready for review in the Deliverables tab.",
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString()
+      },
+      {
+        id: "smsg_demo_2",
+        workspaceId: defaultWorkspaceId,
+        projectId: "sproj_demo_1",
+        requestId: "sreq_demo_cover_1",
+        senderId: defaultUserId,
+        senderName: "AfroVibe World (Lead)",
+        senderRole: "client",
+        content: "Reviewed V1 — the lighting and mood are spot on. Just logged a small revision on the subtitle typography tracking.",
+        createdAt: new Date(Date.now() - 1 * 86400000).toISOString()
+      },
+      {
+        id: "smsg_demo_3",
+        workspaceId: defaultWorkspaceId,
+        projectId: "sproj_demo_1",
+        requestId: "sreq_demo_cover_1",
+        senderId: "usr_studio_dare",
+        senderName: "Dare Balogun",
+        senderRole: "producer",
+        content: "Revision received and in progress! Lead 3D artist is currently rendering the updated typography and the 9:16 Spotify Canvas loop.",
+        createdAt: new Date(Date.now() - 12 * 3600000).toISOString()
+      }
+    ],
   };
 }
 
@@ -1277,6 +1688,12 @@ class Database {
           notifications: parsed.notifications || seed.notifications,
           activity_logs: parsed.activity_logs || seed.activity_logs,
           creative_requests: parsed.creative_requests || seed.creative_requests,
+          studio_requests: parsed.studio_requests || seed.studio_requests,
+          studio_quotes: parsed.studio_quotes || seed.studio_quotes,
+          studio_projects: parsed.studio_projects || seed.studio_projects,
+          studio_deliverables: parsed.studio_deliverables || seed.studio_deliverables,
+          studio_revisions: parsed.studio_revisions || seed.studio_revisions,
+          studio_messages: parsed.studio_messages || seed.studio_messages,
         };
       }
     } catch (err) {
@@ -2113,6 +2530,384 @@ class Database {
     this.data.creative_requests.unshift(request);
     this.save();
     return request;
+  }
+
+  // ==========================================
+  // PHASE 7: KEEDOHUB STUDIO PRODUCTION METHODS
+  // ==========================================
+
+  // --- Studio Requests ---
+  public getStudioRequests(workspaceId: string): StudioRequestRecord[] {
+    if (!this.data.studio_requests) this.data.studio_requests = [];
+    return this.data.studio_requests.filter((r) => r.workspaceId === workspaceId);
+  }
+
+  public getStudioRequestById(id: string): StudioRequestRecord | undefined {
+    if (!this.data.studio_requests) this.data.studio_requests = [];
+    return this.data.studio_requests.find((r) => r.id === id);
+  }
+
+  public createStudioRequest(
+    workspaceId: string,
+    data: Omit<StudioRequestRecord, "id" | "workspaceId" | "createdAt" | "updatedAt">
+  ): StudioRequestRecord {
+    if (!this.data.studio_requests) this.data.studio_requests = [];
+    const newRequest: StudioRequestRecord = {
+      id: "sreq_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.data.studio_requests.unshift(newRequest);
+    this.save();
+    return newRequest;
+  }
+
+  public updateStudioRequest(
+    workspaceId: string,
+    requestId: string,
+    updates: Partial<StudioRequestRecord>
+  ): StudioRequestRecord {
+    if (!this.data.studio_requests) this.data.studio_requests = [];
+    const req = this.data.studio_requests.find((r) => r.id === requestId && r.workspaceId === workspaceId);
+    if (!req) throw new Error("Studio request not found");
+    Object.assign(req, updates, { updatedAt: new Date().toISOString() });
+    this.save();
+    return req;
+  }
+
+  public deleteStudioRequest(workspaceId: string, requestId: string): boolean {
+    if (!this.data.studio_requests) return false;
+    const initialLen = this.data.studio_requests.length;
+    this.data.studio_requests = this.data.studio_requests.filter((r) => !(r.id === requestId && r.workspaceId === workspaceId));
+    const deleted = this.data.studio_requests.length < initialLen;
+    if (deleted) this.save();
+    return deleted;
+  }
+
+  // --- Studio Quotes ---
+  public getStudioQuotes(workspaceId: string, requestId?: string): StudioQuoteRecord[] {
+    if (!this.data.studio_quotes) this.data.studio_quotes = [];
+    return this.data.studio_quotes.filter(
+      (q) => q.workspaceId === workspaceId && (!requestId || q.requestId === requestId)
+    );
+  }
+
+  public getStudioQuoteById(id: string): StudioQuoteRecord | undefined {
+    if (!this.data.studio_quotes) this.data.studio_quotes = [];
+    return this.data.studio_quotes.find((q) => q.id === id);
+  }
+
+  public createStudioQuote(
+    workspaceId: string,
+    data: Omit<StudioQuoteRecord, "id" | "workspaceId" | "createdAt" | "updatedAt">
+  ): StudioQuoteRecord {
+    if (!this.data.studio_quotes) this.data.studio_quotes = [];
+    const quote: StudioQuoteRecord = {
+      id: "squote_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.data.studio_quotes.unshift(quote);
+
+    // Update associated request with quoteId and status
+    const req = this.getStudioRequestById(data.requestId);
+    if (req && req.workspaceId === workspaceId) {
+      req.quoteId = quote.id;
+      req.status = "QUOTE_SENT";
+      req.updatedAt = new Date().toISOString();
+    }
+
+    this.save();
+    return quote;
+  }
+
+  public updateStudioQuoteStatus(
+    workspaceId: string,
+    quoteId: string,
+    status: StudioQuoteStatus,
+    payload?: { approvedBy?: string; declinedReason?: string; clarificationNotes?: string }
+  ): { quote: StudioQuoteRecord; project?: StudioProjectRecord } {
+    if (!this.data.studio_quotes) this.data.studio_quotes = [];
+    const quote = this.data.studio_quotes.find((q) => q.id === quoteId && q.workspaceId === workspaceId);
+    if (!quote) throw new Error("Quote not found");
+
+    quote.status = status;
+    quote.updatedAt = new Date().toISOString();
+
+    let createdProject: StudioProjectRecord | undefined;
+
+    if (status === "APPROVED") {
+      quote.approvedAt = new Date().toISOString();
+      quote.approvedBy = payload?.approvedBy || "Client Workspace";
+
+      const req = this.getStudioRequestById(quote.requestId);
+      if (req) {
+        req.status = "PROJECT_ACTIVE";
+        req.updatedAt = new Date().toISOString();
+
+        // Automatically activate dedicated Studio Project connected to workspace
+        if (!quote.projectId) {
+          const projId = "sproj_" + crypto.randomUUID().substring(0, 8);
+          quote.projectId = projId;
+          req.projectId = projId;
+
+          createdProject = {
+            id: projId,
+            workspaceId,
+            requestId: req.id,
+            quoteId: quote.id,
+            releaseId: req.releaseId,
+            campaignId: req.campaignId,
+            title: req.title,
+            serviceCategory: req.serviceId,
+            status: "PRODUCTION",
+            budget: quote.price,
+            currency: quote.currency,
+            deadline: req.brief.deadline || new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
+            brief: req.brief,
+            milestones: [
+              { id: "mil_1", title: "Creative Brief Audit & Direction Lock", targetDate: new Date().toISOString().split("T")[0], completed: true },
+              { id: "mil_2", title: "V1 Production & Draft Deliverables", targetDate: new Date(Date.now() + 2 * 86400000).toISOString().split("T")[0], completed: false },
+              { id: "mil_3", title: "Client Review & Precision Revisions", targetDate: new Date(Date.now() + 4 * 86400000).toISOString().split("T")[0], completed: false },
+              { id: "mil_4", title: "Final Master Delivery & Asset Vault Archive", targetDate: new Date(Date.now() + 6 * 86400000).toISOString().split("T")[0], completed: false },
+            ],
+            leadProducer: {
+              name: "Dare Balogun",
+              role: "Executive Creative Director @ Keedohub Studio",
+              avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+            },
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+
+          if (!this.data.studio_projects) this.data.studio_projects = [];
+          this.data.studio_projects.unshift(createdProject);
+
+          // Create initial deliverables based on quote scope
+          if (!this.data.studio_deliverables) this.data.studio_deliverables = [];
+          (quote.deliverables || ["Primary Master Asset Deliverable"]).forEach((delName, idx) => {
+            this.data.studio_deliverables.push({
+              id: "sdel_" + crypto.randomUUID().substring(0, 8),
+              projectId: projId,
+              workspaceId,
+              name: delName,
+              description: `High-fidelity deliverable asset for ${req.serviceName}`,
+              format: req.serviceId === "cover_design" ? "PNG 3000x3000px (300 DPI)" : "Production Master",
+              version: "V1",
+              status: idx === 0 ? "in_progress" : "in_progress",
+              dueDate: createdProject!.deadline,
+              approvalStatus: "pending",
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+          });
+
+          // Add welcome message from producer
+          if (!this.data.studio_messages) this.data.studio_messages = [];
+          this.data.studio_messages.push({
+            id: "smsg_" + crypto.randomUUID().substring(0, 8),
+            workspaceId,
+            projectId: projId,
+            requestId: req.id,
+            senderId: "usr_studio_director",
+            senderName: "Dare Balogun",
+            senderRole: "producer",
+            content: `Hello! Your quote has been approved and project "${req.title}" is now active in Keedohub Studio production queue. Our lead creative specialist is reviewing the assets and drafting V1.`,
+            createdAt: new Date().toISOString(),
+          });
+        }
+      }
+    } else if (status === "DECLINED") {
+      quote.declinedAt = new Date().toISOString();
+      quote.declinedReason = payload?.declinedReason || "Client declined quote";
+      const req = this.getStudioRequestById(quote.requestId);
+      if (req) {
+        req.status = "DECLINED";
+        req.updatedAt = new Date().toISOString();
+      }
+    } else if (payload?.clarificationNotes) {
+      quote.clarificationNotes = payload.clarificationNotes;
+    }
+
+    this.save();
+    return { quote, project: createdProject };
+  }
+
+  // --- Studio Projects ---
+  public getStudioProjects(workspaceId: string): StudioProjectRecord[] {
+    if (!this.data.studio_projects) this.data.studio_projects = [];
+    return this.data.studio_projects.filter((p) => p.workspaceId === workspaceId);
+  }
+
+  public getStudioProjectById(id: string): StudioProjectRecord | undefined {
+    if (!this.data.studio_projects) this.data.studio_projects = [];
+    return this.data.studio_projects.find((p) => p.id === id);
+  }
+
+  public createStudioProject(
+    workspaceId: string,
+    data: Omit<StudioProjectRecord, "id" | "workspaceId" | "createdAt" | "updatedAt">
+  ): StudioProjectRecord {
+    if (!this.data.studio_projects) this.data.studio_projects = [];
+    const proj: StudioProjectRecord = {
+      id: "sproj_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.data.studio_projects.unshift(proj);
+    this.save();
+    return proj;
+  }
+
+  public updateStudioProject(
+    workspaceId: string,
+    projectId: string,
+    updates: Partial<StudioProjectRecord>
+  ): StudioProjectRecord {
+    if (!this.data.studio_projects) this.data.studio_projects = [];
+    const proj = this.data.studio_projects.find((p) => p.id === projectId && p.workspaceId === workspaceId);
+    if (!proj) throw new Error("Studio project not found");
+    Object.assign(proj, updates, { updatedAt: new Date().toISOString() });
+    this.save();
+    return proj;
+  }
+
+  // --- Studio Deliverables ---
+  public getStudioDeliverables(workspaceId: string, projectId?: string): StudioDeliverableRecord[] {
+    if (!this.data.studio_deliverables) this.data.studio_deliverables = [];
+    return this.data.studio_deliverables.filter(
+      (d) => d.workspaceId === workspaceId && (!projectId || d.projectId === projectId)
+    );
+  }
+
+  public createStudioDeliverable(
+    workspaceId: string,
+    projectId: string,
+    data: Omit<StudioDeliverableRecord, "id" | "workspaceId" | "projectId" | "createdAt" | "updatedAt">
+  ): StudioDeliverableRecord {
+    if (!this.data.studio_deliverables) this.data.studio_deliverables = [];
+    const del: StudioDeliverableRecord = {
+      id: "sdel_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      projectId,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.data.studio_deliverables.push(del);
+    this.save();
+    return del;
+  }
+
+  public updateStudioDeliverable(
+    workspaceId: string,
+    deliverableId: string,
+    updates: Partial<StudioDeliverableRecord>
+  ): StudioDeliverableRecord {
+    if (!this.data.studio_deliverables) this.data.studio_deliverables = [];
+    const del = this.data.studio_deliverables.find((d) => d.id === deliverableId && d.workspaceId === workspaceId);
+    if (!del) throw new Error("Deliverable not found");
+    Object.assign(del, updates, { updatedAt: new Date().toISOString() });
+
+    // If deliverable approved, check if all are approved to mark project complete
+    if (updates.approvalStatus === "approved") {
+      del.status = "approved";
+      del.approvedAt = new Date().toISOString();
+    }
+
+    this.save();
+    return del;
+  }
+
+  // --- Studio Revisions ---
+  public getStudioRevisions(workspaceId: string, projectId?: string, deliverableId?: string): StudioRevisionRecord[] {
+    if (!this.data.studio_revisions) this.data.studio_revisions = [];
+    return this.data.studio_revisions.filter(
+      (r) =>
+        r.workspaceId === workspaceId &&
+        (!projectId || r.projectId === projectId) &&
+        (!deliverableId || r.deliverableId === deliverableId)
+    );
+  }
+
+  public createStudioRevision(
+    workspaceId: string,
+    data: Omit<StudioRevisionRecord, "id" | "workspaceId" | "createdAt">
+  ): StudioRevisionRecord {
+    if (!this.data.studio_revisions) this.data.studio_revisions = [];
+    const rev: StudioRevisionRecord = {
+      id: "srev_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      ...data,
+      createdAt: new Date().toISOString(),
+    };
+    this.data.studio_revisions.unshift(rev);
+
+    // Update deliverable status to revision_requested
+    const del = this.data.studio_deliverables.find((d) => d.id === data.deliverableId && d.workspaceId === workspaceId);
+    if (del) {
+      del.status = "revision_requested";
+      del.updatedAt = new Date().toISOString();
+    }
+
+    // Update project status to REVISION
+    const proj = this.getStudioProjectById(data.projectId);
+    if (proj && proj.workspaceId === workspaceId) {
+      proj.status = "REVISION";
+      proj.updatedAt = new Date().toISOString();
+    }
+
+    this.save();
+    return rev;
+  }
+
+  public updateStudioRevisionStatus(
+    workspaceId: string,
+    revisionId: string,
+    status: StudioRevisionStatus
+  ): StudioRevisionRecord {
+    if (!this.data.studio_revisions) this.data.studio_revisions = [];
+    const rev = this.data.studio_revisions.find((r) => r.id === revisionId && r.workspaceId === workspaceId);
+    if (!rev) throw new Error("Revision not found");
+    rev.status = status;
+    if (status === "ACCEPTED") {
+      rev.resolvedAt = new Date().toISOString();
+    }
+    this.save();
+    return rev;
+  }
+
+  // --- Studio Messages ---
+  public getStudioMessages(workspaceId: string, projectId?: string, requestId?: string): StudioMessageRecord[] {
+    if (!this.data.studio_messages) this.data.studio_messages = [];
+    return this.data.studio_messages.filter(
+      (m) =>
+        m.workspaceId === workspaceId &&
+        (!projectId || m.projectId === projectId) &&
+        (!requestId || m.requestId === requestId)
+    );
+  }
+
+  public createStudioMessage(
+    workspaceId: string,
+    data: Omit<StudioMessageRecord, "id" | "workspaceId" | "createdAt">
+  ): StudioMessageRecord {
+    if (!this.data.studio_messages) this.data.studio_messages = [];
+    const msg: StudioMessageRecord = {
+      id: "smsg_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      ...data,
+      createdAt: new Date().toISOString(),
+    };
+    this.data.studio_messages.push(msg);
+    this.save();
+    return msg;
   }
 
   // --- Folders ---
