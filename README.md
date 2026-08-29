@@ -1,7 +1,6 @@
 # KEEDOHUB CREATIVE OPERATING SYSTEM (v4.0) — MASTER ARCHITECTURE & BLUEPRINT
-> **System Architect & Design Lead: Ojo Abdulkareem — Keedohub Studio (Lagos, Nigeria)**
-
-**Keedohub is a creative operating system that gives artists, brands, businesses and creators the infrastructure to organize their creative identity, produce work, launch campaigns, manage content, store assets and continuously move their ideas forward — with professional human creative services built directly into the system.**
+> **System Architect & Design Lead: Ojo Abdulkareem — Keedohub Studio (Lagos, Nigeria)**  
+> *The Creative Operating System connecting Idea → Execution → Launch → Content → Promotion → Legal Infrastructure.*
 
 ---
 

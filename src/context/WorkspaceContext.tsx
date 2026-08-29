@@ -539,20 +539,6 @@ interface WorkspaceContextType {
   performSearch: (query: string) => Promise<GlobalSearchResult[]>;
   clearSearch: () => void;
 
-  // Phase 9: Creative Radar
-  radarSignals: RadarSignal[];
-  radarDigest: RadarDigest | null;
-  radarConfig: RadarConfiguration | null;
-  fetchRadarSignals: () => Promise<RadarSignal[]>;
-  acknowledgeRadarSignal: (signalId: string) => Promise<void>;
-  actionRadarSignal: (signalId: string) => Promise<void>;
-  dismissRadarSignal: (signalId: string) => Promise<void>;
-  resolveRadarSignal: (signalId: string) => Promise<void>;
-  snoozeRadarSignal: (signalId: string, until: string) => Promise<void>;
-  fetchRadarDigest: () => Promise<RadarDigest>;
-  updateRadarConfig: (config: Partial<RadarConfiguration>) => Promise<void>;
-  triggerRadarScan: () => Promise<RadarScanResult>;
-
   // Actions
   fetchWorkspaceData: () => Promise<void>;
   createNewWorkspace: (data: { name: string; identityType: IdentityType; bio?: string; genreOrNiche?: string; avatarUrl?: string }) => Promise<Workspace>;
@@ -670,11 +656,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [searchResults, setSearchResults] = useState<GlobalSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  // Phase 9: Creative Radar State
-  const [radarSignals, setRadarSignals] = useState<RadarSignal[]>([]);
-  const [radarDigest, setRadarDigest] = useState<RadarDigest | null>(null);
-  const [radarConfig, setRadarConfig] = useState<RadarConfiguration | null>(null);
 
   const setActiveReleaseId = useCallback((id: string | null) => {
     setActiveReleaseIdState(id);
@@ -1206,65 +1187,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     return res.request;
   };
 
-  // Phase 9: Creative Radar Functions
-  const fetchRadarSignals = async (): Promise<RadarSignal[]> => {
-    if (!activeWorkspace) return [];
-    const res = await api.radar.getSignals(activeWorkspace.id);
-    setRadarSignals(res.signals || []);
-    return res.signals || [];
-  };
-
-  const acknowledgeRadarSignal = async (signalId: string) => {
-    if (!activeWorkspace) return;
-    await api.radar.acknowledgeSignal(activeWorkspace.id, signalId);
-    setRadarSignals((prev) => prev.map((s) => s.id === signalId ? { ...s, status: 'ACKNOWLEDGED', acknowledgedAt: new Date().toISOString() } : s));
-  };
-
-  const actionRadarSignal = async (signalId: string) => {
-    if (!activeWorkspace) return;
-    await api.radar.actionSignal(activeWorkspace.id, signalId);
-    setRadarSignals((prev) => prev.map((s) => s.id === signalId ? { ...s, status: 'ACTIONED', actionedAt: new Date().toISOString() } : s));
-  };
-
-  const dismissRadarSignal = async (signalId: string) => {
-    if (!activeWorkspace) return;
-    await api.radar.dismissSignal(activeWorkspace.id, signalId);
-    setRadarSignals((prev) => prev.map((s) => s.id === signalId ? { ...s, status: 'DISMISSED', dismissedAt: new Date().toISOString() } : s));
-  };
-
-  const resolveRadarSignal = async (signalId: string) => {
-    if (!activeWorkspace) return;
-    await api.radar.resolveSignal(activeWorkspace.id, signalId);
-    setRadarSignals((prev) => prev.map((s) => s.id === signalId ? { ...s, status: 'RESOLVED', resolvedAt: new Date().toISOString() } : s));
-  };
-
-  const snoozeRadarSignal = async (signalId: string, until: string) => {
-    if (!activeWorkspace) return;
-    await api.radar.snoozeSignal(activeWorkspace.id, signalId, until);
-    setRadarSignals((prev) => prev.map((s) => s.id === signalId ? { ...s, snoozedUntil: until } : s));
-  };
-
-  const fetchRadarDigest = async (): Promise<RadarDigest> => {
-    if (!activeWorkspace) throw new Error("No active workspace");
-    const res = await api.radar.getDigest(activeWorkspace.id);
-    setRadarDigest(res.digest);
-    return res.digest;
-  };
-
-  const updateRadarConfig = async (config: Partial<RadarConfiguration>) => {
-    if (!activeWorkspace) throw new Error("No active workspace");
-    const res = await api.radar.updateConfig(activeWorkspace.id, config);
-    setRadarConfig(res.config);
-  };
-
-  const triggerRadarScan = async (): Promise<RadarScanResult> => {
-    if (!activeWorkspace) throw new Error("No active workspace");
-    const res = await api.radar.triggerScan(activeWorkspace.id);
-    setRadarSignals(res.result.signals || []);
-    setRadarDigest(res.result.digest);
-    return res.result;
-  };
-
   return (
     <WorkspaceContext.Provider
       value={{
@@ -1311,19 +1233,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         isSearching,
         performSearch,
         clearSearch,
-        // Phase 9: Creative Radar
-        radarSignals,
-        radarDigest,
-        radarConfig,
-        fetchRadarSignals,
-        acknowledgeRadarSignal,
-        actionRadarSignal,
-        dismissRadarSignal,
-        resolveRadarSignal,
-        snoozeRadarSignal,
-        fetchRadarDigest,
-        updateRadarConfig,
-        triggerRadarScan,
         fetchWorkspaceData,
         createNewWorkspace,
         updateCurrentWorkspace,

@@ -1,53 +1,8 @@
-```
-# Dependencies
 node_modules/
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Logs and temp files
-*.log
-*.tmp
-
-# Editors
-.vscode/
-.idea/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Build outputs
-dist/
 build/
-*.min.js
-*.min.css
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Testing
+dist/
 coverage/
-htmlcov/
-*.coverage
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Archives
-*.zip
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.gz
-*.rar
-*.7z
-```
+.DS_Store
+*.log
+.env*
+!.env.example

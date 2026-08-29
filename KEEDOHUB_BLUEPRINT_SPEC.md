@@ -1,6 +1,8 @@
 # KEEDOHUB CREATIVE OPERATING SYSTEM
 
-> **Keedohub is a creative operating system that gives artists, brands, businesses and creators the infrastructure to organize their creative identity, produce work, launch campaigns, manage content, store assets and continuously move their ideas forward — with professional human creative services built directly into the system.**
+> **From creative idea to execution, launch, content, promotion and professional production — one operating system.**
+>
+> Keedohub is being built as a **Creative Operating System**, not a conventional agency website and not a generic AI chatbot.
 
 ---
 
@@ -813,7 +815,7 @@ User → Creative Brain → Recommendation → Action
 
 The final standard is not a beautiful demo.
 
-It is a reliable, secure and scalable creative operating system that gives artists, brands, businesses and creators the infrastructure to organize their creative identity, produce work, launch campaigns, manage content, store assets and continuously move their ideas forward — with professional human creative services built directly into the system.
+It is a reliable, secure and scalable Creative Operating System.
 
 ---
 
@@ -916,6 +918,6 @@ And whenever professional execution is needed, Keedohub Studio should be availab
 
 # KEEDOHUB
 
-**Keedohub is a creative operating system that gives artists, brands, businesses and creators the infrastructure to organize their creative identity, produce work, launch campaigns, manage content, store assets and continuously move their ideas forward — with professional human creative services built directly into the system.**
+### **The Creative Operating System for Artists, Creators, Brands & Businesses.**
 
 **Idea → Plan → Create → Launch → Promote → Grow.**

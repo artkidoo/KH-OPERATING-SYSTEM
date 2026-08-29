@@ -35,10 +35,6 @@ import {
   StudioBrief,
   StudioQuoteStatus,
   StudioRevisionStatus,
-  RadarSignal,
-  RadarDigest,
-  RadarScanResult,
-  RadarConfiguration,
 } from "../types";
 
 const TOKEN_KEY = "keedohub_session_token";
@@ -905,84 +901,6 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ serviceCategory, draftBrief }),
       });
-    },
-  },
-
-  // Phase 9: Creative Radar API
-  radar: {
-    getSignals: async (workspaceId: string, filters?: {
-      status?: string;
-      type?: string;
-      priority?: string;
-      entityType?: string;
-    }) => {
-      let url = `/api/workspaces/${workspaceId}/radar/signals`;
-      const params = new URLSearchParams();
-      if (filters?.status) params.append("status", filters.status);
-      if (filters?.type) params.append("type", filters.type);
-      if (filters?.priority) params.append("priority", filters.priority);
-      if (filters?.entityType) params.append("entityType", filters.entityType);
-      if (params.toString()) url += `?${params.toString()}`;
-      return request<{ signals: RadarSignal[] }>(url);
-    },
-
-    acknowledgeSignal: async (workspaceId: string, signalId: string) => {
-      return request<{ signal: RadarSignal }>(
-        `/api/workspaces/${workspaceId}/radar/signals/${signalId}/acknowledge`,
-        { method: "POST" }
-      );
-    },
-
-    actionSignal: async (workspaceId: string, signalId: string) => {
-      return request<{ signal: RadarSignal }>(
-        `/api/workspaces/${workspaceId}/radar/signals/${signalId}/action`,
-        { method: "POST" }
-      );
-    },
-
-    dismissSignal: async (workspaceId: string, signalId: string) => {
-      return request<{ signal: RadarSignal }>(
-        `/api/workspaces/${workspaceId}/radar/signals/${signalId}/dismiss`,
-        { method: "POST" }
-      );
-    },
-
-    resolveSignal: async (workspaceId: string, signalId: string) => {
-      return request<{ signal: RadarSignal }>(
-        `/api/workspaces/${workspaceId}/radar/signals/${signalId}/resolve`,
-        { method: "POST" }
-      );
-    },
-
-    snoozeSignal: async (workspaceId: string, signalId: string, until: string) => {
-      return request<{ signal: RadarSignal }>(
-        `/api/workspaces/${workspaceId}/radar/signals/${signalId}/snooze`,
-        { method: "POST", body: JSON.stringify({ until }) }
-      );
-    },
-
-    getDigest: async (workspaceId: string, date?: string) => {
-      let url = `/api/workspaces/${workspaceId}/radar/digest`;
-      if (date) url += `?date=${date}`;
-      return request<{ digest: RadarDigest }>(url);
-    },
-
-    getConfig: async (workspaceId: string) => {
-      return request<{ config: RadarConfiguration }>(`/api/workspaces/${workspaceId}/radar/config`);
-    },
-
-    updateConfig: async (workspaceId: string, updates: Partial<RadarConfiguration>) => {
-      return request<{ config: RadarConfiguration }>(
-        `/api/workspaces/${workspaceId}/radar/config`,
-        { method: "PUT", body: JSON.stringify(updates) }
-      );
-    },
-
-    triggerScan: async (workspaceId: string) => {
-      return request<{ result: RadarScanResult }>(
-        `/api/workspaces/${workspaceId}/radar/scan`,
-        { method: "POST" }
-      );
     },
   },
 };
