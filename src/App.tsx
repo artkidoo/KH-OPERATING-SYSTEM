@@ -25,6 +25,7 @@ import { SplitsCalculator } from "./components/SplitsCalculator";
 import { PresaveHub } from "./components/PresaveHub";
 import { CreativeBrainConsole } from "./components/CreativeBrainConsole";
 import { CreativeMemoryDashboard } from "./components/CreativeMemoryDashboard";
+import { CreativeRadarDashboard } from "./components/CreativeRadarDashboard";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
@@ -119,6 +120,13 @@ function MainAppContent() {
 
         {activeTab === "creative-memory" && (
           <CreativeMemoryDashboard
+            onNotify={addNotification}
+            onNavigateTab={setActiveTab}
+          />
+        )}
+
+        {activeTab === "creative-radar" && (
+          <CreativeRadarDashboard
             onNotify={addNotification}
             onNavigateTab={setActiveTab}
           />

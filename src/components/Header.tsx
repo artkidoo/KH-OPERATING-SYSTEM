@@ -91,6 +91,7 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
+    { id: "creative-radar", label: "Creative Radar", icon: <Radio className="w-3.5 h-3.5" />, badge: "PHASE 9" },
     { id: "artist-os", label: "Artist OS", icon: <Disc3 className="w-3.5 h-3.5" />, badge: "PHASE 3" },
     { id: "content-engine", label: "Content Engine", icon: <Layers className="w-3.5 h-3.5" />, badge: "PHASE 6" },
     { id: "studio", label: "Keedohub Studio", icon: <Palette className="w-3.5 h-3.5" />, badge: "PHASE 7" },
@@ -265,6 +266,22 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Right Action Controls */}
             <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Creative Radar Trigger */}
+              <button
+                id="header-creative-radar-btn"
+                onClick={() => setActiveTab("creative-radar")}
+                className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-md hover:scale-105 cursor-pointer group ${
+                  activeTab === "creative-radar"
+                    ? "bg-red-600 text-white border-red-400 shadow-red-950/60"
+                    : "bg-zinc-900/90 text-red-300 border-red-500/40 hover:border-red-400 hover:text-white"
+                }`}
+                title="Open Creative Radar — Proactive Intelligence"
+              >
+                <Radio className="w-3.5 h-3.5 text-red-400 group-hover:scale-110 transition-transform animate-pulse" />
+                <span className="hidden sm:inline">Radar</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              </button>
+
               {/* Creative Brain Slide-over Trigger */}
               <button
                 id="header-creative-brain-btn"

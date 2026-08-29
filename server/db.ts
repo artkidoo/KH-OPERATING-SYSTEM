@@ -505,6 +505,91 @@ export interface MemoryBlockRuleRecord {
   createdAt: string;
 }
 
+// ==========================================
+// PHASE 9: CREATIVE RADAR & PROACTIVE INTELLIGENCE
+// ==========================================
+
+export type RadarSeverity = 'critical' | 'high' | 'medium' | 'low';
+export type RadarSignalStatus = 'new' | 'acknowledged' | 'actioned' | 'dismissed' | 'expired';
+export type RadarCategory = 'release' | 'campaign' | 'project' | 'content' | 'asset' | 'studio' | 'system';
+
+export type RadarSignalType =
+  | 'release_approaching'
+  | 'release_readiness_blocker'
+  | 'release_content_gap'
+  | 'release_asset_gap'
+  | 'release_task_deadline'
+  | 'release_studio_dependency'
+  | 'campaign_launch_approaching'
+  | 'campaign_readiness_blocker'
+  | 'campaign_hero_asset_missing'
+  | 'campaign_content_gap'
+  | 'campaign_milestone_incomplete'
+  | 'campaign_approval_pending'
+  | 'campaign_task_overdue'
+  | 'campaign_product_unlinked'
+  | 'campaign_studio_blocker'
+  | 'project_task_overdue'
+  | 'project_milestone_blocked'
+  | 'project_deadline_approaching'
+  | 'project_pending_review'
+  | 'project_revision_pending'
+  | 'project_inactive'
+  | 'content_pipeline_empty'
+  | 'content_stuck_draft'
+  | 'content_gap'
+  | 'content_unutilized_asset'
+  | 'content_schedule_conflict'
+  | 'asset_missing_connection'
+  | 'asset_missing_requirement'
+  | 'asset_approval_pending'
+  | 'asset_duplicate_detected'
+  | 'studio_request_unreviewed'
+  | 'studio_quote_pending_approval'
+  | 'studio_feedback_pending'
+  | 'studio_revision_in_progress'
+  | 'studio_deliverable_approaching'
+  | 'studio_delivery_pending_approval'
+  | 'system_configuration_needed';
+
+export interface RadarAffectedEntityRecord {
+  type: 'release' | 'campaign' | 'project' | 'content' | 'asset' | 'studio_request' | 'studio_quote' | 'studio_project' | 'studio_deliverable' | 'workspace';
+  id: string;
+  name: string;
+  secondaryInfo?: string;
+}
+
+export interface RadarRecommendedActionRecord {
+  type: 'navigate_tab' | 'open_modal' | 'ask_brain' | 'create_task' | 'generate_content' | 'request_studio';
+  label: string;
+  targetTab?: string;
+  actionDescription?: string;
+  payload?: Record<string, any>;
+}
+
+export interface RadarSignalRecord {
+  id: string;
+  workspaceId: string;
+  fingerprint: string;
+  category: RadarCategory;
+  type: RadarSignalType;
+  severity: RadarSeverity;
+  priority: number;
+  title: string;
+  explanation: string;
+  details?: string;
+  affectedEntity: RadarAffectedEntityRecord;
+  recommendedAction: RadarRecommendedActionRecord;
+  status: RadarSignalStatus;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt?: string;
+  acknowledgedAt?: string;
+  actionedAt?: string;
+  dismissedAt?: string;
+  metadata?: Record<string, any>;
+}
+
 export interface NotificationRecord {
   id: string;
   workspaceId: string;
@@ -776,6 +861,7 @@ export interface DatabaseSchema {
   studio_deliverables: StudioDeliverableRecord[];
   studio_revisions: StudioRevisionRecord[];
   studio_messages: StudioMessageRecord[];
+  radar_signals: RadarSignalRecord[];
 }
 
 function hashPassword(password: string): string {
@@ -1911,6 +1997,7 @@ function generateInitialSeed(): DatabaseSchema {
         createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
       }
     ],
+    radar_signals: [],
   };
 }
 
@@ -1956,6 +2043,7 @@ class Database {
           studio_deliverables: parsed.studio_deliverables || seed.studio_deliverables,
           studio_revisions: parsed.studio_revisions || seed.studio_revisions,
           studio_messages: parsed.studio_messages || seed.studio_messages,
+          radar_signals: parsed.radar_signals || seed.radar_signals,
         };
       }
     } catch (err) {
@@ -3950,6 +4038,231 @@ class Database {
     }
 
     return recs;
+  }
+
+  // ==========================================
+  // PHASE 9: CREATIVE RADAR DATABASE METHODS
+  // ==========================================
+
+  public getRadarSignals(
+    workspaceId: string,
+    filters?: {
+      category?: string;
+      severity?: string;
+      status?: string;
+      entityType?: string;
+      entityId?: string;
+      search?: string;
+      includeArchived?: boolean;
+    }
+  ): RadarSignalRecord[] {
+    let signals = (this.data.radar_signals || []).filter((s) => s.workspaceId === workspaceId);
+
+    if (filters) {
+      if (filters.category && filters.category !== "all") {
+        signals = signals.filter((s) => s.category === filters.category);
+      }
+      if (filters.severity && filters.severity !== "all") {
+        signals = signals.filter((s) => s.severity === filters.severity);
+      }
+      if (filters.status && filters.status !== "all") {
+        signals = signals.filter((s) => s.status === filters.status);
+      } else if (!filters.includeArchived) {
+        // By default, exclude dismissed and actioned unless specified
+        signals = signals.filter((s) => s.status === "new" || s.status === "acknowledged");
+      }
+      if (filters.entityType) {
+        signals = signals.filter((s) => s.affectedEntity.type === filters.entityType);
+      }
+      if (filters.entityId) {
+        signals = signals.filter((s) => s.affectedEntity.id === filters.entityId);
+      }
+      if (filters.search && filters.search.trim()) {
+        const q = filters.search.toLowerCase().trim();
+        signals = signals.filter(
+          (s) =>
+            s.title.toLowerCase().includes(q) ||
+            s.explanation.toLowerCase().includes(q) ||
+            s.affectedEntity.name.toLowerCase().includes(q) ||
+            (s.details && s.details.toLowerCase().includes(q))
+        );
+      }
+    }
+
+    // Sort by: priority DESC (100 -> 0), then severity (critical -> high -> medium -> low), then createdAt DESC
+    const severityWeight: Record<RadarSeverity, number> = {
+      critical: 4,
+      high: 3,
+      medium: 2,
+      low: 1,
+    };
+
+    return signals.sort((a, b) => {
+      if (b.priority !== a.priority) return b.priority - a.priority;
+      const weightDiff = (severityWeight[b.severity] || 0) - (severityWeight[a.severity] || 0);
+      if (weightDiff !== 0) return weightDiff;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }
+
+  public getRadarSignalById(workspaceId: string, signalId: string): RadarSignalRecord | undefined {
+    return (this.data.radar_signals || []).find((s) => s.workspaceId === workspaceId && s.id === signalId);
+  }
+
+  public getRadarSignalByFingerprint(workspaceId: string, fingerprint: string): RadarSignalRecord | undefined {
+    return (this.data.radar_signals || []).find((s) => s.workspaceId === workspaceId && s.fingerprint === fingerprint);
+  }
+
+  public upsertRadarSignal(
+    signalData: Omit<RadarSignalRecord, "id" | "createdAt" | "updatedAt"> & { id?: string; createdAt?: string }
+  ): { signal: RadarSignalRecord; isNew: boolean } {
+    if (!this.data.radar_signals) {
+      this.data.radar_signals = [];
+    }
+
+    const existingIndex = this.data.radar_signals.findIndex(
+      (s) => s.workspaceId === signalData.workspaceId && s.fingerprint === signalData.fingerprint
+    );
+
+    const now = new Date().toISOString();
+
+    if (existingIndex >= 0) {
+      const existing = this.data.radar_signals[existingIndex];
+      // Keep existing status if it was acknowledged, otherwise keep or refresh
+      const preservedStatus = existing.status === "dismissed" ? "dismissed" : existing.status;
+      
+      const updated: RadarSignalRecord = {
+        ...existing,
+        title: signalData.title,
+        explanation: signalData.explanation,
+        details: signalData.details,
+        severity: signalData.severity,
+        priority: signalData.priority,
+        affectedEntity: signalData.affectedEntity,
+        recommendedAction: signalData.recommendedAction,
+        metadata: { ...existing.metadata, ...signalData.metadata },
+        updatedAt: now,
+        status: preservedStatus,
+      };
+
+      this.data.radar_signals[existingIndex] = updated;
+      this.persist();
+      return { signal: updated, isNew: false };
+    } else {
+      const newSignal: RadarSignalRecord = {
+        id: signalData.id || "sig_" + crypto.randomUUID().substring(0, 9),
+        workspaceId: signalData.workspaceId,
+        fingerprint: signalData.fingerprint,
+        category: signalData.category,
+        type: signalData.type,
+        severity: signalData.severity,
+        priority: signalData.priority,
+        title: signalData.title,
+        explanation: signalData.explanation,
+        details: signalData.details,
+        affectedEntity: signalData.affectedEntity,
+        recommendedAction: signalData.recommendedAction,
+        status: signalData.status || "new",
+        createdAt: signalData.createdAt || now,
+        updatedAt: now,
+        expiresAt: signalData.expiresAt,
+        metadata: signalData.metadata || {},
+      };
+
+      this.data.radar_signals.unshift(newSignal);
+      this.persist();
+      return { signal: newSignal, isNew: true };
+    }
+  }
+
+  public updateRadarSignalStatus(
+    workspaceId: string,
+    signalId: string,
+    status: RadarSignalStatus,
+    extra?: {
+      acknowledgedAt?: string;
+      actionedAt?: string;
+      dismissedAt?: string;
+      expiresAt?: string;
+    }
+  ): RadarSignalRecord | undefined {
+    const signal = this.getRadarSignalById(workspaceId, signalId);
+    if (!signal) return undefined;
+
+    const now = new Date().toISOString();
+    signal.status = status;
+    signal.updatedAt = now;
+
+    if (status === "acknowledged") {
+      signal.acknowledgedAt = extra?.acknowledgedAt || now;
+    } else if (status === "actioned") {
+      signal.actionedAt = extra?.actionedAt || now;
+    } else if (status === "dismissed") {
+      signal.dismissedAt = extra?.dismissedAt || now;
+    } else if (status === "expired") {
+      signal.expiresAt = extra?.expiresAt || now;
+    }
+
+    this.persist();
+    return signal;
+  }
+
+  public batchUpdateRadarSignals(
+    workspaceId: string,
+    signalIds: string[],
+    status: RadarSignalStatus
+  ): { updatedCount: number } {
+    if (!this.data.radar_signals) return { updatedCount: 0 };
+    const now = new Date().toISOString();
+    let count = 0;
+
+    for (const signal of this.data.radar_signals) {
+      if (signal.workspaceId === workspaceId && signalIds.includes(signal.id)) {
+        signal.status = status;
+        signal.updatedAt = now;
+        if (status === "acknowledged") signal.acknowledgedAt = now;
+        if (status === "actioned") signal.actionedAt = now;
+        if (status === "dismissed") signal.dismissedAt = now;
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      this.persist();
+    }
+    return { updatedCount: count };
+  }
+
+  public autoResolveMissingFingerprints(
+    workspaceId: string,
+    activeFingerprints: Set<string>
+  ): { resolvedCount: number } {
+    if (!this.data.radar_signals) return { resolvedCount: 0 };
+    const now = new Date().toISOString();
+    let count = 0;
+
+    for (const signal of this.data.radar_signals) {
+      if (
+        signal.workspaceId === workspaceId &&
+        (signal.status === "new" || signal.status === "acknowledged") &&
+        !activeFingerprints.has(signal.fingerprint)
+      ) {
+        // Condition was resolved! Auto-transition to actioned/resolved
+        signal.status = "actioned";
+        signal.actionedAt = now;
+        signal.updatedAt = now;
+        signal.metadata = {
+          ...signal.metadata,
+          autoResolvedReason: "Condition no longer detected during proactive radar sweep",
+        };
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      this.persist();
+    }
+    return { resolvedCount: count };
   }
 }
 

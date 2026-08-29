@@ -4,6 +4,7 @@ export type ActiveTab =
   | 'content-engine'
   | 'studio'
   | 'creative-memory'
+  | 'creative-radar'
   | 'workspace-hub'
   | 'artist-brain'
   | 'creative-brain'
@@ -1212,5 +1213,135 @@ export interface MemoryRetrievalResult {
   usedMemorySummaries: string[];
   retrievalReasons: Record<string, string>;
 }
+
+// ==========================================
+// PHASE 9: CREATIVE RADAR & PROACTIVE INTELLIGENCE
+// ==========================================
+
+export type RadarSeverity = 'critical' | 'high' | 'medium' | 'low';
+export type RadarSignalStatus = 'new' | 'acknowledged' | 'actioned' | 'dismissed' | 'expired';
+export type RadarCategory = 'release' | 'campaign' | 'project' | 'content' | 'asset' | 'studio' | 'system';
+
+export type RadarSignalType =
+  // Artist / Release Signals
+  | 'release_approaching'
+  | 'release_readiness_blocker'
+  | 'release_content_gap'
+  | 'release_asset_gap'
+  | 'release_task_deadline'
+  | 'release_studio_dependency'
+  // Brand / Campaign Signals
+  | 'campaign_launch_approaching'
+  | 'campaign_readiness_blocker'
+  | 'campaign_hero_asset_missing'
+  | 'campaign_content_gap'
+  | 'campaign_milestone_incomplete'
+  | 'campaign_approval_pending'
+  | 'campaign_task_overdue'
+  | 'campaign_product_unlinked'
+  | 'campaign_studio_blocker'
+  // Project Signals
+  | 'project_task_overdue'
+  | 'project_milestone_blocked'
+  | 'project_deadline_approaching'
+  | 'project_pending_review'
+  | 'project_revision_pending'
+  | 'project_inactive'
+  // Content Signals
+  | 'content_pipeline_empty'
+  | 'content_stuck_draft'
+  | 'content_gap'
+  | 'content_unutilized_asset'
+  | 'content_schedule_conflict'
+  // Asset Signals
+  | 'asset_missing_connection'
+  | 'asset_missing_requirement'
+  | 'asset_approval_pending'
+  | 'asset_duplicate_detected'
+  // Studio Signals
+  | 'studio_request_unreviewed'
+  | 'studio_quote_pending_approval'
+  | 'studio_feedback_pending'
+  | 'studio_revision_in_progress'
+  | 'studio_deliverable_approaching'
+  | 'studio_delivery_pending_approval'
+  // System / General
+  | 'system_configuration_needed';
+
+export interface RadarAffectedEntity {
+  type: 'release' | 'campaign' | 'project' | 'content' | 'asset' | 'studio_request' | 'studio_quote' | 'studio_project' | 'studio_deliverable' | 'workspace';
+  id: string;
+  name: string;
+  secondaryInfo?: string;
+}
+
+export interface RadarRecommendedAction {
+  type: 'navigate_tab' | 'open_modal' | 'ask_brain' | 'create_task' | 'generate_content' | 'request_studio';
+  label: string;
+  targetTab?: ActiveTab;
+  actionDescription?: string;
+  payload?: Record<string, any>;
+}
+
+export interface RadarSignal {
+  id: string;
+  workspaceId: string;
+  fingerprint: string; // Deterministic deduplication key
+  category: RadarCategory;
+  type: RadarSignalType;
+  severity: RadarSeverity;
+  priority: number; // 0 to 100 calculated score
+  title: string;
+  explanation: string;
+  details?: string;
+  affectedEntity: RadarAffectedEntity;
+  recommendedAction: RadarRecommendedAction;
+  status: RadarSignalStatus;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt?: string;
+  acknowledgedAt?: string;
+  actionedAt?: string;
+  dismissedAt?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface RadarDigest {
+  workspaceId: string;
+  generatedAt: string;
+  headline: string;
+  totalActiveSignals: number;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+  topAttentionItems: RadarSignal[];
+  recommendationsSummary: string[];
+}
+
+export interface RadarStats {
+  totalActive: number;
+  bySeverity: {
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+  };
+  byCategory: {
+    release: number;
+    campaign: number;
+    project: number;
+    content: number;
+    asset: number;
+    studio: number;
+  };
+  byStatus: {
+    new: number;
+    acknowledged: number;
+    actioned: number;
+    dismissed: number;
+  };
+}
+
 
 

@@ -3,6 +3,7 @@ import { db, IdentityType, UserRecord, SessionRecord, AssetCategory, CreativeMem
 import { GoogleGenAI } from "@google/genai";
 import { CreativeBrainService, compileWorkspaceContext, executeBrainTool } from "./ai/creativeBrainService";
 import { MemoryRetrievalService } from "./ai/memoryRetrievalService";
+import { creativeRadarService } from "./radar/creativeRadarService";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -1564,6 +1565,183 @@ apiRouter.post("/workspaces/:workspaceId/memory/retrieve", requireAuth, requireW
     limit: limit || 10,
   });
   res.json(result);
+});
+
+// ==========================================
+// PHASE 9: CREATIVE RADAR API ENDPOINTS
+// ==========================================
+
+// Get Radar Signals (with filtering)
+apiRouter.get("/workspaces/:workspaceId/radar/signals", requireAuth, requireWorkspaceAccess, async (req: AuthenticatedRequest, res: Response) => {
+  const { category, severity, status, entityType, entityId, search, includeArchived, autoEvaluate } = req.query;
+  
+  // If no signals exist yet or autoEvaluate requested, trigger background scan
+  const existing = db.getRadarSignals(req.params.workspaceId, { includeArchived: true });
+  if (existing.length === 0 || autoEvaluate === "true") {
+    await creativeRadarService.evaluateWorkspace(req.params.workspaceId);
+  }
+
+  const signals = db.getRadarSignals(req.params.workspaceId, {
+    category: category as string,
+    severity: severity as string,
+    status: status as string,
+    entityType: entityType as string,
+    entityId: entityId as string,
+    search: search as string,
+    includeArchived: includeArchived === "true",
+  });
+
+  res.json({ signals });
+});
+
+// Proactively Evaluate / Refresh Workspace Radar
+apiRouter.post("/workspaces/:workspaceId/radar/evaluate", requireAuth, requireWorkspaceAccess, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const result = await creativeRadarService.evaluateWorkspace(req.params.workspaceId);
+    
+    db.logActivity(
+      req.params.workspaceId,
+      req.user!.id,
+      req.user!.email,
+      "EVALUATE_CREATIVE_RADAR",
+      "radar",
+      req.params.workspaceId,
+      `Executed proactive radar evaluation: ${result.signals.length} active signals, ${result.stats.bySeverity.critical} critical`
+    );
+
+    res.json(result);
+  } catch (err: any) {
+    console.error("[Radar Route Error]", err);
+    res.status(500).json({ error: err.message || "Failed to evaluate radar" });
+  }
+});
+
+// Get Workspace Radar Executive Digest
+apiRouter.get("/workspaces/:workspaceId/radar/digest", requireAuth, requireWorkspaceAccess, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const result = await creativeRadarService.evaluateWorkspace(req.params.workspaceId);
+    res.json({ digest: result.digest, stats: result.stats });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to generate radar digest" });
+  }
+});
+
+// Get Workspace Radar Stats
+apiRouter.get("/workspaces/:workspaceId/radar/stats", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const activeSignals = db.getRadarSignals(req.params.workspaceId, { includeArchived: false });
+  const allSignals = db.getRadarSignals(req.params.workspaceId, { includeArchived: true });
+
+  const stats = {
+    totalActive: activeSignals.length,
+    bySeverity: {
+      critical: activeSignals.filter((s) => s.severity === "critical").length,
+      high: activeSignals.filter((s) => s.severity === "high").length,
+      medium: activeSignals.filter((s) => s.severity === "medium").length,
+      low: activeSignals.filter((s) => s.severity === "low").length,
+    },
+    byCategory: {
+      release: activeSignals.filter((s) => s.category === "release").length,
+      campaign: activeSignals.filter((s) => s.category === "campaign").length,
+      project: activeSignals.filter((s) => s.category === "project").length,
+      content: activeSignals.filter((s) => s.category === "content").length,
+      asset: activeSignals.filter((s) => s.category === "asset").length,
+      studio: activeSignals.filter((s) => s.category === "studio").length,
+    },
+    byStatus: {
+      new: allSignals.filter((s) => s.status === "new").length,
+      acknowledged: allSignals.filter((s) => s.status === "acknowledged").length,
+      actioned: allSignals.filter((s) => s.status === "actioned").length,
+      dismissed: allSignals.filter((s) => s.status === "dismissed").length,
+    },
+  };
+
+  res.json({ stats });
+});
+
+// Acknowledge a Radar Signal
+apiRouter.post("/workspaces/:workspaceId/radar/signals/:signalId/acknowledge", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const signal = db.updateRadarSignalStatus(req.params.workspaceId, req.params.signalId, "acknowledged");
+  if (!signal) {
+    return res.status(404).json({ error: "Radar signal not found" });
+  }
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "ACKNOWLEDGE_RADAR_SIGNAL",
+    "radar_signal",
+    signal.id,
+    `Acknowledged radar signal: "${signal.title}"`
+  );
+
+  res.json({ success: true, signal });
+});
+
+// Dismiss a Radar Signal
+apiRouter.post("/workspaces/:workspaceId/radar/signals/:signalId/dismiss", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const signal = db.updateRadarSignalStatus(req.params.workspaceId, req.params.signalId, "dismissed");
+  if (!signal) {
+    return res.status(404).json({ error: "Radar signal not found" });
+  }
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "DISMISS_RADAR_SIGNAL",
+    "radar_signal",
+    signal.id,
+    `Dismissed radar signal: "${signal.title}"`
+  );
+
+  res.json({ success: true, signal });
+});
+
+// Action / Resolve a Radar Signal
+apiRouter.post("/workspaces/:workspaceId/radar/signals/:signalId/action", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const signal = db.updateRadarSignalStatus(req.params.workspaceId, req.params.signalId, "actioned");
+  if (!signal) {
+    return res.status(404).json({ error: "Radar signal not found" });
+  }
+
+  db.logActivity(
+    req.params.workspaceId,
+    req.user!.id,
+    req.user!.email,
+    "ACTION_RADAR_SIGNAL",
+    "radar_signal",
+    signal.id,
+    `Actioned & resolved radar signal: "${signal.title}"`
+  );
+
+  res.json({ success: true, signal });
+});
+
+// Batch Update Radar Signals
+apiRouter.post("/workspaces/:workspaceId/radar/signals/batch", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const { signalIds, status } = req.body;
+  if (!Array.isArray(signalIds) || !status) {
+    return res.status(400).json({ error: "Array of signalIds and target status are required" });
+  }
+
+  const result = db.batchUpdateRadarSignals(req.params.workspaceId, signalIds, status);
+  res.json(result);
+});
+
+// Ask Creative Brain to Diagnose & Plan Solution for a Radar Signal
+apiRouter.post("/workspaces/:workspaceId/radar/signals/:signalId/ask-brain", requireAuth, requireWorkspaceAccess, async (req: AuthenticatedRequest, res: Response) => {
+  const { query } = req.body;
+  try {
+    const diagnostic = await creativeRadarService.explainAndSolveSignal(
+      req.params.workspaceId,
+      req.params.signalId,
+      query
+    );
+    res.json(diagnostic);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to process AI diagnostic" });
+  }
 });
 
 // --- Notifications & Activity Routes ---

@@ -4,7 +4,8 @@ import { useCreativeBrain } from '../../context/CreativeBrainContext';
 import { ProductServiceSystem } from './ProductServiceSystem';
 import { CampaignBuilder } from './CampaignBuilder';
 import { BrandCoreEditor } from './BrandCoreEditor';
-import { IdentityType } from '../../types';
+import { ContextualRadarBanner } from '../CreativeRadarDashboard';
+import { IdentityType, ActiveTab } from '../../types';
 import { 
   Rocket, 
   Compass, 
@@ -117,6 +118,9 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
           )}
         </div>
       </div>
+
+      {/* Contextual Radar Signals Banner */}
+      <ContextualRadarBanner category="campaign" onNavigateTab={onNavigateTab as (tab: ActiveTab) => void} />
 
       {/* Main Workstation Navigation Bar */}
       <div className="flex items-center gap-2 border-b border-zinc-800 overflow-x-auto pb-1">

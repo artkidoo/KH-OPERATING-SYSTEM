@@ -34,6 +34,7 @@ import {
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
 import { useCreativeBrain } from '../context/CreativeBrainContext';
+import { ContextualRadarBanner } from './CreativeRadarDashboard';
 import {
   ActiveTab,
   Release,
@@ -426,6 +427,9 @@ export const ArtistOS: React.FC<ArtistOSProps> = ({ onNavigateTab }) => {
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Contextual Radar Signals Banner */}
+        <ContextualRadarBanner category="release" onNavigateTab={onNavigateTab} />
+
         {/* No Active Release Warning / Hero Setup */}
         {!activeRelease && (
           <div className="bg-gradient-to-br from-slate-900 via-slate-900/90 to-cyan-950/40 border border-cyan-500/30 rounded-2xl p-8 text-center space-y-4 shadow-xl">
