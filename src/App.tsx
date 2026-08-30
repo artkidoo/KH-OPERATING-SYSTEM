@@ -27,6 +27,7 @@ import { PresaveHub } from "./components/PresaveHub";
 import { CreativeBrainConsole } from "./components/CreativeBrainConsole";
 import { CreativeMemoryDashboard } from "./components/CreativeMemoryDashboard";
 import { CreativeRadarDashboard } from "./components/CreativeRadarDashboard";
+import { AnalyticsView } from "./components/AnalyticsView";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
@@ -111,6 +112,13 @@ function MainAppContent() {
             onNavigateTab={setActiveTab}
             onOpenBriefModal={() => setIsBriefOpen(true)}
             onNotify={addNotification}
+          />
+        )}
+
+        {activeTab === "analytics" && (
+          <AnalyticsView
+            onNotify={addNotification}
+            onNavigateTab={setActiveTab}
           />
         )}
 

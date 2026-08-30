@@ -1,6 +1,7 @@
 export type ActiveTab = 
   | 'overview'
   | 'command-center'
+  | 'analytics'
   | 'artist-os'
   | 'content-engine'
   | 'studio'
@@ -1446,3 +1447,362 @@ export interface CommandCenterData {
   recentActivity: ActivityLog[];
   relationshipGraph: EntityRelationNode[];
 }
+
+// ==========================================
+// PHASE 11: ANALYTICS & GROWTH INTELLIGENCE
+// ==========================================
+
+export type PerformanceMetricSource = 'manual' | 'imported' | 'api' | 'calculated';
+
+export interface PerformanceMetricsData {
+  views?: number | null;
+  reach?: number | null;
+  impressions?: number | null;
+  engagement?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  shares?: number | null;
+  saves?: number | null;
+  clicks?: number | null;
+  conversions?: number | null;
+  streams?: number | null;
+  downloads?: number | null;
+  revenue?: number | null;
+  spend?: number | null;
+}
+
+export interface PerformanceMetric {
+  id: string;
+  workspaceId: string;
+  entityType: 'content' | 'release' | 'campaign' | 'project' | 'product' | 'studio' | 'platform';
+  entityId: string;
+  entityTitle: string;
+  platform: ContentPlatform;
+  format?: string;
+  metricDate: string;
+  source: PerformanceMetricSource;
+  isVerified: boolean;
+  metrics: PerformanceMetricsData;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type GrowthInsightConfidence = 'high' | 'medium' | 'experimental';
+export type GrowthInsightStatus = 'active' | 'applied' | 'saved_to_memory' | 'dismissed';
+export type GrowthInsightCategory = 
+  | 'content_format' 
+  | 'platform_momentum' 
+  | 'campaign_roi' 
+  | 'release_velocity' 
+  | 'audience_behavior' 
+  | 'growth_opportunity';
+
+export interface GrowthInsight {
+  id: string;
+  workspaceId: string;
+  title: string;
+  explanation: string;
+  evidence: string;
+  relatedEntity: {
+    type: 'content' | 'campaign' | 'release' | 'platform' | 'pillar' | 'format' | 'product' | 'workspace';
+    id?: string;
+    name: string;
+  };
+  confidence: GrowthInsightConfidence;
+  category: GrowthInsightCategory;
+  status: GrowthInsightStatus;
+  recommendedAction: {
+    label: string;
+    actionType: 'navigate_tab' | 'create_content' | 'adjust_campaign' | 'save_memory' | 'ask_brain';
+    targetTab?: ActiveTab;
+    payload?: Record<string, any>;
+  };
+  savedMemoryId?: string;
+  generatedAt: string;
+}
+
+export type WorkspaceGoalCategory = 'release' | 'campaign' | 'content' | 'engagement' | 'conversion' | 'custom';
+export type WorkspaceGoalStatus = 'on_track' | 'at_risk' | 'behind' | 'achieved';
+
+export interface WorkspaceGoal {
+  id: string;
+  workspaceId: string;
+  title: string;
+  category: WorkspaceGoalCategory;
+  targetMetric: 'views' | 'streams' | 'content_count' | 'engagement_rate' | 'conversions' | 'reach' | 'revenue';
+  targetValue: number;
+  currentValue: number;
+  unit: string;
+  deadline?: string;
+  entityId?: string;
+  entityType?: 'release' | 'campaign' | 'platform' | 'workspace';
+  status: WorkspaceGoalStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ContentPerformanceItem {
+  content: ContentItem;
+  metrics: PerformanceMetricsData;
+  totalViews: number;
+  totalEngagement: number;
+  engagementRate: number;
+  metricCount: number;
+  lastUpdated?: string;
+  format: string;
+  platform: ContentPlatform;
+  pillar?: string;
+  hook?: string;
+  isTopPerformer: boolean;
+}
+
+export interface FormatPerformanceSummary {
+  format: string;
+  contentCount: number;
+  totalViews: number;
+  avgViews: number;
+  avgEngagementRate: number;
+  topItemTitle?: string;
+  topPerformingSample?: string;
+}
+
+export interface PlatformPerformanceSummary {
+  platform: ContentPlatform;
+  contentCount: number;
+  totalViews: number;
+  totalReach: number;
+  totalEngagement: number;
+  avgEngagementRate: number;
+  totalStreams?: number;
+  totalConversions?: number;
+  shareOfTotalViews?: number;
+  topPerformingTitle?: string;
+}
+
+export interface PillarPerformanceSummary {
+  pillar: string;
+  pillarName?: string;
+  contentCount: number;
+  totalViews: number;
+  avgViews?: number;
+  avgEngagementRate: number;
+}
+
+export interface CampaignPerformanceSummary {
+  campaignId: string;
+  title: string;
+  status: string;
+  impressions: number;
+  leadsOrSales: number;
+  revenue: number;
+  spend: number;
+  roi: number;
+}
+
+export interface ReleasePerformanceSummary {
+  releaseId: string;
+  title: string;
+  stage: string;
+  streams: number;
+  saves: number;
+  contentCount: number;
+  momentumScore: number;
+}
+
+export interface PerformanceTrendPoint {
+  date: string;
+  views: number;
+  reach: number;
+  engagementRate: number;
+  streams?: number;
+}
+
+export interface TopContentItemSummary {
+  contentId: string;
+  title: string;
+  platform: ContentPlatform;
+  format: string;
+  views: number;
+  engagementRate: number;
+  conversions: number;
+  source: PerformanceMetricSource;
+  metricDate?: string;
+  isVerified?: boolean;
+}
+
+export interface HookPerformanceSummary {
+  hookText: string;
+  contentId: string;
+  contentTitle: string;
+  views: number;
+  engagementRate: number;
+  platform: string;
+}
+
+export interface CampaignAnalyticsSummary {
+  campaign: Campaign;
+  totalViews: number;
+  totalReach: number;
+  totalEngagement: number;
+  totalClicks: number;
+  totalConversions: number;
+  totalSpend: number;
+  conversionRate: number;
+  roi?: number;
+  contentContributions: {
+    contentId: string;
+    title: string;
+    platform: string;
+    views: number;
+    engagement: number;
+  }[];
+  platformBreakdown: {
+    platform: ContentPlatform;
+    views: number;
+    conversions: number;
+  }[];
+  goalsProgress: {
+    impressionsProgress: number;
+    leadsProgress: number;
+    salesProgress: number;
+  };
+}
+
+export interface ReleaseAnalyticsSummary {
+  release: Release;
+  totalEstimatedStreams: number;
+  totalSocialViews: number;
+  totalSocialEngagement: number;
+  contentCount: number;
+  campaignsCount: number;
+  platformBreakdown: {
+    platform: string;
+    views: number;
+    engagement: number;
+  }[];
+  contentFunnel: {
+    contentId: string;
+    title: string;
+    platform: string;
+    views: number;
+    engagementRate: number;
+    stage?: string;
+  }[];
+  timelineEvents: {
+    date: string;
+    label: string;
+    type: 'milestone' | 'content_drop' | 'campaign_push' | 'metric_spike';
+    value?: string;
+  }[];
+}
+
+export interface PerformanceTimelineEvent {
+  id: string;
+  date: string;
+  title: string;
+  description: string;
+  category: 'release_drop' | 'content_publish' | 'campaign_launch' | 'metric_spike' | 'milestone_achieved';
+  relatedEntityType: 'release' | 'campaign' | 'content' | 'platform';
+  relatedEntityId?: string;
+  impactMetrics?: {
+    views?: number;
+    engagementRate?: number;
+    streams?: number;
+    changePercent?: number;
+  };
+}
+
+export interface ComparativeAnalysisResult {
+  compareType: 'content' | 'campaign' | 'release' | 'platform' | 'period';
+  itemA: {
+    id: string;
+    title: string;
+    subtitle?: string;
+    views: number;
+    reach: number;
+    engagementRate: number;
+    conversions?: number;
+    streams?: number;
+    additional?: Record<string, any>;
+  };
+  itemB: {
+    id: string;
+    title: string;
+    subtitle?: string;
+    views: number;
+    reach: number;
+    engagementRate: number;
+    conversions?: number;
+    streams?: number;
+    additional?: Record<string, any>;
+  };
+  winnerKey?: 'itemA' | 'itemB' | 'tie';
+  variance: {
+    viewsDiff: number;
+    viewsPercent: number;
+    engagementRateDiff: number;
+    engagementRatePercent: number;
+  };
+  takeaway: string;
+  recommendation: string;
+}
+
+export interface GrowthOpportunityItem {
+  id: string;
+  title: string;
+  category: 'winning_format' | 'strong_asset' | 'underused_platform' | 'rising_pillar' | 'release_momentum' | 'campaign_efficiency';
+  summary: string;
+  evidence: string;
+  potentialImpact: 'high' | 'medium' | 'transformational';
+  actionLabel: string;
+  actionTab: ActiveTab;
+  actionPayload?: Record<string, any>;
+}
+
+export interface AnalyticsSummaryDashboard {
+  workspaceId: string;
+  identityType: IdentityType;
+  totalViews: number;
+  totalReach: number;
+  avgEngagementRate: number;
+  totalStreams: number;
+  totalConversions: number;
+  totalRecordedMetrics: number;
+  sourcesBreakdown: {
+    manual: number;
+    imported: number;
+    api: number;
+    calculated: number;
+  };
+  topContent: ContentPerformanceItem[];
+  formatPerformance: FormatPerformanceSummary[];
+  platformPerformance: PlatformPerformanceSummary[];
+  pillarPerformance: PillarPerformanceSummary[];
+  topHooks: HookPerformanceSummary[];
+  insights: GrowthInsight[];
+  opportunities: GrowthOpportunityItem[];
+  goals: WorkspaceGoal[];
+  recentTimeline: PerformanceTimelineEvent[];
+}
+
+export interface CommandCenterPerformancePulse {
+  headline: string;
+  status: 'strong' | 'stable' | 'needs_attention';
+  signals: {
+    label: string;
+    type: 'positive' | 'neutral' | 'warning';
+    detail: string;
+  }[];
+  topInsight?: {
+    title: string;
+    recommendation: string;
+  };
+  topPerformerSummary?: string;
+  goalsSummary: {
+    total: number;
+    onTrack: number;
+    atRisk: number;
+  };
+}
+

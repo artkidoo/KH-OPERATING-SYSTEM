@@ -759,6 +759,43 @@ export class CommandCenterService {
     if (healthScore < 20) healthScore = 20;
     if (healthScore > 100) healthScore = 100;
 
+    // 8. Calculate Performance Pulse (Phase 11)
+    const metrics = db.getPerformanceMetrics(workspaceId);
+    const growthInsights = db.getGrowthInsights(workspaceId);
+    const goals = db.getWorkspaceGoals(workspaceId);
+
+    let totalViews = 0;
+    let totalConversions = 0;
+    let engSum = 0;
+    let engCount = 0;
+
+    metrics.forEach((m) => {
+      if (m.metrics.views) totalViews += m.metrics.views;
+      if (m.metrics.conversions) totalConversions += m.metrics.conversions;
+      if (m.metrics.engagement) {
+        engSum += m.metrics.engagement;
+        engCount++;
+      }
+    });
+
+    const avgEngagement = engCount > 0 ? Number((engSum / engCount).toFixed(1)) : 0;
+    const topInsight = growthInsights.find((gi) => gi.confidence === "high" && gi.status === "active") || growthInsights[0];
+
+    const performancePulse = {
+      totalViews,
+      totalConversions,
+      averageEngagementRate: avgEngagement,
+      metricRecordsCount: metrics.length,
+      activeInsightsCount: growthInsights.filter((gi) => gi.status === "active").length,
+      activeGoalsCount: goals.length,
+      atRiskGoalsCount: goals.filter((g) => g.status === "at_risk" || g.status === "behind").length,
+      topInsight: topInsight ? {
+        title: topInsight.title,
+        confidence: topInsight.confidence,
+        category: topInsight.category,
+      } : undefined,
+    };
+
     return {
       workspaceId,
       identityType: workspace.identityType || "artist",
@@ -776,8 +813,11 @@ export class CommandCenterService {
           milestones: milestones.length,
           activeRadarSignals: activeSignals.length,
           activeBlockers: todayBlocked.length,
+          metricsTracked: metrics.length,
+          activeInsights: growthInsights.length,
         },
       },
+      performancePulse,
       today: {
         priority: todayPriority,
         upcoming: todayUpcoming,

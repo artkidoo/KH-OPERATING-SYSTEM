@@ -520,6 +520,7 @@ export type RadarSignalType =
   | 'release_asset_gap'
   | 'release_task_deadline'
   | 'release_studio_dependency'
+  | 'release_momentum_slowing'
   | 'campaign_launch_approaching'
   | 'campaign_readiness_blocker'
   | 'campaign_hero_asset_missing'
@@ -529,6 +530,8 @@ export type RadarSignalType =
   | 'campaign_task_overdue'
   | 'campaign_product_unlinked'
   | 'campaign_studio_blocker'
+  | 'campaign_underperforming_target'
+  | 'campaign_objective_stalled'
   | 'project_task_overdue'
   | 'project_milestone_blocked'
   | 'project_deadline_approaching'
@@ -540,6 +543,9 @@ export type RadarSignalType =
   | 'content_gap'
   | 'content_unutilized_asset'
   | 'content_schedule_conflict'
+  | 'content_format_underperforming'
+  | 'strong_content_pattern_detected'
+  | 'growth_opportunity_detected'
   | 'asset_missing_connection'
   | 'asset_missing_requirement'
   | 'asset_approval_pending'
@@ -833,6 +839,100 @@ export interface StudioProjectRecord {
   updatedAt: string;
 }
 
+// ==========================================
+// PHASE 11: ANALYTICS & GROWTH INTELLIGENCE RECORDS
+// ==========================================
+
+export type PerformanceMetricSource = 'manual' | 'imported' | 'api' | 'calculated';
+
+export interface PerformanceMetricsData {
+  views?: number | null;
+  reach?: number | null;
+  impressions?: number | null;
+  engagement?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  shares?: number | null;
+  saves?: number | null;
+  clicks?: number | null;
+  conversions?: number | null;
+  streams?: number | null;
+  downloads?: number | null;
+  revenue?: number | null;
+  spend?: number | null;
+}
+
+export interface PerformanceMetricRecord {
+  id: string;
+  workspaceId: string;
+  entityType: 'content' | 'release' | 'campaign' | 'project' | 'product' | 'studio' | 'platform';
+  entityId: string;
+  entityTitle: string;
+  platform: ContentPlatform;
+  format?: string;
+  metricDate: string;
+  source: PerformanceMetricSource;
+  isVerified: boolean;
+  metrics: PerformanceMetricsData;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type GrowthInsightConfidence = 'high' | 'medium' | 'experimental';
+export type GrowthInsightStatus = 'active' | 'applied' | 'saved_to_memory' | 'dismissed';
+export type GrowthInsightCategory = 
+  | 'content_format' 
+  | 'platform_momentum' 
+  | 'campaign_roi' 
+  | 'release_velocity' 
+  | 'audience_behavior' 
+  | 'growth_opportunity';
+
+export interface GrowthInsightRecord {
+  id: string;
+  workspaceId: string;
+  title: string;
+  explanation: string;
+  evidence: string;
+  relatedEntity: {
+    type: 'content' | 'campaign' | 'release' | 'platform' | 'pillar' | 'format' | 'product' | 'workspace';
+    id?: string;
+    name: string;
+  };
+  confidence: GrowthInsightConfidence;
+  category: GrowthInsightCategory;
+  status: GrowthInsightStatus;
+  recommendedAction: {
+    label: string;
+    actionType: 'navigate_tab' | 'create_content' | 'adjust_campaign' | 'save_memory' | 'ask_brain';
+    targetTab?: string;
+    payload?: Record<string, any>;
+  };
+  savedMemoryId?: string;
+  generatedAt: string;
+}
+
+export type WorkspaceGoalCategory = 'release' | 'campaign' | 'content' | 'engagement' | 'conversion' | 'custom';
+export type WorkspaceGoalStatus = 'on_track' | 'at_risk' | 'behind' | 'achieved';
+
+export interface WorkspaceGoalRecord {
+  id: string;
+  workspaceId: string;
+  title: string;
+  category: WorkspaceGoalCategory;
+  targetMetric: 'views' | 'streams' | 'content_count' | 'engagement_rate' | 'conversions' | 'reach' | 'revenue';
+  targetValue: number;
+  currentValue: number;
+  unit: string;
+  deadline?: string;
+  entityId?: string;
+  entityType?: 'release' | 'campaign' | 'platform' | 'workspace';
+  status: WorkspaceGoalStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DatabaseSchema {
   users: UserRecord[];
   sessions: SessionRecord[];
@@ -862,6 +962,9 @@ export interface DatabaseSchema {
   studio_revisions: StudioRevisionRecord[];
   studio_messages: StudioMessageRecord[];
   radar_signals: RadarSignalRecord[];
+  performance_metrics: PerformanceMetricRecord[];
+  growth_insights: GrowthInsightRecord[];
+  workspace_goals: WorkspaceGoalRecord[];
 }
 
 function hashPassword(password: string): string {
@@ -1998,6 +2101,216 @@ function generateInitialSeed(): DatabaseSchema {
       }
     ],
     radar_signals: [],
+    performance_metrics: [
+      {
+        id: "pm_demo_1",
+        workspaceId: defaultWorkspaceId,
+        entityType: "content",
+        entityId: "cnt_1",
+        entityTitle: "Late Night Studio Vocal Memo (T-14)",
+        platform: "tiktok",
+        format: "Reel / Short Video",
+        metricDate: "2026-08-28",
+        source: "manual",
+        isVerified: false,
+        metrics: {
+          views: 48200,
+          reach: 41500,
+          impressions: 54000,
+          engagement: 14.8,
+          likes: 6240,
+          comments: 482,
+          shares: 1190,
+          saves: 850,
+          clicks: 340,
+          conversions: 185,
+        },
+        notes: "Viral organic pickup on TikTok sound memo snippet with producer reaction.",
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+      },
+      {
+        id: "pm_demo_2",
+        workspaceId: defaultWorkspaceId,
+        entityType: "content",
+        entityId: "cnt_2",
+        entityTitle: "3D Spinning Vinyl Cover Artwork Reveal",
+        platform: "instagram",
+        format: "Carousel / 3D Render",
+        metricDate: "2026-08-27",
+        source: "manual",
+        isVerified: false,
+        metrics: {
+          views: 18400,
+          reach: 16200,
+          impressions: 21000,
+          engagement: 8.6,
+          likes: 1350,
+          comments: 142,
+          shares: 230,
+          saves: 410,
+          clicks: 95,
+          conversions: 42,
+        },
+        notes: "High save rate on 3000px cover artwork presentation carousel.",
+        createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+      },
+      {
+        id: "pm_demo_3",
+        workspaceId: defaultWorkspaceId,
+        entityType: "release",
+        entityId: release.id,
+        entityTitle: release.title,
+        platform: "spotify",
+        metricDate: "2026-08-29",
+        source: "manual",
+        isVerified: false,
+        metrics: {
+          streams: 14200,
+          saves: 1840,
+          reach: 9600,
+          clicks: 820,
+        },
+        notes: "Catalogue momentum & presave conversion for lead teaser.",
+        createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "pm_demo_4",
+        workspaceId: defaultWorkspaceId,
+        entityType: "campaign",
+        entityId: campaign.id,
+        entityTitle: campaign.title,
+        platform: "instagram",
+        metricDate: "2026-08-29",
+        source: "manual",
+        isVerified: false,
+        metrics: {
+          views: 32000,
+          reach: 27500,
+          engagement: 11.2,
+          clicks: 620,
+          conversions: 140,
+          spend: 150,
+          revenue: 950,
+        },
+        notes: "Mid-sprint paid push & influencer story resharing.",
+        createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    ],
+    growth_insights: [
+      {
+        id: "gi_demo_1",
+        workspaceId: defaultWorkspaceId,
+        title: "Short-Form Studio Memos are Outperforming Carousels 3.4x",
+        explanation: "Raw behind-the-scenes recording clips on TikTok captured 48,200 views with a 14.8% engagement rate, generating 185 presaves compared to 42 from static and 3D carousels.",
+        evidence: "Content cnt_1 (TikTok Vocal Memo) generated 48.2k views / 14.8% engagement vs cnt_2 (IG Carousel) at 18.4k views / 8.6% engagement.",
+        relatedEntity: {
+          type: "format",
+          name: "Reel / Short Video",
+          id: "cnt_1",
+        },
+        confidence: "high",
+        category: "content_format",
+        status: "active",
+        recommendedAction: {
+          label: "Queue 2 Additional Studio Memos in Content Engine",
+          actionType: "create_content",
+          targetTab: "content-engine",
+          payload: { pillar: "Behind The Scenes", format: "Reel / Short Video" },
+        },
+        generatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      },
+      {
+        id: "gi_demo_2",
+        workspaceId: defaultWorkspaceId,
+        title: "TikTok Organic Presave Conversion is Highest Performing Channel",
+        explanation: "TikTok sound snippet hooks converted at 4.2% of viewers into verified SmartLink presaves, making it the most cost-effective fan acquisition platform for the upcoming EP.",
+        evidence: "185 conversions from 4,400 profile clicks on TikTok vs 42 conversions from Instagram.",
+        relatedEntity: {
+          type: "platform",
+          name: "TikTok",
+        },
+        confidence: "high",
+        category: "platform_momentum",
+        status: "active",
+        recommendedAction: {
+          label: "Boost TikTok Sound Hook Distribution",
+          actionType: "navigate_tab",
+          targetTab: "content-engine",
+        },
+        generatedAt: new Date(Date.now() - 12 * 3600000).toISOString(),
+      },
+      {
+        id: "gi_demo_3",
+        workspaceId: defaultWorkspaceId,
+        title: "Collector Vinyl Bundle Demand Exceeds Initial Sprint Target",
+        explanation: "The limited 180g Vinyl pre-order has driven $950 in early revenue within 48 hours of campaign announcement.",
+        evidence: "Product prd_demo_1 generated 21 pre-orders ($950) with high direct engagement from diaspora superfans.",
+        relatedEntity: {
+          type: "product",
+          id: "prd_demo_1",
+          name: "Midnight in Victoria Island — Limited 180g Vinyl",
+        },
+        confidence: "medium",
+        category: "growth_opportunity",
+        status: "active",
+        recommendedAction: {
+          label: "View Campaign & Product Analytics",
+          actionType: "navigate_tab",
+          targetTab: "analytics",
+        },
+        generatedAt: new Date(Date.now() - 6 * 3600000).toISOString(),
+      }
+    ],
+    workspace_goals: [
+      {
+        id: "goal_demo_1",
+        workspaceId: defaultWorkspaceId,
+        title: "Pre-Release Total Content Views (All Channels)",
+        category: "content",
+        targetMetric: "views",
+        targetValue: 150000,
+        currentValue: 66600,
+        unit: "views",
+        deadline: "2026-09-18",
+        status: "on_track",
+        createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "goal_demo_2",
+        workspaceId: defaultWorkspaceId,
+        title: "EP Launch Suite Presave Conversions",
+        category: "release",
+        targetMetric: "conversions",
+        targetValue: 1000,
+        currentValue: 227,
+        unit: "presaves",
+        deadline: "2026-09-18",
+        entityId: release.id,
+        entityType: "release",
+        status: "on_track",
+        createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "goal_demo_3",
+        workspaceId: defaultWorkspaceId,
+        title: "Short-Form Content Engagement Rate Target",
+        category: "engagement",
+        targetMetric: "engagement_rate",
+        targetValue: 12,
+        currentValue: 14.8,
+        unit: "%",
+        deadline: "2026-09-30",
+        status: "achieved",
+        createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    ],
   };
 }
 
@@ -2044,6 +2357,9 @@ class Database {
           studio_revisions: parsed.studio_revisions || seed.studio_revisions,
           studio_messages: parsed.studio_messages || seed.studio_messages,
           radar_signals: parsed.radar_signals || seed.radar_signals,
+          performance_metrics: parsed.performance_metrics || seed.performance_metrics,
+          growth_insights: parsed.growth_insights || seed.growth_insights,
+          workspace_goals: parsed.workspace_goals || seed.workspace_goals,
         };
       }
     } catch (err) {
@@ -4263,6 +4579,278 @@ class Database {
       this.persist();
     }
     return { resolvedCount: count };
+  }
+
+  // ==========================================
+  // PHASE 11: ANALYTICS & GROWTH INTELLIGENCE METHODS
+  // ==========================================
+
+  // --- Performance Metrics ---
+  public getPerformanceMetrics(
+    workspaceId: string,
+    filters?: {
+      entityType?: string;
+      entityId?: string;
+      platform?: string;
+      source?: string;
+      format?: string;
+      startDate?: string;
+      endDate?: string;
+    }
+  ): PerformanceMetricRecord[] {
+    let metrics = (this.data.performance_metrics || []).filter((m) => m.workspaceId === workspaceId);
+
+    if (filters) {
+      if (filters.entityType && filters.entityType !== "all") {
+        metrics = metrics.filter((m) => m.entityType === filters.entityType);
+      }
+      if (filters.entityId) {
+        metrics = metrics.filter((m) => m.entityId === filters.entityId);
+      }
+      if (filters.platform && filters.platform !== "all") {
+        metrics = metrics.filter((m) => m.platform === filters.platform);
+      }
+      if (filters.source && filters.source !== "all") {
+        metrics = metrics.filter((m) => m.source === filters.source);
+      }
+      if (filters.format && filters.format !== "all") {
+        metrics = metrics.filter((m) => m.format === filters.format);
+      }
+      if (filters.startDate) {
+        metrics = metrics.filter((m) => m.metricDate >= filters.startDate!);
+      }
+      if (filters.endDate) {
+        metrics = metrics.filter((m) => m.metricDate <= filters.endDate!);
+      }
+    }
+
+    return metrics.sort((a, b) => new Date(b.metricDate).getTime() - new Date(a.metricDate).getTime());
+  }
+
+  public getPerformanceMetricById(workspaceId: string, id: string): PerformanceMetricRecord | undefined {
+    return (this.data.performance_metrics || []).find((m) => m.workspaceId === workspaceId && m.id === id);
+  }
+
+  public createPerformanceMetric(
+    workspaceId: string,
+    metricData: Omit<PerformanceMetricRecord, "id" | "workspaceId" | "createdAt" | "updatedAt">
+  ): PerformanceMetricRecord {
+    if (!this.data.performance_metrics) {
+      this.data.performance_metrics = [];
+    }
+
+    const now = new Date().toISOString();
+    const newMetric: PerformanceMetricRecord = {
+      id: "pm_" + crypto.randomUUID().substring(0, 9),
+      workspaceId,
+      ...metricData,
+      isVerified: metricData.source === "api",
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.data.performance_metrics.unshift(newMetric);
+    this.persist();
+    return newMetric;
+  }
+
+  public updatePerformanceMetric(
+    workspaceId: string,
+    id: string,
+    updates: Partial<PerformanceMetricRecord>
+  ): PerformanceMetricRecord | undefined {
+    const metric = this.getPerformanceMetricById(workspaceId, id);
+    if (!metric) return undefined;
+
+    Object.assign(metric, updates, {
+      updatedAt: new Date().toISOString(),
+      isVerified: (updates.source || metric.source) === "api",
+    });
+
+    this.persist();
+    return metric;
+  }
+
+  public deletePerformanceMetric(workspaceId: string, id: string): boolean {
+    if (!this.data.performance_metrics) return false;
+    const initialLen = this.data.performance_metrics.length;
+    this.data.performance_metrics = this.data.performance_metrics.filter(
+      (m) => !(m.id === id && m.workspaceId === workspaceId)
+    );
+    const deleted = this.data.performance_metrics.length < initialLen;
+    if (deleted) this.persist();
+    return deleted;
+  }
+
+  // --- Growth Insights ---
+  public getGrowthInsights(
+    workspaceId: string,
+    filters?: {
+      category?: string;
+      confidence?: string;
+      status?: string;
+    }
+  ): GrowthInsightRecord[] {
+    let insights = (this.data.growth_insights || []).filter((i) => i.workspaceId === workspaceId);
+
+    if (filters) {
+      if (filters.category && filters.category !== "all") {
+        insights = insights.filter((i) => i.category === filters.category);
+      }
+      if (filters.confidence && filters.confidence !== "all") {
+        insights = insights.filter((i) => i.confidence === filters.confidence);
+      }
+      if (filters.status && filters.status !== "all") {
+        insights = insights.filter((i) => i.status === filters.status);
+      } else {
+        // Exclude dismissed insights by default
+        insights = insights.filter((i) => i.status !== "dismissed");
+      }
+    }
+
+    return insights.sort((a, b) => new Date(b.generatedAt).getTime() - new Date(a.generatedAt).getTime());
+  }
+
+  public getGrowthInsightById(workspaceId: string, id: string): GrowthInsightRecord | undefined {
+    return (this.data.growth_insights || []).find((i) => i.workspaceId === workspaceId && i.id === id);
+  }
+
+  public createGrowthInsight(
+    workspaceId: string,
+    insightData: Omit<GrowthInsightRecord, "id" | "workspaceId" | "generatedAt">
+  ): GrowthInsightRecord {
+    if (!this.data.growth_insights) {
+      this.data.growth_insights = [];
+    }
+
+    const newInsight: GrowthInsightRecord = {
+      id: "gi_" + crypto.randomUUID().substring(0, 9),
+      workspaceId,
+      ...insightData,
+      generatedAt: new Date().toISOString(),
+    };
+
+    this.data.growth_insights.unshift(newInsight);
+    this.persist();
+    return newInsight;
+  }
+
+  public updateGrowthInsight(
+    workspaceId: string,
+    id: string,
+    updates: Partial<GrowthInsightRecord>
+  ): GrowthInsightRecord | undefined {
+    const insight = this.getGrowthInsightById(workspaceId, id);
+    if (!insight) return undefined;
+
+    Object.assign(insight, updates);
+    this.persist();
+    return insight;
+  }
+
+  public deleteGrowthInsight(workspaceId: string, id: string): boolean {
+    if (!this.data.growth_insights) return false;
+    const initialLen = this.data.growth_insights.length;
+    this.data.growth_insights = this.data.growth_insights.filter(
+      (i) => !(i.id === id && i.workspaceId === workspaceId)
+    );
+    const deleted = this.data.growth_insights.length < initialLen;
+    if (deleted) this.persist();
+    return deleted;
+  }
+
+  // --- Workspace Goals ---
+  public getWorkspaceGoals(
+    workspaceId: string,
+    filters?: {
+      category?: string;
+      status?: string;
+    }
+  ): WorkspaceGoalRecord[] {
+    let goals = (this.data.workspace_goals || []).filter((g) => g.workspaceId === workspaceId);
+
+    if (filters) {
+      if (filters.category && filters.category !== "all") {
+        goals = goals.filter((g) => g.category === filters.category);
+      }
+      if (filters.status && filters.status !== "all") {
+        goals = goals.filter((g) => g.status === filters.status);
+      }
+    }
+
+    return goals.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  public getWorkspaceGoalById(workspaceId: string, id: string): WorkspaceGoalRecord | undefined {
+    return (this.data.workspace_goals || []).find((g) => g.workspaceId === workspaceId && g.id === id);
+  }
+
+  public createWorkspaceGoal(
+    workspaceId: string,
+    goalData: Omit<WorkspaceGoalRecord, "id" | "workspaceId" | "createdAt" | "updatedAt">
+  ): WorkspaceGoalRecord {
+    if (!this.data.workspace_goals) {
+      this.data.workspace_goals = [];
+    }
+
+    const now = new Date().toISOString();
+    const newGoal: WorkspaceGoalRecord = {
+      id: "goal_" + crypto.randomUUID().substring(0, 9),
+      workspaceId,
+      ...goalData,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.data.workspace_goals.unshift(newGoal);
+    this.persist();
+    return newGoal;
+  }
+
+  public updateWorkspaceGoal(
+    workspaceId: string,
+    id: string,
+    updates: Partial<WorkspaceGoalRecord>
+  ): WorkspaceGoalRecord | undefined {
+    const goal = this.getWorkspaceGoalById(workspaceId, id);
+    if (!goal) return undefined;
+
+    Object.assign(goal, updates, { updatedAt: new Date().toISOString() });
+    this.persist();
+    return goal;
+  }
+
+  public deleteWorkspaceGoal(workspaceId: string, id: string): boolean {
+    if (!this.data.workspace_goals) return false;
+    const initialLen = this.data.workspace_goals.length;
+    this.data.workspace_goals = this.data.workspace_goals.filter(
+      (g) => !(g.id === id && g.workspaceId === workspaceId)
+    );
+    const deleted = this.data.workspace_goals.length < initialLen;
+    if (deleted) this.persist();
+    return deleted;
+  }
+
+  public createActivityLog(logData: {
+    workspaceId: string;
+    userId: string;
+    userEmail: string;
+    action: string;
+    entityType: string;
+    entityId: string;
+    details: string;
+  }): ActivityLogRecord {
+    if (!this.data.activity_logs) {
+      this.data.activity_logs = [];
+    }
+    const newLog: ActivityLogRecord = {
+      id: "act_" + crypto.randomUUID().substring(0, 9),
+      ...logData,
+      createdAt: new Date().toISOString(),
+    };
+    this.data.activity_logs.unshift(newLog);
+    this.persist();
+    return newLog;
   }
 }
 

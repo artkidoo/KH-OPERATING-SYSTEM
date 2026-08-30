@@ -314,6 +314,70 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
       </div>
 
       {/* ========================================================= */}
+      {/* 2B. PERFORMANCE & GROWTH PULSE (PHASE 11 ANALYTICS) */}
+      {/* ========================================================= */}
+      {data.performancePulse && (
+        <div 
+          onClick={() => onNavigateTab("analytics")}
+          className="p-4 sm:p-5 rounded-2xl bg-[var(--bento-card)] border border-purple-500/30 hover:border-purple-500/60 shadow-sm transition-all cursor-pointer group space-y-3"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold font-mono text-purple-300 uppercase tracking-wider">
+                    Performance Pulse • Phase 11
+                  </span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
+                    data.performancePulse.status === "strong"
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                      : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                  }`}>
+                    {data.performancePulse.status.toUpperCase()}
+                  </span>
+                </div>
+                <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-purple-300 transition-colors">
+                  {data.performancePulse.headline}
+                </h3>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs text-purple-400 font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                <span>View Full Analytics Dashboard</span>
+                <ChevronRight className="w-4 h-4" />
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Signals & Top Insight Preview */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
+            {data.performancePulse.signals.slice(0, 2).map((sig: any, idx: number) => (
+              <div
+                key={idx}
+                className="p-2.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80 flex items-center gap-2 text-zinc-300"
+              >
+                <div className={`w-2 h-2 rounded-full shrink-0 ${
+                  sig.type === "positive" ? "bg-emerald-400" : sig.type === "warning" ? "bg-amber-400" : "bg-blue-400"
+                }`} />
+                <span className="truncate"><strong>{sig.label}:</strong> {sig.detail}</span>
+              </div>
+            ))}
+
+            {data.performancePulse.topInsight && (
+              <div className="p-2.5 rounded-xl bg-purple-950/30 border border-purple-500/30 text-purple-200 truncate flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                <span className="truncate"><strong>Insight:</strong> {data.performancePulse.topInsight.title}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
       {/* 3. PRIMARY SPLIT: TODAY ENGINE & IDENTITY HERO WORKSTATION */}
       {/* ========================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

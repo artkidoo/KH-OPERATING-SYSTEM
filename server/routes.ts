@@ -5,6 +5,7 @@ import { CreativeBrainService, compileWorkspaceContext, executeBrainTool } from 
 import { MemoryRetrievalService } from "./ai/memoryRetrievalService";
 import { creativeRadarService } from "./radar/creativeRadarService";
 import { commandCenterService } from "./command/commandCenterService";
+import { analyticsService } from "./analytics/analyticsService";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -2604,6 +2605,377 @@ apiRouter.get(
     } catch (err: any) {
       console.error("[Activity Stream Error]", err);
       res.status(500).json({ error: err.message || "Failed to load activities" });
+    }
+  }
+);
+
+// ==========================================
+// PHASE 11: ANALYTICS & GROWTH INTELLIGENCE ROUTES
+// ==========================================
+
+// Get Unified Analytics Summary Dashboard
+apiRouter.get(
+  "/workspaces/:workspaceId/analytics/summary",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    try {
+      const summary = analyticsService.getAnalyticsSummary(workspaceId);
+      res.json({ summary });
+    } catch (err: any) {
+      console.error("[Analytics Summary Error]", err);
+      res.status(500).json({ error: err.message || "Failed to load analytics summary" });
+    }
+  }
+);
+
+// Get Raw Performance Metrics List
+apiRouter.get(
+  "/workspaces/:workspaceId/analytics/metrics",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const filters = {
+      entityType: req.query.entityType as string,
+      entityId: req.query.entityId as string,
+      platform: req.query.platform as string,
+      source: req.query.source as string,
+      format: req.query.format as string,
+      startDate: req.query.startDate as string,
+      endDate: req.query.endDate as string,
+    };
+    try {
+      const metrics = db.getPerformanceMetrics(workspaceId, filters);
+      res.json({ metrics });
+    } catch (err: any) {
+      console.error("[Get Metrics Error]", err);
+      res.status(500).json({ error: err.message || "Failed to load metrics" });
+    }
+  }
+);
+
+// Create / Log a Performance Metric
+apiRouter.post(
+  "/workspaces/:workspaceId/analytics/metrics",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { entityType, entityId, entityTitle, platform, format, metricDate, source, metrics, notes } = req.body;
+
+    if (!entityTitle || !platform) {
+      return res.status(400).json({ error: "Entity title and platform are required" });
+    }
+
+    try {
+      const created = db.createPerformanceMetric(workspaceId, {
+        entityType: entityType || "content",
+        entityId: entityId || "custom_" + Date.now(),
+        entityTitle,
+        platform,
+        format: format || "Standard",
+        metricDate: metricDate || new Date().toISOString().substring(0, 10),
+        source: source || "manual",
+        isVerified: source === "api",
+        metrics: metrics || {},
+        notes,
+      });
+
+      // Log activity
+      db.logActivity(
+        workspaceId,
+        req.user!.id,
+        req.user!.email,
+        "LOGGED_METRIC",
+        "metric",
+        created.id,
+        `Recorded performance metric for "${entityTitle}" (${platform})`
+      );
+
+      res.status(201).json({ metric: created });
+    } catch (err: any) {
+      console.error("[Create Metric Error]", err);
+      res.status(500).json({ error: err.message || "Failed to log metric" });
+    }
+  }
+);
+
+// Update a Performance Metric
+apiRouter.put(
+  "/workspaces/:workspaceId/analytics/metrics/:metricId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, metricId } = req.params;
+    try {
+      const updated = db.updatePerformanceMetric(workspaceId, metricId, req.body);
+      if (!updated) {
+        return res.status(404).json({ error: "Performance metric not found" });
+      }
+      res.json({ metric: updated });
+    } catch (err: any) {
+      console.error("[Update Metric Error]", err);
+      res.status(500).json({ error: err.message || "Failed to update metric" });
+    }
+  }
+);
+
+// Delete a Performance Metric
+apiRouter.delete(
+  "/workspaces/:workspaceId/analytics/metrics/:metricId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, metricId } = req.params;
+    try {
+      const deleted = db.deletePerformanceMetric(workspaceId, metricId);
+      res.json({ success: deleted });
+    } catch (err: any) {
+      console.error("[Delete Metric Error]", err);
+      res.status(500).json({ error: err.message || "Failed to delete metric" });
+    }
+  }
+);
+
+// Batch Import Performance Metrics (CSV / external payload)
+apiRouter.post(
+  "/workspaces/:workspaceId/analytics/metrics/batch",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { items } = req.body;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "Items array is required for batch import" });
+    }
+
+    try {
+      const createdList = items.map((item) =>
+        db.createPerformanceMetric(workspaceId, {
+          entityType: item.entityType || "content",
+          entityId: item.entityId || "imported_" + crypto.randomUUID().substring(0, 8),
+          entityTitle: item.entityTitle || "Imported Item",
+          platform: item.platform || "other",
+          format: item.format || "Standard",
+          metricDate: item.metricDate || new Date().toISOString().substring(0, 10),
+          source: item.source || "imported",
+          isVerified: item.source === "api",
+          metrics: item.metrics || {},
+          notes: item.notes,
+        })
+      );
+
+      // Log activity
+      db.logActivity(
+        workspaceId,
+        req.user!.id,
+        req.user!.email,
+        "BATCH_IMPORT_METRICS",
+        "metric",
+        createdList[0]?.id || "batch",
+        `Imported ${createdList.length} performance metric records into workspace`
+      );
+
+      res.status(201).json({ count: createdList.length, metrics: createdList });
+    } catch (err: any) {
+      console.error("[Batch Import Metrics Error]", err);
+      res.status(500).json({ error: err.message || "Failed to import metrics" });
+    }
+  }
+);
+
+// Get Growth Insights
+apiRouter.get(
+  "/workspaces/:workspaceId/analytics/insights",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const filters = {
+      category: req.query.category as string,
+      confidence: req.query.confidence as string,
+      status: req.query.status as string,
+    };
+    try {
+      const insights = db.getGrowthInsights(workspaceId, filters);
+      res.json({ insights });
+    } catch (err: any) {
+      console.error("[Get Insights Error]", err);
+      res.status(500).json({ error: err.message || "Failed to load insights" });
+    }
+  }
+);
+
+// Generate AI Growth Insights (Evaluating Current Workspace Performance)
+apiRouter.post(
+  "/workspaces/:workspaceId/analytics/insights/generate",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    try {
+      const generated = analyticsService.generateGrowthInsights(workspaceId);
+      const allInsights = db.getGrowthInsights(workspaceId);
+      res.json({ generated, count: generated.length, insights: allInsights });
+    } catch (err: any) {
+      console.error("[Generate Insights Error]", err);
+      res.status(500).json({ error: err.message || "Failed to generate growth insights" });
+    }
+  }
+);
+
+// Update Growth Insight Status (e.g. applied, dismissed)
+apiRouter.put(
+  "/workspaces/:workspaceId/analytics/insights/:insightId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, insightId } = req.params;
+    try {
+      const updated = db.updateGrowthInsight(workspaceId, insightId, req.body);
+      if (!updated) {
+        return res.status(404).json({ error: "Growth insight not found" });
+      }
+      res.json({ insight: updated });
+    } catch (err: any) {
+      console.error("[Update Insight Error]", err);
+      res.status(500).json({ error: err.message || "Failed to update insight" });
+    }
+  }
+);
+
+// Save Growth Insight to Creative Memory (Learning Loop)
+apiRouter.post(
+  "/workspaces/:workspaceId/analytics/insights/:insightId/save-memory",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, insightId } = req.params;
+    try {
+      const result = analyticsService.saveInsightToMemory(workspaceId, req.user!.id, insightId);
+
+      // Log activity
+      db.logActivity(
+        workspaceId,
+        req.user!.id,
+        req.user!.email,
+        "SAVED_MEMORY_INSIGHT",
+        "memory",
+        result.memoryId,
+        `Promoted insight "${result.insight.title}" into Creative Memory`
+      );
+
+      res.json({ success: true, memoryId: result.memoryId, insight: result.insight });
+    } catch (err: any) {
+      console.error("[Save Insight to Memory Error]", err);
+      res.status(500).json({ error: err.message || "Failed to promote insight to Creative Memory" });
+    }
+  }
+);
+
+// Get Workspace Goals
+apiRouter.get(
+  "/workspaces/:workspaceId/analytics/goals",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const filters = {
+      category: req.query.category as string,
+      status: req.query.status as string,
+    };
+    try {
+      const goals = db.getWorkspaceGoals(workspaceId, filters);
+      res.json({ goals });
+    } catch (err: any) {
+      console.error("[Get Goals Error]", err);
+      res.status(500).json({ error: err.message || "Failed to load goals" });
+    }
+  }
+);
+
+// Create a Workspace Goal
+apiRouter.post(
+  "/workspaces/:workspaceId/analytics/goals",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { title, category, targetMetric, targetValue, currentValue, unit, deadline, entityId, entityType, status } = req.body;
+
+    if (!title || !targetMetric || targetValue === undefined) {
+      return res.status(400).json({ error: "Title, targetMetric, and targetValue are required" });
+    }
+
+    try {
+      const goal = db.createWorkspaceGoal(workspaceId, {
+        title,
+        category: category || "custom",
+        targetMetric,
+        targetValue: Number(targetValue),
+        currentValue: Number(currentValue || 0),
+        unit: unit || "",
+        deadline,
+        entityId,
+        entityType,
+        status: status || "on_track",
+      });
+
+      // Log activity
+      db.logActivity(
+        workspaceId,
+        req.user!.id,
+        req.user!.email,
+        "CREATED_GOAL",
+        "workspace",
+        goal.id,
+        `Set target "${title}" (${goal.targetValue} ${goal.unit})`
+      );
+
+      res.status(201).json({ goal });
+    } catch (err: any) {
+      console.error("[Create Goal Error]", err);
+      res.status(500).json({ error: err.message || "Failed to create goal" });
+    }
+  }
+);
+
+// Update a Workspace Goal
+apiRouter.put(
+  "/workspaces/:workspaceId/analytics/goals/:goalId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, goalId } = req.params;
+    try {
+      const updated = db.updateWorkspaceGoal(workspaceId, goalId, req.body);
+      if (!updated) {
+        return res.status(404).json({ error: "Goal not found" });
+      }
+      res.json({ goal: updated });
+    } catch (err: any) {
+      console.error("[Update Goal Error]", err);
+      res.status(500).json({ error: err.message || "Failed to update goal" });
+    }
+  }
+);
+
+// Delete a Workspace Goal
+apiRouter.delete(
+  "/workspaces/:workspaceId/analytics/goals/:goalId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, goalId } = req.params;
+    try {
+      const deleted = db.deleteWorkspaceGoal(workspaceId, goalId);
+      res.json({ success: deleted });
+    } catch (err: any) {
+      console.error("[Delete Goal Error]", err);
+      res.status(500).json({ error: err.message || "Failed to delete goal" });
     }
   }
 );

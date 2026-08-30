@@ -501,6 +501,15 @@ export interface CompiledWorkspaceContext {
     scheduledCount: number;
     platforms: Record<string, number>;
   };
+  analyticsSummary?: {
+    totalViews: number;
+    totalConversions: number;
+    averageEngagementRate: number;
+    topFormat?: string;
+    topPlatform?: string;
+    activeInsights: { title: string; category: string; confidence: string; action: string }[];
+    goals: { title: string; target: number; current: number; unit: string; status: string }[];
+  };
   creativeMemory?: CreativeMemoryRecord;
   retrievedMemories?: MemoryRetrievalResponse;
   pinnedContext?: {
@@ -588,6 +597,77 @@ export function compileWorkspaceContext(
     platforms[c.platform] = (platforms[c.platform] || 0) + 1;
     if (c.scheduledDate) scheduledCount++;
   });
+
+  // Analytics summary (Phase 11)
+  const rawMetrics = db.getPerformanceMetrics(workspaceId);
+  const rawGrowthInsights = db.getGrowthInsights(workspaceId);
+  const rawGoals = db.getWorkspaceGoals(workspaceId);
+
+  let totalViews = 0;
+  let totalConversions = 0;
+  let engSum = 0;
+  let engCount = 0;
+  const formatViews: Record<string, { views: number; count: number }> = {};
+  const platViews: Record<string, number> = {};
+
+  rawMetrics.forEach((m) => {
+    if (m.metrics.views) {
+      totalViews += m.metrics.views;
+      const fmt = m.format || "Standard";
+      formatViews[fmt] = formatViews[fmt] || { views: 0, count: 0 };
+      formatViews[fmt].views += m.metrics.views;
+      formatViews[fmt].count++;
+
+      const plat = m.platform || "other";
+      platViews[plat] = (platViews[plat] || 0) + m.metrics.views;
+    }
+    if (m.metrics.conversions) totalConversions += m.metrics.conversions;
+    if (m.metrics.engagement) {
+      engSum += m.metrics.engagement;
+      engCount++;
+    }
+  });
+
+  const avgEngagementRate = engCount > 0 ? Number((engSum / engCount).toFixed(1)) : 0;
+  let topFormat: string | undefined;
+  let maxFormatAvg = 0;
+  Object.entries(formatViews).forEach(([fmt, data]) => {
+    const avg = data.views / (data.count || 1);
+    if (avg > maxFormatAvg) {
+      maxFormatAvg = avg;
+      topFormat = fmt;
+    }
+  });
+
+  let topPlatform: string | undefined;
+  let maxPlatViews = 0;
+  Object.entries(platViews).forEach(([plat, v]) => {
+    if (v > maxPlatViews) {
+      maxPlatViews = v;
+      topPlatform = plat;
+    }
+  });
+
+  const analyticsSummary = {
+    totalViews,
+    totalConversions,
+    averageEngagementRate: avgEngagementRate,
+    topFormat,
+    topPlatform,
+    activeInsights: rawGrowthInsights.slice(0, 4).map((gi) => ({
+      title: gi.title,
+      category: gi.category,
+      confidence: gi.confidence,
+      action: gi.recommendedAction.label,
+    })),
+    goals: rawGoals.map((g) => ({
+      title: g.title,
+      target: g.targetValue,
+      current: g.currentValue,
+      unit: g.unit,
+      status: g.status,
+    })),
+  };
 
   // Pinned context resolution
   let resolvedPinned: CompiledWorkspaceContext['pinnedContext'] = undefined;
@@ -696,6 +776,7 @@ export function compileWorkspaceContext(
       scheduledCount,
       platforms,
     },
+    analyticsSummary,
     creativeMemory: memory,
     retrievedMemories,
     pinnedContext: resolvedPinned,

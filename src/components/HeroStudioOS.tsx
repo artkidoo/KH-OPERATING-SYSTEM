@@ -12,7 +12,9 @@ import {
   Zap, 
   Cpu,
   Globe2,
-  Palette
+  Palette,
+  Rocket,
+  Radio
 } from "lucide-react";
 
 interface HeroStudioOSProps {
@@ -338,20 +340,74 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
           {/* Forced 2-Column Grid on Mobile! */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-            {/* Module 0: Keedohub Studio Production Layer */}
+            {/* Module 0A: Unified Command Center */}
             <div
-              onClick={() => setActiveTab("studio")}
-              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm border-red-500/40 hover:border-red-500 bg-red-950/10 hover:bg-red-950/20"
+              onClick={() => setActiveTab("command-center")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm border-red-500/50 hover:border-red-500 bg-red-950/20 hover:bg-red-950/30"
             >
               <div className="space-y-2.5 sm:space-y-3.5">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Rocket className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
                   <span className="text-[8px] sm:text-[9px] font-mono text-red-400 font-bold uppercase tracking-wider">
-                    PHASE 7 · STUDIO
+                    PHASE 10 · UNIFIED
                   </span>
                   <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-white group-hover:text-red-400 transition-colors mt-0.5">
+                    Command Center
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    Single workspace pulse, today triage, deterministic next actions & relationship graph.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-red-400 font-bold">
+                <span>Open Command</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Module 0B: Creative Radar */}
+            <div
+              onClick={() => setActiveTab("creative-radar")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm border-amber-500/40 hover:border-amber-500 bg-amber-950/10 hover:bg-amber-950/20"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Radio className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-amber-400 font-bold uppercase tracking-wider">
+                    PHASE 9 · RADAR
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-white group-hover:text-amber-400 transition-colors mt-0.5">
+                    Creative Radar
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
+                    Proactive bottleneck detection, release radar gaps & deterministic action feed.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-amber-400 font-bold">
+                <span>Scan Radar</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Module 0: Keedohub Studio Production Layer */}
+            <div
+              onClick={() => setActiveTab("studio")}
+              className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm border-pink-500/40 hover:border-pink-500 bg-pink-950/10 hover:bg-pink-950/20"
+            >
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-pink-500/20 border border-pink-500/40 text-pink-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-pink-400 font-bold uppercase tracking-wider">
+                    PHASE 7 · STUDIO
+                  </span>
+                  <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-white group-hover:text-pink-400 transition-colors mt-0.5">
                     Keedohub Studio
                   </h3>
                   <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
@@ -359,7 +415,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-red-400 font-bold">
+              <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-pink-400 font-bold">
                 <span>Enter Studio</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>

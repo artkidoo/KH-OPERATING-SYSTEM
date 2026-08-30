@@ -732,7 +732,117 @@ export class CreativeRadarService {
     }
 
     // -------------------------------------------------------------
-    // 7. PERSISTENCE, DEDUPLICATION & AUTO-RESOLUTION
+    // 7. ANALYTICS & GROWTH INTELLIGENCE RADAR EVALUATION
+    // -------------------------------------------------------------
+    const metrics = db.getPerformanceMetrics(workspaceId);
+    const growthInsights = db.getGrowthInsights(workspaceId);
+    const goals = db.getWorkspaceGoals(workspaceId);
+
+    // Check for high-performing content patterns
+    const topFormatInsight = growthInsights.find((gi) => gi.category === "content_format" && gi.confidence === "high" && gi.status === "active");
+    if (topFormatInsight) {
+      const fingerprint = `sig:analytics:format_pattern:${topFormatInsight.id}`;
+      activeFingerprints.add(fingerprint);
+
+      generatedSignals.push({
+        workspaceId,
+        fingerprint,
+        category: "content",
+        type: "strong_content_pattern_detected",
+        severity: "medium",
+        priority: 74,
+        title: `High-Yield Pattern: ${topFormatInsight.title}`,
+        explanation: topFormatInsight.explanation,
+        details: topFormatInsight.evidence,
+        affectedEntity: {
+          type: "content",
+          id: topFormatInsight.id,
+          name: topFormatInsight.relatedEntity.name,
+          secondaryInfo: "Proven High Engagement",
+        },
+        recommendedAction: {
+          type: "navigate_tab",
+          label: "Queue More in Content Engine",
+          targetTab: "content-engine",
+          actionDescription: "Generate additional posts utilizing this high-yield format",
+        },
+        status: "new",
+      });
+    }
+
+    // Check for underperforming active campaigns
+    for (const camp of campaigns) {
+      if (camp.status === "active" && camp.goals) {
+        const campMetrics = metrics.filter((m) => m.entityId === camp.id);
+        const totalCampViews = campMetrics.reduce((sum, m) => sum + (m.metrics.views || 0), 0) || camp.goals.actualImpressions || 0;
+        
+        if (camp.goals.targetImpressions && camp.goals.targetImpressions > 10000 && totalCampViews < (camp.goals.targetImpressions * 0.2)) {
+          const fingerprint = `sig:analytics:campaign_underperforming:${camp.id}`;
+          activeFingerprints.add(fingerprint);
+
+          generatedSignals.push({
+            workspaceId,
+            fingerprint,
+            category: "campaign",
+            type: "campaign_underperforming_target",
+            severity: "high",
+            priority: 82,
+            title: `Campaign "${camp.title}" pacing behind impression target`,
+            explanation: `Current impressions (${totalCampViews.toLocaleString()}) are at less than 20% of the ${camp.goals.targetImpressions.toLocaleString()} goal.`,
+            details: "Consider adjusting creative hooks, increasing posting cadence, or utilizing additional distribution formats.",
+            affectedEntity: {
+              type: "campaign",
+              id: camp.id,
+              name: camp.title,
+              secondaryInfo: `${Math.round((totalCampViews / camp.goals.targetImpressions) * 100)}% of goal`,
+            },
+            recommendedAction: {
+              type: "navigate_tab",
+              label: "View Campaign Analytics",
+              targetTab: "analytics",
+              actionDescription: "Review performance funnel and adjust creative assets",
+            },
+            status: "new",
+          });
+        }
+      }
+    }
+
+    // Check for goals approaching deadline
+    for (const goal of goals) {
+      if (goal.status === "at_risk" || goal.status === "behind") {
+        const fingerprint = `sig:analytics:goal_risk:${goal.id}`;
+        activeFingerprints.add(fingerprint);
+
+        generatedSignals.push({
+          workspaceId,
+          fingerprint,
+          category: "campaign",
+          type: "growth_opportunity_detected",
+          severity: "medium",
+          priority: 70,
+          title: `Goal "${goal.title}" flagged at risk (${Math.round((goal.currentValue / (goal.targetValue || 1)) * 100)}%)`,
+          explanation: `Current progress: ${goal.currentValue} / ${goal.targetValue} ${goal.unit}. Pacing indicates targeted intervention needed.`,
+          details: `Target metric: ${goal.targetMetric}. Deadline: ${goal.deadline || "None"}.`,
+          affectedEntity: {
+            type: "workspace",
+            id: goal.id,
+            name: goal.title,
+            secondaryInfo: `${goal.currentValue} / ${goal.targetValue} ${goal.unit}`,
+          },
+          recommendedAction: {
+            type: "navigate_tab",
+            label: "Open Analytics Goals",
+            targetTab: "analytics",
+            actionDescription: "Review goal progress and assign support tasks",
+          },
+          status: "new",
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 8. PERSISTENCE, DEDUPLICATION & AUTO-RESOLUTION
     // -------------------------------------------------------------
     // Auto-resolve any existing signals that are no longer detected in activeFingerprints
     db.autoResolveMissingFingerprints(workspaceId, activeFingerprints);
