@@ -35,6 +35,9 @@ import {
   StudioBrief,
   StudioQuoteStatus,
   StudioRevisionStatus,
+  CommandCenterData,
+  GlobalSearchResultItem,
+  NextActionItem,
 } from "../types";
 
 const TOKEN_KEY = "keedohub_session_token";
@@ -901,6 +904,22 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ serviceCategory, draftBrief }),
       });
+    },
+  },
+
+  commandCenter: {
+    get: async (workspaceId: string) => {
+      return request<{ data: CommandCenterData }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/command-center`);
+    },
+    search: async (workspaceId: string, query: string) => {
+      return request<{ results: GlobalSearchResultItem[]; query: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/search?q=${encodeURIComponent(query)}`
+      );
+    },
+    getActivityStream: async (workspaceId: string, limit = 30) => {
+      return request<{ activities: ActivityLog[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/activity-stream?limit=${limit}`
+      );
     },
   },
 };

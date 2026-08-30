@@ -1,5 +1,6 @@
 export type ActiveTab = 
   | 'overview'
+  | 'command-center'
   | 'artist-os'
   | 'content-engine'
   | 'studio'
@@ -1343,5 +1344,105 @@ export interface RadarStats {
   };
 }
 
+// ==========================================
+// PHASE 10: UNIFIED COMMAND CENTER & CROSS-OS INTELLIGENCE
+// ==========================================
 
+export interface NextActionItem {
+  id: string;
+  title: string;
+  reason: string;
+  urgency: 'critical' | 'high' | 'medium' | 'low';
+  category: 'release' | 'campaign' | 'studio' | 'project' | 'content' | 'asset' | 'system';
+  actionTab: ActiveTab;
+  actionLabel: string;
+  entityId?: string;
+  entityType?: string;
+  badge: string;
+}
 
+export interface CommandCenterItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  type: 'release' | 'campaign' | 'project' | 'content' | 'task' | 'milestone' | 'studio' | 'radar';
+  status: string;
+  urgency: 'critical' | 'high' | 'medium' | 'low';
+  dueDate?: string;
+  actionTab: ActiveTab;
+  actionLabel: string;
+  entityId?: string;
+  progress?: number;
+  badge?: string;
+}
+
+export interface EntityRelationConnection {
+  targetType: 'release' | 'campaign' | 'project' | 'content' | 'asset' | 'task' | 'studio_request' | 'radar_signal';
+  targetId: string;
+  targetTitle: string;
+  relationship: string;
+  actionTab: ActiveTab;
+  status?: string;
+}
+
+export interface EntityRelationNode {
+  id: string;
+  entityType: 'release' | 'campaign' | 'product' | 'project';
+  title: string;
+  subtitle?: string;
+  status: string;
+  actionTab: ActiveTab;
+  connections: EntityRelationConnection[];
+}
+
+export interface GlobalSearchResultItem {
+  id: string;
+  type: 'release' | 'campaign' | 'project' | 'content' | 'asset' | 'task' | 'milestone' | 'studio_request' | 'product' | 'service' | 'memory';
+  title: string;
+  subtitle: string;
+  badge: string;
+  actionTab: ActiveTab;
+  actionLabel: string;
+  matchReason?: string;
+  data?: any;
+}
+
+export interface CommandCenterData {
+  workspaceId: string;
+  identityType: IdentityType;
+  workspaceName: string;
+  summary: {
+    healthScore: number;
+    counts: {
+      releases: number;
+      campaigns: number;
+      projects: number;
+      contentItems: number;
+      studioRequests: number;
+      assets: number;
+      tasks: number;
+      milestones: number;
+      activeRadarSignals: number;
+      activeBlockers: number;
+    };
+  };
+  today: {
+    priority: CommandCenterItem[];
+    upcoming: CommandCenterItem[];
+    blocked: CommandCenterItem[];
+    recentlyCompleted: CommandCenterItem[];
+    nextActions: NextActionItem[];
+  };
+  activeEntities: {
+    activeRelease?: Release;
+    releaseReadiness?: ReleaseReadinessSummary;
+    activeCampaign?: Campaign;
+    campaignReadiness?: CampaignReadinessSummary;
+    activeProjects: Project[];
+    activeStudioRequests: StudioRequest[];
+    upcomingContent: ContentItem[];
+  };
+  radarDigest: RadarDigest | null;
+  recentActivity: ActivityLog[];
+  relationshipGraph: EntityRelationNode[];
+}

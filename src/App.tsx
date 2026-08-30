@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { ActiveTab } from "./types";
 import { ThemeProvider } from "./context/ThemeContext";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { WorkspaceProvider } from "./context/WorkspaceContext";
-import { CreativeBrainProvider } from "./context/CreativeBrainContext";
+import { CreativeBrainProvider, useCreativeBrain } from "./context/CreativeBrainContext";
 import { Header } from "./components/Header";
 import { HeroStudioOS } from "./components/HeroStudioOS";
+import { CommandCenter } from "./components/CommandCenter";
 import { ArtistOS } from "./components/ArtistOS";
 import { ContentEngine } from "./components/ContentEngine";
 import { Studio } from "./components/Studio";
@@ -31,13 +32,27 @@ import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
 import { CreativeBrainSlideOver } from "./components/CreativeBrainSlideOver";
 import { Toast, ToastMessage } from "./components/Toast";
-import { PhoneCall, Search } from "lucide-react";
+import { 
+  PhoneCall, 
+  Search, 
+  Rocket, 
+  Radio, 
+  Disc3, 
+  Sparkles, 
+  Layers, 
+  BrainCircuit, 
+  Palette, 
+  HardDrive 
+} from "lucide-react";
 
 function MainAppContent() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isBriefOpen, setIsBriefOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const { activeWorkspace } = useAuth();
+  const { toggleBrain } = useCreativeBrain();
 
   const addNotification = (text: string, type: "success" | "info" | "error" = "info") => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -52,7 +67,7 @@ function MainAppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bento-bg)] text-[var(--bento-text)] flex flex-col font-['Plus_Jakarta_Sans'] selection:bg-[var(--accent-color)] selection:text-[var(--accent-text)] transition-colors duration-200">
+    <div className="min-h-screen bg-[var(--bento-bg)] text-[var(--bento-text)] flex flex-col font-['Plus_Jakarta_Sans'] selection:bg-[var(--accent-color)] selection:text-[var(--accent-text)] transition-colors duration-200 pb-16 sm:pb-0">
       {/* Global Command Palette */}
       <CommandPalette
         isOpen={isCommandOpen}
@@ -88,6 +103,14 @@ function MainAppContent() {
           <HeroStudioOS
             setActiveTab={setActiveTab}
             openBriefModal={() => setIsBriefOpen(true)}
+          />
+        )}
+
+        {activeTab === "command-center" && (
+          <CommandCenter
+            onNavigateTab={setActiveTab}
+            onOpenBriefModal={() => setIsBriefOpen(true)}
+            onNotify={addNotification}
           />
         )}
 
@@ -181,8 +204,59 @@ function MainAppContent() {
         )}
       </main>
 
+      {/* Mobile Sticky Bottom Navigation Bar */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bento-card)] border-t border-[var(--bento-border)] px-2 py-2 flex items-center justify-around backdrop-blur-xl shadow-2xl">
+        <button
+          onClick={() => setActiveTab("command-center")}
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
+            activeTab === "command-center" ? "text-red-500 font-bold" : "text-zinc-400"
+          }`}
+        >
+          <Rocket className="w-4 h-4" />
+          <span className="text-[10px]">Command</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("creative-radar")}
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
+            activeTab === "creative-radar" ? "text-amber-400 font-bold" : "text-zinc-400"
+          }`}
+        >
+          <Radio className="w-4 h-4" />
+          <span className="text-[10px]">Radar</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab(activeWorkspace?.identityType === "artist" ? "artist-os" : "brand-os")}
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
+            activeTab === "artist-os" || activeTab === "brand-os" ? "text-red-400 font-bold" : "text-zinc-400"
+          }`}
+        >
+          {activeWorkspace?.identityType === "artist" ? <Disc3 className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
+          <span className="text-[10px]">{activeWorkspace?.identityType === "artist" ? "Artist" : "Brand"}</span>
+        </button>
+
+        <button
+          onClick={() => toggleBrain()}
+          className="flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer text-purple-400"
+        >
+          <BrainCircuit className="w-4 h-4" />
+          <span className="text-[10px]">Brain</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("studio")}
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
+            activeTab === "studio" ? "text-pink-400 font-bold" : "text-zinc-400"
+          }`}
+        >
+          <Palette className="w-4 h-4" />
+          <span className="text-[10px]">Studio</span>
+        </button>
+      </div>
+
       {/* Floating Bottom Direct Chat Trigger */}
-      <div className="fixed bottom-4 sm:bottom-6 left-4 sm:left-6 z-40">
+      <div className="fixed bottom-16 sm:bottom-6 left-4 sm:left-6 z-30">
         <a
           id="floating-whatsapp-btn"
           href="https://wa.me/2348104465924?text=Hi%20Keedohub!%20I%20am%20using%20the%20Creative%20OS%20and%20want%20to%20collaborate."

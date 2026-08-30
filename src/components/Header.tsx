@@ -91,6 +91,7 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
+    { id: "command-center", label: "Command Center", icon: <Rocket className="w-3.5 h-3.5" />, badge: "PHASE 10" },
     { id: "creative-radar", label: "Creative Radar", icon: <Radio className="w-3.5 h-3.5" />, badge: "PHASE 9" },
     { id: "artist-os", label: "Artist OS", icon: <Disc3 className="w-3.5 h-3.5" />, badge: "PHASE 3" },
     { id: "content-engine", label: "Content Engine", icon: <Layers className="w-3.5 h-3.5" />, badge: "PHASE 6" },

@@ -4,6 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 import { CreativeBrainService, compileWorkspaceContext, executeBrainTool } from "./ai/creativeBrainService";
 import { MemoryRetrievalService } from "./ai/memoryRetrievalService";
 import { creativeRadarService } from "./radar/creativeRadarService";
+import { commandCenterService } from "./command/commandCenterService";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -2549,3 +2550,61 @@ Generate a complete, production-ready Campaign Plan JSON formatted as:
     });
   }
 });
+
+// ==========================================
+// PHASE 10: UNIFIED COMMAND CENTER & SEARCH ROUTES
+// ==========================================
+
+// Get Consolidated Command Center Data
+apiRouter.get(
+  "/workspaces/:workspaceId/command-center",
+  requireAuth,
+  requireWorkspaceAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    try {
+      const data = await commandCenterService.getCommandCenterData(workspaceId, req.user!.id);
+      res.json({ data });
+    } catch (err: any) {
+      console.error("[Command Center Error]", err);
+      res.status(500).json({ error: err.message || "Failed to load Command Center data" });
+    }
+  }
+);
+
+// Global Workspace Search
+apiRouter.get(
+  "/workspaces/:workspaceId/search",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const query = (req.query.q as string) || "";
+    try {
+      const results = commandCenterService.performGlobalSearch(workspaceId, query);
+      res.json({ results, query });
+    } catch (err: any) {
+      console.error("[Global Search Error]", err);
+      res.status(500).json({ error: err.message || "Search failed" });
+    }
+  }
+);
+
+// Get Real Workspace Activity Stream
+apiRouter.get(
+  "/workspaces/:workspaceId/activity-stream",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const limit = parseInt(req.query.limit as string) || 30;
+    try {
+      const activities = db.getActivityLogs(workspaceId).slice(0, limit);
+      res.json({ activities });
+    } catch (err: any) {
+      console.error("[Activity Stream Error]", err);
+      res.status(500).json({ error: err.message || "Failed to load activities" });
+    }
+  }
+);
+
