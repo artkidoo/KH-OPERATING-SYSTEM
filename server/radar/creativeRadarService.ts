@@ -304,7 +304,7 @@ export class CreativeRadarService {
       const daysUntilLaunch = Math.ceil((targetTime - now) / (1000 * 60 * 60 * 24));
 
       // Campaign launch approaching
-      if (daysUntilLaunch >= 0 && daysUntilLaunch <= 14 && camp.status !== "completed" && camp.status !== "archived") {
+      if (daysUntilLaunch >= 0 && daysUntilLaunch <= 14 && camp.status !== "completed") {
         const fingerprint = `sig:campaign:approaching:${camp.id}`;
         activeFingerprints.add(fingerprint);
 
@@ -320,7 +320,7 @@ export class CreativeRadarService {
           priority,
           title: `Campaign "${camp.title}" launches in ${daysUntilLaunch === 0 ? "today" : `${daysUntilLaunch} day${daysUntilLaunch > 1 ? "s" : ""}`}`,
           explanation: `Brand campaign launch window approaching. Goal: ${camp.goal || "Growth Sprint"}.`,
-          details: `Target launch date: ${launchDateStr}. Readiness check: ${camp.heroImageUrl ? "Hero visual ready" : "Hero visual missing"}.`,
+          details: `Target launch date: ${launchDateStr}. Readiness check: ${camp.heroAssetUrl || camp.heroAssetId ? "Hero visual ready" : "Hero visual missing"}.`,
           affectedEntity: {
             type: "campaign",
             id: camp.id,
@@ -338,7 +338,7 @@ export class CreativeRadarService {
       }
 
       // Campaign Hero Asset Missing
-      if (!camp.heroAssetId && !camp.heroImageUrl && camp.status !== "completed" && camp.status !== "archived") {
+      if (!camp.heroAssetId && !camp.heroAssetUrl && camp.status !== "completed") {
         const fingerprint = `sig:campaign:blocker:hero:${camp.id}`;
         activeFingerprints.add(fingerprint);
         const isUrgent = daysUntilLaunch >= 0 && daysUntilLaunch <= 7;
@@ -593,7 +593,9 @@ export class CreativeRadarService {
     // 5. KEEDOHUB STUDIO RADAR EVALUATION
     // -------------------------------------------------------------
     // Unreviewed Studio Requests
-    const unreviewedRequests = studioRequests.filter((r) => r.status === "pending" || r.status === "draft");
+    const unreviewedRequests = studioRequests.filter(
+      (r) => r.status === "REQUEST" || r.status === "BRIEF" || r.status === "REVIEW" || r.status === "QUOTE_PENDING"
+    );
     for (const req of unreviewedRequests) {
       const fingerprint = `sig:studio:request_unreviewed:${req.id}`;
       activeFingerprints.add(fingerprint);
@@ -625,7 +627,7 @@ export class CreativeRadarService {
     }
 
     // Studio Quotes Pending Client Approval
-    const pendingQuotes = studioQuotes.filter((q) => q.status === "PENDING");
+    const pendingQuotes = studioQuotes.filter((q) => q.status === "SENT" || q.status === "VIEWED");
     for (const quote of pendingQuotes) {
       const fingerprint = `sig:studio:quote_pending:${quote.id}`;
       activeFingerprints.add(fingerprint);
@@ -658,7 +660,7 @@ export class CreativeRadarService {
 
     // Studio Deliverables Awaiting Review / Approval
     const pendingDeliverables = studioDeliverables.filter(
-      (d) => d.approvalStatus === "pending" || d.status === "READY_FOR_REVIEW"
+      (d) => d.approvalStatus === "pending" || d.status === "ready_for_review"
     );
     for (const del of pendingDeliverables) {
       const fingerprint = `sig:studio:deliverable_review:${del.id}`;
