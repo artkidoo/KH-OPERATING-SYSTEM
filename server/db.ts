@@ -2633,12 +2633,369 @@ class Database {
     return ws;
   }
 
+  public initializeOnboardedWorkspace(
+    userId: string,
+    data: {
+      workspaceId?: string;
+      identityType: IdentityType;
+      name: string;
+      genreOrNiche?: string;
+      stage?: string;
+      primaryGoal?: string;
+      targetAudience?: string;
+      positioning?: string;
+      platforms?: string[];
+      upcomingRelease?: {
+        title?: string;
+        releaseDate?: string;
+        format?: string;
+      };
+      upcomingCampaign?: {
+        title?: string;
+        targetDate?: string;
+        goal?: string;
+      };
+      currentProject?: {
+        title?: string;
+        description?: string;
+      };
+      mainOffer?: string;
+      saveAsMemory?: boolean;
+      rawDescription?: string;
+    }
+  ): {
+    workspace: WorkspaceRecord;
+    initializedEntities: {
+      releases: number;
+      campaigns: number;
+      projects: number;
+      pillars: number;
+      memories: number;
+    };
+  } {
+    let ws: WorkspaceRecord;
+    const initialCounts = { releases: 0, campaigns: 0, projects: 0, pillars: 0, memories: 0 };
+
+    if (data.workspaceId) {
+      const existing = this.getWorkspaceById(data.workspaceId);
+      if (existing) {
+        ws = existing;
+        ws.name = data.name || ws.name;
+        ws.identityType = data.identityType || ws.identityType;
+        ws.genreOrNiche = data.genreOrNiche || ws.genreOrNiche;
+        ws.bio = data.positioning || data.rawDescription || ws.bio;
+        ws.settings = {
+          ...(ws.settings || {}),
+          onboardingCompleted: true,
+          onboardingCompletedAt: new Date().toISOString(),
+          stage: data.stage,
+          primaryGoal: data.primaryGoal,
+          targetAudience: data.targetAudience,
+          platforms: data.platforms || [],
+        };
+        ws.updatedAt = new Date().toISOString();
+      } else {
+        ws = this.createWorkspace(
+          userId,
+          data.name,
+          data.identityType,
+          data.positioning || data.rawDescription,
+          data.genreOrNiche
+        );
+      }
+    } else {
+      ws = this.createWorkspace(
+        userId,
+        data.name,
+        data.identityType,
+        data.positioning || data.rawDescription,
+        data.genreOrNiche
+      );
+      ws.settings = {
+        ...(ws.settings || {}),
+        onboardingCompleted: true,
+        onboardingCompletedAt: new Date().toISOString(),
+        stage: data.stage,
+        primaryGoal: data.primaryGoal,
+        targetAudience: data.targetAudience,
+        platforms: data.platforms || [],
+      };
+    }
+
+    const workspaceId = ws.id;
+
+    // 1. Setup specific Pillars if not already configured
+    const existingPillars = this.getContentPillars(workspaceId);
+    if (existingPillars.length === 0) {
+      let defaultPillars: Array<{ name: string; description: string; color: string; icon: string; targetRatio: number }> = [];
+
+      if (data.identityType === "artist") {
+        defaultPillars = [
+          { name: "Behind The Music & Studio", description: "Production process, songwriting clips, stem walkthroughs", color: "#EF4444", icon: "Music", targetRatio: 30 },
+          { name: "Hooks & Snippet Teasers", description: "Catchy 15s chorus hooks, visualizer snippets, beat drops", color: "#F59E0B", icon: "Sparkles", targetRatio: 30 },
+          { name: "Lyric Stories & Meaning", description: "Lyrical breakdown, vulnerability, inspirations", color: "#8B5CF6", icon: "FileText", targetRatio: 20 },
+          { name: "Direct To Fan & Performance", description: "Acoustic takes, live rehearsals, community Q&A", color: "#10B981", icon: "Radio", targetRatio: 20 },
+        ];
+      } else if (data.identityType === "brand") {
+        defaultPillars = [
+          { name: "Brand Manifesto & Vision", description: "Core philosophy, design codes, lifestyle aesthetic", color: "#3B82F6", icon: "Building2", targetRatio: 25 },
+          { name: "Product & Craftsmanship", description: "Materials, key benefits, feature deep-dives", color: "#EF4444", icon: "Sparkles", targetRatio: 35 },
+          { name: "Customer Proof & UGC", description: "Customer reviews, testimonials, real-world styling", color: "#10B981", icon: "Award", targetRatio: 25 },
+          { name: "Behind the Scenes", description: "Founder story, development journey, studio days", color: "#F59E0B", icon: "Video", targetRatio: 15 },
+        ];
+      } else if (data.identityType === "creator") {
+        defaultPillars = [
+          { name: "High-Engagement Short Form", description: "Viral hooks, trending formats, relatable stories", color: "#F59E0B", icon: "Video", targetRatio: 40 },
+          { name: "Deep Dive Concepts", description: "Signature series, long-form breakdowns, masterclasses", color: "#8B5CF6", icon: "Layers", targetRatio: 30 },
+          { name: "Community & Collabs", description: "Audience Q&A, guest features, community challenges", color: "#10B981", icon: "Radio", targetRatio: 15 },
+          { name: "Sponsored & Brand Integrations", description: "Authentic partner spotlights, affiliate recommendations", color: "#3B82F6", icon: "Briefcase", targetRatio: 15 },
+        ];
+      } else {
+        defaultPillars = [
+          { name: "Core Product & Offering", description: "Flagship solutions, demos, customer value", color: "#EF4444", icon: "Rocket", targetRatio: 40 },
+          { name: "Industry Insights & Authority", description: "Market trends, thought leadership, case studies", color: "#3B82F6", icon: "BookOpen", targetRatio: 30 },
+          { name: "Company Milestones & BTS", description: "Product updates, team journey, behind the build", color: "#10B981", icon: "Activity", targetRatio: 30 },
+        ];
+      }
+
+      for (const p of defaultPillars) {
+        this.createContentPillar(workspaceId, p);
+        initialCounts.pillars++;
+      }
+    }
+
+    // 2. Identity-Specific Master Entity Creation
+    if (data.identityType === "artist") {
+      if (data.upcomingRelease?.title) {
+        const targetDate = data.upcomingRelease.releaseDate || new Date(Date.now() + 45 * 86400000).toISOString().split("T")[0];
+        const release = this.createRelease(workspaceId, {
+          title: data.upcomingRelease.title,
+          artistName: data.name || "Artist",
+          releaseType: data.upcomingRelease.format || "Single",
+          genre: data.genreOrNiche || "Music",
+          releaseDate: targetDate,
+          status: "planning",
+          phases: [],
+          checklist: [],
+          narrative: data.primaryGoal || "Strategic single release rollout targeting flagship DSP editorial placement.",
+        });
+        initialCounts.releases++;
+
+        // Add initial release preparation tasks
+        this.createTask(workspaceId, {
+          text: `Finalize master audio for "${release.title}" & check LUFS`,
+          priority: "high",
+          category: "audio",
+        });
+        this.createTask(workspaceId, {
+          text: `Generate 3000x3000px single artwork in Cover Studio`,
+          priority: "high",
+          category: "artwork",
+        });
+        this.createTask(workspaceId, {
+          text: `Draft DSP Pitch editorial rationale for "${release.title}"`,
+          priority: "medium",
+          category: "dsp-pitch",
+        });
+      }
+    } else if (data.identityType === "brand") {
+      // Update Brand Core with real user onboarding inputs
+      const brandCore = this.getBrandCore(workspaceId);
+      if (brandCore) {
+        if (data.targetAudience) {
+          brandCore.audience = {
+            ...brandCore.audience,
+            primaryICP: data.targetAudience,
+          };
+        }
+        if (data.positioning) {
+          brandCore.positioning = {
+            ...brandCore.positioning,
+            positioningStatement: data.positioning,
+          };
+        }
+        brandCore.updatedAt = new Date().toISOString();
+      }
+
+      if (data.upcomingCampaign?.title) {
+        const targetDate = data.upcomingCampaign.targetDate || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split("T")[0];
+        this.createCampaign(workspaceId, {
+          title: data.upcomingCampaign.title,
+          goal: data.upcomingCampaign.goal || data.primaryGoal || "Brand awareness and initial conversion sprint",
+          objective: "product_launch",
+          status: "planning",
+          startDate: new Date().toISOString().split("T")[0],
+          endDate: targetDate,
+          platforms: ["Instagram", "TikTok", "LinkedIn"],
+          budget: 5000,
+          currency: "USD",
+          targetAudience: data.targetAudience || "Core target market",
+          sprintDays: [],
+        });
+        initialCounts.campaigns++;
+      }
+    } else if (data.identityType === "creator") {
+      if (data.currentProject?.title) {
+        this.createProject(workspaceId, {
+          title: data.currentProject.title,
+          description: data.currentProject.description || data.primaryGoal || "Creator content sprint",
+          category: "Content Sprint",
+          status: "in-progress",
+          priority: "high",
+          budget: 0,
+          currency: "USD",
+          deadline: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
+          tags: ["Content", "Sprint", data.genreOrNiche || "Creator"],
+          tasks: [],
+        });
+        initialCounts.projects++;
+      }
+    } else if (data.identityType === "business" || data.identityType === "startup") {
+      if (data.mainOffer) {
+        const products = this.getProducts(workspaceId);
+        if (products.length > 0) {
+          this.updateProduct(products[0].id, workspaceId, {
+            name: data.mainOffer,
+            tagline: data.positioning || `Premier ${data.genreOrNiche || "business"} offering`,
+            targetAudience: data.targetAudience || products[0].targetAudience,
+          });
+        }
+      }
+      if (data.upcomingCampaign?.title) {
+        const targetDate = data.upcomingCampaign.targetDate || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split("T")[0];
+        this.createCampaign(workspaceId, {
+          title: data.upcomingCampaign.title,
+          goal: data.upcomingCampaign.goal || data.primaryGoal || "Customer acquisition & launch visibility",
+          objective: data.identityType === "startup" ? "product_launch" : "lead_generation",
+          status: "planning",
+          startDate: new Date().toISOString().split("T")[0],
+          endDate: targetDate,
+          platforms: ["LinkedIn", "Twitter/X", "Instagram"],
+          budget: 10000,
+          currency: "USD",
+          targetAudience: data.targetAudience || "Target ICP",
+          sprintDays: [],
+        });
+        initialCounts.campaigns++;
+      }
+    }
+
+    // 3. Store foundational Creative Memory Item if approved or default
+    if (data.saveAsMemory !== false) {
+      const memoryContent = [
+        `Identity: ${data.name} (${data.identityType.toUpperCase()})`,
+        data.genreOrNiche ? `Niche/Genre: ${data.genreOrNiche}` : "",
+        data.stage ? `Stage: ${data.stage}` : "",
+        data.primaryGoal ? `Primary Goal: ${data.primaryGoal}` : "",
+        data.targetAudience ? `Audience: ${data.targetAudience}` : "",
+        data.positioning ? `Positioning: ${data.positioning}` : "",
+        data.platforms && data.platforms.length > 0 ? `Primary Platforms: ${data.platforms.join(", ")}` : "",
+        data.rawDescription ? `Context Notes: ${data.rawDescription}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      this.createCreativeMemoryItem(workspaceId, {
+        category: "identity",
+        scope: "workspace",
+        title: `${data.name} — Creative Identity & Strategic Direction`,
+        content: memoryContent,
+        tags: [data.identityType, "onboarding", "core-identity", data.genreOrNiche || "creative"].filter(Boolean),
+        confidence: 100,
+        source: "user_explicit",
+        status: "active",
+        isPinned: true,
+      });
+      initialCounts.memories++;
+    }
+
+    // 4. Record Activity Log & Notification
+    this.logActivity(
+      workspaceId,
+      userId,
+      "authenticated_user",
+      "ONBOARDING_INITIALIZE",
+      "workspace",
+      workspaceId,
+      `Completed onboarding initialization for ${data.name} as ${data.identityType.toUpperCase()}`
+    );
+
+    this.addNotification(
+      workspaceId,
+      `Creative OS Ready: ${data.name}`,
+      `Your ${data.identityType.toUpperCase()} workspace is configured with strategic pillars, goals, and Creative Memory.`,
+      "success",
+      "command-center",
+      userId
+    );
+
+    this.save();
+    return { workspace: ws, initializedEntities: initialCounts };
+  }
+
+  public getWorkspaceMembers(workspaceId: string): WorkspaceMemberRecord[] {
+    return (this.data.workspace_members || []).filter((m) => m.workspaceId === workspaceId);
+  }
+
   public updateWorkspace(workspaceId: string, updates: Partial<WorkspaceRecord>): WorkspaceRecord {
     const ws = this.getWorkspaceById(workspaceId);
     if (!ws) throw new Error("Workspace not found");
     Object.assign(ws, updates, { updatedAt: new Date().toISOString() });
     this.save();
     return ws;
+  }
+
+  public deleteWorkspace(workspaceId: string, userId: string): boolean {
+    const ws = this.getWorkspaceById(workspaceId);
+    if (!ws) throw new Error("Workspace not found");
+
+    const memberships = this.data.workspace_members.filter((m) => m.workspaceId === workspaceId);
+    const userMember = memberships.find((m) => m.userId === userId);
+    if (ws.ownerId !== userId && (!userMember || userMember.role !== "owner")) {
+      throw new Error("Only the workspace owner can delete this workspace");
+    }
+
+    // Comprehensive multi-collection purge to eliminate cross-tenant residue
+    this.data.workspaces = this.data.workspaces.filter((w) => w.id !== workspaceId);
+    this.data.workspace_members = (this.data.workspace_members || []).filter((m) => m.workspaceId !== workspaceId);
+    this.data.brand_cores = (this.data.brand_cores || []).filter((b) => b.workspaceId !== workspaceId);
+    this.data.products = (this.data.products || []).filter((p) => p.workspaceId !== workspaceId);
+    this.data.projects = (this.data.projects || []).filter((p) => p.workspaceId !== workspaceId);
+    this.data.folders = (this.data.folders || []).filter((f) => f.workspaceId !== workspaceId);
+    this.data.milestones = (this.data.milestones || []).filter((m) => m.workspaceId !== workspaceId);
+    this.data.assets = (this.data.assets || []).filter((a) => a.workspaceId !== workspaceId);
+    this.data.releases = (this.data.releases || []).filter((r) => r.workspaceId !== workspaceId);
+    this.data.campaigns = (this.data.campaigns || []).filter((c) => c.workspaceId !== workspaceId);
+    this.data.content_pillars = (this.data.content_pillars || []).filter((p) => p.workspaceId !== workspaceId);
+    this.data.content_items = (this.data.content_items || []).filter((c) => c.workspaceId !== workspaceId);
+    this.data.creative_memories = (this.data.creative_memories || []).filter((m) => m.workspaceId !== workspaceId);
+    this.data.creative_memory_items = (this.data.creative_memory_items || []).filter((m) => m.workspaceId !== workspaceId);
+    this.data.memory_candidates = (this.data.memory_candidates || []).filter((m) => m.workspaceId !== workspaceId);
+    this.data.memory_block_rules = (this.data.memory_block_rules || []).filter((r) => r.workspaceId !== workspaceId);
+    this.data.notifications = (this.data.notifications || []).filter((n) => n.workspaceId !== workspaceId);
+    this.data.activity_logs = (this.data.activity_logs || []).filter((a) => a.workspaceId !== workspaceId);
+    this.data.creative_requests = (this.data.creative_requests || []).filter((r) => r.workspaceId !== workspaceId);
+    this.data.studio_requests = (this.data.studio_requests || []).filter((r) => r.workspaceId !== workspaceId);
+    this.data.studio_quotes = (this.data.studio_quotes || []).filter((q) => q.workspaceId !== workspaceId);
+    this.data.studio_projects = (this.data.studio_projects || []).filter((p) => p.workspaceId !== workspaceId);
+    this.data.studio_deliverables = (this.data.studio_deliverables || []).filter((d) => d.workspaceId !== workspaceId);
+    this.data.studio_revisions = (this.data.studio_revisions || []).filter((r) => r.workspaceId !== workspaceId);
+    this.data.studio_messages = (this.data.studio_messages || []).filter((m) => m.workspaceId !== workspaceId);
+    this.data.radar_signals = (this.data.radar_signals || []).filter((s) => s.workspaceId !== workspaceId);
+    this.data.performance_metrics = (this.data.performance_metrics || []).filter((pm) => pm.workspaceId !== workspaceId);
+    this.data.growth_insights = (this.data.growth_insights || []).filter((gi) => gi.workspaceId !== workspaceId);
+    this.data.workspace_goals = (this.data.workspace_goals || []).filter((g) => g.workspaceId !== workspaceId);
+
+    // Update user default workspace if it was deleted
+    this.data.users.forEach((u) => {
+      if (u.defaultWorkspaceId === workspaceId) {
+        const remaining = this.getWorkspacesForUser(u.id);
+        u.defaultWorkspaceId = remaining[0]?.id || "";
+      }
+    });
+
+    this.save();
+    return true;
   }
 
   // --- Projects ---
@@ -2673,7 +3030,34 @@ class Database {
     const initialLen = this.data.projects.length;
     this.data.projects = this.data.projects.filter((p) => !(p.id === projectId && p.workspaceId === workspaceId));
     const deleted = this.data.projects.length < initialLen;
-    if (deleted) this.save();
+    if (deleted) {
+      // Cascade unlinks and associated milestone cleanups
+      if (this.data.milestones) {
+        this.data.milestones = this.data.milestones.filter((m) => !(m.projectId === projectId && m.workspaceId === workspaceId));
+      }
+      if (this.data.content_items) {
+        this.data.content_items.forEach((c) => {
+          if (c.workspaceId === workspaceId && c.projectId === projectId) {
+            delete c.projectId;
+          }
+        });
+      }
+      if (this.data.assets) {
+        this.data.assets.forEach((a) => {
+          if (a.workspaceId === workspaceId && a.projectId === projectId) {
+            delete a.projectId;
+          }
+        });
+      }
+      if (this.data.radar_signals) {
+        this.data.radar_signals.forEach((s) => {
+          if (s.workspaceId === workspaceId && s.affectedEntity && s.affectedEntity.id === projectId) {
+            s.status = 'dismissed';
+          }
+        });
+      }
+      this.save();
+    }
     return deleted;
   }
 
@@ -2710,7 +3094,62 @@ class Database {
     const initialLen = this.data.assets.length;
     this.data.assets = this.data.assets.filter((a) => !(a.id === assetId && a.workspaceId === workspaceId));
     const deleted = this.data.assets.length < initialLen;
-    if (deleted) this.save();
+    if (deleted) {
+      // Unlink from releases
+      if (this.data.releases) {
+        this.data.releases.forEach((r) => {
+          if (r.workspaceId === workspaceId) {
+            if (r.coverAssetId === assetId) {
+              delete r.coverAssetId;
+              delete r.coverUrl;
+            }
+            if (r.audioAssetId === assetId) {
+              delete r.audioAssetId;
+              delete r.audioUrl;
+            }
+          }
+        });
+      }
+      // Unlink from campaigns
+      if (this.data.campaigns) {
+        this.data.campaigns.forEach((c) => {
+          if (c.workspaceId === workspaceId && c.heroAssetId === assetId) {
+            delete c.heroAssetId;
+            delete c.heroAssetUrl;
+          }
+        });
+      }
+      // Unlink from content items
+      if (this.data.content_items) {
+        this.data.content_items.forEach((c) => {
+          if (c.workspaceId === workspaceId) {
+            if (c.assetId === assetId) delete c.assetId;
+            if (Array.isArray(c.assetIds)) {
+              c.assetIds = c.assetIds.filter((id) => id !== assetId);
+            }
+          }
+        });
+      }
+      // Unlink from products
+      if (this.data.products) {
+        this.data.products.forEach((p) => {
+          if (p.workspaceId === workspaceId && Array.isArray(p.assetIds)) {
+            p.assetIds = p.assetIds.filter((id) => id !== assetId);
+          }
+        });
+      }
+      // Unlink from creative memory items
+      if (this.data.creative_memory_items) {
+        this.data.creative_memory_items.forEach((m) => {
+          if (m.workspaceId === workspaceId && m.assetReferenceId === assetId) {
+            delete m.assetReferenceId;
+            delete m.assetReferenceName;
+            delete m.assetReferenceUrl;
+          }
+        });
+      }
+      this.save();
+    }
     return deleted;
   }
 
@@ -2746,7 +3185,48 @@ class Database {
     const initialLen = this.data.releases.length;
     this.data.releases = this.data.releases.filter((r) => !(r.id === releaseId && r.workspaceId === workspaceId));
     const deleted = this.data.releases.length < initialLen;
-    if (deleted) this.save();
+    if (deleted) {
+      // Unlink from content items
+      if (this.data.content_items) {
+        this.data.content_items.forEach((c) => {
+          if (c.workspaceId === workspaceId && c.releaseId === releaseId) {
+            delete c.releaseId;
+            delete c.releaseTitle;
+          }
+        });
+      }
+      // Unlink from assets
+      if (this.data.assets) {
+        this.data.assets.forEach((a) => {
+          if (a.workspaceId === workspaceId && a.releaseId === releaseId) {
+            delete a.releaseId;
+          }
+        });
+      }
+      // Cleanup radar signals
+      if (this.data.radar_signals) {
+        this.data.radar_signals.forEach((s) => {
+          if (s.workspaceId === workspaceId && s.affectedEntity && s.affectedEntity.id === releaseId) {
+            s.status = 'dismissed';
+          }
+        });
+      }
+      // Cleanup performance metrics
+      if (this.data.performance_metrics) {
+        this.data.performance_metrics = this.data.performance_metrics.filter(
+          (pm) => !(pm.workspaceId === workspaceId && pm.entityId === releaseId && pm.entityType === 'release')
+        );
+      }
+      // Cleanup workspace goals
+      if (this.data.workspace_goals) {
+        this.data.workspace_goals.forEach((g) => {
+          if (g.workspaceId === workspaceId && g.entityId === releaseId) {
+            delete g.entityId;
+          }
+        });
+      }
+      this.save();
+    }
     return deleted;
   }
 
@@ -2872,7 +3352,26 @@ class Database {
     const initialLen = this.data.products.length;
     this.data.products = this.data.products.filter((p) => !(p.id === productId && p.workspaceId === workspaceId));
     const deleted = this.data.products.length < initialLen;
-    if (deleted) this.save();
+    if (deleted) {
+      // Unlink from campaigns
+      if (this.data.campaigns) {
+        this.data.campaigns.forEach((c) => {
+          if (c.workspaceId === workspaceId && c.productId === productId) {
+            delete c.productId;
+          }
+        });
+      }
+      // Unlink from content items
+      if (this.data.content_items) {
+        this.data.content_items.forEach((c) => {
+          if (c.workspaceId === workspaceId && c.productId === productId) {
+            delete c.productId;
+            delete c.productName;
+          }
+        });
+      }
+      this.save();
+    }
     return deleted;
   }
 
@@ -2922,7 +3421,40 @@ class Database {
     const initialLen = this.data.campaigns.length;
     this.data.campaigns = this.data.campaigns.filter((c) => !(c.id === campaignId && c.workspaceId === workspaceId));
     const deleted = this.data.campaigns.length < initialLen;
-    if (deleted) this.save();
+    if (deleted) {
+      // Unlink from content items
+      if (this.data.content_items) {
+        this.data.content_items.forEach((c) => {
+          if (c.workspaceId === workspaceId && c.campaignId === campaignId) {
+            delete c.campaignId;
+            delete c.campaignTitle;
+          }
+        });
+      }
+      // Cleanup radar signals
+      if (this.data.radar_signals) {
+        this.data.radar_signals.forEach((s) => {
+          if (s.workspaceId === workspaceId && s.affectedEntity && s.affectedEntity.id === campaignId) {
+            s.status = 'dismissed';
+          }
+        });
+      }
+      // Cleanup performance metrics
+      if (this.data.performance_metrics) {
+        this.data.performance_metrics = this.data.performance_metrics.filter(
+          (pm) => !(pm.workspaceId === workspaceId && pm.entityId === campaignId && pm.entityType === 'campaign')
+        );
+      }
+      // Cleanup workspace goals
+      if (this.data.workspace_goals) {
+        this.data.workspace_goals.forEach((g) => {
+          if (g.workspaceId === workspaceId && g.entityId === campaignId) {
+            delete g.entityId;
+          }
+        });
+      }
+      this.save();
+    }
     return deleted;
   }
 

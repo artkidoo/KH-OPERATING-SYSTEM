@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
   openBriefModal,
 }) => {
   const { colorTheme, themeMode, toggleThemeMode, currentThemeConfig } = useTheme();
-  const { user, workspaces, activeWorkspace, switchWorkspace, logout } = useAuth();
+  const { user, workspaces, activeWorkspace, switchWorkspace, logout, openOnboarding } = useAuth();
   const { toggleBrain, isOpen: isBrainOpen } = useCreativeBrain();
   
   const [isScrolled, setIsScrolled] = useState(false);
@@ -222,13 +222,24 @@ export const Header: React.FC<HeaderProps> = ({
                       })}
                     </div>
 
-                    <div className="pt-2 border-t border-zinc-800/80">
+                    <div className="pt-2 border-t border-zinc-800/80 space-y-1">
+                      <button
+                        onClick={() => {
+                          setIsWorkspaceDropdownOpen(false);
+                          openOnboarding({ isNewAccount: false, defaultIdentity: activeWorkspace?.identityType || "artist" });
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-orange-400 hover:text-orange-300 hover:bg-zinc-900 transition-colors font-semibold cursor-pointer"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Run OS Setup Wizard</span>
+                      </button>
+
                       <button
                         onClick={() => {
                           setIsWorkspaceDropdownOpen(false);
                           setIsAuthModalOpen(true);
                         }}
-                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-zinc-900 transition-colors font-semibold cursor-pointer"
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-zinc-900 transition-colors font-semibold cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Create / Switch Workspace</span>

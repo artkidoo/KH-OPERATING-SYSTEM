@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { User, Workspace, IdentityType } from "../types";
+import { User, Workspace, IdentityType, OnboardingPayload } from "../types";
 import { api, getStoredToken } from "../services/api";
+
+interface OnboardingModalOptions {
+  isNewAccount?: boolean;
+  defaultIdentity?: IdentityType;
+  existingWorkspaceId?: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -8,6 +14,11 @@ interface AuthContextType {
   activeWorkspace: Workspace | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isOnboardingOpen: boolean;
+  onboardingOptions: OnboardingModalOptions;
+  openOnboarding: (options?: OnboardingModalOptions) => void;
+  closeOnboarding: () => void;
+  completeOnboarding: (payload: OnboardingPayload) => Promise<Workspace>;
   login: (credentials: { email: string; password: string }) => Promise<void>;
   signup: (data: {
     email: string;
@@ -31,6 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
+  const [onboardingOptions, setOnboardingOptions] = useState<OnboardingModalOptions>({});
 
   const initAuth = async () => {
     setIsLoading(true);
@@ -77,6 +90,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, []);
 
+  const openOnboarding = (options: OnboardingModalOptions = {}) => {
+    setOnboardingOptions(options);
+    setIsOnboardingOpen(true);
+  };
+
+  const closeOnboarding = () => {
+    setIsOnboardingOpen(false);
+    setOnboardingOptions({});
+  };
+
+  const completeOnboarding = async (payload: OnboardingPayload): Promise<Workspace> => {
+    const res = await api.workspaces.initializeOnboarding(payload);
+    const initializedWs = res.workspace;
+
+    // Refresh workspaces list and set newly configured workspace as active
+    setWorkspaces((prev) => {
+      const exists = prev.some((w) => w.id === initializedWs.id);
+      if (exists) {
+        return prev.map((w) => (w.id === initializedWs.id ? initializedWs : w));
+      }
+      return [...prev, initializedWs];
+    });
+
+    setActiveWorkspace(initializedWs);
+    setIsOnboardingOpen(false);
+    setOnboardingOptions({});
+    return initializedWs;
+  };
+
   const login = async (credentials: { email: string; password: string }) => {
     setIsLoading(true);
     try {
@@ -104,6 +146,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(res.user);
       setWorkspaces(res.workspaces);
       setActiveWorkspace(res.activeWorkspace);
+      
+      // Trigger progressive setup wizard for newly registered user
+      setOnboardingOptions({
+        isNewAccount: true,
+        defaultIdentity: data.identityType || "artist",
+        existingWorkspaceId: res.activeWorkspace?.id,
+      });
+      setIsOnboardingOpen(true);
     } finally {
       setIsLoading(false);
     }
@@ -116,6 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setWorkspaces([]);
       setActiveWorkspace(null);
+      setIsOnboardingOpen(false);
     } finally {
       setIsLoading(false);
     }
@@ -154,6 +205,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         activeWorkspace,
         isLoading,
         isAuthenticated: Boolean(user),
+        isOnboardingOpen,
+        onboardingOptions,
+        openOnboarding,
+        closeOnboarding,
+        completeOnboarding,
         login,
         signup,
         logout,

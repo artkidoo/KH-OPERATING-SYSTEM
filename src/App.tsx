@@ -32,6 +32,7 @@ import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
 import { CreativeBrainSlideOver } from "./components/CreativeBrainSlideOver";
+import { OnboardingModal } from "./components/onboarding/OnboardingModal";
 import { Toast, ToastMessage } from "./components/Toast";
 import { 
   PhoneCall, 
@@ -83,6 +84,9 @@ function MainAppContent() {
         onClose={() => setIsBriefOpen(false)}
         onNotify={addNotification}
       />
+
+      {/* Progressive Onboarding & Activation Layer */}
+      <OnboardingModal />
 
       {/* Creative Brain Slide-over Assistant */}
       <CreativeBrainSlideOver setActiveTab={setActiveTab} />

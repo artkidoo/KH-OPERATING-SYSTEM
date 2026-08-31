@@ -46,6 +46,7 @@ import {
   ListTodo,
   Rocket
 } from "lucide-react";
+import { ActivationChecklist } from "./onboarding/ActivationChecklist";
 
 interface CommandCenterProps {
   onNavigateTab: (tab: ActiveTab) => void;
@@ -218,6 +219,18 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
           </button>
         </div>
       </div>
+
+      {/* ========================================================= */}
+      {/* 1B. ACTIVATION CHECKLIST & ONBOARDING ROADMAP */}
+      {/* ========================================================= */}
+      <ActivationChecklist
+        workspace={activeWorkspace}
+        onNavigateTab={onNavigateTab}
+        releasesCount={summary.releases}
+        campaignsCount={summary.campaigns}
+        assetsCount={summary.assets}
+        contentCount={summary.contentItems}
+      />
 
       {/* ========================================================= */}
       {/* 2. OPERATIONAL PULSE & METRIC SUMMARY */}

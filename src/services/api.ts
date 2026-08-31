@@ -38,6 +38,9 @@ import {
   CommandCenterData,
   GlobalSearchResultItem,
   NextActionItem,
+  OnboardingPayload,
+  OnboardingInitializationResult,
+  OnboardingAIInterpretation,
 } from "../types";
 
 const TOKEN_KEY = "keedohub_session_token";
@@ -174,6 +177,20 @@ export const api = {
       });
     },
 
+    initializeOnboarding: async (payload: OnboardingPayload) => {
+      return request<OnboardingInitializationResult>("/api/onboarding/initialize", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    },
+
+    interpretOnboardingPrompt: async (prompt: string, currentIdentity?: IdentityType) => {
+      return request<OnboardingAIInterpretation>("/api/onboarding/interpret", {
+        method: "POST",
+        body: JSON.stringify({ prompt, currentIdentity }),
+      });
+    },
+
     getOverview: async (workspaceId: string) => {
       return request<{
         workspace: Workspace;
@@ -210,6 +227,12 @@ export const api = {
       return request<{ workspace: Workspace }>(`/api/workspaces/${workspaceId}`, {
         method: "PUT",
         body: JSON.stringify(updates),
+      });
+    },
+
+    delete: async (workspaceId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}`, {
+        method: "DELETE",
       });
     },
   },

@@ -41,6 +41,8 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
         return next();
       }
     }
+    // If a token was provided but is invalid or expired, reject with 401
+    return res.status(401).json({ error: "Unauthorized: Invalid or expired session token" });
   }
 
   // Graceful fallback for initial landing or demo sessions: Auto-authenticate default studio user
@@ -57,24 +59,26 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
 
 // Workspace Access Verification Middleware
 export function requireWorkspaceAccess(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  const workspaceId = req.params.workspaceId || req.body.workspaceId || req.query.workspaceId as string;
+  const workspaceId = req.params.workspaceId || req.body.workspaceId || (req.query.workspaceId as string);
   if (!workspaceId) {
     return res.status(400).json({ error: "Workspace ID is required" });
   }
 
-  // If user is authenticated, check membership
+  const wsExists = db.getWorkspaceById(workspaceId);
+  if (!wsExists) {
+    return res.status(404).json({ error: "Workspace not found" });
+  }
+
+  // If user is authenticated, verify workspace membership
   if (req.user) {
     const memberships = db.getWorkspacesForUser(req.user.id);
     const hasAccess = memberships.some((w) => w.id === workspaceId);
     if (!hasAccess) {
-      // Allow access if workspace exists in the system or is the demo workspace
-      const wsExists = db.getWorkspaceById(workspaceId);
-      if (wsExists) {
+      // Demo creator user can access default demo workspace
+      if (workspaceId === "ws_demo_artist_os" && req.user.email === "creator@keedohub.com") {
         return next();
       }
-      if (workspaceId !== "ws_demo_artist_os") {
-        return res.status(403).json({ error: "Forbidden: You do not have access to this workspace" });
-      }
+      return res.status(403).json({ error: "Forbidden: You do not have access to this workspace" });
     }
   }
   next();
@@ -176,6 +180,162 @@ apiRouter.post("/auth/logout", requireAuth, (req: AuthenticatedRequest, res: Res
 });
 
 // --- Workspace Routes ---
+apiRouter.post("/onboarding/initialize", requireAuth, (req: AuthenticatedRequest, res: Response) => {
+  const { 
+    workspaceId,
+    identityType, 
+    name, 
+    genreOrNiche, 
+    stage,
+    primaryGoal, 
+    targetAudience, 
+    positioning, 
+    platforms, 
+    upcomingRelease, 
+    upcomingCampaign, 
+    currentProject, 
+    mainOffer, 
+    saveAsMemory, 
+    rawDescription 
+  } = req.body;
+
+  if (!identityType || !name) {
+    return res.status(400).json({ error: "Identity type and name are required for onboarding setup" });
+  }
+
+  // If a specific workspaceId was passed, verify user access to prevent IDOR
+  if (workspaceId) {
+    const memberships = db.getWorkspaceMembers(workspaceId);
+    const hasAccess = memberships.some((m) => m.userId === req.user!.id);
+    const ws = db.getWorkspaceById(workspaceId);
+    if (!hasAccess && (!ws || ws.ownerId !== req.user!.id)) {
+      return res.status(403).json({ error: "Forbidden: You do not have access to this workspace" });
+    }
+  }
+
+  try {
+    const result = db.initializeOnboardedWorkspace(req.user!.id, {
+      workspaceId,
+      identityType,
+      name,
+      genreOrNiche,
+      stage,
+      primaryGoal,
+      targetAudience,
+      positioning,
+      platforms,
+      upcomingRelease,
+      upcomingCampaign,
+      currentProject,
+      mainOffer,
+      saveAsMemory,
+      rawDescription,
+    });
+
+    res.status(200).json({
+      message: "Creative Operating System initialized successfully",
+      workspace: { ...result.workspace, role: "owner" },
+      initializedEntities: result.initializedEntities,
+    });
+  } catch (err: any) {
+    console.error("[Onboarding Initialize Error]", err);
+    res.status(400).json({ error: err.message || "Failed to initialize workspace onboarding" });
+  }
+});
+
+apiRouter.post("/onboarding/interpret", requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const { prompt, currentIdentity } = req.body;
+  if (!prompt || typeof prompt !== "string") {
+    return res.status(400).json({ error: "Prompt text is required for AI interpretation" });
+  }
+
+  const p = prompt.toLowerCase();
+  let detectedIdentity: IdentityType = currentIdentity || "artist";
+
+  if (p.includes("song") || p.includes("album") || p.includes("single") || p.includes("track") || p.includes("artist") || p.includes("producer") || p.includes("music") || p.includes("stream") || p.includes("spotify") || p.includes("ep") || p.includes("rap") || p.includes("pop") || p.includes("drill") || p.includes("rock") || p.includes("r&b")) {
+    detectedIdentity = "artist";
+  } else if (p.includes("youtube") || p.includes("creator") || p.includes("tiktok") || p.includes("streamer") || p.includes("vlog") || p.includes("podcast") || p.includes("short-form") || p.includes("reels") || p.includes("sponsor")) {
+    detectedIdentity = "creator";
+  } else if (p.includes("clothing") || p.includes("apparel") || p.includes("skincare") || p.includes("brand") || p.includes("fashion") || p.includes("store") || p.includes("dtc") || p.includes("ecommerce") || p.includes("collection") || p.includes("drop")) {
+    detectedIdentity = "brand";
+  } else if (p.includes("saas") || p.includes("app") || p.includes("software") || p.includes("startup") || p.includes("tech") || p.includes("mvp") || p.includes("launch") || p.includes("beta") || p.includes("ai")) {
+    detectedIdentity = "startup";
+  } else if (p.includes("agency") || p.includes("client") || p.includes("consulting") || p.includes("services") || p.includes("business") || p.includes("enterprise") || p.includes("firm")) {
+    detectedIdentity = "business";
+  }
+
+  // Extract smart fields
+  let extractedName = "";
+  let extractedGenreOrNiche = "";
+  let extractedGoal = prompt.trim();
+  let extractedMilestone: any = {};
+
+  if (detectedIdentity === "artist") {
+    if (p.includes("drill")) extractedGenreOrNiche = "UK Drill";
+    else if (p.includes("afrobeats") || p.includes("afrobeat")) extractedGenreOrNiche = "Afrobeats";
+    else if (p.includes("hip-hop") || p.includes("rap") || p.includes("hip hop")) extractedGenreOrNiche = "Hip-Hop";
+    else if (p.includes("indie") || p.includes("indie pop")) extractedGenreOrNiche = "Indie Pop";
+    else if (p.includes("r&b") || p.includes("rnb")) extractedGenreOrNiche = "R&B / Soul";
+    else if (p.includes("electronic") || p.includes("house") || p.includes("techno") || p.includes("edm")) extractedGenreOrNiche = "Electronic";
+    else extractedGenreOrNiche = "Contemporary Music";
+
+    extractedMilestone = {
+      title: p.includes("ep") ? "Debut EP" : p.includes("album") ? "New Album" : "Lead Single",
+      format: p.includes("ep") ? "EP" : p.includes("album") ? "Album" : "Single",
+      targetDate: new Date(Date.now() + 21 * 86400000).toISOString().split("T")[0],
+    };
+  } else if (detectedIdentity === "brand") {
+    if (p.includes("streetwear") || p.includes("clothing") || p.includes("fashion")) extractedGenreOrNiche = "Fashion & Apparel";
+    else if (p.includes("beauty") || p.includes("skincare")) extractedGenreOrNiche = "Beauty & Wellness";
+    else if (p.includes("fitness") || p.includes("gym")) extractedGenreOrNiche = "Fitness & Lifestyle";
+    else extractedGenreOrNiche = "Lifestyle Brand";
+
+    extractedMilestone = {
+      title: "Q4 Flagship Campaign Drop",
+      targetDate: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
+      goal: "Drive high brand awareness and initial conversion sprint",
+    };
+  } else if (detectedIdentity === "creator") {
+    if (p.includes("tech") || p.includes("reviews")) extractedGenreOrNiche = "Tech Reviews";
+    else if (p.includes("gaming")) extractedGenreOrNiche = "Gaming & Streaming";
+    else if (p.includes("lifestyle") || p.includes("vlog")) extractedGenreOrNiche = "Lifestyle / Vlog";
+    else extractedGenreOrNiche = "Short-form Content & Entertainment";
+
+    extractedMilestone = {
+      title: "30-Day Growth Sprint Series",
+      description: "Daily high-retention video uploads across TikTok and Reels",
+    };
+  } else if (detectedIdentity === "startup") {
+    extractedGenreOrNiche = "Tech & Digital Product";
+    extractedMilestone = {
+      title: "Public Beta Launch & Waitlist",
+      targetDate: new Date(Date.now() + 45 * 86400000).toISOString().split("T")[0],
+      goal: "Acquire first 1,000 active beta users",
+    };
+  } else {
+    extractedGenreOrNiche = "Professional Creative Services";
+    extractedMilestone = {
+      title: "Flagship Retainer Service Launch",
+      description: "Scale qualified inbound client briefs",
+    };
+  }
+
+  res.json({
+    interpreted: {
+      identityType: detectedIdentity,
+      suggestedGenreOrNiche: extractedGenreOrNiche,
+      suggestedGoal: extractedGoal,
+      suggestedMilestone: extractedMilestone,
+      suggestedPlatforms: detectedIdentity === "artist" 
+        ? ["spotify", "instagram", "tiktok", "youtube"] 
+        : detectedIdentity === "creator" 
+        ? ["youtube", "tiktok", "instagram"] 
+        : ["instagram", "tiktok", "linkedin"],
+      reasoning: `Extracted ${detectedIdentity.toUpperCase()} operational framework from natural language context.`,
+    },
+  });
+});
+
 apiRouter.get("/workspaces", requireAuth, (req: AuthenticatedRequest, res: Response) => {
   const workspaces = db.getWorkspacesForUser(req.user!.id);
   res.json({ workspaces });
@@ -215,6 +375,18 @@ apiRouter.put("/workspaces/:workspaceId", requireAuth, requireWorkspaceAccess, (
     res.json({ workspace: updated });
   } catch (err: any) {
     res.status(400).json({ error: err.message || "Failed to update workspace" });
+  }
+});
+
+apiRouter.delete("/workspaces/:workspaceId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const success = db.deleteWorkspace(req.params.workspaceId, req.user!.id);
+    if (!success) {
+      return res.status(404).json({ error: "Workspace not found" });
+    }
+    res.json({ message: "Workspace deleted successfully" });
+  } catch (err: any) {
+    res.status(403).json({ error: err.message || "Failed to delete workspace" });
   }
 });
 
@@ -1393,27 +1565,31 @@ apiRouter.post("/workspaces/:workspaceId/memory/items", requireAuth, requireWork
 
 // Phase 8: Update Structured Memory Item
 apiRouter.put("/workspaces/:workspaceId/memory/items/:itemId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
-  const updated = db.updateCreativeMemoryItem(req.params.itemId, req.params.workspaceId, req.body);
-  if (!updated) {
-    return res.status(404).json({ error: "Memory item not found" });
+  try {
+    const updated = db.updateCreativeMemoryItem(req.params.workspaceId, req.params.itemId, req.body);
+    if (!updated) {
+      return res.status(404).json({ error: "Memory item not found" });
+    }
+
+    db.logActivity(
+      req.params.workspaceId,
+      req.user!.id,
+      req.user!.email,
+      "UPDATE_MEMORY_ITEM",
+      "creative_memory",
+      updated.id,
+      `Updated memory item: "${updated.title}"`
+    );
+
+    res.json({ item: updated });
+  } catch (err: any) {
+    res.status(404).json({ error: err.message || "Memory item not found" });
   }
-
-  db.logActivity(
-    req.params.workspaceId,
-    req.user!.id,
-    req.user!.email,
-    "UPDATE_MEMORY_ITEM",
-    "creative_memory",
-    updated.id,
-    `Updated memory item: "${updated.title}"`
-  );
-
-  res.json({ item: updated });
 });
 
 // Phase 8: Delete Structured Memory Item
 apiRouter.delete("/workspaces/:workspaceId/memory/items/:itemId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
-  const success = db.deleteCreativeMemoryItem(req.params.itemId, req.params.workspaceId);
+  const success = db.deleteCreativeMemoryItem(req.params.workspaceId, req.params.itemId);
   if (!success) {
     return res.status(404).json({ error: "Memory item not found" });
   }

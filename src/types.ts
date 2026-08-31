@@ -24,6 +24,75 @@ export type ActiveTab =
   | 'intel-hub';
 
 export type IdentityType = 'artist' | 'creator' | 'brand' | 'business' | 'startup';
+
+export interface OnboardingPayload {
+  workspaceId?: string;
+  identityType: IdentityType;
+  name: string;
+  genreOrNiche?: string;
+  stage?: string;
+  primaryGoal?: string;
+  targetAudience?: string;
+  positioning?: string;
+  platforms?: string[];
+  upcomingRelease?: {
+    title?: string;
+    releaseDate?: string;
+    format?: string;
+  };
+  upcomingCampaign?: {
+    title?: string;
+    targetDate?: string;
+    goal?: string;
+  };
+  currentProject?: {
+    title?: string;
+    description?: string;
+  };
+  mainOffer?: string;
+  saveAsMemory?: boolean;
+  rawDescription?: string;
+}
+
+export interface OnboardingInitializationResult {
+  message: string;
+  workspace: Workspace;
+  initializedEntities: {
+    releases: number;
+    campaigns: number;
+    projects: number;
+    pillars: number;
+    memories: number;
+  };
+}
+
+export interface OnboardingAIInterpretation {
+  interpreted: {
+    identityType: IdentityType;
+    suggestedGenreOrNiche: string;
+    suggestedGoal: string;
+    suggestedMilestone: {
+      title?: string;
+      format?: string;
+      targetDate?: string;
+      goal?: string;
+      description?: string;
+    };
+    suggestedPlatforms: string[];
+    reasoning: string;
+  };
+}
+
+export interface ActivationChecklistItem {
+  id: string;
+  label: string;
+  description: string;
+  completed: boolean;
+  actionTab: ActiveTab;
+  actionLabel: string;
+  category: 'core' | 'launch' | 'content' | 'assets' | 'intelligence';
+}
+
 export type MemberRole = 'owner' | 'admin' | 'editor' | 'viewer';
 export type ProjectStatus = 'planning' | 'in-progress' | 'review' | 'completed';
 export type ProjectPriority = 'low' | 'medium' | 'high' | 'urgent';
