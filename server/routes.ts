@@ -6,6 +6,7 @@ import { MemoryRetrievalService } from "./ai/memoryRetrievalService";
 import { creativeRadarService } from "./radar/creativeRadarService";
 import { commandCenterService } from "./command/commandCenterService";
 import { analyticsService } from "./analytics/analyticsService";
+import { workflowService } from "./workflow/workflowService";
 import dotenv from "dotenv";
 
 dotenv.config();
