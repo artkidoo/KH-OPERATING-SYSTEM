@@ -400,67 +400,88 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
           <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bento-card)] border border-[var(--bento-border)] shadow-sm space-y-5">
             {/* Header & Filter Tabs */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
-              <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-red-500" />
-                  <span>Today View & Next Actions</span>
-                </h2>
-                <p className="text-xs text-zinc-400">
-                  What needs your attention, what is blocked, and deterministic recommendations.
-                </p>
+              <div className="flex items-center justify-between w-full sm:w-auto">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-red-500" />
+                    <span>Today View & Next Actions</span>
+                  </h2>
+                  <p className="text-xs text-zinc-400">
+                    What needs your attention, what is blocked, and deterministic recommendations.
+                  </p>
+                </div>
+                <button
+                  onClick={() => onNavigateTab("workflow")}
+                  className="sm:hidden px-2.5 py-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-200 hover:border-red-500/40 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <CheckSquare className="w-3.5 h-3.5 text-red-400" />
+                  <span>Tasks</span>
+                </button>
               </div>
 
-              {/* Filter Pills */}
-              <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-zinc-800/80 overflow-x-auto max-w-full">
+              {/* Filter Pills and Hub Link */}
+              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-zinc-800/80 overflow-x-auto max-w-full">
+                  <button
+                    onClick={() => setTodayFilter("next-actions")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                      todayFilter === "next-actions"
+                        ? "bg-red-600 text-white font-bold shadow-xs"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    Next Actions ({today.nextActions.length})
+                  </button>
+                  <button
+                    onClick={() => setTodayFilter("priority")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                      todayFilter === "priority"
+                        ? "bg-red-600 text-white font-bold shadow-xs"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    Priority ({today.priority.length})
+                  </button>
+                  <button
+                    onClick={() => setTodayFilter("upcoming")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                      todayFilter === "upcoming"
+                        ? "bg-red-600 text-white font-bold shadow-xs"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    Upcoming ({today.upcoming.length})
+                  </button>
+                  <button
+                    onClick={() => setTodayFilter("blocked")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                      todayFilter === "blocked"
+                        ? "bg-red-600 text-white font-bold shadow-xs"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    Blocked ({today.blocked.length})
+                  </button>
+                  <button
+                    onClick={() => setTodayFilter("completed")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                      todayFilter === "completed"
+                        ? "bg-red-600 text-white font-bold shadow-xs"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    Completed ({today.recentlyCompleted.length})
+                  </button>
+                </div>
+
                 <button
-                  onClick={() => setTodayFilter("next-actions")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    todayFilter === "next-actions"
-                      ? "bg-red-600 text-white font-bold shadow-xs"
-                      : "text-zinc-400 hover:text-white"
-                  }`}
+                  onClick={() => onNavigateTab("workflow")}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-500/40 text-xs font-bold text-zinc-200 hover:text-white transition-all cursor-pointer whitespace-nowrap shadow-xs"
+                  title="Open full Kanban Workflow & Tasks Hub"
                 >
-                  Next Actions ({today.nextActions.length})
-                </button>
-                <button
-                  onClick={() => setTodayFilter("priority")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    todayFilter === "priority"
-                      ? "bg-red-600 text-white font-bold shadow-xs"
-                      : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  Priority ({today.priority.length})
-                </button>
-                <button
-                  onClick={() => setTodayFilter("upcoming")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    todayFilter === "upcoming"
-                      ? "bg-red-600 text-white font-bold shadow-xs"
-                      : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  Upcoming ({today.upcoming.length})
-                </button>
-                <button
-                  onClick={() => setTodayFilter("blocked")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    todayFilter === "blocked"
-                      ? "bg-red-600 text-white font-bold shadow-xs"
-                      : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  Blocked ({today.blocked.length})
-                </button>
-                <button
-                  onClick={() => setTodayFilter("completed")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    todayFilter === "completed"
-                      ? "bg-red-600 text-white font-bold shadow-xs"
-                      : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  Completed ({today.recentlyCompleted.length})
+                  <CheckSquare className="w-3.5 h-3.5 text-red-400" />
+                  <span>Workflow Hub</span>
+                  <ArrowRight className="w-3 h-3 text-zinc-500" />
                 </button>
               </div>
             </div>

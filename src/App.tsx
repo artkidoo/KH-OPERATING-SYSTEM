@@ -28,6 +28,7 @@ import { CreativeBrainConsole } from "./components/CreativeBrainConsole";
 import { CreativeMemoryDashboard } from "./components/CreativeMemoryDashboard";
 import { CreativeRadarDashboard } from "./components/CreativeRadarDashboard";
 import { AnalyticsView } from "./components/AnalyticsView";
+import { WorkflowHub } from "./components/WorkflowHub";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
@@ -116,6 +117,13 @@ function MainAppContent() {
             onNavigateTab={setActiveTab}
             onOpenBriefModal={() => setIsBriefOpen(true)}
             onNotify={addNotification}
+          />
+        )}
+
+        {activeTab === "workflow" && (
+          <WorkflowHub
+            workspaceId={activeWorkspace?.id}
+            onNavigateTab={setActiveTab}
           />
         )}
 

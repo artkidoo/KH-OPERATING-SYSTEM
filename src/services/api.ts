@@ -41,6 +41,9 @@ import {
   OnboardingPayload,
   OnboardingInitializationResult,
   OnboardingAIInterpretation,
+  DeadlineReminder,
+  WorkflowSummary,
+  TaskStatus,
 } from "../types";
 
 const TOKEN_KEY = "keedohub_session_token";
@@ -942,6 +945,138 @@ export const api = {
     getActivityStream: async (workspaceId: string, limit = 30) => {
       return request<{ activities: ActivityLog[] }>(
         `/api/workspaces/${encodeURIComponent(workspaceId)}/activity-stream?limit=${limit}`
+      );
+    },
+  },
+
+  workflow: {
+    getSummary: async (workspaceId: string) => {
+      return request<{ summary: WorkflowSummary }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/summary`
+      );
+    },
+
+    getTasks: async (workspaceId: string, filters?: { status?: string; priority?: string; entityType?: string; assignee?: string; isOverdue?: boolean }) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks`;
+      if (filters) {
+        const params = new URLSearchParams();
+        if (filters.status) params.append("status", filters.status);
+        if (filters.priority) params.append("priority", filters.priority);
+        if (filters.entityType) params.append("entityType", filters.entityType);
+        if (filters.assignee) params.append("assignee", filters.assignee);
+        if (filters.isOverdue) params.append("isOverdue", "true");
+        const q = params.toString();
+        if (q) url += `?${q}`;
+      }
+      return request<{ tasks: TaskItem[] }>(url);
+    },
+
+    createTask: async (workspaceId: string, task: Partial<TaskItem> & { text: string }) => {
+      return request<{ task: TaskItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks`,
+        {
+          method: "POST",
+          body: JSON.stringify(task),
+        }
+      );
+    },
+
+    updateTask: async (workspaceId: string, taskId: string, updates: Partial<TaskItem>) => {
+      return request<{ task: TaskItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks/${encodeURIComponent(taskId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+
+    transitionTask: async (workspaceId: string, taskId: string, status: TaskStatus) => {
+      return request<{ task: TaskItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks/${encodeURIComponent(taskId)}/transition`,
+        {
+          method: "POST",
+          body: JSON.stringify({ status }),
+        }
+      );
+    },
+
+    deleteTask: async (workspaceId: string, taskId: string) => {
+      return request<{ success: boolean }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks/${encodeURIComponent(taskId)}`,
+        {
+          method: "DELETE",
+        }
+      );
+    },
+
+    getNotifications: async (workspaceId: string, filters?: { category?: string; severity?: string; unreadOnly?: boolean; resolved?: boolean }) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications`;
+      if (filters) {
+        const params = new URLSearchParams();
+        if (filters.category) params.append("category", filters.category);
+        if (filters.severity) params.append("severity", filters.severity);
+        if (filters.unreadOnly) params.append("unreadOnly", "true");
+        if (filters.resolved !== undefined) params.append("resolved", String(filters.resolved));
+        const q = params.toString();
+        if (q) url += `?${q}`;
+      }
+      return request<{ notifications: NotificationItem[] }>(url);
+    },
+
+    markNotificationRead: async (workspaceId: string, notifId: string) => {
+      return request<{ success: boolean }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications/${encodeURIComponent(notifId)}/read`,
+        { method: "POST" }
+      );
+    },
+
+    markNotificationResolved: async (workspaceId: string, notifId: string) => {
+      return request<{ success: boolean; notification: NotificationItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications/${encodeURIComponent(notifId)}/resolve`,
+        { method: "POST" }
+      );
+    },
+
+    markAllNotificationsRead: async (workspaceId: string) => {
+      return request<{ success: boolean; count: number }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications/mark-all-read`,
+        { method: "POST" }
+      );
+    },
+
+    dismissAllNotifications: async (workspaceId: string) => {
+      return request<{ success: boolean; count: number }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications/dismiss-all`,
+        { method: "POST" }
+      );
+    },
+
+    getDeadlines: async (workspaceId: string) => {
+      return request<{ reminders: DeadlineReminder[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/deadlines`
+      );
+    },
+
+    getTimeline: async (workspaceId: string, entityType?: string, limit = 50) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/timeline?limit=${limit}`;
+      if (entityType) url += `&entityType=${encodeURIComponent(entityType)}`;
+      return request<{ activities: ActivityLog[] }>(url);
+    },
+
+    actionApproval: async (
+      workspaceId: string,
+      approvalId: string,
+      approvalType: 'studio_quote' | 'studio_deliverable' | 'campaign_sprint',
+      action: 'approve' | 'reject' | 'request_revision',
+      notes?: string
+    ) => {
+      return request<{ result: any }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/approvals/${encodeURIComponent(approvalId)}/action`,
+        {
+          method: "POST",
+          body: JSON.stringify({ approvalType, action, notes }),
+        }
       );
     },
   },

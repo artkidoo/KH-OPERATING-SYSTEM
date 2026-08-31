@@ -1,48 +1,8 @@
-```gitignore
-# Dependencies
 node_modules/
-
-# Build artifacts
-dist/
 build/
-target/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.py.class
-*.py.obj
-
-# Logs and temporary files
-*.log
-*.tmp
-*.swp
-*.swo
-
-# Environment variables
-.env
-.env.local
-.env.*
-
-# Editors
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Coverage reports
+dist/
 coverage/
-htmlcov/
-.coverage
-
-# Virtual environments
-venv/
-.venv/
-.env/
-```
+.DS_Store
+*.log
+.env*
+!.env.example

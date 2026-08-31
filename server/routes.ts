@@ -6,7 +6,7 @@ import { MemoryRetrievalService } from "./ai/memoryRetrievalService";
 import { creativeRadarService } from "./radar/creativeRadarService";
 import { commandCenterService } from "./command/commandCenterService";
 import { analyticsService } from "./analytics/analyticsService";
-import { workflowService } from "./workflow/workflowService";
+import { WorkflowEngine } from "./workflow/workflowEngine";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -3156,4 +3156,418 @@ apiRouter.delete(
     }
   }
 );
+
+// ==========================================
+// PHASE 14: WORKFLOW & NOTIFICATION ENGINE
+// ==========================================
+
+// 1. Workflow Executive Summary
+apiRouter.get(
+  "/workspaces/:workspaceId/workflow/summary",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    try {
+      const summary = WorkflowEngine.getWorkflowSummary(workspaceId);
+      res.json({ summary });
+    } catch (err: any) {
+      console.error("[Workflow Summary Error]", err);
+      res.status(500).json({ error: err.message || "Failed to generate workflow summary" });
+    }
+  }
+);
+
+// 2. Unified Tasks List (with rich filters)
+apiRouter.get(
+  "/workspaces/:workspaceId/workflow/tasks",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { status, priority, entityType, assignee, isOverdue } = req.query;
+    try {
+      let tasks = db.getTasks(workspaceId);
+
+      if (status) {
+        tasks = tasks.filter(t => (t.status || (t.completed ? 'completed' : 'todo')) === status);
+      }
+      if (priority) {
+        tasks = tasks.filter(t => (t.priority || 'medium') === priority);
+      }
+      if (entityType) {
+        tasks = tasks.filter(t => t.entityType === entityType);
+      }
+      if (assignee) {
+        tasks = tasks.filter(t => t.assignedTo?.toLowerCase().includes(String(assignee).toLowerCase()));
+      }
+      if (isOverdue === 'true') {
+        const now = Date.now();
+        tasks = tasks.filter(t => !t.completed && t.deadline && new Date(t.deadline).getTime() < now);
+      }
+
+      res.json({ tasks });
+    } catch (err: any) {
+      console.error("[Workflow Tasks Error]", err);
+      res.status(500).json({ error: err.message || "Failed to fetch workflow tasks" });
+    }
+  }
+);
+
+// 3. Create Unified Task
+apiRouter.post(
+  "/workspaces/:workspaceId/workflow/tasks",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { 
+      text, description, projectId, priority, deadline, category, 
+      assignedTo, entityType, entityId, entityTitle, actionTab, actionLabel, tags 
+    } = req.body;
+
+    if (!text || typeof text !== "string" || !text.trim()) {
+      return res.status(400).json({ error: "Task text is required" });
+    }
+
+    try {
+      const task = db.createTask(workspaceId, {
+        text: text.trim(),
+        projectId,
+        priority: priority || "medium",
+        deadline,
+        category: category || (entityType ? entityType.toUpperCase() : "General"),
+        assignedTo: assignedTo || (req.user?.fullName || req.user?.email),
+      });
+
+      // Enrich with entity links
+      if (entityType || description || tags || actionTab) {
+        const enriched = db.updateTask(task.id, workspaceId, {
+          description,
+          entityType,
+          entityId,
+          entityTitle,
+          actionTab,
+          actionLabel,
+          tags: tags || [],
+          status: 'pending',
+        });
+        db.logActivity(
+          workspaceId,
+          req.user!.id,
+          req.user!.email,
+          "CREATE_WORKFLOW_TASK",
+          "task",
+          task.id,
+          `Created task: "${task.text}" (Assigned: ${assignedTo || req.user?.fullName || 'Unassigned'})`
+        );
+        return res.status(201).json({ task: enriched });
+      }
+
+      db.logActivity(
+        workspaceId,
+        req.user!.id,
+        req.user!.email,
+        "CREATE_WORKFLOW_TASK",
+        "task",
+        task.id,
+        `Created task: "${task.text}"`
+      );
+
+      res.status(201).json({ task });
+    } catch (err: any) {
+      console.error("[Create Task Error]", err);
+      res.status(500).json({ error: err.message || "Failed to create workflow task" });
+    }
+  }
+);
+
+// 4. Update Unified Task
+apiRouter.put(
+  "/workspaces/:workspaceId/workflow/tasks/:taskId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, taskId } = req.params;
+    try {
+      const updated = db.updateTask(taskId, workspaceId, req.body);
+      
+      // Auto-resolve notifications if task is completed
+      if (updated.completed || updated.status === 'completed') {
+        const notifs = db.getNotifications(workspaceId);
+        for (const n of notifs) {
+          if ((n.entityId === taskId || n.fingerprint === `task_overdue:${taskId}`) && !n.resolved) {
+            n.resolved = true;
+            n.resolvedAt = new Date().toISOString();
+          }
+        }
+        db.save();
+      }
+
+      res.json({ task: updated });
+    } catch (err: any) {
+      console.error("[Update Task Error]", err);
+      res.status(500).json({ error: err.message || "Failed to update workflow task" });
+    }
+  }
+);
+
+// 5. Workflow State Transition (Pending -> In Progress -> Review -> Approved -> Completed)
+apiRouter.post(
+  "/workspaces/:workspaceId/workflow/tasks/:taskId/transition",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, taskId } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: "Target status is required" });
+    }
+
+    try {
+      const actor = req.user ? { id: req.user.id, email: req.user.email, name: req.user.fullName } : undefined;
+      const updated = WorkflowEngine.transitionTaskStatus(workspaceId, taskId, status, actor);
+      res.json({ task: updated });
+    } catch (err: any) {
+      console.error("[Task Transition Error]", err);
+      res.status(500).json({ error: err.message || "Failed to transition task state" });
+    }
+  }
+);
+
+// 6. Delete Unified Task
+apiRouter.delete(
+  "/workspaces/:workspaceId/workflow/tasks/:taskId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, taskId } = req.params;
+    try {
+      const deleted = db.deleteTask(taskId, workspaceId);
+      if (!deleted) return res.status(404).json({ error: "Task not found" });
+
+      db.logActivity(
+        workspaceId,
+        req.user!.id,
+        req.user!.email,
+        "DELETE_WORKFLOW_TASK",
+        "task",
+        taskId,
+        `Deleted task ID ${taskId}`
+      );
+
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error("[Delete Task Error]", err);
+      res.status(500).json({ error: err.message || "Failed to delete task" });
+    }
+  }
+);
+
+// 7. Workflow Notifications Center (with auto-sync & deduplication)
+apiRouter.get(
+  "/workspaces/:workspaceId/workflow/notifications",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { category, severity, unreadOnly, resolved } = req.query;
+
+    try {
+      // Run intelligent sync
+      const notifications = WorkflowEngine.syncWorkspaceNotifications(workspaceId);
+      
+      let filtered = notifications;
+      if (category) {
+        filtered = filtered.filter(n => n.category === category);
+      }
+      if (severity) {
+        filtered = filtered.filter(n => n.severity === severity);
+      }
+      if (unreadOnly === 'true') {
+        filtered = filtered.filter(n => !n.read);
+      }
+      if (resolved === 'false') {
+        filtered = filtered.filter(n => !n.resolved);
+      } else if (resolved === 'true') {
+        filtered = filtered.filter(n => n.resolved);
+      }
+
+      res.json({ notifications: filtered });
+    } catch (err: any) {
+      console.error("[Workflow Notifications Error]", err);
+      res.status(500).json({ error: err.message || "Failed to retrieve notifications" });
+    }
+  }
+);
+
+// 8. Mark Notification Read
+apiRouter.post(
+  "/workspaces/:workspaceId/workflow/notifications/:notifId/read",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, notifId } = req.params;
+    try {
+      const success = db.markNotificationRead(notifId, workspaceId);
+      res.json({ success });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to mark notification read" });
+    }
+  }
+);
+
+// 9. Mark Notification Resolved
+apiRouter.post(
+  "/workspaces/:workspaceId/workflow/notifications/:notifId/resolve",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, notifId } = req.params;
+    try {
+      const notifs = db.getNotifications(workspaceId);
+      const target = notifs.find(n => n.id === notifId);
+      if (!target) return res.status(404).json({ error: "Notification not found" });
+
+      target.resolved = true;
+      target.resolvedAt = new Date().toISOString();
+      target.read = true;
+      db.save();
+
+      res.json({ success: true, notification: target });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to resolve notification" });
+    }
+  }
+);
+
+// 10. Mark All Notifications Read
+apiRouter.post(
+  "/workspaces/:workspaceId/workflow/notifications/mark-all-read",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    try {
+      const notifs = db.getNotifications(workspaceId);
+      for (const n of notifs) {
+        n.read = true;
+      }
+      db.save();
+      res.json({ success: true, count: notifs.length });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to mark all read" });
+    }
+  }
+);
+
+// 11. Dismiss / Resolve All Active Notifications
+apiRouter.post(
+  "/workspaces/:workspaceId/workflow/notifications/dismiss-all",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    try {
+      const notifs = db.getNotifications(workspaceId);
+      const now = new Date().toISOString();
+      let count = 0;
+      for (const n of notifs) {
+        if (!n.resolved) {
+          n.resolved = true;
+          n.resolvedAt = now;
+          n.read = true;
+          count++;
+        }
+      }
+      db.save();
+      res.json({ success: true, count });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to dismiss notifications" });
+    }
+  }
+);
+
+// 12. Deadline Engine Reminders
+apiRouter.get(
+  "/workspaces/:workspaceId/workflow/deadlines",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    try {
+      const reminders = WorkflowEngine.getDeadlineReminders(workspaceId);
+      res.json({ reminders });
+    } catch (err: any) {
+      console.error("[Workflow Deadlines Error]", err);
+      res.status(500).json({ error: err.message || "Failed to get deadline reminders" });
+    }
+  }
+);
+
+// 13. Activity Timeline with Entity Metadata
+apiRouter.get(
+  "/workspaces/:workspaceId/workflow/timeline",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { limit, entityType } = req.query;
+    try {
+      let activities = db.getActivityLogs(workspaceId);
+      if (entityType) {
+        activities = activities.filter(a => a.entityType === entityType);
+      }
+      const maxLimit = Math.min(Number(limit) || 50, 100);
+      res.json({ activities: activities.slice(0, maxLimit) });
+    } catch (err: any) {
+      console.error("[Workflow Timeline Error]", err);
+      res.status(500).json({ error: err.message || "Failed to get activity timeline" });
+    }
+  }
+);
+
+// 14. One-Click Approval Action (Studio Quotes, Deliverables, Campaign Sprints)
+apiRouter.post(
+  "/workspaces/:workspaceId/workflow/approvals/:approvalId/action",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, approvalId } = req.params;
+    const { approvalType, action, notes } = req.body;
+
+    if (!approvalType || !action) {
+      return res.status(400).json({ error: "approvalType and action are required" });
+    }
+
+    try {
+      const actor = req.user ? { id: req.user.id, email: req.user.email, name: req.user.fullName } : undefined;
+      const result = WorkflowEngine.handleApprovalAction(
+        workspaceId,
+        approvalType,
+        approvalId,
+        action,
+        notes,
+        actor
+      );
+
+      db.logActivity(
+        workspaceId,
+        req.user!.id,
+        req.user!.email,
+        `APPROVAL_${action.toUpperCase()}`,
+        approvalType,
+        approvalId,
+        `Actioned ${approvalType} approval: ${action.toUpperCase()} (${notes || 'No notes'})`
+      );
+
+      res.json({ result });
+    } catch (err: any) {
+      console.error("[Approval Action Error]", err);
+      res.status(500).json({ error: err.message || "Failed to process approval action" });
+    }
+  }
+);
+
 

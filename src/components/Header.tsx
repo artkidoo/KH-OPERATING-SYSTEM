@@ -6,7 +6,9 @@ import { useWorkspace } from "../context/WorkspaceContext";
 import { useCreativeBrain } from "../context/CreativeBrainContext";
 import { ThemeSelectorModal } from "./ThemeSelectorModal";
 import { AuthModal } from "./AuthModal";
+import { NotificationCenterModal } from "./NotificationCenterModal";
 import { KeedohubLogo } from "./KeedohubLogo";
+import { api } from "../services/api";
 import { 
   Disc3, 
   Sparkles, 
@@ -38,6 +40,8 @@ import {
   Building2,
   Rocket,
   CheckCircle2,
+  CheckSquare,
+  Bell,
   HardDrive
 } from "lucide-react";
 
@@ -62,11 +66,31 @@ export const Header: React.FC<HeaderProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const workspaceDropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Poll / fetch unread notifications count
+  useEffect(() => {
+    if (!activeWorkspace?.id) return;
+    const fetchUnread = async () => {
+      try {
+        const res = await api.workflow.getNotifications(activeWorkspace.id, { unreadOnly: true, resolved: false });
+        if (res.notifications) {
+          setUnreadNotifCount(res.notifications.length);
+        }
+      } catch (err) {
+        // silent
+      }
+    };
+    fetchUnread();
+    const timer = setInterval(fetchUnread, 30000);
+    return () => clearInterval(timer);
+  }, [activeWorkspace?.id]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -92,6 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: "command-center", label: "Command Center", icon: <Rocket className="w-3.5 h-3.5" />, badge: "PHASE 10" },
+    { id: "workflow", label: "Workflow & Tasks", icon: <CheckSquare className="w-3.5 h-3.5" />, badge: "PHASE 14" },
     { id: "creative-radar", label: "Creative Radar", icon: <Radio className="w-3.5 h-3.5" />, badge: "PHASE 9" },
     { id: "analytics", label: "Analytics & Growth", icon: <TrendingUp className="w-3.5 h-3.5" />, badge: "PHASE 11" },
     { id: "artist-os", label: "Artist OS", icon: <Disc3 className="w-3.5 h-3.5" />, badge: "PHASE 3" },
@@ -140,6 +165,13 @@ export const Header: React.FC<HeaderProps> = ({
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+      />
+
+      <NotificationCenterModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
+        workspaceId={activeWorkspace?.id}
+        onNavigateTab={setActiveTab}
       />
 
       <header
@@ -279,6 +311,22 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Right Action Controls */}
             <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Notification Center Bell Trigger */}
+              <button
+                id="header-notification-center-btn"
+                onClick={() => setIsNotificationModalOpen(true)}
+                className="relative p-1.5 sm:p-2 rounded-xl bg-[var(--bento-card)] hover:bg-[var(--bento-elevated)] border border-[var(--bento-border)] hover:border-red-500/40 text-[var(--bento-muted)] hover:text-white transition-all cursor-pointer shadow-sm group flex items-center justify-center"
+                title={`Notifications & Radar (${unreadNotifCount} unread)`}
+                aria-label="Open Notifications & Operational Radar"
+              >
+                <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-300 group-hover:text-red-400 group-hover:scale-110 transition-transform" />
+                {unreadNotifCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[9px] font-mono font-bold flex items-center justify-center border border-zinc-950 shadow-sm animate-pulse">
+                    {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
+                  </span>
+                )}
+              </button>
+
               {/* Creative Radar Trigger */}
               <button
                 id="header-creative-radar-btn"

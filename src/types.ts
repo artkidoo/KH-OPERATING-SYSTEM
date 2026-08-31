@@ -1,6 +1,7 @@
 export type ActiveTab = 
   | 'overview'
   | 'command-center'
+  | 'workflow'
   | 'analytics'
   | 'artist-os'
   | 'content-engine'
@@ -300,7 +301,10 @@ export interface Workspace {
 }
 
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
-export type TaskStatus = 'todo' | 'in-progress' | 'completed';
+export type TaskStatus = 'todo' | 'in-progress' | 'in_progress' | 'pending' | 'review' | 'approved' | 'completed' | 'blocked' | 'cancelled';
+export type WorkflowState = 'pending' | 'in_progress' | 'review' | 'approved' | 'completed';
+export type NotificationCategory = 'radar' | 'task' | 'approval' | 'studio' | 'release' | 'campaign' | 'deadline' | 'system' | 'content' | 'project';
+export type NotificationSeverity = 'critical' | 'high' | 'warning' | 'info' | 'success' | 'request';
 
 export interface TaskItem {
   id: string;
@@ -308,14 +312,30 @@ export interface TaskItem {
   projectId?: string;
   projectTitle?: string;
   releaseId?: string;
+  campaignId?: string;
+  studioId?: string;
+  entityType?: 'release' | 'campaign' | 'project' | 'content' | 'studio' | 'radar' | 'asset' | 'custom';
+  entityId?: string;
+  entityTitle?: string;
+  actionTab?: ActiveTab;
+  actionLabel?: string;
   text: string;
+  description?: string;
   completed: boolean;
   priority?: TaskPriority;
   status?: TaskStatus;
   category?: string;
   assignedTo?: string;
+  assignedAvatar?: string;
+  assignedRole?: string;
   deadline?: string;
+  dueDate?: string;
+  reminderDate?: string;
+  tags?: string[];
   createdAt?: string;
+  updatedAt?: string;
+  completedAt?: string;
+  resolvedNotificationIds?: string[];
 }
 
 export interface Milestone {
@@ -645,11 +665,22 @@ export interface NotificationItem {
   id: string;
   workspaceId: string;
   userId?: string;
+  fingerprint?: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'request';
+  category?: NotificationCategory;
+  severity?: NotificationSeverity;
+  type: 'info' | 'success' | 'warning' | 'request' | 'critical';
   read: boolean;
+  resolved?: boolean;
+  resolvedAt?: string;
   link?: string;
+  actionTab?: ActiveTab;
+  actionLabel?: string;
+  entityType?: string;
+  entityId?: string;
+  entityTitle?: string;
+  metadata?: Record<string, any>;
   createdAt: string;
 }
 
@@ -658,11 +689,58 @@ export interface ActivityLog {
   workspaceId: string;
   userId: string;
   userEmail: string;
+  userName?: string;
   action: string;
   entityType: string;
   entityId: string;
+  entityTitle?: string;
+  actionTab?: ActiveTab;
   details: string;
+  metadata?: Record<string, any>;
   createdAt: string;
+}
+
+export interface DeadlineReminder {
+  id: string;
+  workspaceId: string;
+  title: string;
+  subtitle: string;
+  dueDate: string;
+  formattedDate: string;
+  daysRemaining: number;
+  isOverdue: boolean;
+  urgency: 'critical' | 'high' | 'medium' | 'low';
+  category: 'release' | 'campaign' | 'studio_deliverable' | 'studio_quote' | 'task' | 'milestone' | 'project';
+  entityId: string;
+  entityTitle: string;
+  actionTab: ActiveTab;
+  actionLabel: string;
+}
+
+export interface WorkflowSummary {
+  workspaceId: string;
+  totalTasks: number;
+  completedTasks: number;
+  pendingTasks: number;
+  byStatus: {
+    pending: number;
+    in_progress: number;
+    review: number;
+    approved: number;
+    completed: number;
+    blocked: number;
+  };
+  byPriority: {
+    urgent: number;
+    high: number;
+    medium: number;
+    low: number;
+  };
+  approvalsPending: number;
+  overdueDeadlinesCount: number;
+  approachingDeadlinesCount: number;
+  unreadNotificationsCount: number;
+  activeRadarSignalsCount: number;
 }
 
 export interface CreativeRequest {
