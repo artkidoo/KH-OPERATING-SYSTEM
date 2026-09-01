@@ -42,7 +42,8 @@ import {
   CheckCircle2,
   CheckSquare,
   Bell,
-  HardDrive
+  HardDrive,
+  Users
 } from "lucide-react";
 
 interface HeaderProps {
@@ -116,6 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: "command-center", label: "Command Center", icon: <Rocket className="w-3.5 h-3.5" />, badge: "PHASE 10" },
+    { id: "collaboration", label: "Collaboration & Approvals", icon: <Users className="w-3.5 h-3.5" />, badge: "PHASE 15" },
     { id: "workflow", label: "Workflow & Tasks", icon: <CheckSquare className="w-3.5 h-3.5" />, badge: "PHASE 14" },
     { id: "creative-radar", label: "Creative Radar", icon: <Radio className="w-3.5 h-3.5" />, badge: "PHASE 9" },
     { id: "analytics", label: "Analytics & Growth", icon: <TrendingUp className="w-3.5 h-3.5" />, badge: "PHASE 11" },

@@ -1,6 +1,7 @@
 export type ActiveTab = 
   | 'overview'
   | 'command-center'
+  | 'collaboration'
   | 'workflow'
   | 'analytics'
   | 'artist-os'
@@ -94,7 +95,6 @@ export interface ActivationChecklistItem {
   category: 'core' | 'launch' | 'content' | 'assets' | 'intelligence';
 }
 
-export type MemberRole = 'owner' | 'admin' | 'editor' | 'viewer';
 export type ProjectStatus = 'planning' | 'in-progress' | 'review' | 'completed';
 export type ProjectPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type AssetCategory = 'cover' | 'audio' | 'image' | 'video' | 'document' | 'epk' | 'brand';
@@ -303,7 +303,7 @@ export interface Workspace {
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type TaskStatus = 'todo' | 'in-progress' | 'in_progress' | 'pending' | 'review' | 'approved' | 'completed' | 'blocked' | 'cancelled';
 export type WorkflowState = 'pending' | 'in_progress' | 'review' | 'approved' | 'completed';
-export type NotificationCategory = 'radar' | 'task' | 'approval' | 'studio' | 'release' | 'campaign' | 'deadline' | 'system' | 'content' | 'project';
+export type NotificationCategory = 'radar' | 'task' | 'approval' | 'studio' | 'release' | 'campaign' | 'deadline' | 'system' | 'content' | 'project' | 'workflow' | 'collaboration';
 export type NotificationSeverity = 'critical' | 'high' | 'warning' | 'info' | 'success' | 'request';
 
 export interface TaskItem {
@@ -317,7 +317,7 @@ export interface TaskItem {
   entityType?: 'release' | 'campaign' | 'project' | 'content' | 'studio' | 'radar' | 'asset' | 'custom';
   entityId?: string;
   entityTitle?: string;
-  actionTab?: ActiveTab;
+  actionTab?: ActiveTab | string;
   actionLabel?: string;
   text: string;
   description?: string;
@@ -1951,5 +1951,184 @@ export interface CommandCenterPerformancePulse {
     onTrack: number;
     atRisk: number;
   };
+}
+
+// ==========================================
+// PHASE 15: COLLABORATION, APPROVALS & REVISIONS
+// ==========================================
+
+export type MemberRole = 'owner' | 'admin' | 'editor' | 'member' | 'collaborator' | 'client' | 'viewer';
+
+export interface MemberPermissions {
+  canManageWorkspace: boolean;
+  canManageMembers: boolean;
+  canEditEntities: boolean;
+  canApprove: boolean;
+  canRequestChanges: boolean;
+  canComment: boolean;
+  canViewInternalNotes: boolean;
+  canAccessStudio: boolean;
+  canAccessBilling: boolean;
+}
+
+export interface MemberAccessScope {
+  allEntities: boolean;
+  projectIds?: string[];
+  releaseIds?: string[];
+  campaignIds?: string[];
+  studioProjectIds?: string[];
+}
+
+export interface WorkspaceMember {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  name: string;
+  email: string;
+  avatarUrl?: string;
+  role: MemberRole;
+  title?: string;
+  department?: string;
+  status: 'active' | 'invited' | 'suspended';
+  invitedAt?: string;
+  joinedAt?: string;
+  permissions: MemberPermissions;
+  accessScope: MemberAccessScope;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommentAttachment {
+  id: string;
+  name: string;
+  url: string;
+  size?: number;
+  mimeType?: string;
+}
+
+export interface CommentReaction {
+  emoji: string;
+  count: number;
+  userIds: string[];
+}
+
+export interface CommentItem {
+  id: string;
+  workspaceId: string;
+  entityType: 'studio_deliverable' | 'studio_quote' | 'studio_project' | 'project' | 'release' | 'campaign' | 'content_item' | 'task' | 'asset' | 'custom';
+  entityId: string;
+  entityTitle: string;
+  parentId?: string;
+  authorId: string;
+  authorName: string;
+  authorEmail: string;
+  authorAvatar?: string;
+  authorRole: MemberRole;
+  content: string;
+  isInternal: boolean;
+  resolved: boolean;
+  resolvedBy?: string;
+  resolvedAt?: string;
+  attachments?: CommentAttachment[];
+  reactions?: CommentReaction[];
+  timestampMarker?: string;
+  canvasCoordinate?: { x: number; y: number };
+  createdAt: string;
+  updatedAt: string;
+  replies?: CommentItem[];
+}
+
+export type ApprovalStatus = 'pending' | 'approved' | 'changes_requested' | 'declined' | 'cancelled';
+export type ApprovalDecisionType = 'approved' | 'changes_requested' | 'declined';
+
+export interface ApprovalDecision {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userRole: MemberRole;
+  decision: ApprovalDecisionType;
+  feedback?: string;
+  actionItems?: string[];
+  decidedAt: string;
+}
+
+export interface ApprovalRequest {
+  id: string;
+  workspaceId: string;
+  entityType: 'studio_deliverable' | 'studio_quote' | 'studio_project' | 'project' | 'release' | 'campaign' | 'content_item' | 'custom';
+  entityId: string;
+  entityTitle: string;
+  title: string;
+  description?: string;
+  requestedBy: {
+    id: string;
+    name: string;
+    email: string;
+    role: MemberRole;
+  };
+  requiredReviewers: Array<{
+    userId?: string;
+    email: string;
+    name?: string;
+    role: MemberRole;
+    hasDecided: boolean;
+    decision?: ApprovalDecisionType;
+  }>;
+  status: ApprovalStatus;
+  urgency: 'critical' | 'high' | 'medium' | 'low';
+  dueDate?: string;
+  version?: string;
+  decisions: ApprovalDecision[];
+  finalApprovedAt?: string;
+  finalApprovedBy?: string;
+  actionTab?: ActiveTab;
+  actionLabel?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RevisionItem {
+  id: string;
+  workspaceId: string;
+  entityType: 'studio_deliverable' | 'project' | 'release' | 'campaign' | 'content_item' | 'custom';
+  entityId: string;
+  entityTitle: string;
+  versionNumber: number;
+  versionLabel: string;
+  previousVersionLabel?: string;
+  authorId: string;
+  authorName: string;
+  summaryOfChanges: string;
+  assetUrl?: string;
+  assetPreviewUrl?: string;
+  diffSummary?: string;
+  approvalRequestId?: string;
+  status: 'draft' | 'in_review' | 'approved' | 'superseded';
+  createdAt: string;
+}
+
+export interface CollaborationSummary {
+  workspaceId: string;
+  totalComments: number;
+  unresolvedComments: number;
+  internalComments: number;
+  clientVisibleComments: number;
+  pendingApprovalsCount: number;
+  approvedCount: number;
+  changesRequestedCount: number;
+  totalRevisions: number;
+  activeMembersCount: number;
+  clientMembersCount: number;
+}
+
+export interface FeedbackSummaryResult {
+  summary: string;
+  positiveHighlights: string[];
+  actionableChangesRequested: string[];
+  keyQuestions: string[];
+  overallSentiment: 'positive' | 'neutral' | 'mixed' | 'action_required';
+  recommendedNextStep: string;
+  disclaimer: string;
 }
 

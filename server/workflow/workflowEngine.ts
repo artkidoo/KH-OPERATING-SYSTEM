@@ -68,7 +68,7 @@ export class WorkflowEngine {
     // 2. Check Approvals Needed (Studio Quotes & Deliverables)
     const studioQuotes = db.getStudioQuotes(workspaceId);
     for (const quote of studioQuotes) {
-      if (quote.status === 'sent' || quote.status === 'under_review') {
+      if (quote.status === 'SENT' || quote.status === 'VIEWED') {
         const fp = `studio_quote_approval:${quote.id}`;
         if (!existingFingerprints.has(fp)) {
           const notif: NotificationRecord = {
@@ -76,7 +76,7 @@ export class WorkflowEngine {
             workspaceId,
             fingerprint: fp,
             title: `Quote Approval Required: ${quote.serviceName}`,
-            message: `Studio proposal (${quote.currency} ${quote.finalTotalAmount.toLocaleString()}) requires approval to kick off production.`,
+            message: `Studio proposal (${quote.currency} ${(quote.price || 0).toLocaleString()}) requires approval to kick off production.`,
             category: "approval",
             severity: "high",
             type: "request",
@@ -92,7 +92,7 @@ export class WorkflowEngine {
           newNotifications.push(notif);
           existingFingerprints.add(fp);
         }
-      } else if (quote.status === 'approved' || quote.status === 'declined') {
+      } else if (quote.status === 'APPROVED' || quote.status === 'DECLINED') {
         // Auto-resolve
         const matching = existingNotifs.find(n => n.fingerprint === `studio_quote_approval:${quote.id}` && !n.resolved);
         if (matching) {
@@ -105,7 +105,7 @@ export class WorkflowEngine {
     // 3. Check Studio Deliverables Ready for Review
     const deliverables = db.getStudioDeliverables(workspaceId);
     for (const d of deliverables) {
-      if (d.status === 'review_ready') {
+      if (d.status === 'ready_for_review') {
         const fp = `studio_deliverable_review:${d.id}`;
         if (!existingFingerprints.has(fp)) {
           const notif: NotificationRecord = {
@@ -113,7 +113,7 @@ export class WorkflowEngine {
             workspaceId,
             fingerprint: fp,
             title: `Deliverable Ready for Review: ${d.name}`,
-            message: `Version ${d.currentVersion || 1} has been uploaded and awaits your sign-off or revision notes.`,
+            message: `Version ${d.version || 'v1'} has been uploaded and awaits your sign-off or revision notes.`,
             category: "studio",
             severity: "high",
             type: "request",
@@ -264,7 +264,7 @@ export class WorkflowEngine {
               title: `Overdue Task: ${t.text}`,
               message: `Deadline (${t.deadline}) has passed. Assignee: ${t.assignedTo || 'Unassigned'}.`,
               category: "task",
-              severity: t.priority === 'urgent' ? 'critical' : 'warning',
+              severity: t.priority === 'urgent' ? 'critical' : 'high',
               type: t.priority === 'urgent' ? 'critical' : 'warning',
               read: false,
               resolved: false,
@@ -319,7 +319,7 @@ export class WorkflowEngine {
           id: `reminder_rel_${r.id}`,
           workspaceId,
           title: `Release: ${r.title}`,
-          subtitle: `${r.type.toUpperCase()} • ${r.tracks?.length || 1} track(s)`,
+          subtitle: `${(r.releaseType || 'Single').toUpperCase()} • ${r.checklist?.length || 1} checklist item(s)`,
           dueDate: r.releaseDate,
           formattedDate: new Date(r.releaseDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
           daysRemaining: daysDiff,
@@ -464,8 +464,8 @@ export class WorkflowEngine {
     const campaigns = db.getCampaigns(workspaceId);
 
     const pendingApprovalsCount = 
-      quotes.filter(q => q.status === 'sent' || q.status === 'under_review').length +
-      deliverables.filter(d => d.status === 'review_ready').length +
+      quotes.filter(q => (q.status as any) === 'SENT' || (q.status as any) === 'UNDER_REVIEW' || (q.status as any) === 'sent').length +
+      deliverables.filter(d => (d.status as any) === 'review_ready' || d.approvalStatus === 'pending').length +
       campaigns.filter(c => c.approvals && (!c.approvals.creativeApproved || !c.approvals.launchApproved)).length;
 
     const byStatus = {
@@ -537,7 +537,7 @@ export class WorkflowEngine {
       updates.completedAt = new Date().toISOString();
     }
 
-    const updatedTask = db.updateTask(taskId, workspaceId, updates);
+    const updatedTask = db.updateTask(taskId, workspaceId, updates as any);
 
     // Auto-resolve any open notifications linked to this task if marked completed
     if (isCompleted) {
@@ -579,10 +579,10 @@ export class WorkflowEngine {
     actorUser?: { id: string; email: string; name?: string }
   ) {
     if (approvalType === 'studio_quote') {
-      const quote = db.getStudioQuoteById(workspaceId, entityId);
+      const quote = db.getStudioQuoteById(entityId);
       if (!quote) throw new Error("Studio quote not found");
       
-      const newStatus = action === 'approve' ? 'approved' : 'declined';
+      const newStatus = action === 'approve' ? 'APPROVED' : 'DECLINED';
       db.updateStudioQuoteStatus(workspaceId, entityId, newStatus, {
         approvedBy: actorUser?.email || "Workspace Lead",
         declinedReason: notes,
@@ -603,7 +603,7 @@ export class WorkflowEngine {
     }
 
     if (approvalType === 'studio_deliverable') {
-      const deliverable = db.getStudioDeliverableById(workspaceId, entityId);
+      const deliverable = db.getStudioDeliverableById(entityId);
       if (!deliverable) throw new Error("Studio deliverable not found");
 
       let newStatus = deliverable.status;
@@ -611,20 +611,26 @@ export class WorkflowEngine {
         newStatus = 'approved';
         db.updateStudioDeliverable(workspaceId, entityId, {
           status: 'approved',
+          approvalStatus: 'approved',
           approvedAt: new Date().toISOString(),
-          approvedBy: actorUser?.email || "Workspace Lead",
         });
       } else {
         newStatus = 'revision_requested';
-        db.updateStudioDeliverable(workspaceId, entityId, { status: 'revision_requested' });
+        db.updateStudioDeliverable(workspaceId, entityId, {
+          status: 'revision_requested',
+          approvalStatus: 'changes_requested',
+        });
         // Create revision entry
+        const nextVersionNum = (parseInt((deliverable.version || "1").replace(/\D/g, ""), 10) || 1) + 1;
         db.createStudioRevision(workspaceId, {
           projectId: deliverable.projectId,
           deliverableId: entityId,
           deliverableName: deliverable.name,
-          version: `v${(deliverable.currentVersion || 1) + 1}`,
+          version: `v${nextVersionNum}`,
           reason: notes || "Review feedback requested revisions",
           requestedChanges: notes || "Adjust creative composition per sign-off notes",
+          status: "OPEN",
+          userId: actorUser?.id || "usr_demo_keedohub",
         });
       }
 

@@ -29,6 +29,7 @@ import { CreativeMemoryDashboard } from "./components/CreativeMemoryDashboard";
 import { CreativeRadarDashboard } from "./components/CreativeRadarDashboard";
 import { AnalyticsView } from "./components/AnalyticsView";
 import { WorkflowHub } from "./components/WorkflowHub";
+import { CollaborationHub } from "./components/collaboration/CollaborationHub";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
@@ -54,7 +55,7 @@ function MainAppContent() {
   const [isBriefOpen, setIsBriefOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const { activeWorkspace } = useAuth();
+  const { activeWorkspace, user } = useAuth();
   const { toggleBrain } = useCreativeBrain();
 
   const addNotification = (text: string, type: "success" | "info" | "error" = "info") => {
@@ -123,6 +124,23 @@ function MainAppContent() {
         {activeTab === "workflow" && (
           <WorkflowHub
             workspaceId={activeWorkspace?.id}
+            onNavigateTab={setActiveTab}
+          />
+        )}
+
+        {activeTab === "collaboration" && (
+          <CollaborationHub
+            workspaceId={activeWorkspace?.id || ""}
+            currentUser={
+              user
+                ? {
+                    id: user.id,
+                    email: user.email,
+                    name: user.fullName,
+                    role: activeWorkspace?.role || "owner",
+                  }
+                : undefined
+            }
             onNavigateTab={setActiveTab}
           />
         )}

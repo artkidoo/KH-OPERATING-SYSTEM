@@ -3570,4 +3570,826 @@ apiRouter.post(
   }
 );
 
+// ==========================================
+// PHASE 15: COLLABORATION & APPROVALS LAYER
+// ==========================================
+
+// --- 1. Workspace Members & Access Scope ---
+apiRouter.get(
+  "/workspaces/:workspaceId/members",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    try {
+      const members = db.getWorkspaceMembers(workspaceId);
+      res.json({ members });
+    } catch (err: any) {
+      console.error("[Get Members Error]", err);
+      res.status(500).json({ error: err.message || "Failed to get workspace members" });
+    }
+  }
+);
+
+apiRouter.get(
+  "/workspaces/:workspaceId/members/me",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const userId = req.user?.id || "usr_demo_keedohub";
+    try {
+      let member = db.getWorkspaceMember(workspaceId, userId);
+      if (!member && (req.user?.email === "creator@keedohub.com" || userId === "usr_demo_keedohub")) {
+        member = db.getWorkspaceMember(workspaceId, "usr_demo_keedohub");
+      }
+      res.json({
+        member: member || {
+          id: "mem_guest",
+          workspaceId,
+          userId,
+          name: req.user?.fullName || "Collaborator",
+          email: req.user?.email || "guest@keedohub.com",
+          role: "member",
+          permissions: {
+            canManageWorkspace: false,
+            canCreateProjects: true,
+            canEditAll: true,
+            canViewInternalNotes: true,
+            canApprove: true,
+            canComment: true,
+            canRequestRevisions: true,
+          },
+          accessScope: { isWorkspaceWide: true },
+        },
+      });
+    } catch (err: any) {
+      console.error("[Get Me Member Error]", err);
+      res.status(500).json({ error: err.message || "Failed to get current member profile" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/members",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { name, email, role, jobTitle, avatarUrl, permissions, accessScope } = req.body;
+
+    if (!name || !email || !role) {
+      return res.status(400).json({ error: "Name, email, and role are required" });
+    }
+
+    try {
+      const actorRole = db.getWorkspaceMember(workspaceId, req.user?.id || "")?.role;
+      // Allow invite if actor is owner or admin (or default creator)
+      if (actorRole && actorRole !== "owner" && actorRole !== "admin" && req.user?.email !== "creator@keedohub.com") {
+        return res.status(403).json({ error: "Only workspace owners and admins can invite members" });
+      }
+
+      const newMember = db.addWorkspaceMember(workspaceId, {
+        userId: "usr_" + crypto.randomUUID().substring(0, 8),
+        name,
+        email,
+        role,
+        jobTitle: jobTitle || (role === "client" ? "Client Partner" : role === "collaborator" ? "Creative Collaborator" : "Team Member"),
+        avatarUrl: avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`,
+        status: "active",
+        permissions,
+        accessScope,
+      });
+
+      db.logActivity(
+        workspaceId,
+        req.user?.id || "usr_demo_keedohub",
+        req.user?.email || "creator@keedohub.com",
+        "MEMBER_INVITED",
+        "member",
+        newMember.id,
+        `Invited ${name} (${email}) as ${role.toUpperCase()}`
+      );
+
+      db.addNotification(
+        workspaceId,
+        `New Team Member Invited: ${name}`,
+        `${name} (${email}) has been granted ${role.toUpperCase()} access to the workspace.`,
+        "info",
+        "overview",
+        req.user?.id
+      );
+
+      res.status(201).json({ member: newMember });
+    } catch (err: any) {
+      console.error("[Add Member Error]", err);
+      res.status(500).json({ error: err.message || "Failed to invite member" });
+    }
+  }
+);
+
+apiRouter.patch(
+  "/workspaces/:workspaceId/members/:memberId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, memberId } = req.params;
+    const updates = req.body;
+    try {
+      const updated = db.updateWorkspaceMember(workspaceId, memberId, updates);
+      if (!updated) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      db.logActivity(
+        workspaceId,
+        req.user?.id || "usr_demo_keedohub",
+        req.user?.email || "creator@keedohub.com",
+        "MEMBER_UPDATED",
+        "member",
+        memberId,
+        `Updated permissions and access scope for member ${updated.name}`
+      );
+
+      res.json({ member: updated });
+    } catch (err: any) {
+      console.error("[Update Member Error]", err);
+      res.status(500).json({ error: err.message || "Failed to update member" });
+    }
+  }
+);
+
+apiRouter.delete(
+  "/workspaces/:workspaceId/members/:memberId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, memberId } = req.params;
+    try {
+      const member = db.getWorkspaceMember(workspaceId, memberId);
+      if (member?.role === "owner") {
+        return res.status(400).json({ error: "Cannot remove workspace owner" });
+      }
+
+      const deleted = db.removeWorkspaceMember(workspaceId, memberId);
+      if (!deleted) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      db.logActivity(
+        workspaceId,
+        req.user?.id || "usr_demo_keedohub",
+        req.user?.email || "creator@keedohub.com",
+        "MEMBER_REMOVED",
+        "member",
+        memberId,
+        `Removed member ${member?.name || memberId} from workspace`
+      );
+
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error("[Delete Member Error]", err);
+      res.status(500).json({ error: err.message || "Failed to remove member" });
+    }
+  }
+);
+
+// --- 2. Threaded Comments & Entity Feedback ---
+apiRouter.get(
+  "/workspaces/:workspaceId/comments",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { entityType, entityId, parentId } = req.query;
+
+    try {
+      const userId = req.user?.id || "usr_demo_keedohub";
+      const member = db.getWorkspaceMember(workspaceId, userId);
+      const canViewInternal = member?.permissions?.canViewInternalNotes ?? (member?.role !== "client" && member?.role !== "collaborator");
+
+      const comments = db.getComments(workspaceId, {
+        entityType: entityType as string,
+        entityId: entityId as string,
+        parentId: parentId !== undefined ? (parentId as string) : undefined,
+        includeInternal: canViewInternal,
+      });
+
+      res.json({ comments });
+    } catch (err: any) {
+      console.error("[Get Comments Error]", err);
+      res.status(500).json({ error: err.message || "Failed to fetch comments" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/comments",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const {
+      entityType,
+      entityId,
+      entityTitle,
+      parentId,
+      content,
+      isInternal,
+      versionTag,
+      attachments,
+    } = req.body;
+
+    if (!entityType || !entityId || !content) {
+      return res.status(400).json({ error: "entityType, entityId, and content are required" });
+    }
+
+    try {
+      const userId = req.user?.id || "usr_demo_keedohub";
+      const member = db.getWorkspaceMember(workspaceId, userId);
+      const authorRole = member?.role || "owner";
+
+      // Clients and collaborators cannot post internal-only notes
+      const finalIsInternal = (authorRole === "client" || authorRole === "collaborator") ? false : Boolean(isInternal);
+
+      const comment = db.createComment(workspaceId, {
+        entityType,
+        entityId,
+        entityTitle: entityTitle || `${entityType.toUpperCase()} Item`,
+        parentId: parentId || undefined,
+        authorId: userId,
+        authorName: req.user?.fullName || member?.name || "Keedohub Team Member",
+        authorEmail: req.user?.email || member?.email || "creator@keedohub.com",
+        authorAvatar: member?.avatarUrl || req.user?.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+        authorRole,
+        content,
+        isInternal: finalIsInternal,
+        resolved: false,
+        versionTag: versionTag || undefined,
+        attachments: attachments || [],
+        reactions: [],
+      });
+
+      // Log activity
+      db.logActivity(
+        workspaceId,
+        userId,
+        req.user?.email || "creator@keedohub.com",
+        finalIsInternal ? "COMMENT_INTERNAL" : "COMMENT_POSTED",
+        entityType,
+        entityId,
+        `Posted ${finalIsInternal ? "internal " : ""}comment on ${entityTitle || entityType}: "${content.substring(0, 60)}..."`
+      );
+
+      // Create notification for team
+      if (!finalIsInternal) {
+        db.addNotification(
+          workspaceId,
+          `New Feedback on ${entityTitle || entityType}`,
+          `${req.user?.fullName || "A team member"} commented: "${content.substring(0, 80)}"`,
+          "info",
+          entityType === "studio_deliverable" ? "studio" : entityType === "release" ? "artist-os" : "workflow",
+          userId
+        );
+      }
+
+      res.status(201).json({ comment });
+    } catch (err: any) {
+      console.error("[Create Comment Error]", err);
+      res.status(500).json({ error: err.message || "Failed to create comment" });
+    }
+  }
+);
+
+apiRouter.patch(
+  "/workspaces/:workspaceId/comments/:commentId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, commentId } = req.params;
+    const { content, isInternal } = req.body;
+
+    try {
+      const updated = db.updateComment(workspaceId, commentId, { content, isInternal });
+      if (!updated) {
+        return res.status(404).json({ error: "Comment not found" });
+      }
+      res.json({ comment: updated });
+    } catch (err: any) {
+      console.error("[Update Comment Error]", err);
+      res.status(500).json({ error: err.message || "Failed to update comment" });
+    }
+  }
+);
+
+apiRouter.delete(
+  "/workspaces/:workspaceId/comments/:commentId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, commentId } = req.params;
+    try {
+      const deleted = db.deleteComment(workspaceId, commentId);
+      if (!deleted) {
+        return res.status(404).json({ error: "Comment not found" });
+      }
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error("[Delete Comment Error]", err);
+      res.status(500).json({ error: err.message || "Failed to delete comment" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/comments/:commentId/resolve",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, commentId } = req.params;
+    const userId = req.user?.id || "usr_demo_keedohub";
+    try {
+      const resolved = db.resolveComment(workspaceId, commentId, userId);
+      if (!resolved) {
+        return res.status(404).json({ error: "Comment not found" });
+      }
+
+      db.logActivity(
+        workspaceId,
+        userId,
+        req.user?.email || "creator@keedohub.com",
+        resolved.resolved ? "COMMENT_RESOLVED" : "COMMENT_REOPENED",
+        resolved.entityType,
+        resolved.entityId,
+        `${resolved.resolved ? "Resolved" : "Reopened"} feedback thread on ${resolved.entityTitle}`
+      );
+
+      res.json({ comment: resolved });
+    } catch (err: any) {
+      console.error("[Resolve Comment Error]", err);
+      res.status(500).json({ error: err.message || "Failed to toggle comment resolution" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/comments/:commentId/react",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, commentId } = req.params;
+    const { emoji } = req.body;
+    const userId = req.user?.id || "usr_demo_keedohub";
+
+    if (!emoji) {
+      return res.status(400).json({ error: "Emoji is required" });
+    }
+
+    try {
+      const updated = db.reactToComment(workspaceId, commentId, emoji, userId);
+      if (!updated) {
+        return res.status(404).json({ error: "Comment not found" });
+      }
+      res.json({ comment: updated });
+    } catch (err: any) {
+      console.error("[React Comment Error]", err);
+      res.status(500).json({ error: err.message || "Failed to react to comment" });
+    }
+  }
+);
+
+// --- 3. Formal Approval Requests ---
+apiRouter.get(
+  "/workspaces/:workspaceId/approvals",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { entityType, entityId, status, reviewerId } = req.query;
+
+    try {
+      const userId = req.user?.id || "usr_demo_keedohub";
+      const member = db.getWorkspaceMember(workspaceId, userId);
+      const isClientOrCollab = member?.role === "client" || member?.role === "collaborator";
+
+      const requests = db.getApprovalRequests(workspaceId, {
+        entityType: entityType as string,
+        entityId: entityId as string,
+        status: status as any,
+        reviewerId: reviewerId as string,
+        includeInternalOnly: !isClientOrCollab,
+      });
+
+      res.json({ approvalRequests: requests });
+    } catch (err: any) {
+      console.error("[Get Approvals Error]", err);
+      res.status(500).json({ error: err.message || "Failed to fetch approval requests" });
+    }
+  }
+);
+
+apiRouter.get(
+  "/workspaces/:workspaceId/approvals/:approvalId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, approvalId } = req.params;
+    try {
+      const request = db.getApprovalRequestById(workspaceId, approvalId);
+      if (!request) {
+        return res.status(404).json({ error: "Approval request not found" });
+      }
+      res.json({ approvalRequest: request });
+    } catch (err: any) {
+      console.error("[Get Approval By Id Error]", err);
+      res.status(500).json({ error: err.message || "Failed to fetch approval request" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/approvals",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const {
+      entityType,
+      entityId,
+      entityTitle,
+      title,
+      description,
+      dueDate,
+      assignedReviewers,
+      currentVersion,
+      isClientVisible,
+      deliverableUrl,
+      deliverableThumbnail,
+      deliverableFormat,
+    } = req.body;
+
+    if (!entityType || !entityId || !title) {
+      return res.status(400).json({ error: "entityType, entityId, and title are required" });
+    }
+
+    try {
+      const userId = req.user?.id || "usr_demo_keedohub";
+      const member = db.getWorkspaceMember(workspaceId, userId);
+
+      const newRequest = db.createApprovalRequest(workspaceId, {
+        entityType,
+        entityId,
+        entityTitle: entityTitle || title,
+        title,
+        description: description || "Sign-off required for master milestone deliverable.",
+        requestedBy: {
+          id: userId,
+          name: req.user?.fullName || member?.name || "Workspace Lead",
+          email: req.user?.email || member?.email || "creator@keedohub.com",
+          avatarUrl: member?.avatarUrl || req.user?.avatarUrl,
+          role: member?.role || "owner",
+        },
+        requestedAt: new Date().toISOString(),
+        dueDate: dueDate || new Date(Date.now() + 5 * 86400000).toISOString().split("T")[0],
+        status: "pending",
+        currentVersion: currentVersion || "v1",
+        isClientVisible: isClientVisible ?? true,
+        deliverableUrl,
+        deliverableThumbnail,
+        deliverableFormat,
+        assignedReviewers: assignedReviewers || [
+          {
+            id: userId,
+            email: req.user?.email || "creator@keedohub.com",
+            name: req.user?.fullName || "Lead Artist",
+            role: member?.role || "owner",
+            status: "pending",
+          },
+        ],
+        reviews: [],
+      });
+
+      db.logActivity(
+        workspaceId,
+        userId,
+        req.user?.email || "creator@keedohub.com",
+        "APPROVAL_REQUESTED",
+        entityType,
+        entityId,
+        `Created approval request: "${title}" (${currentVersion || 'v1'})`
+      );
+
+      db.addNotification(
+        workspaceId,
+        `Approval Requested: ${title}`,
+        `A sign-off request has been opened for ${entityTitle || title}. Due ${newRequest.dueDate}.`,
+        "warning",
+        entityType === "studio_deliverable" ? "studio" : "workflow",
+        userId
+      );
+
+      res.status(201).json({ approvalRequest: newRequest });
+    } catch (err: any) {
+      console.error("[Create Approval Request Error]", err);
+      res.status(500).json({ error: err.message || "Failed to create approval request" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/approvals/:approvalId/review",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, approvalId } = req.params;
+    const { status, notes, requestedChanges } = req.body;
+
+    if (!status || (status !== "approved" && status !== "changes_requested")) {
+      return res.status(400).json({ error: "Status must be 'approved' or 'changes_requested'" });
+    }
+
+    try {
+      const userId = req.user?.id || "usr_demo_keedohub";
+      const member = db.getWorkspaceMember(workspaceId, userId);
+
+      // Check permission: Creative Brain NEVER approves; users must have canApprove permission
+      const canApprove = member?.permissions?.canApprove ?? (member?.role === "owner" || member?.role === "admin" || member?.role === "client");
+      if (!canApprove) {
+        return res.status(403).json({ error: "You do not have permission to submit official approval decisions" });
+      }
+
+      const result = db.submitApprovalDecision(workspaceId, approvalId, {
+        reviewerId: userId,
+        reviewerName: req.user?.fullName || member?.name || "Reviewer",
+        reviewerEmail: req.user?.email || member?.email || "creator@keedohub.com",
+        reviewerRole: member?.role || "owner",
+        status,
+        notes: notes || (status === "approved" ? "Deliverable approved." : "Changes requested."),
+        requestedChanges: requestedChanges || [],
+      });
+
+      db.logActivity(
+        workspaceId,
+        userId,
+        req.user?.email || "creator@keedohub.com",
+        status === "approved" ? "APPROVAL_GRANTED" : "APPROVAL_CHANGES_REQUESTED",
+        result.request.entityType,
+        result.request.entityId,
+        `${status === "approved" ? "Approved" : "Requested changes for"} "${result.request.title}" (${result.request.currentVersion})`
+      );
+
+      db.addNotification(
+        workspaceId,
+        status === "approved" ? `Approved: ${result.request.title}` : `Changes Requested: ${result.request.title}`,
+        `${req.user?.fullName || "Reviewer"} marked "${result.request.title}" as ${status.replace("_", " ").toUpperCase()}: ${notes || ""}`,
+        status === "approved" ? "success" : "warning",
+        result.request.entityType === "studio_deliverable" ? "studio" : "workflow",
+        userId
+      );
+
+      res.json(result);
+    } catch (err: any) {
+      console.error("[Submit Approval Review Error]", err);
+      res.status(500).json({ error: err.message || "Failed to submit approval review" });
+    }
+  }
+);
+
+apiRouter.patch(
+  "/workspaces/:workspaceId/approvals/:approvalId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, approvalId } = req.params;
+    const updates = req.body;
+    try {
+      const updated = db.updateApprovalRequest(workspaceId, approvalId, updates);
+      if (!updated) {
+        return res.status(404).json({ error: "Approval request not found" });
+      }
+      res.json({ approvalRequest: updated });
+    } catch (err: any) {
+      console.error("[Update Approval Error]", err);
+      res.status(500).json({ error: err.message || "Failed to update approval request" });
+    }
+  }
+);
+
+apiRouter.delete(
+  "/workspaces/:workspaceId/approvals/:approvalId",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId, approvalId } = req.params;
+    try {
+      const deleted = db.deleteApprovalRequest(workspaceId, approvalId);
+      if (!deleted) {
+        return res.status(404).json({ error: "Approval request not found" });
+      }
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error("[Delete Approval Error]", err);
+      res.status(500).json({ error: err.message || "Failed to delete approval request" });
+    }
+  }
+);
+
+// --- 4. Revisions Tracking ---
+apiRouter.get(
+  "/workspaces/:workspaceId/revisions",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { entityType, entityId } = req.query;
+
+    try {
+      const userId = req.user?.id || "usr_demo_keedohub";
+      const member = db.getWorkspaceMember(workspaceId, userId);
+      const isClientOrCollab = member?.role === "client" || member?.role === "collaborator";
+
+      const revisions = db.getRevisions(workspaceId, {
+        entityType: entityType as string,
+        entityId: entityId as string,
+        isClientVisible: isClientOrCollab ? true : undefined,
+      });
+
+      res.json({ revisions });
+    } catch (err: any) {
+      console.error("[Get Revisions Error]", err);
+      res.status(500).json({ error: err.message || "Failed to fetch revisions" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/revisions",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const {
+      entityType,
+      entityId,
+      entityTitle,
+      versionNumber,
+      versionTag,
+      title,
+      changelog,
+      assetUrl,
+      isClientVisible,
+    } = req.body;
+
+    if (!entityType || !entityId || !versionNumber) {
+      return res.status(400).json({ error: "entityType, entityId, and versionNumber are required" });
+    }
+
+    try {
+      const userId = req.user?.id || "usr_demo_keedohub";
+      const member = db.getWorkspaceMember(workspaceId, userId);
+
+      const revision = db.createRevision(workspaceId, {
+        entityType,
+        entityId,
+        entityTitle: entityTitle || `${entityType} v${versionNumber}`,
+        versionNumber: Number(versionNumber),
+        versionTag: versionTag || `v${versionNumber}`,
+        title: title || `Version ${versionNumber} Upload`,
+        changelog: changelog || "New iteration rendered and uploaded",
+        assetUrl,
+        createdBy: {
+          id: userId,
+          name: req.user?.fullName || member?.name || "Creator",
+          avatarUrl: member?.avatarUrl || req.user?.avatarUrl,
+          role: member?.role || "owner",
+        },
+        status: "pending_review",
+        isClientVisible: isClientVisible ?? true,
+      });
+
+      db.logActivity(
+        workspaceId,
+        userId,
+        req.user?.email || "creator@keedohub.com",
+        "REVISION_CREATED",
+        entityType,
+        entityId,
+        `Logged new revision ${revision.versionTag} for "${entityTitle || entityId}": ${changelog || 'No changelog'}`
+      );
+
+      res.status(201).json({ revision });
+    } catch (err: any) {
+      console.error("[Create Revision Error]", err);
+      res.status(500).json({ error: err.message || "Failed to create revision" });
+    }
+  }
+);
+
+// --- 5. Creative Brain Feedback Summarizer ---
+apiRouter.post(
+  "/workspaces/:workspaceId/collaboration/summarize-feedback",
+  requireAuth,
+  requireWorkspaceAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { workspaceId } = req.params;
+    const { entityType, entityId, approvalId } = req.body;
+
+    try {
+      const comments = db.getComments(workspaceId, {
+        entityType: entityType || undefined,
+        entityId: entityId || undefined,
+        includeInternal: true,
+      });
+
+      const approval = approvalId ? db.getApprovalRequestById(workspaceId, approvalId) : undefined;
+      const revisions = db.getRevisions(workspaceId, {
+        entityType: entityType || undefined,
+        entityId: entityId || undefined,
+      });
+
+      const clientComments = comments.filter((c) => !c.isInternal);
+      const internalComments = comments.filter((c) => c.isInternal);
+
+      const ai = getGemini();
+      let summaryText = "";
+      let actionItems: string[] = [];
+      let consensusVerdict = "Feedback review in progress";
+
+      if (ai) {
+        try {
+          const prompt = `You are Keedohub Creative Brain, an elite creative agency operating strategist.
+Summarize the following feedback and review requests into a concise, actionable creative briefing.
+
+CRITICAL DIRECTIVE: You are an intelligence summarizer. You MUST NOT approve or reject work on behalf of the user. Only human workspace stakeholders can make binding approval decisions.
+
+Entity: ${entityType || 'General Deliverable'} (ID: ${entityId || 'N/A'})
+Approval Request: ${approval ? JSON.stringify(approval.reviews) : 'N/A'}
+Client Feedback: ${clientComments.map((c) => `${c.authorName} (${c.authorRole}): ${c.content}`).join("\n")}
+Internal Team Notes: ${internalComments.map((c) => `${c.authorName}: ${c.content}`).join("\n")}
+Revision History: ${revisions.map((r) => `${r.versionTag} (${r.status}): ${r.changelog}`).join("\n")}
+
+Respond strictly in JSON format with this structure:
+{
+  "consensusVerdict": "Summary phrase of overall stakeholder consensus",
+  "clientFeedbackSummary": "2-3 sentences synthesizing client requests and aesthetic preferences",
+  "internalTeamSummary": "2-3 sentences synthesizing production checks and file packaging requirements",
+  "keyActionItems": ["Specific edit 1", "Specific edit 2", "Specific edit 3"],
+  "recommendedNextVersion": "v3 or next tag",
+  "disclaimer": "Creative Brain summary generated for human review. Official sign-off requires workspace member authorization."
+}`;
+
+          const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+              responseMimeType: "application/json",
+            },
+          });
+
+          const parsed = JSON.parse(response.text || "{}");
+          return res.json({
+            success: true,
+            summary: parsed,
+            totalCommentsAnalyzed: comments.length,
+            totalRevisionsAnalyzed: revisions.length,
+          });
+        } catch (geminiErr) {
+          console.warn("[Creative Brain Summarizer Fallback]", geminiErr);
+        }
+      }
+
+      // Rule-based fallback if Gemini is offline or unconfigured
+      const changeRequestsNotes = approval?.reviews
+        .filter((r) => r.status === "changes_requested")
+        .map((r) => r.notes || "")
+        .filter(Boolean) || [];
+
+      res.json({
+        success: true,
+        summary: {
+          consensusVerdict: approval?.status === "approved" ? "Deliverable approved across primary reviewers" : "Refinement iteration in progress with active revisions",
+          clientFeedbackSummary: clientComments.length > 0
+            ? clientComments.map((c) => `${c.authorName}: "${c.content}"`).join(" • ")
+            : "No client notes logged yet.",
+          internalTeamSummary: internalComments.length > 0
+            ? internalComments.map((c) => `${c.authorName}: "${c.content}"`).join(" • ")
+            : "All internal engineering specifications aligned.",
+          keyActionItems: [
+            ...changeRequestsNotes,
+            "Verify color space (sRGB for web, CMYK/AdobeRGB for physical merch)",
+            "Ensure typography tracking and bleed margins adhere to release spec guidelines"
+          ].filter(Boolean),
+          recommendedNextVersion: `v${revisions.length + 1}`,
+          disclaimer: "Creative Brain summary generated for human review. Official sign-off requires workspace member authorization.",
+        },
+        totalCommentsAnalyzed: comments.length,
+        totalRevisionsAnalyzed: revisions.length,
+      });
+    } catch (err: any) {
+      console.error("[Summarize Feedback Error]", err);
+      res.status(500).json({ error: err.message || "Failed to summarize feedback" });
+    }
+  }
+);
+
 

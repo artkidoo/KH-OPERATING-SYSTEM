@@ -34,7 +34,8 @@ import {
   PlusCircle,
   TrendingUp,
   Package,
-  Activity
+  Activity,
+  Users
 } from "lucide-react";
 
 interface CommandPaletteProps {
@@ -98,6 +99,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       icon: <Clock className="w-4 h-4 text-red-500" />,
       action: () => {
         setActiveTab("command-center");
+        onClose();
+      },
+    },
+    {
+      id: "nav-collaboration",
+      title: "Collaboration, Approvals & Review Hub",
+      description: "Client & team access control, threaded feedback, revision tracking and sign-off requests",
+      icon: <Users className="w-4 h-4 text-red-400" />,
+      action: () => {
+        setActiveTab("collaboration");
         onClose();
       },
     },

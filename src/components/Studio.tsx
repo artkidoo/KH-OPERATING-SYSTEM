@@ -48,8 +48,13 @@ import {
   FileText,
   UserCheck,
   Briefcase,
-  HelpCircle
+  HelpCircle,
+  History,
+  Users
 } from "lucide-react";
+import { CommentsSection } from "./collaboration/CommentsSection";
+import { ApprovalModal } from "./collaboration/ApprovalModal";
+import { RevisionHistoryModal } from "./collaboration/RevisionHistoryModal";
 
 interface StudioProps {
   onNotify?: (text: string, type?: "success" | "info" | "error") => void;
@@ -95,6 +100,11 @@ export const Studio: React.FC<StudioProps> = ({
   const [targetDeliverableForRevision, setTargetDeliverableForRevision] = useState<StudioDeliverable | null>(null);
   const [revisionReason, setRevisionReason] = useState<string>("");
   const [revisionRequestedChanges, setRevisionRequestedChanges] = useState<string>("");
+
+  // Phase 15: Collaboration Modals for Deliverables
+  const [collabApprovalDeliverable, setCollabApprovalDeliverable] = useState<StudioDeliverable | null>(null);
+  const [collabCommentsDeliverable, setCollabCommentsDeliverable] = useState<StudioDeliverable | null>(null);
+  const [collabRevisionsDeliverable, setCollabRevisionsDeliverable] = useState<StudioDeliverable | null>(null);
 
   // Brief Form State
   const [briefTitle, setBriefTitle] = useState<string>("");
@@ -977,28 +987,41 @@ export const Studio: React.FC<StudioProps> = ({
                     </div>
 
                     {/* Revision & Approval Action Toolbar */}
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2 border-t border-zinc-800">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-zinc-800">
                       <button
-                        onClick={() => {
-                          setTargetDeliverableForRevision(del);
-                          setIsRevisionModalOpen(true);
-                        }}
-                        className="flex-1 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                        onClick={() => setCollabCommentsDeliverable(del)}
+                        className="py-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
                       >
-                        <RefreshCw className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Request Revision</span>
+                        <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
+                        <span>Feedback</span>
+                      </button>
+
+                      <button
+                        onClick={() => setCollabRevisionsDeliverable(del)}
+                        className="py-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <History className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Revisions</span>
+                      </button>
+
+                      <button
+                        onClick={() => setCollabApprovalDeliverable(del)}
+                        className="py-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-amber-300 text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Sign-Off</span>
                       </button>
 
                       <button
                         onClick={() => handleSyncToVault(del)}
-                        className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        className={`py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                           isApproved
                             ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30"
                             : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/40"
                         }`}
                       >
                         <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>{isApproved ? "Synced in Asset Vault" : "Approve & Sync to Vault"}</span>
+                        <span>{isApproved ? "Synced" : "Vault"}</span>
                       </button>
                     </div>
                   </div>
@@ -1620,6 +1643,90 @@ export const Studio: React.FC<StudioProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Phase 15: Collaboration Modals for Deliverables */}
+      {collabApprovalDeliverable && (
+        <ApprovalModal
+          isOpen={Boolean(collabApprovalDeliverable)}
+          onClose={() => setCollabApprovalDeliverable(null)}
+          entityType="deliverable"
+          entityId={collabApprovalDeliverable.id}
+          entityTitle={collabApprovalDeliverable.name}
+          workspaceId={activeWorkspace?.id || ""}
+          currentUser={
+            user
+              ? {
+                  id: user.id,
+                  email: user.email,
+                  name: user.fullName,
+                  role: activeWorkspace?.role || "owner",
+                }
+              : undefined
+          }
+          onSuccess={() => {
+            if (onNotify) onNotify("Approval state updated successfully", "success");
+            setCollabApprovalDeliverable(null);
+          }}
+        />
+      )}
+
+      {collabRevisionsDeliverable && (
+        <RevisionHistoryModal
+          isOpen={Boolean(collabRevisionsDeliverable)}
+          onClose={() => setCollabRevisionsDeliverable(null)}
+          entityType="deliverable"
+          entityId={collabRevisionsDeliverable.id}
+          entityTitle={collabRevisionsDeliverable.name}
+          workspaceId={activeWorkspace?.id || ""}
+          currentUser={
+            user
+              ? {
+                  id: user.id,
+                  email: user.email,
+                  name: user.fullName,
+                  role: activeWorkspace?.role || "owner",
+                }
+              : undefined
+          }
+        />
+      )}
+
+      {collabCommentsDeliverable && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="relative w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-800">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-blue-400" />
+                  Deliverable Feedback & Discussion
+                </h3>
+                <p className="text-xs text-zinc-400 mt-0.5">{collabCommentsDeliverable.name}</p>
+              </div>
+              <button
+                onClick={() => setCollabCommentsDeliverable(null)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <CommentsSection
+              entityType="deliverable"
+              entityId={collabCommentsDeliverable.id}
+              workspaceId={activeWorkspace?.id || ""}
+              currentUser={
+                user
+                  ? {
+                      id: user.id,
+                      email: user.email,
+                      name: user.fullName,
+                      role: activeWorkspace?.role || "owner",
+                    }
+                  : undefined
+              }
+            />
           </div>
         </div>
       )}

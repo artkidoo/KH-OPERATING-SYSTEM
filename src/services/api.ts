@@ -44,6 +44,14 @@ import {
   DeadlineReminder,
   WorkflowSummary,
   TaskStatus,
+  WorkspaceMember,
+  MemberRole,
+  CommentItem,
+  ApprovalRequest,
+  ApprovalDecision,
+  RevisionItem,
+  CollaborationSummary,
+  FeedbackSummaryResult,
 } from "../types";
 
 const TOKEN_KEY = "keedohub_session_token";
@@ -1076,6 +1084,248 @@ export const api = {
         {
           method: "POST",
           body: JSON.stringify({ approvalType, action, notes }),
+        }
+      );
+    },
+  },
+
+  // ==========================================
+  // PHASE 15: COLLABORATION, APPROVALS & REVISIONS
+  // ==========================================
+
+  members: {
+    list: async (workspaceId: string) => {
+      return request<{ members: WorkspaceMember[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/members`
+      );
+    },
+
+    invite: async (workspaceId: string, data: {
+      email: string;
+      name: string;
+      role: MemberRole;
+      title?: string;
+      department?: string;
+      permissions?: Partial<WorkspaceMember['permissions']>;
+      accessScope?: Partial<WorkspaceMember['accessScope']>;
+    }) => {
+      return request<{ member: WorkspaceMember }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/members`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    update: async (workspaceId: string, memberId: string, updates: Partial<WorkspaceMember>) => {
+      return request<{ member: WorkspaceMember }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/members/${encodeURIComponent(memberId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+
+    remove: async (workspaceId: string, memberId: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/members/${encodeURIComponent(memberId)}`,
+        { method: "DELETE" }
+      );
+    },
+  },
+
+  comments: {
+    list: async (workspaceId: string, entityType?: string, entityId?: string) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/comments`;
+      const params = new URLSearchParams();
+      if (entityType) params.append("entityType", entityType);
+      if (entityId) params.append("entityId", entityId);
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+      return request<{ comments: CommentItem[] }>(url);
+    },
+
+    create: async (workspaceId: string, data: {
+      entityType: string;
+      entityId: string;
+      entityTitle?: string;
+      content: string;
+      parentId?: string;
+      isInternal?: boolean;
+      attachments?: CommentItem['attachments'];
+      timestampMarker?: string;
+      canvasCoordinate?: { x: number; y: number };
+    }) => {
+      return request<{ comment: CommentItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    update: async (workspaceId: string, commentId: string, content: string) => {
+      return request<{ comment: CommentItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments/${encodeURIComponent(commentId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ content }),
+        }
+      );
+    },
+
+    delete: async (workspaceId: string, commentId: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments/${encodeURIComponent(commentId)}`,
+        { method: "DELETE" }
+      );
+    },
+
+    resolve: async (workspaceId: string, commentId: string, resolved = true) => {
+      return request<{ comment: CommentItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments/${encodeURIComponent(commentId)}/resolve`,
+        {
+          method: "POST",
+          body: JSON.stringify({ resolved }),
+        }
+      );
+    },
+
+    react: async (workspaceId: string, commentId: string, emoji: string) => {
+      return request<{ comment: CommentItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments/${encodeURIComponent(commentId)}/react`,
+        {
+          method: "POST",
+          body: JSON.stringify({ emoji }),
+        }
+      );
+    },
+  },
+
+  approvals: {
+    list: async (workspaceId: string, entityType?: string, entityId?: string, status?: string) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/approvals`;
+      const params = new URLSearchParams();
+      if (entityType) params.append("entityType", entityType);
+      if (entityId) params.append("entityId", entityId);
+      if (status) params.append("status", status);
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+      return request<{ approvals: ApprovalRequest[] }>(url);
+    },
+
+    create: async (workspaceId: string, data: {
+      entityType: string;
+      entityId: string;
+      entityTitle?: string;
+      title: string;
+      description?: string;
+      urgency?: 'critical' | 'high' | 'medium' | 'low';
+      dueDate?: string;
+      version?: string;
+      reviewers?: Array<{ email: string; name?: string; role: MemberRole }>;
+    }) => {
+      return request<{ approval: ApprovalRequest }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/approvals`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    submitDecision: async (
+      workspaceId: string,
+      approvalId: string,
+      data: {
+        decision: 'approved' | 'changes_requested' | 'declined';
+        feedback?: string;
+        actionItems?: string[];
+      }
+    ) => {
+      return request<{ approval: ApprovalRequest; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/approvals/${encodeURIComponent(approvalId)}/decision`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    delete: async (workspaceId: string, approvalId: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/approvals/${encodeURIComponent(approvalId)}`,
+        { method: "DELETE" }
+      );
+    },
+  },
+
+  revisions: {
+    list: async (workspaceId: string, entityType?: string, entityId?: string) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/revisions`;
+      const params = new URLSearchParams();
+      if (entityType) params.append("entityType", entityType);
+      if (entityId) params.append("entityId", entityId);
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+      return request<{ revisions: RevisionItem[] }>(url);
+    },
+
+    create: async (workspaceId: string, data: {
+      entityType: string;
+      entityId: string;
+      entityTitle?: string;
+      versionNumber?: number;
+      versionLabel: string;
+      previousVersionLabel?: string;
+      summaryOfChanges: string;
+      assetUrl?: string;
+      assetPreviewUrl?: string;
+      diffSummary?: string;
+      approvalRequestId?: string;
+      status?: 'draft' | 'in_review' | 'approved';
+    }) => {
+      return request<{ revision: RevisionItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/revisions`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    update: async (workspaceId: string, revisionId: string, updates: Partial<RevisionItem>) => {
+      return request<{ revision: RevisionItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/revisions/${encodeURIComponent(revisionId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+  },
+
+  collaboration: {
+    getSummary: async (workspaceId: string) => {
+      return request<{ summary: CollaborationSummary }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/collaboration/summary`
+      );
+    },
+
+    summarizeFeedbackWithBrain: async (workspaceId: string, data: {
+      entityType: string;
+      entityId: string;
+      comments?: CommentItem[];
+      entityTitle?: string;
+    }) => {
+      return request<{ summary: FeedbackSummaryResult }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/collaboration/summarize-feedback`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
         }
       );
     },

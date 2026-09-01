@@ -107,9 +107,9 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
         api.workflow.getTasks(workspaceId).catch(() => ({ tasks: [] })),
         api.workflow.getDeadlines(workspaceId).catch(() => ({ reminders: [] })),
         api.workflow.getTimeline(workspaceId, undefined, 40).catch(() => ({ activities: [] })),
-        api.releases.getAll(workspaceId).catch(() => ({ releases: [] })),
-        api.campaigns.getAll(workspaceId).catch(() => ({ campaigns: [] })),
-        api.projects.getAll(workspaceId).catch(() => ({ projects: [] })),
+        api.releases.list(workspaceId).catch(() => ({ releases: [] })),
+        api.campaigns.list(workspaceId).catch(() => ({ campaigns: [] })),
+        api.projects.list(workspaceId).catch(() => ({ projects: [] })),
       ]);
 
       if (sumRes.summary) setSummary(sumRes.summary);

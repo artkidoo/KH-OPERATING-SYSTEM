@@ -15,7 +15,7 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 }
 
 export type IdentityType = 'artist' | 'creator' | 'brand' | 'business' | 'startup';
-export type MemberRole = 'owner' | 'admin' | 'editor' | 'viewer';
+export type MemberRole = 'owner' | 'admin' | 'editor' | 'member' | 'collaborator' | 'client' | 'viewer';
 export type ProjectStatus = 'planning' | 'in-progress' | 'review' | 'completed';
 export type ProjectPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type AssetCategory = 'cover' | 'audio' | 'image' | 'video' | 'document' | 'epk' | 'brand';
@@ -30,7 +30,7 @@ export type ReleaseStatus =
   | 'scheduled' 
   | 'in-progress';
 export type TaskPriority = 'urgent' | 'high' | 'medium' | 'low';
-export type TaskStatus = 'todo' | 'in_progress' | 'completed';
+export type TaskStatus = 'todo' | 'in-progress' | 'in_progress' | 'pending' | 'review' | 'approved' | 'completed' | 'blocked' | 'cancelled';
 
 export interface UserRecord {
   id: string;
@@ -63,11 +63,40 @@ export interface WorkspaceRecord {
   updatedAt: string;
 }
 
+export interface MemberPermissions {
+  canManageWorkspace: boolean;
+  canCreateProjects: boolean;
+  canEditAll: boolean;
+  canViewInternalNotes: boolean;
+  canApprove: boolean;
+  canComment: boolean;
+  canRequestRevisions: boolean;
+}
+
+export interface MemberAccessScope {
+  isWorkspaceWide: boolean;
+  projectIds?: string[];
+  releaseIds?: string[];
+  campaignIds?: string[];
+  studioProjectIds?: string[];
+  deliverableIds?: string[];
+}
+
 export interface WorkspaceMemberRecord {
   id: string;
   workspaceId: string;
   userId: string;
+  name?: string;
+  email?: string;
+  avatarUrl?: string;
+  jobTitle?: string;
   role: MemberRole;
+  status?: 'active' | 'invited' | 'disabled';
+  invitedBy?: string;
+  inviteToken?: string;
+  lastActiveAt?: string;
+  permissions?: MemberPermissions;
+  accessScope?: MemberAccessScope;
   joinedAt: string;
 }
 
@@ -77,14 +106,26 @@ export interface TaskItem {
   projectId?: string;
   projectTitle?: string;
   releaseId?: string;
+  campaignId?: string;
+  studioId?: string;
+  entityType?: 'release' | 'campaign' | 'project' | 'content' | 'studio' | 'radar' | 'asset' | 'custom';
+  entityId?: string;
+  entityTitle?: string;
+  actionTab?: string;
+  actionLabel?: string;
   text: string;
+  description?: string;
   completed: boolean;
   priority?: TaskPriority;
   status?: TaskStatus;
   category?: string;
   assignedTo?: string;
+  assignedAvatar?: string;
+  assignedRole?: string;
+  tags?: string[];
   deadline?: string;
   createdAt?: string;
+  completedAt?: string;
 }
 
 export interface MilestoneRecord {
@@ -600,10 +641,20 @@ export interface NotificationRecord {
   id: string;
   workspaceId: string;
   userId?: string;
+  fingerprint?: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'request';
+  category?: string;
+  severity?: 'critical' | 'high' | 'medium' | 'low';
+  type: 'info' | 'success' | 'warning' | 'request' | 'critical';
   read: boolean;
+  resolved?: boolean;
+  resolvedAt?: string;
+  actionTab?: string;
+  actionLabel?: string;
+  entityType?: string;
+  entityId?: string;
+  entityTitle?: string;
   link?: string;
   createdAt: string;
 }
@@ -613,11 +664,140 @@ export interface ActivityLogRecord {
   workspaceId: string;
   userId: string;
   userEmail: string;
+  actorName?: string;
+  actorRole?: string;
   action: string;
   entityType: string;
   entityId: string;
+  entityTitle?: string;
   details: string;
+  isInternal?: boolean;
+  clientVisible?: boolean;
   createdAt: string;
+}
+
+// ==========================================
+// PHASE 15: COLLABORATION, APPROVALS & REVISIONS
+// ==========================================
+
+export interface CommentAttachment {
+  id: string;
+  name: string;
+  url: string;
+  size?: number;
+  mimeType?: string;
+}
+
+export interface CommentReaction {
+  emoji: string;
+  count: number;
+  userIds: string[];
+}
+
+export interface CommentRecord {
+  id: string;
+  workspaceId: string;
+  entityType: 'studio_deliverable' | 'studio_quote' | 'studio_project' | 'project' | 'release' | 'campaign' | 'content_item' | 'task' | 'asset' | 'custom';
+  entityId: string;
+  entityTitle: string;
+  parentId?: string; // If set, this is a reply to another comment
+  authorId: string;
+  authorName: string;
+  authorEmail: string;
+  authorAvatar?: string;
+  authorRole: MemberRole;
+  content: string;
+  isInternal: boolean; // true = internal team only, false = client/collaborator visible
+  resolved: boolean;
+  resolvedBy?: string;
+  resolvedAt?: string;
+  versionTag?: string; // e.g. "v1", "v2"
+  attachments?: CommentAttachment[];
+  reactions?: CommentReaction[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ApprovalStatus = 'pending' | 'in_review' | 'approved' | 'changes_requested' | 'declined';
+
+export interface AssignedReviewer {
+  id?: string;
+  email: string;
+  name: string;
+  role: string;
+  status: 'pending' | 'approved' | 'changes_requested' | 'declined';
+  decisionNotes?: string;
+  decidedAt?: string;
+}
+
+export interface ApprovalReviewDecision {
+  id: string;
+  reviewerId: string;
+  reviewerName: string;
+  reviewerEmail: string;
+  reviewerRole: string;
+  status: 'approved' | 'changes_requested' | 'declined';
+  notes: string;
+  version: string;
+  timestamp: string;
+  requestedChanges?: string[];
+}
+
+export interface ApprovalRequestRecord {
+  id: string;
+  workspaceId: string;
+  entityType: 'studio_deliverable' | 'studio_quote' | 'studio_project' | 'project' | 'release' | 'campaign' | 'content_item' | 'asset';
+  entityId: string;
+  entityTitle: string;
+  title: string;
+  description: string;
+  requestedBy: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl?: string;
+    role: string;
+  };
+  requestedAt: string;
+  dueDate?: string;
+  status: ApprovalStatus;
+  currentVersion: string;
+  isClientVisible: boolean;
+  assignedReviewers: AssignedReviewer[];
+  reviews: ApprovalReviewDecision[];
+  deliverableUrl?: string;
+  deliverableThumbnail?: string;
+  deliverableFormat?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RevisionRecord {
+  id: string;
+  workspaceId: string;
+  entityType: 'studio_deliverable' | 'studio_quote' | 'studio_project' | 'asset' | 'project' | 'release' | 'campaign' | 'content_item' | 'task' | 'custom';
+  entityId: string;
+  entityTitle: string;
+  versionNumber: number;
+  versionTag: string; // 'v1', 'v2', 'v3'
+  title: string;
+  changelog: string;
+  assetUrl?: string;
+  previewUrl?: string;
+  fileSize?: number;
+  mimeType?: string;
+  createdBy: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+    role?: string;
+  };
+  createdAt: string;
+  status: 'draft' | 'pending_review' | 'changes_requested' | 'approved';
+  approvalRequestId?: string;
+  changeRequestsSummary?: string;
+  isClientVisible: boolean;
 }
 
 export interface CreativeRequestRecord {
@@ -784,7 +964,7 @@ export interface StudioDeliverableRecord {
   previewUrl?: string;
   fileSize?: number;
   dueDate: string;
-  approvalStatus: 'pending' | 'approved' | 'rejected';
+  approvalStatus: 'pending' | 'approved' | 'rejected' | 'changes_requested' | 'in_review';
   approvedAt?: string;
   deliveredAt?: string;
   createdAt: string;
@@ -965,6 +1145,9 @@ export interface DatabaseSchema {
   performance_metrics: PerformanceMetricRecord[];
   growth_insights: GrowthInsightRecord[];
   workspace_goals: WorkspaceGoalRecord[];
+  comments: CommentRecord[];
+  approval_requests: ApprovalRequestRecord[];
+  revisions: RevisionRecord[];
 }
 
 function hashPassword(password: string): string {
@@ -1709,7 +1892,133 @@ function generateInitialSeed(): DatabaseSchema {
     users: [user],
     sessions: [],
     workspaces: [workspace],
-    workspace_members: [member],
+    workspace_members: [
+      {
+        id: "mem_demo_1",
+        workspaceId: defaultWorkspaceId,
+        userId: defaultUserId,
+        name: "Keedohub Artist Studio",
+        email: "creator@keedohub.com",
+        jobTitle: "Lead Artist & Creative Director",
+        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        role: "owner",
+        status: "active",
+        permissions: {
+          canManageWorkspace: true,
+          canCreateProjects: true,
+          canEditAll: true,
+          canViewInternalNotes: true,
+          canApprove: true,
+          canComment: true,
+          canRequestRevisions: true,
+        },
+        accessScope: { isWorkspaceWide: true },
+        joinedAt: new Date(Date.now() - 60 * 86400000).toISOString(),
+        lastActiveAt: new Date().toISOString(),
+      },
+      {
+        id: "mem_demo_2",
+        workspaceId: defaultWorkspaceId,
+        userId: "usr_studio_dare",
+        name: "Dare Balogun",
+        email: "dare@keedohub.studio",
+        jobTitle: "Executive Producer & Audio Engineer",
+        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        role: "admin",
+        status: "active",
+        permissions: {
+          canManageWorkspace: true,
+          canCreateProjects: true,
+          canEditAll: true,
+          canViewInternalNotes: true,
+          canApprove: true,
+          canComment: true,
+          canRequestRevisions: true,
+        },
+        accessScope: { isWorkspaceWide: true },
+        joinedAt: new Date(Date.now() - 45 * 86400000).toISOString(),
+        lastActiveAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+      },
+      {
+        id: "mem_demo_3",
+        workspaceId: defaultWorkspaceId,
+        userId: "usr_member_amara",
+        name: "Amara Okafor",
+        email: "amara@afrovibeworld.com",
+        jobTitle: "Senior Visual & 3D Motion Designer",
+        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        role: "member",
+        status: "active",
+        permissions: {
+          canManageWorkspace: false,
+          canCreateProjects: true,
+          canEditAll: true,
+          canViewInternalNotes: true,
+          canApprove: false,
+          canComment: true,
+          canRequestRevisions: true,
+        },
+        accessScope: { isWorkspaceWide: true },
+        joinedAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+        lastActiveAt: new Date(Date.now() - 4 * 3600000).toISOString(),
+      },
+      {
+        id: "mem_demo_4",
+        workspaceId: defaultWorkspaceId,
+        userId: "usr_collab_tunde",
+        name: "Tunde Martins",
+        email: "tunde@growthsound.io",
+        jobTitle: "DSP Growth & Promo Strategist",
+        avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+        role: "collaborator",
+        status: "active",
+        permissions: {
+          canManageWorkspace: false,
+          canCreateProjects: false,
+          canEditAll: false,
+          canViewInternalNotes: false,
+          canApprove: false,
+          canComment: true,
+          canRequestRevisions: true,
+        },
+        accessScope: {
+          isWorkspaceWide: false,
+          projectIds: ["proj_demo_1"],
+          releaseIds: [release.id],
+          campaignIds: [campaign.id],
+        },
+        joinedAt: new Date(Date.now() - 14 * 86400000).toISOString(),
+        lastActiveAt: new Date(Date.now() - 8 * 3600000).toISOString(),
+      },
+      {
+        id: "mem_demo_5",
+        workspaceId: defaultWorkspaceId,
+        userId: "usr_client_kemi",
+        name: "Kemi Adeleke",
+        email: "kemi@pulseglobal.co",
+        jobTitle: "Brand Partnerships Director @ Pulse Global",
+        avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        role: "client",
+        status: "active",
+        permissions: {
+          canManageWorkspace: false,
+          canCreateProjects: false,
+          canEditAll: false,
+          canViewInternalNotes: false,
+          canApprove: true,
+          canComment: true,
+          canRequestRevisions: true,
+        },
+        accessScope: {
+          isWorkspaceWide: false,
+          projectIds: ["proj_demo_1"],
+          campaignIds: [campaign.id],
+          deliverableIds: ["sdel_demo_1"],
+        },
+        joinedAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+        lastActiveAt: new Date(Date.now() - 1 * 3600000).toISOString(),
+      },
+    ],
     projects: [project],
     folders: folders,
     milestones: milestones,
@@ -2311,6 +2620,288 @@ function generateInitialSeed(): DatabaseSchema {
         updatedAt: new Date().toISOString(),
       }
     ],
+    comments: [
+      {
+        id: "cmt_demo_1",
+        workspaceId: defaultWorkspaceId,
+        entityType: "studio_deliverable",
+        entityId: "sdel_demo_1",
+        entityTitle: "Midnight in VI — 3000x3000px Master Cover Artwork",
+        authorId: defaultUserId,
+        authorName: "Keedohub Artist Studio",
+        authorEmail: "creator@keedohub.com",
+        authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        authorRole: "owner",
+        content: "Reviewing v1 draft — the visual atmosphere and obsidian tones are top tier. Let's tighten the subtitle tracking on 'VICTORIA ISLAND' by -2% and amplify the ambient crimson reflection on the metallic edges before final export.",
+        isInternal: false,
+        resolved: true,
+        resolvedBy: "usr_studio_dare",
+        resolvedAt: new Date(Date.now() - 12 * 3600000).toISOString(),
+        versionTag: "v1",
+        reactions: [{ emoji: "🔥", count: 3, userIds: [defaultUserId, "usr_studio_dare", "usr_client_kemi"] }],
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 12 * 3600000).toISOString(),
+      },
+      {
+        id: "cmt_demo_2",
+        workspaceId: defaultWorkspaceId,
+        entityType: "studio_deliverable",
+        entityId: "sdel_demo_1",
+        entityTitle: "Midnight in VI — 3000x3000px Master Cover Artwork",
+        parentId: "cmt_demo_1",
+        authorId: "usr_studio_dare",
+        authorName: "Dare Balogun",
+        authorEmail: "dare@keedohub.studio",
+        authorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        authorRole: "admin",
+        content: "Feedback received! Tracking is adjusted and crimson edge shaders have been re-rendered in Blender. Rendered v2 is now submitted for sign-off.",
+        isInternal: false,
+        resolved: true,
+        versionTag: "v2",
+        createdAt: new Date(Date.now() - 14 * 3600000).toISOString(),
+        updatedAt: new Date(Date.now() - 14 * 3600000).toISOString(),
+      },
+      {
+        id: "cmt_demo_3",
+        workspaceId: defaultWorkspaceId,
+        entityType: "studio_deliverable",
+        entityId: "sdel_demo_1",
+        entityTitle: "Midnight in VI — 3000x3000px Master Cover Artwork",
+        authorId: "usr_member_amara",
+        authorName: "Amara Okafor",
+        authorEmail: "amara@afrovibeworld.com",
+        authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        authorRole: "member",
+        content: "[INTERNAL TEAM ONLY] Make sure we save the raw multi-layer PSD and Figma source assets into the Studio folder alongside the 300DPI TIFF before sending client handoff.",
+        isInternal: true,
+        resolved: false,
+        versionTag: "v2",
+        createdAt: new Date(Date.now() - 8 * 3600000).toISOString(),
+        updatedAt: new Date(Date.now() - 8 * 3600000).toISOString(),
+      },
+      {
+        id: "cmt_demo_4",
+        workspaceId: defaultWorkspaceId,
+        entityType: "release",
+        entityId: "rel_demo_1",
+        entityTitle: "Midnight in Victoria Island",
+        authorId: "usr_studio_dare",
+        authorName: "Dare Balogun",
+        authorEmail: "dare@keedohub.studio",
+        authorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        authorRole: "admin",
+        content: "Master WAV 24-bit 44.1kHz audio check passed: True Peak at -0.3dBTP, Integrated LUFS at -9.2. Ready for DSP ingest.",
+        isInternal: false,
+        resolved: true,
+        versionTag: "v1",
+        reactions: [{ emoji: "🎧", count: 2, userIds: [defaultUserId, "usr_studio_dare"] }],
+        createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      },
+      {
+        id: "cmt_demo_5",
+        workspaceId: defaultWorkspaceId,
+        entityType: "campaign",
+        entityId: "cmp_demo_1",
+        entityTitle: "Midnight in VI — Global Drop & Co-Marketing Sprint",
+        authorId: "usr_client_kemi",
+        authorName: "Kemi Adeleke",
+        authorEmail: "kemi@pulseglobal.co",
+        authorAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        authorRole: "client",
+        content: "Pulse Global team has reviewed the TikTok sound blitz and co-branded vinyl mockups. Logo placement on the vinyl gatefold looks clean. Reviewing the formal approval request now.",
+        isInternal: false,
+        resolved: false,
+        versionTag: "v1",
+        reactions: [{ emoji: "🙌", count: 2, userIds: [defaultUserId, "usr_client_kemi"] }],
+        createdAt: new Date(Date.now() - 4 * 3600000).toISOString(),
+        updatedAt: new Date(Date.now() - 4 * 3600000).toISOString(),
+      }
+    ],
+    approval_requests: [
+      {
+        id: "appr_demo_1",
+        workspaceId: defaultWorkspaceId,
+        entityType: "studio_deliverable",
+        entityId: "sdel_demo_1",
+        entityTitle: "Midnight in VI — 3000x3000px Master Cover Artwork",
+        title: "Master Cover Artwork Sign-Off (v2)",
+        description: "Official approval for high-resolution 3000x3000px 300DPI master cover art and streaming distribution packaging.",
+        requestedBy: {
+          id: "usr_studio_dare",
+          name: "Dare Balogun",
+          email: "dare@keedohub.studio",
+          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+          role: "Creative Director"
+        },
+        requestedAt: new Date(Date.now() - 6 * 3600000).toISOString(),
+        dueDate: "2026-09-10",
+        status: "in_review",
+        currentVersion: "v2",
+        isClientVisible: true,
+        deliverableUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000&auto=format&fit=crop&q=80",
+        deliverableThumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
+        deliverableFormat: "PNG (3000x3000px 300DPI)",
+        assignedReviewers: [
+          {
+            id: defaultUserId,
+            email: "creator@keedohub.com",
+            name: "Keedohub Artist Studio",
+            role: "owner",
+            status: "pending"
+          },
+          {
+            id: "usr_client_kemi",
+            email: "kemi@pulseglobal.co",
+            name: "Kemi Adeleke",
+            role: "client",
+            status: "pending"
+          }
+        ],
+        reviews: [
+          {
+            id: "rev_dec_1",
+            reviewerId: defaultUserId,
+            reviewerName: "Keedohub Artist Studio",
+            reviewerEmail: "creator@keedohub.com",
+            reviewerRole: "owner",
+            status: "changes_requested",
+            notes: "Please tighten the letter spacing on 'VICTORIA ISLAND' by -2% and amplify the ambient crimson reflection.",
+            version: "v1",
+            timestamp: new Date(Date.now() - 24 * 3600000).toISOString(),
+            requestedChanges: ["Tighten letter spacing on title", "Amplify ambient crimson reflection on metallic edges"]
+          }
+        ],
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 6 * 3600000).toISOString(),
+      },
+      {
+        id: "appr_demo_2",
+        workspaceId: defaultWorkspaceId,
+        entityType: "release",
+        entityId: "rel_demo_1",
+        entityTitle: "Midnight in Victoria Island",
+        title: "24-Bit WAV Master Audio & 100% Split Sheets",
+        description: "Final studio mastering sign-off (-9.2 LUFS) and locked contributor split agreements for global distribution.",
+        requestedBy: {
+          id: "usr_studio_dare",
+          name: "Dare Balogun",
+          email: "dare@keedohub.studio",
+          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+          role: "Audio Lead"
+        },
+        requestedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+        dueDate: "2026-09-08",
+        status: "approved",
+        currentVersion: "v1",
+        isClientVisible: true,
+        assignedReviewers: [
+          {
+            id: defaultUserId,
+            email: "creator@keedohub.com",
+            name: "Keedohub Artist Studio",
+            role: "owner",
+            status: "approved",
+            decisionNotes: "Master audio dynamics and clarity approved.",
+            decidedAt: new Date(Date.now() - 1 * 86400000).toISOString()
+          }
+        ],
+        reviews: [
+          {
+            id: "rev_dec_2",
+            reviewerId: defaultUserId,
+            reviewerName: "Keedohub Artist Studio",
+            reviewerEmail: "creator@keedohub.com",
+            reviewerRole: "owner",
+            status: "approved",
+            notes: "Master audio sound design is exceptional. Dynamic range and LUFS are fully compliant with Spotify and Apple Music editorial standards.",
+            version: "v1",
+            timestamp: new Date(Date.now() - 1 * 86400000).toISOString()
+          }
+        ],
+        completedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+        createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      },
+      {
+        id: "appr_demo_3",
+        workspaceId: defaultWorkspaceId,
+        entityType: "campaign",
+        entityId: "cmp_demo_1",
+        entityTitle: "Midnight in VI — Global Drop & Co-Marketing Sprint",
+        title: "Pulse Global Brand Sponsor Campaign Asset Pack",
+        description: "Client authorization required for sponsored TikTok hooks, Instagram countdown banners, and co-branded press releases.",
+        requestedBy: {
+          id: "usr_collab_tunde",
+          name: "Tunde Martins",
+          email: "tunde@growthsound.io",
+          avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+          role: "Marketing Strategist"
+        },
+        requestedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+        dueDate: "2026-09-12",
+        status: "pending",
+        currentVersion: "v1",
+        isClientVisible: true,
+        assignedReviewers: [
+          {
+            id: "usr_client_kemi",
+            email: "kemi@pulseglobal.co",
+            name: "Kemi Adeleke",
+            role: "client",
+            status: "pending"
+          }
+        ],
+        reviews: [],
+        createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    ],
+    revisions: [
+      {
+        id: "rev_demo_1",
+        workspaceId: defaultWorkspaceId,
+        entityType: "studio_deliverable",
+        entityId: "sdel_demo_1",
+        entityTitle: "Midnight in VI — 3000x3000px Master Cover Artwork",
+        versionNumber: 1,
+        versionTag: "v1",
+        title: "Initial Draft Master Render (3000x3000px)",
+        changelog: "Initial 300DPI render with raw background textures and standard typography.",
+        assetUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80",
+        createdBy: {
+          id: "usr_studio_dare",
+          name: "Dare Balogun",
+          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+          role: "Creative Director"
+        },
+        status: "changes_requested",
+        changeRequestsSummary: "Tighten letter spacing on 'VICTORIA ISLAND' by -2% and amplify crimson reflection on metallic edges.",
+        isClientVisible: true,
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+      },
+      {
+        id: "rev_demo_2",
+        workspaceId: defaultWorkspaceId,
+        entityType: "studio_deliverable",
+        entityId: "sdel_demo_1",
+        entityTitle: "Midnight in VI — 3000x3000px Master Cover Artwork",
+        versionNumber: 2,
+        versionTag: "v2",
+        title: "Revision v2 — Typography Tracking & Crimson Edge Lock",
+        changelog: "Applied -2% typography tracking, enhanced ambient crimson reflections, high-pass sharpened 300DPI print layer.",
+        assetUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000&auto=format&fit=crop&q=80",
+        createdBy: {
+          id: "usr_studio_dare",
+          name: "Dare Balogun",
+          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+          role: "Creative Director"
+        },
+        status: "pending_review",
+        isClientVisible: true,
+        createdAt: new Date(Date.now() - 6 * 3600000).toISOString(),
+      }
+    ],
   };
 }
 
@@ -2360,6 +2951,9 @@ class Database {
           performance_metrics: parsed.performance_metrics || seed.performance_metrics,
           growth_insights: parsed.growth_insights || seed.growth_insights,
           workspace_goals: parsed.workspace_goals || seed.workspace_goals,
+          comments: parsed.comments || seed.comments,
+          approval_requests: parsed.approval_requests || seed.approval_requests,
+          revisions: parsed.revisions || seed.revisions,
         };
       }
     } catch (err) {
@@ -3380,6 +3974,10 @@ class Database {
     return this.data.campaigns.filter((c) => c.workspaceId === workspaceId);
   }
 
+  public getCampaignById(workspaceId: string, campaignId: string): CampaignRecord | undefined {
+    return this.data.campaigns.find((c) => c.id === campaignId && c.workspaceId === workspaceId);
+  }
+
   public createCampaign(workspaceId: string, campaignData: Omit<CampaignRecord, "id" | "workspaceId" | "createdAt" | "updatedAt">): CampaignRecord {
     const campaign: CampaignRecord = {
       id: "cmp_" + crypto.randomUUID().substring(0, 8),
@@ -4301,6 +4899,14 @@ class Database {
     if (!this.data.studio_deliverables) this.data.studio_deliverables = [];
     return this.data.studio_deliverables.filter(
       (d) => d.workspaceId === workspaceId && (!projectId || d.projectId === projectId)
+    );
+  }
+
+  public getStudioDeliverableById(workspaceId: string, deliverableId?: string): StudioDeliverableRecord | undefined {
+    if (!this.data.studio_deliverables) this.data.studio_deliverables = [];
+    const targetId = deliverableId || workspaceId;
+    return this.data.studio_deliverables.find(
+      (d) => d.id === targetId || (d.id === deliverableId && d.workspaceId === workspaceId)
     );
   }
 
@@ -5361,6 +5967,514 @@ class Database {
     const deleted = this.data.workspace_goals.length < initialLen;
     if (deleted) this.persist();
     return deleted;
+  }
+
+  // --- Collaboration & Members ---
+  public getWorkspaceMember(workspaceId: string, userIdOrMemberId: string): WorkspaceMemberRecord | undefined {
+    return (this.data.workspace_members || []).find(
+      (m) => m.workspaceId === workspaceId && (m.userId === userIdOrMemberId || m.id === userIdOrMemberId)
+    );
+  }
+
+  public addWorkspaceMember(
+    workspaceId: string,
+    memberData: Omit<WorkspaceMemberRecord, "id" | "workspaceId" | "joinedAt">
+  ): WorkspaceMemberRecord {
+    if (!this.data.workspace_members) {
+      this.data.workspace_members = [];
+    }
+
+    const newMember: WorkspaceMemberRecord = {
+      id: "mem_" + crypto.randomUUID().substring(0, 9),
+      workspaceId,
+      ...memberData,
+      permissions: memberData.permissions || {
+        canManageWorkspace: memberData.role === "owner" || memberData.role === "admin",
+        canCreateProjects: memberData.role !== "client",
+        canEditAll: memberData.role === "owner" || memberData.role === "admin",
+        canViewInternalNotes: memberData.role !== "client" && memberData.role !== "collaborator",
+        canApprove: memberData.role === "owner" || memberData.role === "admin" || memberData.role === "client",
+        canComment: true,
+        canRequestRevisions: true,
+      },
+      accessScope: memberData.accessScope || { isWorkspaceWide: memberData.role !== "client" && memberData.role !== "collaborator" },
+      joinedAt: new Date().toISOString(),
+      lastActiveAt: new Date().toISOString(),
+    };
+
+    this.data.workspace_members.push(newMember);
+    this.persist();
+    return newMember;
+  }
+
+  public updateWorkspaceMember(
+    workspaceId: string,
+    memberId: string,
+    updates: Partial<WorkspaceMemberRecord>
+  ): WorkspaceMemberRecord | undefined {
+    const member = (this.data.workspace_members || []).find(
+      (m) => m.workspaceId === workspaceId && (m.id === memberId || m.userId === memberId)
+    );
+    if (!member) return undefined;
+
+    Object.assign(member, updates);
+    this.persist();
+    return member;
+  }
+
+  public removeWorkspaceMember(workspaceId: string, memberId: string): boolean {
+    if (!this.data.workspace_members) return false;
+    const initialLen = this.data.workspace_members.length;
+    this.data.workspace_members = this.data.workspace_members.filter(
+      (m) => !(m.workspaceId === workspaceId && (m.id === memberId || m.userId === memberId))
+    );
+    const deleted = this.data.workspace_members.length < initialLen;
+    if (deleted) this.persist();
+    return deleted;
+  }
+
+  public checkUserEntityAccess(
+    workspaceId: string,
+    userId: string,
+    entityType: string,
+    entityId: string
+  ): {
+    hasAccess: boolean;
+    role: MemberRole;
+    canApprove: boolean;
+    canComment: boolean;
+    canEdit: boolean;
+    canViewInternalNotes: boolean;
+    member?: WorkspaceMemberRecord;
+  } {
+    const member = this.getWorkspaceMember(workspaceId, userId);
+    if (!member) {
+      return {
+        hasAccess: false,
+        role: "viewer",
+        canApprove: false,
+        canComment: false,
+        canEdit: false,
+        canViewInternalNotes: false,
+      };
+    }
+
+    // Owners and Admins have full access to everything
+    if (member.role === "owner" || member.role === "admin" || member.accessScope?.isWorkspaceWide) {
+      return {
+        hasAccess: true,
+        role: member.role,
+        canApprove: member.permissions?.canApprove ?? (member.role === "owner" || member.role === "admin" || member.role === "client"),
+        canComment: member.permissions?.canComment ?? true,
+        canEdit: member.permissions?.canEditAll ?? (member.role === "owner" || member.role === "admin"),
+        canViewInternalNotes: member.permissions?.canViewInternalNotes ?? (member.role !== "client" && member.role !== "collaborator"),
+        member,
+      };
+    }
+
+    // Scoped access check for Collaborators and Clients
+    const scope = member.accessScope;
+    let hasAccess = false;
+    if (scope) {
+      if (entityType === "project" && scope.projectIds?.includes(entityId)) hasAccess = true;
+      else if (entityType === "release" && scope.releaseIds?.includes(entityId)) hasAccess = true;
+      else if (entityType === "campaign" && scope.campaignIds?.includes(entityId)) hasAccess = true;
+      else if (entityType === "studio_deliverable" && (scope.deliverableIds?.includes(entityId) || scope.studioProjectIds?.length)) hasAccess = true;
+      else if (entityType === "studio_project" && scope.studioProjectIds?.includes(entityId)) hasAccess = true;
+      else if (!entityType || !entityId) hasAccess = true;
+    }
+
+    return {
+      hasAccess,
+      role: member.role,
+      canApprove: member.permissions?.canApprove ?? (member.role === "client"),
+      canComment: member.permissions?.canComment ?? true,
+      canEdit: member.permissions?.canEditAll ?? false,
+      canViewInternalNotes: member.permissions?.canViewInternalNotes ?? false,
+      member,
+    };
+  }
+
+  // --- Threaded Comments ---
+  public getComments(
+    workspaceId: string,
+    filters?: {
+      entityType?: string;
+      entityId?: string;
+      parentId?: string;
+      includeInternal?: boolean;
+    }
+  ): CommentRecord[] {
+    let comments = (this.data.comments || []).filter((c) => c.workspaceId === workspaceId);
+
+    if (filters) {
+      if (filters.entityType && filters.entityType !== "all") {
+        comments = comments.filter((c) => c.entityType === filters.entityType);
+      }
+      if (filters.entityId && filters.entityId !== "all") {
+        comments = comments.filter((c) => c.entityId === filters.entityId);
+      }
+      if (filters.parentId !== undefined) {
+        if (filters.parentId === "") {
+          comments = comments.filter((c) => !c.parentId);
+        } else {
+          comments = comments.filter((c) => c.parentId === filters.parentId);
+        }
+      }
+      if (filters.includeInternal === false) {
+        comments = comments.filter((c) => !c.isInternal);
+      }
+    }
+
+    return comments.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  }
+
+  public getCommentById(workspaceId: string, id: string): CommentRecord | undefined {
+    return (this.data.comments || []).find((c) => c.workspaceId === workspaceId && c.id === id);
+  }
+
+  public createComment(
+    workspaceId: string,
+    commentData: Omit<CommentRecord, "id" | "workspaceId" | "createdAt" | "updatedAt">
+  ): CommentRecord {
+    if (!this.data.comments) {
+      this.data.comments = [];
+    }
+
+    const now = new Date().toISOString();
+    const newComment: CommentRecord = {
+      id: "cmt_" + crypto.randomUUID().substring(0, 9),
+      workspaceId,
+      ...commentData,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.data.comments.push(newComment);
+    this.persist();
+    return newComment;
+  }
+
+  public updateComment(
+    workspaceId: string,
+    id: string,
+    updates: Partial<CommentRecord>
+  ): CommentRecord | undefined {
+    const comment = this.getCommentById(workspaceId, id);
+    if (!comment) return undefined;
+
+    Object.assign(comment, updates, { updatedAt: new Date().toISOString() });
+    this.persist();
+    return comment;
+  }
+
+  public deleteComment(workspaceId: string, id: string): boolean {
+    if (!this.data.comments) return false;
+    const initialLen = this.data.comments.length;
+    this.data.comments = this.data.comments.filter(
+      (c) => !(c.id === id && c.workspaceId === workspaceId)
+    );
+    const deleted = this.data.comments.length < initialLen;
+    if (deleted) this.persist();
+    return deleted;
+  }
+
+  public resolveComment(workspaceId: string, id: string, resolvedBy: string): CommentRecord | undefined {
+    const comment = this.getCommentById(workspaceId, id);
+    if (!comment) return undefined;
+
+    comment.resolved = !comment.resolved;
+    if (comment.resolved) {
+      comment.resolvedBy = resolvedBy;
+      comment.resolvedAt = new Date().toISOString();
+    } else {
+      comment.resolvedBy = undefined;
+      comment.resolvedAt = undefined;
+    }
+    comment.updatedAt = new Date().toISOString();
+
+    this.persist();
+    return comment;
+  }
+
+  public reactToComment(workspaceId: string, id: string, emoji: string, userId: string): CommentRecord | undefined {
+    const comment = this.getCommentById(workspaceId, id);
+    if (!comment) return undefined;
+
+    if (!comment.reactions) {
+      comment.reactions = [];
+    }
+
+    const existingReaction = comment.reactions.find((r) => r.emoji === emoji);
+    if (existingReaction) {
+      if (existingReaction.userIds.includes(userId)) {
+        // Toggle off
+        existingReaction.userIds = existingReaction.userIds.filter((uid) => uid !== userId);
+        existingReaction.count = existingReaction.userIds.length;
+        if (existingReaction.count === 0) {
+          comment.reactions = comment.reactions.filter((r) => r.emoji !== emoji);
+        }
+      } else {
+        // Toggle on
+        existingReaction.userIds.push(userId);
+        existingReaction.count = existingReaction.userIds.length;
+      }
+    } else {
+      comment.reactions.push({
+        emoji,
+        count: 1,
+        userIds: [userId],
+      });
+    }
+
+    comment.updatedAt = new Date().toISOString();
+    this.persist();
+    return comment;
+  }
+
+  // --- Approval Requests ---
+  public getApprovalRequests(
+    workspaceId: string,
+    filters?: {
+      entityType?: string;
+      entityId?: string;
+      status?: ApprovalStatus;
+      reviewerId?: string;
+      includeInternalOnly?: boolean;
+    }
+  ): ApprovalRequestRecord[] {
+    let requests = (this.data.approval_requests || []).filter((r) => r.workspaceId === workspaceId);
+
+    if (filters) {
+      if (filters.entityType && filters.entityType !== "all") {
+        requests = requests.filter((r) => r.entityType === filters.entityType);
+      }
+      if (filters.entityId && filters.entityId !== "all") {
+        requests = requests.filter((r) => r.entityId === filters.entityId);
+      }
+      if (filters.status && filters.status !== ("all" as any)) {
+        requests = requests.filter((r) => r.status === filters.status);
+      }
+      if (filters.reviewerId) {
+        requests = requests.filter((r) => r.assignedReviewers?.some((rev) => rev.id === filters.reviewerId || rev.email === filters.reviewerId));
+      }
+      if (filters.includeInternalOnly === false) {
+        requests = requests.filter((r) => r.isClientVisible);
+      }
+    }
+
+    return requests.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  public getApprovalRequestById(workspaceId: string, id: string): ApprovalRequestRecord | undefined {
+    return (this.data.approval_requests || []).find((r) => r.workspaceId === workspaceId && r.id === id);
+  }
+
+  public createApprovalRequest(
+    workspaceId: string,
+    data: Omit<ApprovalRequestRecord, "id" | "workspaceId" | "createdAt" | "updatedAt">
+  ): ApprovalRequestRecord {
+    if (!this.data.approval_requests) {
+      this.data.approval_requests = [];
+    }
+
+    const now = new Date().toISOString();
+    const newRequest: ApprovalRequestRecord = {
+      id: "appr_" + crypto.randomUUID().substring(0, 9),
+      workspaceId,
+      ...data,
+      reviews: data.reviews || [],
+      assignedReviewers: data.assignedReviewers || [],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.data.approval_requests.unshift(newRequest);
+    this.persist();
+    return newRequest;
+  }
+
+  public updateApprovalRequest(
+    workspaceId: string,
+    id: string,
+    updates: Partial<ApprovalRequestRecord>
+  ): ApprovalRequestRecord | undefined {
+    const req = this.getApprovalRequestById(workspaceId, id);
+    if (!req) return undefined;
+
+    Object.assign(req, updates, { updatedAt: new Date().toISOString() });
+    this.persist();
+    return req;
+  }
+
+  public submitApprovalDecision(
+    workspaceId: string,
+    approvalId: string,
+    decision: {
+      reviewerId: string;
+      reviewerName: string;
+      reviewerEmail: string;
+      reviewerRole: string;
+      status: "approved" | "changes_requested";
+      notes?: string;
+      requestedChanges?: string[];
+    }
+  ): { request: ApprovalRequestRecord; revision?: RevisionRecord } {
+    const req = this.getApprovalRequestById(workspaceId, approvalId);
+    if (!req) throw new Error("Approval request not found");
+
+    const now = new Date().toISOString();
+    const reviewId = "rev_dec_" + crypto.randomUUID().substring(0, 8);
+
+    const reviewEntry: ApprovalReviewDecision = {
+      id: reviewId,
+      reviewerId: decision.reviewerId,
+      reviewerName: decision.reviewerName,
+      reviewerEmail: decision.reviewerEmail,
+      reviewerRole: decision.reviewerRole,
+      status: decision.status,
+      notes: decision.notes,
+      version: req.currentVersion,
+      timestamp: now,
+      requestedChanges: decision.requestedChanges,
+    };
+
+    req.reviews.push(reviewEntry);
+
+    // Update assigned reviewer status
+    const assigned = req.assignedReviewers.find(
+      (r) => r.id === decision.reviewerId || r.email === decision.reviewerEmail
+    );
+    if (assigned) {
+      assigned.status = decision.status;
+      assigned.decidedAt = now;
+      assigned.decisionNotes = decision.notes;
+    }
+
+    // Determine overall status
+    if (decision.status === "changes_requested") {
+      req.status = "changes_requested";
+    } else {
+      // Check if all assigned reviewers have approved
+      const allApproved = req.assignedReviewers.every((r) => r.status === "approved");
+      if (allApproved || req.assignedReviewers.length <= 1) {
+        req.status = "approved";
+        req.completedAt = now;
+      } else {
+        req.status = "in_review";
+      }
+    }
+    req.updatedAt = now;
+
+    // Sync underlying entity status if it's a studio deliverable
+    if (req.entityType === "studio_deliverable") {
+      const del = this.getStudioDeliverableById(req.entityId);
+      if (del) {
+        del.approvalStatus = req.status === "approved" ? "approved" : req.status === "changes_requested" ? "changes_requested" : "in_review";
+        if (req.status === "approved") {
+          del.status = "approved";
+        }
+      }
+    }
+
+    // Create or update revision tracking record
+    let newRevision: RevisionRecord | undefined;
+    if (decision.status === "changes_requested") {
+      newRevision = this.createRevision(workspaceId, {
+        entityType: req.entityType,
+        entityId: req.entityId,
+        entityTitle: req.entityTitle,
+        versionNumber: parseInt(req.currentVersion.replace(/\D/g, "") || "1", 10),
+        versionTag: req.currentVersion,
+        title: `Revision Request — ${req.title}`,
+        changelog: decision.notes || "Changes requested during review cycle",
+        createdBy: {
+          id: decision.reviewerId,
+          name: decision.reviewerName,
+          role: decision.reviewerRole,
+        },
+        status: "changes_requested",
+        changeRequestsSummary: decision.notes,
+        isClientVisible: req.isClientVisible,
+      });
+    }
+
+    this.persist();
+    return { request: req, revision: newRevision };
+  }
+
+  public deleteApprovalRequest(workspaceId: string, id: string): boolean {
+    if (!this.data.approval_requests) return false;
+    const initialLen = this.data.approval_requests.length;
+    this.data.approval_requests = this.data.approval_requests.filter(
+      (r) => !(r.id === id && r.workspaceId === workspaceId)
+    );
+    const deleted = this.data.approval_requests.length < initialLen;
+    if (deleted) this.persist();
+    return deleted;
+  }
+
+  // --- Revisions ---
+  public getRevisions(
+    workspaceId: string,
+    filters?: {
+      entityType?: string;
+      entityId?: string;
+      isClientVisible?: boolean;
+    }
+  ): RevisionRecord[] {
+    let revisions = (this.data.revisions || []).filter((r) => r.workspaceId === workspaceId);
+
+    if (filters) {
+      if (filters.entityType && filters.entityType !== "all") {
+        revisions = revisions.filter((r) => r.entityType === filters.entityType);
+      }
+      if (filters.entityId && filters.entityId !== "all") {
+        revisions = revisions.filter((r) => r.entityId === filters.entityId);
+      }
+      if (filters.isClientVisible !== undefined) {
+        revisions = revisions.filter((r) => r.isClientVisible === filters.isClientVisible);
+      }
+    }
+
+    return revisions.sort((a, b) => b.versionNumber - a.versionNumber);
+  }
+
+  public getRevisionById(workspaceId: string, id: string): RevisionRecord | undefined {
+    return (this.data.revisions || []).find((r) => r.workspaceId === workspaceId && r.id === id);
+  }
+
+  public createRevision(
+    workspaceId: string,
+    revisionData: Omit<RevisionRecord, "id" | "workspaceId" | "createdAt">
+  ): RevisionRecord {
+    if (!this.data.revisions) {
+      this.data.revisions = [];
+    }
+
+    const newRev: RevisionRecord = {
+      id: "rev_" + crypto.randomUUID().substring(0, 9),
+      workspaceId,
+      ...revisionData,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.data.revisions.unshift(newRev);
+    this.persist();
+    return newRev;
+  }
+
+  public updateRevision(
+    workspaceId: string,
+    id: string,
+    updates: Partial<RevisionRecord>
+  ): RevisionRecord | undefined {
+    const rev = this.getRevisionById(workspaceId, id);
+    if (!rev) return undefined;
+
+    Object.assign(rev, updates);
+    this.persist();
+    return rev;
   }
 
   public createActivityLog(logData: {
