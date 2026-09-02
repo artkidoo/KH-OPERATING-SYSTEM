@@ -338,7 +338,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({ onNotify, onNa
                 >
                   {campaigns.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.title} ({c.status.toUpperCase()})
+                      {c.title} ({(c.status || "draft").toUpperCase()})
                     </option>
                   ))}
                 </select>

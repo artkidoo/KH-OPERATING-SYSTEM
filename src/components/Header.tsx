@@ -43,7 +43,8 @@ import {
   CheckSquare,
   Bell,
   HardDrive,
-  Users
+  Users,
+  ShieldAlert
 } from "lucide-react";
 
 interface HeaderProps {
@@ -116,6 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
+    { id: "admin", label: "Admin Control", icon: <ShieldAlert className="w-3.5 h-3.5" />, badge: "PHASE 16" },
     { id: "command-center", label: "Command Center", icon: <Rocket className="w-3.5 h-3.5" />, badge: "PHASE 10" },
     { id: "collaboration", label: "Collaboration & Approvals", icon: <Users className="w-3.5 h-3.5" />, badge: "PHASE 15" },
     { id: "workflow", label: "Workflow & Tasks", icon: <CheckSquare className="w-3.5 h-3.5" />, badge: "PHASE 14" },
@@ -422,6 +424,17 @@ export const Header: React.FC<HeaderProps> = ({
                     </div>
 
                     <div className="pt-2 border-t border-zinc-800 space-y-1">
+                      <button
+                        onClick={() => {
+                          setActiveTab("admin");
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 transition-colors cursor-pointer font-semibold"
+                      >
+                        <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Admin Control Center</span>
+                      </button>
+
                       <button
                         onClick={() => {
                           setActiveTab("workspace-hub");

@@ -23,7 +23,8 @@ export type ActiveTab =
   | 'epk-builder'
   | 'project-console'
   | 'resource-vault'
-  | 'intel-hub';
+  | 'intel-hub'
+  | 'admin';
 
 export type IdentityType = 'artist' | 'creator' | 'brand' | 'business' | 'startup';
 
@@ -282,6 +283,11 @@ export interface User {
   fullName: string;
   avatarUrl: string;
   defaultWorkspaceId?: string;
+  systemRole?: SystemAdminRole;
+  status?: 'active' | 'suspended';
+  suspendedReason?: string;
+  lastLoginAt?: string;
+  createdAt?: string;
 }
 
 export interface Workspace {
@@ -295,6 +301,8 @@ export interface Workspace {
   genreOrNiche?: string;
   website?: string;
   role?: MemberRole;
+  status?: 'active' | 'archived' | 'suspended';
+  suspendedReason?: string;
   settings?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
@@ -2131,4 +2139,188 @@ export interface FeedbackSummaryResult {
   recommendedNextStep: string;
   disclaimer: string;
 }
+
+// ==========================================
+// PHASE 16: ADMIN CONTROL CENTER TYPES
+// ==========================================
+
+export type SystemAdminRole = 'super_admin' | 'admin' | 'support' | 'user';
+
+export interface AdminUserSummary {
+  id: string;
+  email: string;
+  fullName: string;
+  avatarUrl: string;
+  systemRole: SystemAdminRole;
+  status: 'active' | 'suspended';
+  suspendedReason?: string;
+  suspendedAt?: string;
+  workspaceCount: number;
+  workspaces: {
+    id: string;
+    name: string;
+    slug: string;
+    role: MemberRole;
+    identityType: IdentityType;
+    status: 'active' | 'archived' | 'suspended';
+  }[];
+  createdAt: string;
+  lastLoginAt?: string;
+}
+
+export interface AdminWorkspaceSummary {
+  id: string;
+  name: string;
+  slug: string;
+  identityType: IdentityType;
+  ownerId: string;
+  ownerEmail: string;
+  ownerName: string;
+  memberCount: number;
+  projectCount: number;
+  releaseCount: number;
+  campaignCount: number;
+  deliverableCount: number;
+  assetCount: number;
+  memoryCount: number;
+  status: 'active' | 'archived' | 'suspended';
+  suspendedReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminAuditLogItem {
+  id: string;
+  adminUserId: string;
+  adminEmail: string;
+  adminName: string;
+  adminRole: SystemAdminRole;
+  action: string;
+  targetType: 'user' | 'workspace' | 'feature_flag' | 'system' | 'support' | 'security';
+  targetId: string;
+  targetName?: string;
+  details: string | Record<string, any>;
+  ipAddress?: string;
+  result: 'success' | 'denied' | 'failed';
+  createdAt: string;
+}
+
+export interface SupportTicket {
+  id: string;
+  ticketNumber: string;
+  workspaceId: string;
+  workspaceName: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  category: 'sync_error' | 'asset_storage' | 'approval_stuck' | 'billing' | 'account_access' | 'feature_inquiry';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  subject: string;
+  message: string;
+  status: 'open' | 'in_progress' | 'resolved';
+  diagnosticData?: {
+    clientVersion?: string;
+    identityType?: IdentityType;
+    storageUsageBytes?: number;
+    recentErrorCount?: number;
+    openApprovalsCount?: number;
+    stalledDeliverablesCount?: number;
+    rawDiagnostics?: Record<string, any>;
+  };
+  assignedToAdmin?: string;
+  assignedAdminName?: string;
+  resolutionNotes?: string;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+export interface FeatureFlag {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  category: 'ai' | 'studio' | 'core' | 'distribution' | 'growth' | 'security';
+  enabled: boolean;
+  rolloutPercentage: number;
+  allowedIdentities?: IdentityType[];
+  requiresRole?: SystemAdminRole;
+  updatedAt: string;
+  updatedBy?: string;
+}
+
+export interface PlatformSettings {
+  maintenanceMode: boolean;
+  maintenanceMessage: string;
+  allowNewSignups: boolean;
+  systemNoticeBanner: {
+    enabled: boolean;
+    type: 'info' | 'warning' | 'critical';
+    text: string;
+  };
+  maxUploadSizeMb: number;
+  aiRateLimitPerMin: number;
+  auditRetentionDays: number;
+  updatedAt: string;
+  updatedBy?: string;
+}
+
+export interface AdminOverviewStats {
+  totalUsers: number;
+  activeUsers: number;
+  suspendedUsers: number;
+  newUsersLast7Days: number;
+  newUsersLast30Days: number;
+  totalWorkspaces: number;
+  activeWorkspaces: number;
+  workspacesByIdentity: Record<IdentityType, number>;
+  activeReleases: number;
+  activeCampaigns: number;
+  activeProjects: number;
+  totalAssets: number;
+  totalDeliverables: number;
+  pendingApprovals: number;
+  openSupportTickets: number;
+  criticalTicketsCount: number;
+  totalAuditEventsCount: number;
+  systemHealth: {
+    status: 'operational' | 'degraded' | 'maintenance';
+    uptimeSeconds: number;
+    memoryUsageMb: number;
+    dbRecordsCount: number;
+    lastPingAt: string;
+    aiStatus: 'healthy' | 'unconfigured' | 'error';
+    aiLatencyMs: number;
+    databaseSizeKb: number;
+    nodeVersion: string;
+  };
+}
+
+export interface WorkspaceDiagnosticReport {
+  workspaceId: string;
+  workspaceName: string;
+  identityType: IdentityType;
+  generatedAt: string;
+  overallHealth: 'healthy' | 'warning' | 'critical';
+  checks: {
+    id: string;
+    title: string;
+    status: 'pass' | 'warning' | 'fail';
+    details: string;
+    itemCount?: number;
+  }[];
+  counts: {
+    members: number;
+    projects: number;
+    releases: number;
+    campaigns: number;
+    contentItems: number;
+    assets: number;
+    studioDeliverables: number;
+    approvalRequests: number;
+    memories: number;
+  };
+  storageUsedBytes: number;
+  recommendations: string[];
+}
+
 

@@ -975,7 +975,7 @@ export const Studio: React.FC<StudioProps> = ({
                             ? "bg-cyan-500/80 text-white border border-cyan-400/40 animate-pulse"
                             : "bg-zinc-800/80 text-zinc-300"
                         }`}>
-                          {del.status.toUpperCase().replace("_", " ")}
+                          {(del.status || "draft").toUpperCase().replace("_", " ")}
                         </span>
                       </div>
                     </div>
@@ -1267,7 +1267,7 @@ export const Studio: React.FC<StudioProps> = ({
                   <div className="space-y-1 pt-2 border-t border-zinc-800/60 text-[11px] text-zinc-300">
                     <span className="font-mono text-zinc-500 text-[10px] block uppercase">Typical Deliverables:</span>
                     <ul className="space-y-0.5">
-                      {cat.deliverables.slice(0, 3).map((d, i) => (
+                      {(cat.deliverables || []).slice(0, 3).map((d, i) => (
                         <li key={i} className="flex items-center gap-1.5 truncate">
                           <Check className="w-3 h-3 text-red-400 shrink-0" />
                           <span className="truncate">{d}</span>

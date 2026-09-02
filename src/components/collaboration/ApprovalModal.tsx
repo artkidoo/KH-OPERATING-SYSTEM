@@ -322,7 +322,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
                   >
                     <div>
                       <span className="font-medium text-zinc-200 block">{rev.name || rev.email}</span>
-                      <span className="text-[10px] text-zinc-500">{rev.role.toUpperCase()}</span>
+                      <span className="text-[10px] text-zinc-500">{(rev.role || "reviewer").toUpperCase()}</span>
                     </div>
                     <div>
                       {rev.hasDecided ? (
@@ -335,7 +335,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
                               : "bg-red-500/20 text-red-300"
                           }`}
                         >
-                          {rev.decision?.replace("_", " ").toUpperCase()}
+                          {(rev.decision || "").replace("_", " ").toUpperCase()}
                         </span>
                       ) : (
                         <span className="text-[10px] px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded">
@@ -367,7 +367,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold">{dec.userName} ({dec.userRole.toUpperCase()})</span>
+                        <span className="font-bold">{dec.userName} ({(dec.userRole || "member").toUpperCase()})</span>
                         <span className="text-[10px] text-zinc-400">
                           {new Date(dec.decidedAt).toLocaleString()}
                         </span>
@@ -507,7 +507,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
                   disabled={isSubmitting}
                   className="px-5 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-lg transition-all"
                 >
-                  {isSubmitting ? "Recording..." : `Confirm ${decisionType.replace("_", " ").toUpperCase()}`}
+                  {isSubmitting ? "Recording..." : `Confirm ${(decisionType || "").replace("_", " ").toUpperCase()}`}
                 </button>
               </div>
             </form>

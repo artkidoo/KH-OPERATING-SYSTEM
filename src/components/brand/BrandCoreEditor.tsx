@@ -498,7 +498,7 @@ export const BrandCoreEditor: React.FC<BrandCoreEditorProps> = ({ onNotify }) =>
               We engineer high-conviction tools for operators who value precision, authority, and relentless execution over superficial trends.
             </p>
             <div className="text-xs font-mono text-zinc-500">
-              TOKEN_REF: {brandCore.brandName.toUpperCase().replace(/\s+/g, '_')} // SCALE_RATIO: 1.333 // LATENCY: 0.04ms
+              TOKEN_REF: {(brandCore.brandName || "BRAND").toUpperCase().replace(/\s+/g, '_')} // SCALE_RATIO: 1.333 // LATENCY: 0.04ms
             </div>
           </div>
         </div>

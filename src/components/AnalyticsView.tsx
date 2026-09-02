@@ -586,7 +586,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onNotify, onNaviga
                             ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                             : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                         }`}>
-                          {insight.confidence.toUpperCase()} CONFIDENCE • {insight.category.replace("_", " ")}
+                          {(insight.confidence || "medium").toUpperCase()} CONFIDENCE • {(insight.category || "").replace("_", " ")}
                         </span>
                         <span className="text-[10px] text-zinc-500 font-mono">
                           {insight.relatedEntity?.name}
@@ -1059,7 +1059,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onNotify, onNaviga
                             ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
                             : "bg-zinc-800 text-zinc-400 border border-zinc-700"
                         }`}>
-                          {metric.source.toUpperCase()} {metric.isVerified ? "✓ Verified" : "• Self-reported"}
+                          {(metric.source || "manual").toUpperCase()} {metric.isVerified ? "✓ Verified" : "• Self-reported"}
                         </span>
                       </td>
                       <td className="py-3 px-3 text-right">

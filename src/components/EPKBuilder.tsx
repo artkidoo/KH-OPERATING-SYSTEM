@@ -535,7 +535,7 @@ export const EPKBuilder: React.FC<EPKBuilderProps> = ({ onNotify }) => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#27272A]">
               <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-[#F97316] p-1 flex items-center justify-center text-xl sm:text-2xl font-bold font-['Space_Grotesk'] text-black shadow-xl shadow-[#F97316]/20 shrink-0">
-                  {epk.artistName.slice(0, 2)}
+                  {(epk.artistName || "KH").slice(0, 2)}
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">

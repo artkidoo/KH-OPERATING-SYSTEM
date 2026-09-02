@@ -725,7 +725,7 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
                   <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800/80">
                     <span className="text-[10px] uppercase font-bold text-zinc-500">Key Creative Decisions</span>
                     <ul className="space-y-1 mt-1 text-[11px] text-zinc-300">
-                      {creativeMemory.keyDecisions.slice(-3).map((d) => (
+                      {(creativeMemory.keyDecisions || []).slice(-3).map((d) => (
                         <li key={d.id} className="flex items-start gap-1.5">
                           <CheckCircle2 className="w-3 h-3 text-red-400 shrink-0 mt-0.5" />
                           <span>{d.decision}</span>

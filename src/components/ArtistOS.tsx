@@ -559,7 +559,7 @@ export const ArtistOS: React.FC<ArtistOSProps> = ({ onNavigateTab }) => {
                         <Clock className="w-3.5 h-3.5" />
                       )}
                       <span className="text-[9px] font-medium tracking-tight mt-0.5 truncate w-full">
-                        {req.category.slice(0, 4)}
+                        {(req.category || "").slice(0, 4)}
                       </span>
                     </button>
                   ))}

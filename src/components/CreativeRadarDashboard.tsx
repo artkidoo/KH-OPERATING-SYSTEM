@@ -362,9 +362,9 @@ export const CreativeRadarDashboard: React.FC<CreativeRadarDashboardProps> = ({
               {digest.headline}
             </div>
 
-            {digest.recommendationsSummary.length > 0 && (
+            {digest.recommendationsSummary && digest.recommendationsSummary.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 border-t border-zinc-800/60">
-                {digest.recommendationsSummary.slice(0, 4).map((rec, i) => (
+                {(digest.recommendationsSummary || []).slice(0, 4).map((rec, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs text-zinc-300">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
                     <span className="truncate">{rec}</span>

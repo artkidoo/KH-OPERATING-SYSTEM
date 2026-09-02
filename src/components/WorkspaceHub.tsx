@@ -1122,7 +1122,7 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {projects.slice(0, 3).map((project) => {
+                    {(projects || []).slice(0, 3).map((project) => {
                       const completedTasks = project.tasks.filter((t) => t.completed).length;
                       const totalTasks = project.tasks.length;
                       const progressPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -1187,7 +1187,7 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
                   </div>
                 ) : (
                   <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                    {tasks.slice(0, 5).map((task) => (
+                    {(tasks || []).slice(0, 5).map((task) => (
                       <button
                         key={task.id}
                         type="button"
@@ -1243,7 +1243,7 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {releases.slice(0, 2).map((rel) => (
+                    {(releases || []).slice(0, 2).map((rel) => (
                       <div
                         key={rel.id}
                         className="p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800 flex items-start gap-3"
@@ -1308,7 +1308,7 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
                   </div>
                 ) : (
                   <div className="grid grid-cols-3 gap-2">
-                    {assets.slice(0, 3).map((asset) => (
+                    {(assets || []).slice(0, 3).map((asset) => (
                       <div
                         key={asset.id}
                         className="rounded-lg overflow-hidden border border-zinc-800 relative aspect-square group bg-black"

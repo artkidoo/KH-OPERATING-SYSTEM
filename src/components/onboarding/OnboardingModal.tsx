@@ -847,7 +847,7 @@ export const OnboardingModal: React.FC = () => {
                 id="btn-onboarding-next"
                 onClick={() => {
                   if (step === 2 && !workspaceName.trim()) {
-                    setWorkspaceName(user?.fullName ? `${user.fullName}'s OS` : `${selectedIdentity.toUpperCase()} OS`);
+                    setWorkspaceName(user?.fullName ? `${user.fullName}'s OS` : `${(selectedIdentity || "creative").toUpperCase()} OS`);
                   }
                   setStep((prev) => (prev + 1) as any);
                 }}

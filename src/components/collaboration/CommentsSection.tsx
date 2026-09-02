@@ -332,7 +332,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
                     {comment.authorAvatar ? (
                       <img src={comment.authorAvatar} alt={comment.authorName} className="w-full h-full rounded-full object-cover" />
                     ) : (
-                      comment.authorName.charAt(0).toUpperCase()
+                      (comment.authorName || "U").charAt(0).toUpperCase()
                     )}
                   </div>
                   <div>
@@ -347,7 +347,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
                             : "bg-zinc-800 text-zinc-400"
                         }`}
                       >
-                        {comment.authorRole.toUpperCase()}
+                        {(comment.authorRole || "member").toUpperCase()}
                       </span>
                     </div>
                     <span className="text-[10px] text-zinc-500">

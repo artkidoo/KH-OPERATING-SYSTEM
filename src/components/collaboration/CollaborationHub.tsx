@@ -513,7 +513,7 @@ export const CollaborationHub: React.FC<CollaborationHubProps> = ({
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold text-zinc-200">{c.authorName}</span>
                       <span className="text-[10px] px-1.5 py-0.2 bg-zinc-800 text-zinc-400 rounded">
-                        {c.authorRole.toUpperCase()}
+                        {(c.authorRole || "member").toUpperCase()}
                       </span>
                       <span className="text-[10px] text-zinc-500">
                         {new Date(c.createdAt).toLocaleString()}
@@ -656,7 +656,7 @@ export const CollaborationHub: React.FC<CollaborationHubProps> = ({
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-200">
-                    {m.name.charAt(0).toUpperCase()}
+                    {(m.name || m.email || "U").charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-zinc-100">{m.name}</h4>

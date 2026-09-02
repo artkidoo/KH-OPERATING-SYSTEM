@@ -334,7 +334,7 @@ export const generateEPKPdf = async (
     doc.text("PRESS HIGHLIGHTS & CRITICAL ACCLAIM", margin, currentY + 3);
     currentY += 6;
 
-    epk.pressQuotes.slice(0, 2).forEach((q, idx) => {
+    (epk.pressQuotes || []).slice(0, 2).forEach((q, idx) => {
       const qX = margin + idx * (quoteColW + cardGap);
       doc.setFillColor(cardBg[0], cardBg[1], cardBg[2]);
       doc.setDrawColor(cardBorder[0], cardBorder[1], cardBorder[2]);
@@ -345,14 +345,14 @@ export const generateEPKPdf = async (
       doc.setFont("helvetica", "italic");
       doc.setFontSize(7.5);
       doc.setTextColor(textPrimary[0], textPrimary[1], textPrimary[2]);
-      const quoteLines = doc.splitTextToSize(`"${q.quote}"`, quoteColW - 10);
-      doc.text(quoteLines.slice(0, 2), qX + 5, currentY + 7);
+      const quoteLines = doc.splitTextToSize(`"${q.quote || ""}"`, quoteColW - 10);
+      doc.text((quoteLines || []).slice(0, 2), qX + 5, currentY + 7);
 
       // Source Tag
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7);
       doc.setTextColor(accentPrimary[0], accentPrimary[1], accentPrimary[2]);
-      doc.text(`— ${q.source.toUpperCase()}`, qX + 5, currentY + quoteBoxH - 4);
+      doc.text(`— ${(q.source || "PRESS").toUpperCase()}`, qX + 5, currentY + quoteBoxH - 4);
     });
 
     currentY += quoteBoxH + 5;

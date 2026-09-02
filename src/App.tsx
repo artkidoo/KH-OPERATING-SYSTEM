@@ -30,6 +30,7 @@ import { CreativeRadarDashboard } from "./components/CreativeRadarDashboard";
 import { AnalyticsView } from "./components/AnalyticsView";
 import { WorkflowHub } from "./components/WorkflowHub";
 import { CollaborationHub } from "./components/collaboration/CollaborationHub";
+import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
@@ -239,6 +240,10 @@ function MainAppContent() {
 
         {activeTab === "intel-hub" && (
           <IntelHub onNotify={addNotification} />
+        )}
+
+        {activeTab === "admin" && (
+          <AdminDashboard onBackToApp={() => setActiveTab("command-center")} />
         )}
       </main>
 

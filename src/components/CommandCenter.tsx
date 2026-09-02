@@ -168,7 +168,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
           </span>
           <ChevronRight className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
           <span className="font-semibold text-zinc-200 uppercase tracking-wider shrink-0">
-            {identityType.toUpperCase()} OS
+            {identityType ? identityType.toUpperCase() : "CREATIVE"} OS
           </span>
           {activeRelease && (
             <>
@@ -349,7 +349,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                       ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                       : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
                   }`}>
-                    {data.performancePulse.status.toUpperCase()}
+                    {data.performancePulse?.status ? data.performancePulse.status.toUpperCase() : "OPTIMAL"}
                   </span>
                 </div>
                 <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-purple-300 transition-colors">
@@ -368,7 +368,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
 
           {/* Quick Signals & Top Insight Preview */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
-            {data.performancePulse.signals.slice(0, 2).map((sig: any, idx: number) => (
+            {(data.performancePulse?.signals || []).slice(0, 2).map((sig: any, idx: number) => (
               <div
                 key={idx}
                 className="p-2.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80 flex items-center gap-2 text-zinc-300"
@@ -803,7 +803,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm text-white truncate">{activeRelease.title}</span>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${releaseReadiness.stageColor}`}>
-                        {releaseReadiness.stage.toUpperCase()}
+                        {releaseReadiness.stage ? releaseReadiness.stage.toUpperCase() : "PLANNING"}
                       </span>
                     </div>
                     <div className="text-xs text-zinc-400">
@@ -907,7 +907,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm text-white truncate">{activeCampaign.title}</span>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${campaignReadiness.stageColor}`}>
-                        {campaignReadiness.stage.toUpperCase()}
+                        {campaignReadiness.stage ? campaignReadiness.stage.toUpperCase() : "PLANNING"}
                       </span>
                     </div>
                     <div className="text-xs text-zinc-400">
@@ -1000,7 +1000,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
               </div>
             ) : (
               <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                {recentActivity.slice(0, 8).map((act) => (
+                {(recentActivity || []).slice(0, 8).map((act) => (
                   <div
                     key={act.id}
                     className="p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 flex items-start gap-3 text-xs"

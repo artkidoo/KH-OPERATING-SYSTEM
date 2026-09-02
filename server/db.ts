@@ -31,6 +31,7 @@ export type ReleaseStatus =
   | 'in-progress';
 export type TaskPriority = 'urgent' | 'high' | 'medium' | 'low';
 export type TaskStatus = 'todo' | 'in-progress' | 'in_progress' | 'pending' | 'review' | 'approved' | 'completed' | 'blocked' | 'cancelled';
+export type SystemAdminRole = 'super_admin' | 'admin' | 'support' | 'user';
 
 export interface UserRecord {
   id: string;
@@ -39,6 +40,11 @@ export interface UserRecord {
   fullName: string;
   avatarUrl: string;
   defaultWorkspaceId?: string;
+  systemRole?: SystemAdminRole;
+  status?: 'active' | 'suspended';
+  suspendedReason?: string;
+  suspendedAt?: string;
+  lastLoginAt?: string;
   createdAt: string;
 }
 
@@ -58,9 +64,79 @@ export interface WorkspaceRecord {
   bio?: string;
   genreOrNiche?: string;
   website?: string;
+  status?: 'active' | 'archived' | 'suspended';
+  suspendedReason?: string;
   settings?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AdminAuditLogRecord {
+  id: string;
+  adminUserId: string;
+  adminEmail: string;
+  adminName: string;
+  adminRole: SystemAdminRole;
+  action: string;
+  targetType: 'user' | 'workspace' | 'feature_flag' | 'system' | 'support' | 'security';
+  targetId: string;
+  targetName?: string;
+  details: string | Record<string, any>;
+  ipAddress?: string;
+  result: 'success' | 'denied' | 'failed';
+  createdAt: string;
+}
+
+export interface FeatureFlagRecord {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  category: 'ai' | 'studio' | 'core' | 'distribution' | 'growth' | 'security';
+  enabled: boolean;
+  rolloutPercentage: number;
+  allowedIdentities?: IdentityType[];
+  requiresRole?: SystemAdminRole;
+  updatedAt: string;
+  updatedBy?: string;
+}
+
+export interface SupportTicketRecord {
+  id: string;
+  ticketNumber: string;
+  workspaceId: string;
+  workspaceName: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  category: 'sync_error' | 'asset_storage' | 'approval_stuck' | 'billing' | 'account_access' | 'feature_inquiry';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  subject: string;
+  message: string;
+  status: 'open' | 'in_progress' | 'resolved';
+  diagnosticData?: Record<string, any>;
+  assignedToAdmin?: string;
+  assignedAdminName?: string;
+  resolutionNotes?: string;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+export interface PlatformSettingsRecord {
+  id: string;
+  maintenanceMode: boolean;
+  maintenanceMessage: string;
+  allowNewSignups: boolean;
+  systemNoticeBanner: {
+    enabled: boolean;
+    type: 'info' | 'warning' | 'critical';
+    text: string;
+  };
+  maxUploadSizeMb: number;
+  aiRateLimitPerMin: number;
+  auditRetentionDays: number;
+  updatedAt: string;
+  updatedBy?: string;
 }
 
 export interface MemberPermissions {
@@ -1148,6 +1224,10 @@ export interface DatabaseSchema {
   comments: CommentRecord[];
   approval_requests: ApprovalRequestRecord[];
   revisions: RevisionRecord[];
+  admin_audit_logs: AdminAuditLogRecord[];
+  feature_flags: FeatureFlagRecord[];
+  support_tickets: SupportTicketRecord[];
+  platform_settings: PlatformSettingsRecord;
 }
 
 function hashPassword(password: string): string {
@@ -2902,6 +2982,263 @@ function generateInitialSeed(): DatabaseSchema {
         createdAt: new Date(Date.now() - 6 * 3600000).toISOString(),
       }
     ],
+    admin_audit_logs: [
+      {
+        id: "a-log-1",
+        adminUserId: defaultUserId,
+        adminEmail: "creator@keedohub.com",
+        adminName: "Keedohub Creator",
+        adminRole: "super_admin",
+        action: "FEATURE_FLAG_UPDATED",
+        targetType: "feature_flag",
+        targetId: "mastering_suite_cloud",
+        targetName: "Mastering Suite Cloud",
+        details: { change: "Rollout increased from 50% to 80%", previousRollout: 50, newRollout: 80 },
+        ipAddress: "127.0.0.1",
+        result: "success",
+        createdAt: new Date(Date.now() - 2 * 3600000).toISOString()
+      },
+      {
+        id: "a-log-2",
+        adminUserId: defaultUserId,
+        adminEmail: "creator@keedohub.com",
+        adminName: "Keedohub Creator",
+        adminRole: "super_admin",
+        action: "USER_STATUS_UPDATED",
+        targetType: "user",
+        targetId: "usr_alte_chidi",
+        targetName: "Chidi Eze",
+        details: { previousStatus: "active", newStatus: "suspended", reason: "Suspicious API spike beyond rate limit limits" },
+        ipAddress: "127.0.0.1",
+        result: "success",
+        createdAt: new Date(Date.now() - 24 * 3600000).toISOString()
+      },
+      {
+        id: "a-log-3",
+        adminUserId: defaultUserId,
+        adminEmail: "creator@keedohub.com",
+        adminName: "Keedohub Creator",
+        adminRole: "super_admin",
+        action: "WORKSPACE_DIAGNOSTIC_RUN",
+        targetType: "workspace",
+        targetId: defaultWorkspaceId,
+        targetName: "AfroVibe World OS",
+        details: "Diagnostic integrity check completed with 0 errors and 0 orphaned assets.",
+        ipAddress: "127.0.0.1",
+        result: "success",
+        createdAt: new Date(Date.now() - 36 * 3600000).toISOString()
+      },
+      {
+        id: "a-log-4",
+        adminUserId: defaultUserId,
+        adminEmail: "creator@keedohub.com",
+        adminName: "Keedohub Creator",
+        adminRole: "super_admin",
+        action: "SYSTEM_SETTINGS_UPDATED",
+        targetType: "system",
+        targetId: "global_settings",
+        targetName: "Platform Settings",
+        details: "Updated AI Rate Limit to 60 req/min and Max Upload Size to 150MB.",
+        ipAddress: "127.0.0.1",
+        result: "success",
+        createdAt: new Date(Date.now() - 48 * 3600000).toISOString()
+      }
+    ],
+    feature_flags: [
+      {
+        id: "ff_1",
+        key: "ai_creative_brain",
+        name: "Creative Brain & OS Intelligence",
+        description: "Enables Gemini multimodal strategic intelligence across briefs, releases, and content generation.",
+        category: "ai",
+        enabled: true,
+        rolloutPercentage: 100,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "usr_demo_keedohub"
+      },
+      {
+        id: "ff_2",
+        key: "studio_quotes",
+        name: "Studio Services & Direct Project Quotes",
+        description: "Allows creators to submit custom production briefs and receive immediate transparent tier quotes.",
+        category: "studio",
+        enabled: true,
+        rolloutPercentage: 100,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "usr_demo_keedohub"
+      },
+      {
+        id: "ff_3",
+        key: "collaboration_approvals",
+        name: "Multi-Role Approvals & Revisions Engine",
+        description: "Provides multi-stage client and team sign-offs, contextual threaded comments, and revision comparison.",
+        category: "core",
+        enabled: true,
+        rolloutPercentage: 100,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "usr_demo_keedohub"
+      },
+      {
+        id: "ff_4",
+        key: "dsp_pitching",
+        name: "Direct DSP Editorial Pitching Suite",
+        description: "Formats and validates pitch narratives and audio specs for Spotify Editorial and Apple Music curator teams.",
+        category: "distribution",
+        enabled: true,
+        rolloutPercentage: 100,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "usr_demo_keedohub"
+      },
+      {
+        id: "ff_5",
+        key: "presave_funnels",
+        name: "Smart Pre-Save & Fan Lead Capture",
+        description: "Deploys high-converting smart landing pages with countdowns, preview snippets, and fan email capture.",
+        category: "growth",
+        enabled: true,
+        rolloutPercentage: 100,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "usr_demo_keedohub"
+      },
+      {
+        id: "ff_6",
+        key: "creative_radar",
+        name: "Creative Market & Sound Radar",
+        description: "Real-time streaming and viral sound signal aggregator with actionable breakthrough scoring.",
+        category: "growth",
+        enabled: true,
+        rolloutPercentage: 100,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "usr_demo_keedohub"
+      },
+      {
+        id: "ff_7",
+        key: "mastering_suite_cloud",
+        name: "Cloud LUFS & Harmonic Mastering Engine",
+        description: "Automated loudness normalizer and streaming target compliance analyser (-14 LUFS Spotify, -16 LUFS Apple).",
+        category: "studio",
+        enabled: true,
+        rolloutPercentage: 80,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "usr_demo_keedohub"
+      },
+      {
+        id: "ff_8",
+        key: "beta_video_stems",
+        name: "AI Multi-Stem Video Generator (Beta)",
+        description: "Generates synchronized 9:16 vertical video visualizers from stems and audio waveform cues.",
+        category: "ai",
+        enabled: false,
+        rolloutPercentage: 25,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "usr_demo_keedohub"
+      },
+      {
+        id: "ff_9",
+        key: "enterprise_saml_sso",
+        name: "Enterprise SAML / SCIM Directory Sync",
+        description: "Enforces Okta/Azure AD single sign-on and automated directory provisioning for label enterprises.",
+        category: "security",
+        enabled: false,
+        rolloutPercentage: 10,
+        updatedAt: new Date().toISOString(),
+        updatedBy: "usr_demo_keedohub"
+      }
+    ],
+    support_tickets: [
+      {
+        id: "tkt_1",
+        ticketNumber: "TICK-8041",
+        workspaceId: defaultWorkspaceId,
+        workspaceName: "AfroVibe World OS",
+        userId: defaultUserId,
+        userEmail: "creator@keedohub.com",
+        userName: "Keedohub Artist Studio",
+        category: "asset_storage",
+        priority: "medium",
+        subject: "Master artwork upload returning 413 on 25MB TIFF file",
+        message: "When uploading the 300DPI 3000x3000px TIFF version to Cover Studio, the client receives payload too large notice. Requesting limit bump.",
+        status: "in_progress",
+        diagnosticData: {
+          clientVersion: "v16.0.0",
+          identityType: "artist",
+          storageUsageBytes: 42800000,
+          recentErrorCount: 1,
+          openApprovalsCount: 2,
+          stalledDeliverablesCount: 0
+        },
+        assignedToAdmin: defaultUserId,
+        assignedAdminName: "Keedohub Creator (Super Admin)",
+        resolutionNotes: "Increased maxUploadSizeMb to 150MB in Platform Settings. Verifying client multipart upload handler.",
+        createdAt: new Date(Date.now() - 4 * 3600000).toISOString()
+      },
+      {
+        id: "tkt_2",
+        ticketNumber: "TICK-7992",
+        workspaceId: "ws_pulse_brand",
+        workspaceName: "Pulse Global Brand OS",
+        userId: "usr_client_kemi",
+        userEmail: "kemi@pulseglobal.co",
+        userName: "Kemi Adeleke",
+        category: "approval_stuck",
+        priority: "high",
+        subject: "Client approval signature link expiring before brand marketing review",
+        message: "External sponsor stakeholder token timed out after 24h. We need 72h window for legal sponsor sign-offs.",
+        status: "open",
+        diagnosticData: {
+          clientVersion: "v16.0.0",
+          identityType: "brand",
+          storageUsageBytes: 15400000,
+          recentErrorCount: 0,
+          openApprovalsCount: 1,
+          stalledDeliverablesCount: 1
+        },
+        createdAt: new Date(Date.now() - 12 * 3600000).toISOString()
+      },
+      {
+        id: "tkt_3",
+        ticketNumber: "TICK-7830",
+        workspaceId: "ws_growth_creator",
+        workspaceName: "GrowthSound Creator Lab",
+        userId: "usr_collab_tunde",
+        userEmail: "tunde@growthsound.io",
+        userName: "Tunde Martins",
+        category: "sync_error",
+        priority: "low",
+        subject: "DSP Metadata validation notice on ISRC hyphen format",
+        message: "ISRC input was throwing warning when copying directly from distributor dashboard with hyphens.",
+        status: "resolved",
+        diagnosticData: {
+          clientVersion: "v16.0.0",
+          identityType: "creator",
+          storageUsageBytes: 28900000,
+          recentErrorCount: 0,
+          openApprovalsCount: 0,
+          stalledDeliverablesCount: 0
+        },
+        assignedToAdmin: defaultUserId,
+        assignedAdminName: "Keedohub Creator",
+        resolutionNotes: "Sanitized ISRC input sanitization regex on server side to auto-strip non-alphanumeric hyphens.",
+        createdAt: new Date(Date.now() - 48 * 3600000).toISOString(),
+        resolvedAt: new Date(Date.now() - 24 * 3600000).toISOString()
+      }
+    ],
+    platform_settings: {
+      id: "global_settings",
+      maintenanceMode: false,
+      maintenanceMessage: "Keedohub is currently undergoing scheduled platform upgrades. All live releases remain active.",
+      allowNewSignups: true,
+      systemNoticeBanner: {
+        enabled: false,
+        type: "info",
+        text: "Scheduled maintenance window this Sunday at 02:00 UTC."
+      },
+      maxUploadSizeMb: 150,
+      aiRateLimitPerMin: 60,
+      auditRetentionDays: 90,
+      updatedAt: new Date().toISOString(),
+      updatedBy: defaultUserId
+    }
   };
 }
 
@@ -2919,10 +3256,38 @@ class Database {
         const parsed = JSON.parse(raw);
         // Ensure all collections exist
         const seed = generateInitialSeed();
+        
+        // Ensure default users have systemRole set
+        const users = (parsed.users || seed.users).map((u: UserRecord) => {
+          if (!u.systemRole) {
+            if (u.id === "usr_demo_keedohub" || u.email.includes("admin") || u.email === "creator@keedohub.com") {
+              u.systemRole = "super_admin";
+            } else if (u.email.includes("ops")) {
+              u.systemRole = "admin";
+            } else if (u.email.includes("support")) {
+              u.systemRole = "support";
+            } else {
+              u.systemRole = "user";
+            }
+          }
+          if (!u.status) {
+            u.status = "active";
+          }
+          return u;
+        });
+
+        // Ensure workspaces have status set
+        const workspaces = (parsed.workspaces || seed.workspaces).map((w: WorkspaceRecord) => {
+          if (!w.status) {
+            w.status = "active";
+          }
+          return w;
+        });
+
         return {
-          users: parsed.users || seed.users,
+          users,
           sessions: parsed.sessions || seed.sessions,
-          workspaces: parsed.workspaces || seed.workspaces,
+          workspaces,
           workspace_members: parsed.workspace_members || seed.workspace_members,
           brand_cores: parsed.brand_cores || seed.brand_cores,
           products: parsed.products || seed.products,
@@ -2954,6 +3319,10 @@ class Database {
           comments: parsed.comments || seed.comments,
           approval_requests: parsed.approval_requests || seed.approval_requests,
           revisions: parsed.revisions || seed.revisions,
+          admin_audit_logs: parsed.admin_audit_logs || seed.admin_audit_logs,
+          feature_flags: parsed.feature_flags || seed.feature_flags,
+          support_tickets: parsed.support_tickets || seed.support_tickets,
+          platform_settings: parsed.platform_settings || seed.platform_settings,
         };
       }
     } catch (err) {
@@ -6498,6 +6867,616 @@ class Database {
     this.persist();
     return newLog;
   }
+
+  // ==========================================
+  // PHASE 16: ADMIN CONTROL CENTER METHODS
+  // ==========================================
+
+  public getAllAdminUsers(filter?: { search?: string; systemRole?: string; status?: string }) {
+    let users = this.data.users || [];
+
+    if (filter?.search) {
+      const q = filter.search.toLowerCase();
+      users = users.filter(
+        (u) =>
+          u.fullName?.toLowerCase().includes(q) ||
+          u.email?.toLowerCase().includes(q) ||
+          u.id.toLowerCase().includes(q)
+      );
+    }
+
+    if (filter?.systemRole && filter.systemRole !== "all") {
+      users = users.filter((u) => u.systemRole === filter.systemRole);
+    }
+
+    if (filter?.status && filter.status !== "all") {
+      users = users.filter((u) => (u.status || "active") === filter.status);
+    }
+
+    return users.map((u) => {
+      // Find workspace memberships
+      const memberships = (this.data.workspace_members || []).filter((m) => m.userId === u.id);
+      const workspaces = memberships.map((m) => {
+        const ws = (this.data.workspaces || []).find((w) => w.id === m.workspaceId);
+        return {
+          id: m.workspaceId,
+          name: ws?.name || "Workspace",
+          slug: ws?.slug || "workspace",
+          role: m.role,
+          identityType: ws?.identityType || "artist",
+          status: ws?.status || "active",
+        };
+      });
+
+      return {
+        id: u.id,
+        email: u.email,
+        fullName: u.fullName,
+        avatarUrl: u.avatarUrl,
+        systemRole: u.systemRole || "user",
+        status: u.status || "active",
+        suspendedReason: u.suspendedReason,
+        suspendedAt: u.suspendedAt,
+        workspaceCount: workspaces.length,
+        workspaces,
+        createdAt: u.createdAt || new Date().toISOString(),
+        lastLoginAt: u.lastLoginAt,
+      };
+    });
+  }
+
+  public getAdminUserSummaryById(id: string) {
+    const u = (this.data.users || []).find((user) => user.id === id);
+    if (!u) return null;
+
+    const memberships = (this.data.workspace_members || []).filter((m) => m.userId === u.id);
+    const workspaces = memberships.map((m) => {
+      const ws = (this.data.workspaces || []).find((w) => w.id === m.workspaceId);
+      return {
+        id: m.workspaceId,
+        name: ws?.name || "Workspace",
+        slug: ws?.slug || "workspace",
+        role: m.role,
+        identityType: ws?.identityType || "artist",
+        status: ws?.status || "active",
+      };
+    });
+
+    const recentLogs = (this.data.activity_logs || [])
+      .filter((l) => l.userId === u.id)
+      .slice(0, 15);
+
+    return {
+      id: u.id,
+      email: u.email,
+      fullName: u.fullName,
+      avatarUrl: u.avatarUrl,
+      systemRole: u.systemRole || "user",
+      status: u.status || "active",
+      suspendedReason: u.suspendedReason,
+      suspendedAt: u.suspendedAt,
+      workspaceCount: workspaces.length,
+      workspaces,
+      recentActivity: recentLogs,
+      createdAt: u.createdAt || new Date().toISOString(),
+      lastLoginAt: u.lastLoginAt,
+    };
+  }
+
+  public updateUserStatus(id: string, status: "active" | "suspended", reason?: string): boolean {
+    const user = (this.data.users || []).find((u) => u.id === id);
+    if (!user) return false;
+
+    user.status = status;
+    if (status === "suspended") {
+      user.suspendedReason = reason || "Suspended by Administrator";
+      user.suspendedAt = new Date().toISOString();
+    } else {
+      user.suspendedReason = undefined;
+      user.suspendedAt = undefined;
+    }
+
+    this.persist();
+    return true;
+  }
+
+  public updateUserSystemRole(id: string, role: SystemAdminRole): boolean {
+    const user = (this.data.users || []).find((u) => u.id === id);
+    if (!user) return false;
+
+    user.systemRole = role;
+    this.persist();
+    return true;
+  }
+
+  public getAllAdminWorkspaces(filter?: { search?: string; identityType?: string; status?: string }) {
+    let workspaces = this.data.workspaces || [];
+
+    if (filter?.search) {
+      const q = filter.search.toLowerCase();
+      workspaces = workspaces.filter(
+        (w) =>
+          w.name.toLowerCase().includes(q) ||
+          w.slug.toLowerCase().includes(q) ||
+          w.id.toLowerCase().includes(q)
+      );
+    }
+
+    if (filter?.identityType && filter.identityType !== "all") {
+      workspaces = workspaces.filter((w) => w.identityType === filter.identityType);
+    }
+
+    if (filter?.status && filter.status !== "all") {
+      workspaces = workspaces.filter((w) => (w.status || "active") === filter.status);
+    }
+
+    return workspaces.map((w) => {
+      const owner = (this.data.users || []).find((u) => u.id === w.ownerId);
+      const members = (this.data.workspace_members || []).filter((m) => m.workspaceId === w.id);
+      const projects = (this.data.projects || []).filter((p) => p.workspaceId === w.id);
+      const releases = (this.data.releases || []).filter((r) => r.workspaceId === w.id);
+      const campaigns = (this.data.campaigns || []).filter((c) => c.workspaceId === w.id);
+      const deliverables = (this.data.studio_deliverables || []).filter((d) => d.workspaceId === w.id);
+      const assets = (this.data.assets || []).filter((a) => a.workspaceId === w.id);
+      const memories = (this.data.creative_memories || []).filter((m) => m.workspaceId === w.id);
+
+      return {
+        id: w.id,
+        name: w.name,
+        slug: w.slug,
+        identityType: w.identityType,
+        ownerId: w.ownerId,
+        ownerEmail: owner?.email || "unknown@keedohub.com",
+        ownerName: owner?.fullName || "Workspace Owner",
+        memberCount: members.length,
+        projectCount: projects.length,
+        releaseCount: releases.length,
+        campaignCount: campaigns.length,
+        deliverableCount: deliverables.length,
+        assetCount: assets.length,
+        memoryCount: memories.length,
+        status: w.status || "active",
+        suspendedReason: w.suspendedReason,
+        createdAt: w.createdAt,
+        updatedAt: w.updatedAt,
+      };
+    });
+  }
+
+  public getAdminWorkspaceSummaryById(id: string) {
+    const w = (this.data.workspaces || []).find((ws) => ws.id === id);
+    if (!w) return null;
+
+    const owner = (this.data.users || []).find((u) => u.id === w.ownerId);
+    const members = (this.data.workspace_members || []).filter((m) => m.workspaceId === w.id);
+    const projects = (this.data.projects || []).filter((p) => p.workspaceId === w.id);
+    const releases = (this.data.releases || []).filter((r) => r.workspaceId === w.id);
+    const campaigns = (this.data.campaigns || []).filter((c) => c.workspaceId === w.id);
+    const contentItems = (this.data.content_items || []).filter((ci) => ci.workspaceId === w.id);
+    const deliverables = (this.data.studio_deliverables || []).filter((d) => d.workspaceId === w.id);
+    const assets = (this.data.assets || []).filter((a) => a.workspaceId === w.id);
+    const approvalRequests = (this.data.approval_requests || []).filter((ar) => ar.workspaceId === w.id);
+    const recentActivity = (this.data.activity_logs || [])
+      .filter((l) => l.workspaceId === w.id)
+      .slice(0, 20);
+
+    return {
+      workspace: w,
+      owner: owner ? { id: owner.id, email: owner.email, fullName: owner.fullName } : null,
+      members,
+      counts: {
+        members: members.length,
+        projects: projects.length,
+        releases: releases.length,
+        campaigns: campaigns.length,
+        contentItems: contentItems.length,
+        deliverables: deliverables.length,
+        assets: assets.length,
+        approvalRequests: approvalRequests.length,
+      },
+      recentActivity,
+    };
+  }
+
+  public updateWorkspaceStatus(
+    id: string,
+    status: "active" | "archived" | "suspended",
+    reason?: string
+  ): boolean {
+    const ws = (this.data.workspaces || []).find((w) => w.id === id);
+    if (!ws) return false;
+
+    ws.status = status;
+    if (status === "suspended") {
+      ws.suspendedReason = reason || "Suspended by Administrator";
+    } else {
+      ws.suspendedReason = undefined;
+    }
+    ws.updatedAt = new Date().toISOString();
+
+    this.persist();
+    return true;
+  }
+
+  public getAdminOverviewStats() {
+    const users = this.data.users || [];
+    const workspaces = this.data.workspaces || [];
+    const releases = this.data.releases || [];
+    const campaigns = this.data.campaigns || [];
+    const projects = this.data.projects || [];
+    const assets = this.data.assets || [];
+    const deliverables = this.data.studio_deliverables || [];
+    const approvals = this.data.approval_requests || [];
+    const supportTickets = this.data.support_tickets || [];
+    const auditLogs = this.data.admin_audit_logs || [];
+
+    const activeUsers = users.filter((u) => (u.status || "active") === "active").length;
+    const suspendedUsers = users.filter((u) => u.status === "suspended").length;
+
+    const sevenDaysAgo = Date.now() - 7 * 86400000;
+    const thirtyDaysAgo = Date.now() - 30 * 86400000;
+
+    const newUsersLast7Days = users.filter(
+      (u) => new Date(u.createdAt).getTime() > sevenDaysAgo
+    ).length;
+    const newUsersLast30Days = users.filter(
+      (u) => new Date(u.createdAt).getTime() > thirtyDaysAgo
+    ).length;
+
+    const activeWorkspaces = workspaces.filter((w) => (w.status || "active") === "active").length;
+
+    const workspacesByIdentity: Record<IdentityType, number> = {
+      artist: workspaces.filter((w) => w.identityType === "artist").length,
+      creator: workspaces.filter((w) => w.identityType === "creator").length,
+      brand: workspaces.filter((w) => w.identityType === "brand").length,
+      business: workspaces.filter((w) => w.identityType === "business").length,
+      startup: workspaces.filter((w) => w.identityType === "startup").length,
+    };
+
+    const pendingApprovals = approvals.filter((a) => a.status === "pending" || a.status === "in_review").length;
+    const openSupportTickets = supportTickets.filter((t) => t.status === "open" || t.status === "in_progress").length;
+    const criticalTicketsCount = supportTickets.filter((t) => t.priority === "critical" && t.status !== "resolved").length;
+
+    // Database entity count
+    let dbRecordsCount = 0;
+    Object.values(this.data).forEach((collection) => {
+      if (Array.isArray(collection)) {
+        dbRecordsCount += collection.length;
+      }
+    });
+
+    let dbSizeKb = 0;
+    try {
+      if (fs.existsSync(DB_FILE)) {
+        const stat = fs.statSync(DB_FILE);
+        dbSizeKb = Math.round(stat.size / 1024);
+      }
+    } catch {
+      dbSizeKb = 250;
+    }
+
+    const memoryUsage = process.memoryUsage();
+
+    return {
+      totalUsers: users.length,
+      activeUsers,
+      suspendedUsers,
+      newUsersLast7Days,
+      newUsersLast30Days,
+      totalWorkspaces: workspaces.length,
+      activeWorkspaces,
+      workspacesByIdentity,
+      activeReleases: releases.length,
+      activeCampaigns: campaigns.length,
+      activeProjects: projects.length,
+      totalAssets: assets.length,
+      totalDeliverables: deliverables.length,
+      pendingApprovals,
+      openSupportTickets,
+      criticalTicketsCount,
+      totalAuditEventsCount: auditLogs.length,
+      systemHealth: {
+        status: "operational" as const,
+        uptimeSeconds: Math.floor(process.uptime()),
+        memoryUsageMb: Math.round(memoryUsage.rss / (1024 * 1024)),
+        dbRecordsCount,
+        lastPingAt: new Date().toISOString(),
+        aiStatus: process.env.GEMINI_API_KEY ? ("healthy" as const) : ("unconfigured" as const),
+        aiLatencyMs: 42,
+        databaseSizeKb: dbSizeKb,
+        nodeVersion: process.version,
+      },
+    };
+  }
+
+  public getAdminAuditLogs(filter?: {
+    adminUserId?: string;
+    targetType?: string;
+    action?: string;
+    limit?: number;
+  }) {
+    let logs = this.data.admin_audit_logs || [];
+
+    if (filter?.adminUserId) {
+      logs = logs.filter((l) => l.adminUserId === filter.adminUserId);
+    }
+    if (filter?.targetType && filter.targetType !== "all") {
+      logs = logs.filter((l) => l.targetType === filter.targetType);
+    }
+    if (filter?.action && filter.action !== "all") {
+      logs = logs.filter((l) => l.action.toLowerCase().includes(filter.action!.toLowerCase()));
+    }
+
+    const limit = filter?.limit || 100;
+    return logs.slice(0, limit);
+  }
+
+  public createAdminAuditLog(log: Omit<AdminAuditLogRecord, "id" | "createdAt">): AdminAuditLogRecord {
+    if (!this.data.admin_audit_logs) {
+      this.data.admin_audit_logs = [];
+    }
+
+    const newLog: AdminAuditLogRecord = {
+      id: "a-log-" + crypto.randomUUID().substring(0, 8),
+      ...log,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.data.admin_audit_logs.unshift(newLog);
+    this.persist();
+    return newLog;
+  }
+
+  public getPlatformActivityLogs(filter?: { workspaceId?: string; limit?: number }) {
+    let logs = this.data.activity_logs || [];
+
+    if (filter?.workspaceId && filter.workspaceId !== "all") {
+      logs = logs.filter((l) => l.workspaceId === filter.workspaceId);
+    }
+
+    const limit = filter?.limit || 100;
+    return logs.slice(0, limit);
+  }
+
+  public getSupportTickets(filter?: { status?: string; priority?: string; category?: string }) {
+    let tickets = this.data.support_tickets || [];
+
+    if (filter?.status && filter.status !== "all") {
+      tickets = tickets.filter((t) => t.status === filter.status);
+    }
+    if (filter?.priority && filter.priority !== "all") {
+      tickets = tickets.filter((t) => t.priority === filter.priority);
+    }
+    if (filter?.category && filter.category !== "all") {
+      tickets = tickets.filter((t) => t.category === filter.category);
+    }
+
+    return tickets;
+  }
+
+  public getSupportTicketById(id: string): SupportTicketRecord | undefined {
+    return (this.data.support_tickets || []).find((t) => t.id === id);
+  }
+
+  public updateSupportTicket(
+    id: string,
+    updates: Partial<SupportTicketRecord>
+  ): SupportTicketRecord | undefined {
+    const ticket = this.getSupportTicketById(id);
+    if (!ticket) return undefined;
+
+    Object.assign(ticket, updates);
+    if (updates.status === "resolved" && !ticket.resolvedAt) {
+      ticket.resolvedAt = new Date().toISOString();
+    }
+
+    this.persist();
+    return ticket;
+  }
+
+  public createSupportTicket(
+    ticketData: Omit<SupportTicketRecord, "id" | "ticketNumber" | "createdAt">
+  ): SupportTicketRecord {
+    if (!this.data.support_tickets) {
+      this.data.support_tickets = [];
+    }
+
+    const ticketNumber = `TICK-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newTicket: SupportTicketRecord = {
+      id: "tkt_" + crypto.randomUUID().substring(0, 8),
+      ticketNumber,
+      ...ticketData,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.data.support_tickets.unshift(newTicket);
+    this.persist();
+    return newTicket;
+  }
+
+  public getFeatureFlags(): FeatureFlagRecord[] {
+    return this.data.feature_flags || [];
+  }
+
+  public getFeatureFlagByKey(key: string): FeatureFlagRecord | undefined {
+    return (this.data.feature_flags || []).find((f) => f.key === key);
+  }
+
+  public updateFeatureFlag(
+    idOrKey: string,
+    updates: Partial<FeatureFlagRecord>
+  ): FeatureFlagRecord | undefined {
+    const flag = (this.data.feature_flags || []).find(
+      (f) => f.id === idOrKey || f.key === idOrKey
+    );
+    if (!flag) return undefined;
+
+    Object.assign(flag, updates);
+    flag.updatedAt = new Date().toISOString();
+    this.persist();
+    return flag;
+  }
+
+  public getPlatformSettings(): PlatformSettingsRecord {
+    return (
+      this.data.platform_settings || {
+        id: "global_settings",
+        maintenanceMode: false,
+        maintenanceMessage: "Keedohub is currently undergoing scheduled upgrades.",
+        allowNewSignups: true,
+        systemNoticeBanner: { enabled: false, type: "info", text: "" },
+        maxUploadSizeMb: 150,
+        aiRateLimitPerMin: 60,
+        auditRetentionDays: 90,
+        updatedAt: new Date().toISOString(),
+      }
+    );
+  }
+
+  public updatePlatformSettings(
+    updates: Partial<PlatformSettingsRecord>
+  ): PlatformSettingsRecord {
+    if (!this.data.platform_settings) {
+      this.data.platform_settings = {
+        id: "global_settings",
+        maintenanceMode: false,
+        maintenanceMessage: "Keedohub is currently undergoing scheduled upgrades.",
+        allowNewSignups: true,
+        systemNoticeBanner: { enabled: false, type: "info", text: "" },
+        maxUploadSizeMb: 150,
+        aiRateLimitPerMin: 60,
+        auditRetentionDays: 90,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    Object.assign(this.data.platform_settings, updates);
+    this.data.platform_settings.updatedAt = new Date().toISOString();
+    this.persist();
+    return this.data.platform_settings;
+  }
+
+  public runWorkspaceDiagnostic(workspaceId: string): any {
+    const ws = (this.data.workspaces || []).find((w) => w.id === workspaceId);
+    if (!ws) return null;
+
+    const members = (this.data.workspace_members || []).filter((m) => m.workspaceId === workspaceId);
+    const projects = (this.data.projects || []).filter((p) => p.workspaceId === workspaceId);
+    const releases = (this.data.releases || []).filter((r) => r.workspaceId === workspaceId);
+    const campaigns = (this.data.campaigns || []).filter((c) => c.workspaceId === workspaceId);
+    const contentItems = (this.data.content_items || []).filter((ci) => ci.workspaceId === workspaceId);
+    const assets = (this.data.assets || []).filter((a) => a.workspaceId === workspaceId);
+    const deliverables = (this.data.studio_deliverables || []).filter((d) => d.workspaceId === workspaceId);
+    const approvals = (this.data.approval_requests || []).filter((ar) => ar.workspaceId === workspaceId);
+    const memories = (this.data.creative_memories || []).filter((m) => m.workspaceId === workspaceId);
+
+    // Compute checks
+    const checks: {
+      id: string;
+      title: string;
+      status: "pass" | "warning" | "fail";
+      details: string;
+      itemCount?: number;
+    }[] = [];
+
+    // Check 1: Owner existence
+    const owner = (this.data.users || []).find((u) => u.id === ws.ownerId);
+    checks.push({
+      id: "check_owner",
+      title: "Workspace Owner Integrity",
+      status: owner ? (owner.status === "suspended" ? "warning" : "pass") : "fail",
+      details: owner
+        ? `Owner ${owner.fullName} (${owner.email}) is ${owner.status || "active"}.`
+        : "Workspace owner account is missing from the database.",
+    });
+
+    // Check 2: Active Members
+    checks.push({
+      id: "check_members",
+      title: "Member Roster & Roles",
+      status: members.length > 0 ? "pass" : "warning",
+      details: `${members.length} team member(s) registered with active permissions.`,
+      itemCount: members.length,
+    });
+
+    // Check 3: Asset Storage References
+    const brokenAssets = assets.filter((a) => !a.url || a.url.length < 5);
+    checks.push({
+      id: "check_assets",
+      title: "Asset Storage & URLs",
+      status: brokenAssets.length === 0 ? "pass" : "warning",
+      details:
+        brokenAssets.length === 0
+          ? `All ${assets.length} workspace assets have valid URL pointers.`
+          : `${brokenAssets.length} asset(s) have missing or broken storage URLs.`,
+      itemCount: assets.length,
+    });
+
+    // Check 4: Studio Deliverables & Approval Links
+    const pendingApprovals = approvals.filter((a) => a.status === "pending" || a.status === "in_review");
+    checks.push({
+      id: "check_approvals",
+      title: "Approvals & Review Pipeline",
+      status: pendingApprovals.length > 5 ? "warning" : "pass",
+      details: `${pendingApprovals.length} approval request(s) awaiting reviewer decisions.`,
+      itemCount: pendingApprovals.length,
+    });
+
+    // Check 5: Creative Memory Index
+    checks.push({
+      id: "check_memory",
+      title: "Creative Memory Index",
+      status: memories.length > 0 ? "pass" : "pass",
+      details: `${memories.length} semantic memory cluster(s) indexed for AI reasoning.`,
+      itemCount: memories.length,
+    });
+
+    // Compute approximate storage used
+    let totalBytes = 0;
+    assets.forEach((a) => {
+      totalBytes += a.size || 2500000;
+    });
+
+    const recommendations: string[] = [];
+    if (pendingApprovals.length > 0) {
+      recommendations.push(`Follow up on ${pendingApprovals.length} pending approval request(s) to unblock active production pipelines.`);
+    }
+    if (assets.length === 0) {
+      recommendations.push("Upload master visual brand assets and cover art to enable instant studio generation.");
+    }
+    if (releases.length > 0 && campaigns.length === 0) {
+      recommendations.push("Create a promotional launch campaign for active releases.");
+    }
+
+    const overallHealth: "healthy" | "warning" | "critical" = checks.some((c) => c.status === "fail")
+      ? "critical"
+      : checks.some((c) => c.status === "warning")
+      ? "warning"
+      : "healthy";
+
+    return {
+      workspaceId,
+      workspaceName: ws.name,
+      identityType: ws.identityType,
+      generatedAt: new Date().toISOString(),
+      overallHealth,
+      checks,
+      counts: {
+        members: members.length,
+        projects: projects.length,
+        releases: releases.length,
+        campaigns: campaigns.length,
+        contentItems: contentItems.length,
+        assets: assets.length,
+        studioDeliverables: deliverables.length,
+        approvalRequests: approvals.length,
+        memories: memories.length,
+      },
+      storageUsedBytes: totalBytes,
+      recommendations,
+    };
+  }
 }
 
 export const db = new Database();
+

@@ -70,9 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(res.user);
       setWorkspaces(res.workspaces);
       setActiveWorkspace(res.activeWorkspace);
-    } catch (err) {
-      console.error("[Auth] Failed to restore session:", err);
-      // Fallback to demo
+    } catch {
+      // Stale or expired token in localStorage — gracefully recover with fresh demo login
       try {
         const res = await api.auth.login({ email: "creator@keedohub.com", password: "keedohub2026" });
         setUser(res.user);

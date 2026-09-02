@@ -1389,7 +1389,7 @@ export function CreativeMemoryDashboard({
               {(formData.scope === "release" || formData.scope === "campaign" || formData.scope === "project") && (
                 <div>
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">
-                    Link to Specific {formData.scope.charAt(0).toUpperCase() + formData.scope.slice(1)}
+                    Link to Specific {(formData.scope || "entity").charAt(0).toUpperCase() + (formData.scope || "").slice(1)}
                   </label>
                   <select
                     value={formData.entityId}

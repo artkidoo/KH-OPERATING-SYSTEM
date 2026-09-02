@@ -622,7 +622,7 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
                         {m.avatarUrl ? (
                           <img src={m.avatarUrl} alt={m.name} className="w-full h-full rounded-full object-cover" />
                         ) : (
-                          m.name.charAt(0).toUpperCase()
+                          (m.name || m.email || "U").charAt(0).toUpperCase()
                         )}
                       </div>
                       <div>

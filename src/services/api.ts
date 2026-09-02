@@ -52,6 +52,13 @@ import {
   RevisionItem,
   CollaborationSummary,
   FeedbackSummaryResult,
+  AdminUserSummary,
+  AdminAuditLogItem,
+  SupportTicket,
+  FeatureFlag,
+  PlatformSettings,
+  AdminOverviewStats,
+  SystemAdminRole,
 } from "../types";
 
 const TOKEN_KEY = "keedohub_session_token";
@@ -1328,6 +1335,218 @@ export const api = {
           body: JSON.stringify(data),
         }
       );
+    },
+  },
+
+  admin: {
+    getOverview: async () => {
+      return request<{ success: boolean; stats: AdminOverviewStats }>("/api/admin/overview");
+    },
+
+    getOverviewStats: async () => {
+      return request<{ success: boolean; stats: AdminOverviewStats }>("/api/admin/overview");
+    },
+
+    getUsers: async (params?: { search?: string; systemRole?: string; status?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append("search", params.search);
+      if (params?.systemRole) searchParams.append("systemRole", params.systemRole);
+      if (params?.status) searchParams.append("status", params.status);
+      const query = searchParams.toString();
+      return request<{ success: boolean; users: AdminUserSummary[]; total: number }>(
+        `/api/admin/users${query ? `?${query}` : ""}`
+      );
+    },
+
+    getUser: async (userId: string) => {
+      return request<{ success: boolean; user: AdminUserSummary }>(
+        `/api/admin/users/${encodeURIComponent(userId)}`
+      );
+    },
+
+    updateUserStatus: async (userId: string, status: "active" | "suspended", reason?: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/admin/users/${encodeURIComponent(userId)}/status`,
+        {
+          method: "POST",
+          body: JSON.stringify({ status, reason }),
+        }
+      );
+    },
+
+    updateUserRole: async (userId: string, systemRole: SystemAdminRole) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/admin/users/${encodeURIComponent(userId)}/role`,
+        {
+          method: "POST",
+          body: JSON.stringify({ systemRole }),
+        }
+      );
+    },
+
+    getWorkspaces: async (params?: { search?: string; identityType?: string; status?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append("search", params.search);
+      if (params?.identityType) searchParams.append("identityType", params.identityType);
+      if (params?.status) searchParams.append("status", params.status);
+      const query = searchParams.toString();
+      return request<{ success: boolean; workspaces: any[]; total: number }>(
+        `/api/admin/workspaces${query ? `?${query}` : ""}`
+      );
+    },
+
+    getWorkspace: async (workspaceId: string) => {
+      return request<{ success: boolean; workspace: any }>(
+        `/api/admin/workspaces/${encodeURIComponent(workspaceId)}`
+      );
+    },
+
+    updateWorkspaceStatus: async (
+      workspaceId: string,
+      status: "active" | "archived" | "suspended",
+      reason?: string
+    ) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/admin/workspaces/${encodeURIComponent(workspaceId)}/status`,
+        {
+          method: "POST",
+          body: JSON.stringify({ status, reason }),
+        }
+      );
+    },
+
+    runWorkspaceDiagnostic: async (workspaceId: string) => {
+      return request<{ success: boolean; report: any }>(
+        `/api/admin/workspaces/${encodeURIComponent(workspaceId)}/diagnostic`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    getActivity: async (params?: { workspaceId?: string; limit?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.workspaceId) searchParams.append("workspaceId", params.workspaceId);
+      if (params?.limit) searchParams.append("limit", params.limit.toString());
+      const query = searchParams.toString();
+      return request<{ success: boolean; activityLogs: ActivityLog[]; auditLogs: AdminAuditLogItem[] }>(
+        `/api/admin/activity${query ? `?${query}` : ""}`
+      );
+    },
+
+    getAuditLogs: async (params?: {
+      targetType?: string;
+      action?: string;
+      adminUserId?: string;
+      limit?: number;
+    }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.targetType) searchParams.append("targetType", params.targetType);
+      if (params?.action) searchParams.append("action", params.action);
+      if (params?.adminUserId) searchParams.append("adminUserId", params.adminUserId);
+      if (params?.limit) searchParams.append("limit", params.limit.toString());
+      const query = searchParams.toString();
+      return request<{ success: boolean; logs: AdminAuditLogItem[]; total: number }>(
+        `/api/admin/audit-logs${query ? `?${query}` : ""}`
+      );
+    },
+
+    getSupportTickets: async (params?: { status?: string; priority?: string; category?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.status) searchParams.append("status", params.status);
+      if (params?.priority) searchParams.append("priority", params.priority);
+      if (params?.category) searchParams.append("category", params.category);
+      const query = searchParams.toString();
+      return request<{ success: boolean; tickets: SupportTicket[]; total: number }>(
+        `/api/admin/support/tickets${query ? `?${query}` : ""}`
+      );
+    },
+
+    getSupportTicket: async (ticketId: string) => {
+      return request<{ success: boolean; ticket: SupportTicket }>(
+        `/api/admin/support/tickets/${encodeURIComponent(ticketId)}`
+      );
+    },
+
+    updateSupportTicket: async (ticketId: string, updates: Partial<SupportTicket>) => {
+      return request<{ success: boolean; ticket: SupportTicket }>(
+        `/api/admin/support/tickets/${encodeURIComponent(ticketId)}`,
+        {
+          method: "POST",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+
+    createSupportTicket: async (data: {
+      workspaceId?: string;
+      category: string;
+      priority: string;
+      subject: string;
+      message: string;
+      diagnosticData?: any;
+    }) => {
+      return request<{ success: boolean; ticket: SupportTicket }>(
+        "/api/admin/support/tickets",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    getFeatureFlags: async () => {
+      return request<{ success: boolean; flags: FeatureFlag[] }>("/api/admin/feature-flags");
+    },
+
+    updateFeatureFlag: async (flagId: string, updates: Partial<FeatureFlag>) => {
+      return request<{ success: boolean; flag: FeatureFlag }>(
+        `/api/admin/feature-flags/${encodeURIComponent(flagId)}`,
+        {
+          method: "POST",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+
+    getSettings: async () => {
+      return request<{ success: boolean; settings: PlatformSettings }>("/api/admin/settings");
+    },
+
+    getPlatformSettings: async () => {
+      return request<{ success: boolean; settings: PlatformSettings }>("/api/admin/settings");
+    },
+
+    updateSettings: async (updates: Partial<PlatformSettings>) => {
+      return request<{ success: boolean; settings: PlatformSettings }>("/api/admin/settings", {
+        method: "POST",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    updatePlatformSettings: async (updates: Partial<PlatformSettings>) => {
+      return request<{ success: boolean; settings: PlatformSettings }>("/api/admin/settings", {
+        method: "POST",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    getSystemHealth: async () => {
+      return request<{
+        success: boolean;
+        health: any;
+      }>("/api/admin/system/health");
+    },
+
+    demoSwitchRole: async (role: SystemAdminRole) => {
+      return request<{
+        success: boolean;
+        message: string;
+        user: { id: string; email: string; fullName: string; systemRole: SystemAdminRole };
+      }>("/api/admin/demo-switch-role", {
+        method: "POST",
+        body: JSON.stringify({ role }),
+      });
     },
   },
 };

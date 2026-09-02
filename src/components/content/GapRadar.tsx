@@ -289,7 +289,7 @@ export const GapRadar: React.FC<GapRadarProps> = ({
                   <div className="flex items-center gap-2 text-[11px] text-neutral-400">
                     <span>Target:</span>
                     <span className="px-2 py-0.5 rounded bg-neutral-800 text-neutral-200 font-medium">
-                      {gap.suggestedPlatform.toUpperCase()}
+                      {(gap.suggestedPlatform || "platform").toUpperCase()}
                     </span>
                     {gap.suggestedPillar && (
                       <span className="px-2 py-0.5 rounded bg-neutral-800 text-neutral-200 font-medium">
@@ -351,7 +351,7 @@ export const GapRadar: React.FC<GapRadarProps> = ({
                       {targetItem?.title || "Content Item"}
                     </span>
                     <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 shrink-0">
-                      {issue.severity.toUpperCase()}
+                      {(issue.severity || "medium").toUpperCase()}
                     </span>
                   </div>
                   <p className="text-[11px] text-neutral-400">{issue.message}</p>
