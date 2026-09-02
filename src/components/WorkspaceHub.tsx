@@ -273,14 +273,9 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
     switch (type) {
       case "artist":
         return <Music className="w-5 h-5 text-red-400" />;
-      case "creator":
-        return <Video className="w-5 h-5 text-amber-400" />;
       case "brand":
-        return <Building2 className="w-5 h-5 text-blue-400" />;
-      case "startup":
-        return <Rocket className="w-5 h-5 text-purple-400" />;
       default:
-        return <Briefcase className="w-5 h-5 text-emerald-400" />;
+        return <Building2 className="w-5 h-5 text-blue-400" />;
     }
   };
 

@@ -96,8 +96,8 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openBriefModal }) 
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNavigate("creator-os")} className="hover:text-[var(--accent-pill-text)] transition-colors cursor-pointer text-left">
-                  Creator Hook OS
+                <button onClick={() => handleNavigate("artist-brain")} className="hover:text-[var(--accent-pill-text)] transition-colors cursor-pointer text-left">
+                  Content Engine & Calendar
                 </button>
               </li>
               <li>

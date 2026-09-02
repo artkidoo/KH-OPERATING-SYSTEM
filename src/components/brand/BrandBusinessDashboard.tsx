@@ -44,16 +44,7 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
   const identity: IdentityType = workspace?.identityType || brandCore?.identityType || 'brand';
 
   const getIdentityBadge = () => {
-    switch (identity) {
-      case 'startup':
-        return { label: 'Startup OS', icon: Rocket, color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' };
-      case 'business':
-        return { label: 'Business OS', icon: Building2, color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' };
-      case 'creator':
-        return { label: 'Creator OS', icon: Tv, color: 'text-purple-400 bg-purple-500/10 border-purple-500/30' };
-      default:
-        return { label: 'Brand OS', icon: Briefcase, color: 'text-red-400 bg-red-500/10 border-red-500/30' };
-    }
+    return { label: 'Brand OS', icon: Building2, color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' };
   };
 
   const badge = getIdentityBadge();

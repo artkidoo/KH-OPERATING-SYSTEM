@@ -305,16 +305,10 @@ apiRouter.post("/onboarding/interpret", requireAuth, async (req: AuthenticatedRe
   const p = prompt.toLowerCase();
   let detectedIdentity: IdentityType = currentIdentity || "artist";
 
-  if (p.includes("song") || p.includes("album") || p.includes("single") || p.includes("track") || p.includes("artist") || p.includes("producer") || p.includes("music") || p.includes("stream") || p.includes("spotify") || p.includes("ep") || p.includes("rap") || p.includes("pop") || p.includes("drill") || p.includes("rock") || p.includes("r&b")) {
+  if (p.includes("song") || p.includes("album") || p.includes("single") || p.includes("track") || p.includes("artist") || p.includes("producer") || p.includes("music") || p.includes("stream") || p.includes("spotify") || p.includes("ep") || p.includes("rap") || p.includes("pop") || p.includes("drill") || p.includes("rock") || p.includes("r&b") || p.includes("afrobeats")) {
     detectedIdentity = "artist";
-  } else if (p.includes("youtube") || p.includes("creator") || p.includes("tiktok") || p.includes("streamer") || p.includes("vlog") || p.includes("podcast") || p.includes("short-form") || p.includes("reels") || p.includes("sponsor")) {
-    detectedIdentity = "creator";
-  } else if (p.includes("clothing") || p.includes("apparel") || p.includes("skincare") || p.includes("brand") || p.includes("fashion") || p.includes("store") || p.includes("dtc") || p.includes("ecommerce") || p.includes("collection") || p.includes("drop")) {
+  } else {
     detectedIdentity = "brand";
-  } else if (p.includes("saas") || p.includes("app") || p.includes("software") || p.includes("startup") || p.includes("tech") || p.includes("mvp") || p.includes("launch") || p.includes("beta") || p.includes("ai")) {
-    detectedIdentity = "startup";
-  } else if (p.includes("agency") || p.includes("client") || p.includes("consulting") || p.includes("services") || p.includes("business") || p.includes("enterprise") || p.includes("firm")) {
-    detectedIdentity = "business";
   }
 
   // Extract smart fields
@@ -337,39 +331,17 @@ apiRouter.post("/onboarding/interpret", requireAuth, async (req: AuthenticatedRe
       format: p.includes("ep") ? "EP" : p.includes("album") ? "Album" : "Single",
       targetDate: new Date(Date.now() + 21 * 86400000).toISOString().split("T")[0],
     };
-  } else if (detectedIdentity === "brand") {
-    if (p.includes("streetwear") || p.includes("clothing") || p.includes("fashion")) extractedGenreOrNiche = "Fashion & Apparel";
-    else if (p.includes("beauty") || p.includes("skincare")) extractedGenreOrNiche = "Beauty & Wellness";
-    else if (p.includes("fitness") || p.includes("gym")) extractedGenreOrNiche = "Fitness & Lifestyle";
-    else extractedGenreOrNiche = "Lifestyle Brand";
+  } else {
+    if (p.includes("streetwear") || p.includes("clothing") || p.includes("fashion") || p.includes("apparel")) extractedGenreOrNiche = "Fashion & Apparel";
+    else if (p.includes("beauty") || p.includes("skincare") || p.includes("cosmetics")) extractedGenreOrNiche = "Beauty & Wellness";
+    else if (p.includes("fitness") || p.includes("gym") || p.includes("activewear")) extractedGenreOrNiche = "Fitness & Lifestyle";
+    else if (p.includes("saas") || p.includes("software") || p.includes("tech") || p.includes("app")) extractedGenreOrNiche = "Technology & SaaS";
+    else extractedGenreOrNiche = "Lifestyle & Consumer Brand";
 
     extractedMilestone = {
-      title: "Q4 Flagship Campaign Drop",
+      title: "Flagship Campaign Launch",
       targetDate: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
       goal: "Drive high brand awareness and initial conversion sprint",
-    };
-  } else if (detectedIdentity === "creator") {
-    if (p.includes("tech") || p.includes("reviews")) extractedGenreOrNiche = "Tech Reviews";
-    else if (p.includes("gaming")) extractedGenreOrNiche = "Gaming & Streaming";
-    else if (p.includes("lifestyle") || p.includes("vlog")) extractedGenreOrNiche = "Lifestyle / Vlog";
-    else extractedGenreOrNiche = "Short-form Content & Entertainment";
-
-    extractedMilestone = {
-      title: "30-Day Growth Sprint Series",
-      description: "Daily high-retention video uploads across TikTok and Reels",
-    };
-  } else if (detectedIdentity === "startup") {
-    extractedGenreOrNiche = "Tech & Digital Product";
-    extractedMilestone = {
-      title: "Public Beta Launch & Waitlist",
-      targetDate: new Date(Date.now() + 45 * 86400000).toISOString().split("T")[0],
-      goal: "Acquire first 1,000 active beta users",
-    };
-  } else {
-    extractedGenreOrNiche = "Professional Creative Services";
-    extractedMilestone = {
-      title: "Flagship Retainer Service Launch",
-      description: "Scale qualified inbound client briefs",
     };
   }
 
@@ -381,9 +353,7 @@ apiRouter.post("/onboarding/interpret", requireAuth, async (req: AuthenticatedRe
       suggestedMilestone: extractedMilestone,
       suggestedPlatforms: detectedIdentity === "artist" 
         ? ["spotify", "instagram", "tiktok", "youtube"] 
-        : detectedIdentity === "creator" 
-        ? ["youtube", "tiktok", "instagram"] 
-        : ["instagram", "tiktok", "linkedin"],
+        : ["instagram", "tiktok", "linkedin", "twitter"],
       reasoning: `Extracted ${detectedIdentity.toUpperCase()} operational framework from natural language context.`,
     },
   });

@@ -50,11 +50,8 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = "login" }:
   };
 
   const identities: { id: IdentityType; label: string; icon: any; desc: string }[] = [
-    { id: "artist", label: "Music Artist", icon: Music, desc: "Release rollouts, Cover Studio, DSP Pitching" },
-    { id: "creator", label: "Content Creator", icon: Video, desc: "Short-form hooks, brand sponsorships, video ideas" },
-    { id: "brand", label: "Brand Identity", icon: Building2, desc: "Codified design systems, 14-day sprint strategies" },
-    { id: "startup", label: "Startup / Product", icon: Rocket, desc: "MVP pitch decks, product launches & assets" },
-    { id: "business", label: "Agency / Enterprise", icon: Briefcase, desc: "Client briefs, service management, commercial vaults" },
+    { id: "artist", label: "Music Artist OS", icon: Music, desc: "Release rollouts, Cover Studio, DSP Pitching" },
+    { id: "brand", label: "Brand OS", icon: Building2, desc: "Design systems, marketing campaigns, content engines" },
   ];
 
   return (

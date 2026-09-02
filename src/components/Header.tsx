@@ -137,7 +137,6 @@ export const Header: React.FC<HeaderProps> = ({
     { id: "splits-calculator", label: "Splits & Royalties", icon: <Percent className="w-3.5 h-3.5" /> },
     { id: "presave-hub", label: "Smart Pre-Save", icon: <Radio className="w-3.5 h-3.5" /> },
     { id: "cover-studio", label: "Cover Studio", icon: <Layers className="w-3.5 h-3.5" /> },
-    { id: "creator-os", label: "Creator OS", icon: <Video className="w-3.5 h-3.5" /> },
     { id: "epk-builder", label: "EPK Kit", icon: <FileText className="w-3.5 h-3.5" /> },
     { id: "project-console", label: "Project Console", icon: <Briefcase className="w-3.5 h-3.5" /> },
     { id: "resource-vault", label: "Vault & Legal", icon: <ShieldCheck className="w-3.5 h-3.5" /> },
@@ -148,14 +147,9 @@ export const Header: React.FC<HeaderProps> = ({
     switch (type) {
       case "artist":
         return <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-red-500/20 text-red-400">ARTIST</span>;
-      case "creator":
-        return <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-400">CREATOR</span>;
       case "brand":
-        return <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-blue-500/20 text-blue-400">BRAND</span>;
-      case "startup":
-        return <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-500/20 text-purple-400">STARTUP</span>;
       default:
-        return <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-400">BIZ</span>;
+        return <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-blue-500/20 text-blue-400">BRAND</span>;
     }
   };
 

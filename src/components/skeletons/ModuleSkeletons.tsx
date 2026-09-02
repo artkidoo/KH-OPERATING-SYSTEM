@@ -397,48 +397,6 @@ export const CoverStudioSkeleton: React.FC = () => (
 // 4. CREATOR OS SKELETON
 // ==========================================
 
-export const CreatorOSSkeleton: React.FC = () => (
-  <div className="space-y-8 text-left pb-16">
-    <div className="p-6 sm:p-8 bento-card border-[var(--bento-border)] space-y-4">
-      <SkeletonBadge width="w-60" className="h-6" />
-      <SkeletonLine width="w-3/5" height="h-8" />
-      <SkeletonLine width="w-4/5" height="h-4" />
-    </div>
-
-    <SkeletonStatusIndicator
-      label="Loading Viral Hook Architecture & Script Vault..."
-      subtext="Analyzing high-retention TikTok, Reels & Shorts patterns"
-      icon={<Video className="w-4 h-4 text-[var(--accent-pill-text)]" />}
-    />
-
-    {/* Filter Pills */}
-    <div className="flex flex-wrap gap-2">
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <SkeletonBadge key={i} width="w-24" className="h-8" />
-      ))}
-    </div>
-
-    {/* Hook Cards Grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="bento-card p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <SkeletonBadge width="w-20" className="h-5" />
-            <SkeletonBadge width="w-16" className="h-5" />
-          </div>
-          <SkeletonLine width="w-full" height="h-4" />
-          <SkeletonLine width="w-4/5" height="h-4" />
-          <SkeletonRect className="w-full h-14 rounded-xl" />
-          <div className="flex items-center justify-between pt-2 border-t border-[var(--bento-border)]">
-            <SkeletonLine width="w-28" height="h-3" />
-            <SkeletonBadge width="w-14" className="h-6" />
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
 // ==========================================
 // 5. EPK PRESS DOSSIER SKELETON
 // ==========================================

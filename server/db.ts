@@ -14,7 +14,7 @@ if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
-export type IdentityType = 'artist' | 'creator' | 'brand' | 'business' | 'startup';
+export type IdentityType = 'artist' | 'brand';
 export type MemberRole = 'owner' | 'admin' | 'editor' | 'member' | 'collaborator' | 'client' | 'viewer';
 export type ProjectStatus = 'planning' | 'in-progress' | 'review' | 'completed';
 export type ProjectPriority = 'low' | 'medium' | 'high' | 'urgent';
@@ -309,7 +309,7 @@ export interface BrandCoreRecord {
   brandName: string;
   tagline: string;
   industry: string;
-  identityType?: 'artist' | 'brand' | 'business' | 'startup' | 'creator';
+  identityType?: 'artist' | 'brand';
   archetype: string;
   logoAssets: {
     primaryLogoUrl: string;
@@ -3490,7 +3490,7 @@ class Database {
       tagline: bio || `The Official ${identityType.charAt(0).toUpperCase() + identityType.slice(1)} Operating Center`,
       industry: genreOrNiche || "Creative Business",
       identityType: (identityType as any) || "brand",
-      archetype: identityType === "artist" ? "Creator / Magician" : identityType === "startup" ? "Pioneer / Outlaw" : identityType === "creator" ? "Entertainer / Creator" : "Ruler / Architect",
+      archetype: identityType === "artist" ? "Creator / Magician" : "Ruler / Architect",
       logoAssets: {
         primaryLogoUrl: avatarUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(name)}`,
       },
@@ -3553,7 +3553,7 @@ class Database {
       id: "prd_" + crypto.randomUUID().substring(0, 8),
       workspaceId,
       name: `${name} Flagship Offering`,
-      type: identityType === "artist" ? "merch" : identityType === "startup" ? "subscription" : identityType === "creator" ? "digital_good" : "product",
+      type: identityType === "artist" ? "merch" : "product",
       tagline: `Premier ${genreOrNiche || "creative"} offering`,
       description: `The core flagship offering for ${name} designed for high market impact.`,
       category: genreOrNiche || "Creative Services",
@@ -3699,25 +3699,12 @@ class Database {
           { name: "Lyric Stories & Meaning", description: "Lyrical breakdown, vulnerability, inspirations", color: "#8B5CF6", icon: "FileText", targetRatio: 20 },
           { name: "Direct To Fan & Performance", description: "Acoustic takes, live rehearsals, community Q&A", color: "#10B981", icon: "Radio", targetRatio: 20 },
         ];
-      } else if (data.identityType === "brand") {
+      } else {
         defaultPillars = [
           { name: "Brand Manifesto & Vision", description: "Core philosophy, design codes, lifestyle aesthetic", color: "#3B82F6", icon: "Building2", targetRatio: 25 },
           { name: "Product & Craftsmanship", description: "Materials, key benefits, feature deep-dives", color: "#EF4444", icon: "Sparkles", targetRatio: 35 },
           { name: "Customer Proof & UGC", description: "Customer reviews, testimonials, real-world styling", color: "#10B981", icon: "Award", targetRatio: 25 },
           { name: "Behind the Scenes", description: "Founder story, development journey, studio days", color: "#F59E0B", icon: "Video", targetRatio: 15 },
-        ];
-      } else if (data.identityType === "creator") {
-        defaultPillars = [
-          { name: "High-Engagement Short Form", description: "Viral hooks, trending formats, relatable stories", color: "#F59E0B", icon: "Video", targetRatio: 40 },
-          { name: "Deep Dive Concepts", description: "Signature series, long-form breakdowns, masterclasses", color: "#8B5CF6", icon: "Layers", targetRatio: 30 },
-          { name: "Community & Collabs", description: "Audience Q&A, guest features, community challenges", color: "#10B981", icon: "Radio", targetRatio: 15 },
-          { name: "Sponsored & Brand Integrations", description: "Authentic partner spotlights, affiliate recommendations", color: "#3B82F6", icon: "Briefcase", targetRatio: 15 },
-        ];
-      } else {
-        defaultPillars = [
-          { name: "Core Product & Offering", description: "Flagship solutions, demos, customer value", color: "#EF4444", icon: "Rocket", targetRatio: 40 },
-          { name: "Industry Insights & Authority", description: "Market trends, thought leadership, case studies", color: "#3B82F6", icon: "BookOpen", targetRatio: 30 },
-          { name: "Company Milestones & BTS", description: "Product updates, team journey, behind the build", color: "#10B981", icon: "Activity", targetRatio: 30 },
         ];
       }
 
@@ -3761,8 +3748,8 @@ class Database {
           category: "dsp-pitch",
         });
       }
-    } else if (data.identityType === "brand") {
-      // Update Brand Core with real user onboarding inputs
+    } else {
+      // Brand OS Master Entity Creation
       const brandCore = this.getBrandCore(workspaceId);
       if (brandCore) {
         if (data.targetAudience) {
@@ -3780,6 +3767,17 @@ class Database {
         brandCore.updatedAt = new Date().toISOString();
       }
 
+      if (data.mainOffer) {
+        const products = this.getProducts(workspaceId);
+        if (products.length > 0) {
+          this.updateProduct(products[0].id, workspaceId, {
+            name: data.mainOffer,
+            tagline: data.positioning || `Premier ${data.genreOrNiche || "brand"} offering`,
+            targetAudience: data.targetAudience || products[0].targetAudience,
+          });
+        }
+      }
+
       if (data.upcomingCampaign?.title) {
         const targetDate = data.upcomingCampaign.targetDate || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split("T")[0];
         this.createCampaign(workspaceId, {
@@ -3793,50 +3791,6 @@ class Database {
           budget: 5000,
           currency: "USD",
           targetAudience: data.targetAudience || "Core target market",
-          sprintDays: [],
-        });
-        initialCounts.campaigns++;
-      }
-    } else if (data.identityType === "creator") {
-      if (data.currentProject?.title) {
-        this.createProject(workspaceId, {
-          title: data.currentProject.title,
-          description: data.currentProject.description || data.primaryGoal || "Creator content sprint",
-          category: "Content Sprint",
-          status: "in-progress",
-          priority: "high",
-          budget: 0,
-          currency: "USD",
-          deadline: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
-          tags: ["Content", "Sprint", data.genreOrNiche || "Creator"],
-          tasks: [],
-        });
-        initialCounts.projects++;
-      }
-    } else if (data.identityType === "business" || data.identityType === "startup") {
-      if (data.mainOffer) {
-        const products = this.getProducts(workspaceId);
-        if (products.length > 0) {
-          this.updateProduct(products[0].id, workspaceId, {
-            name: data.mainOffer,
-            tagline: data.positioning || `Premier ${data.genreOrNiche || "business"} offering`,
-            targetAudience: data.targetAudience || products[0].targetAudience,
-          });
-        }
-      }
-      if (data.upcomingCampaign?.title) {
-        const targetDate = data.upcomingCampaign.targetDate || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split("T")[0];
-        this.createCampaign(workspaceId, {
-          title: data.upcomingCampaign.title,
-          goal: data.upcomingCampaign.goal || data.primaryGoal || "Customer acquisition & launch visibility",
-          objective: data.identityType === "startup" ? "product_launch" : "lead_generation",
-          status: "planning",
-          startDate: new Date().toISOString().split("T")[0],
-          endDate: targetDate,
-          platforms: ["LinkedIn", "Twitter/X", "Instagram"],
-          budget: 10000,
-          currency: "USD",
-          targetAudience: data.targetAudience || "Target ICP",
           sprintDays: [],
         });
         initialCounts.campaigns++;
@@ -7127,10 +7081,7 @@ class Database {
 
     const workspacesByIdentity: Record<IdentityType, number> = {
       artist: workspaces.filter((w) => w.identityType === "artist").length,
-      creator: workspaces.filter((w) => w.identityType === "creator").length,
-      brand: workspaces.filter((w) => w.identityType === "brand").length,
-      business: workspaces.filter((w) => w.identityType === "business").length,
-      startup: workspaces.filter((w) => w.identityType === "startup").length,
+      brand: workspaces.filter((w) => w.identityType === "brand" || (w.identityType as any) !== "artist").length,
     };
 
     const pendingApprovals = approvals.filter((a) => a.status === "pending" || a.status === "in_review").length;

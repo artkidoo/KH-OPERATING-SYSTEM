@@ -1,6 +1,6 @@
 {
   "name": "Keedohub Creative OS",
-  "description": "The Operating System for music artists, brands, creators, and startups. Features Phase 16 Admin Control Center, Phase 15 Multi-User Collaboration & Approvals, Phase 14 Workflow Engine & Task Management, Phase 11 Analytics & Growth Intelligence, Phase 10 Unified Command Center, Phase 9 Creative Radar, Phase 8 Creative Memory, Phase 7 Keedohub Studio, Creative Brain AI, 7-Pillar Readiness, Artist OS, Brand OS, Content Engine, and Smart Pre-Save Hub.",
+  "description": "The Operating System for music artists and brands. Powered by Artist OS, Brand OS, Creative Brain AI, 7-Pillar Readiness, Unified Command Center, Creative Radar, Admin Control Center, and Asset Studios.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

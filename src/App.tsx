@@ -14,7 +14,6 @@ import { WorkspaceHub } from "./components/WorkspaceHub";
 import { ArtistContentBrain } from "./components/ArtistContentBrain";
 import { CoverStudio } from "./components/CoverStudio";
 import { BrandOS } from "./components/BrandOS";
-import { CreatorOS } from "./components/CreatorOS";
 import { EPKBuilder } from "./components/EPKBuilder";
 import { ProjectConsole } from "./components/ProjectConsole";
 import { ResourceVault } from "./components/ResourceVault";
@@ -220,10 +219,6 @@ function MainAppContent() {
 
         {activeTab === "brand-os" && (
           <BrandOS onNotify={addNotification} onNavigateTab={setActiveTab} />
-        )}
-
-        {activeTab === "creator-os" && (
-          <CreatorOS onNotify={addNotification} />
         )}
 
         {activeTab === "epk-builder" && (

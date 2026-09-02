@@ -46,40 +46,13 @@ const IDENTITY_OPTIONS: IdentityCardConfig[] = [
     features: ["Release Readiness Engine", "DSP Editorial Pitcher", "Cover & Mastering Suites"],
   },
   {
-    type: "creator",
-    title: "Content Creator",
-    subtitle: "Short-form video sprints, signature series, and viral hooks",
-    icon: Video,
-    accentColor: "from-amber-500/20 to-yellow-500/20 border-amber-500/30 text-amber-400",
-    badge: "Creator OS",
-    features: ["Content Calendar & Pillars", "Script & Hook Engine", "Asset Vault"],
-  },
-  {
     type: "brand",
-    title: "Brand & DTC",
-    subtitle: "Brand identity, collection drops, campaign sprints, and customer proof",
+    title: "Brand & Business",
+    subtitle: "Brand identity, collection drops, campaign sprints, and conversion engines",
     icon: Building2,
     accentColor: "from-blue-500/20 to-indigo-500/20 border-blue-500/30 text-blue-400",
     badge: "Brand OS",
-    features: ["Brand Core & Archetypes", "Campaign Sprint Tracker", "Multi-channel Content"],
-  },
-  {
-    type: "startup",
-    title: "Startup & SaaS",
-    subtitle: "Product launches, beta rollouts, ICP messaging, and tech growth",
-    icon: Rocket,
-    accentColor: "from-purple-500/20 to-pink-500/20 border-purple-500/30 text-purple-400",
-    badge: "Startup OS",
-    features: ["Product & Feature Roadmap", "Launch Sprints", "Creative Intelligence"],
-  },
-  {
-    type: "business",
-    title: "Business & Agency",
-    subtitle: "Client retainers, high-value offers, thought leadership, and delivery",
-    icon: Briefcase,
-    accentColor: "from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400",
-    badge: "Business OS",
-    features: ["Offer Packaging", "Inbound Retainers", "Asset Organization"],
+    features: ["Brand Core & Archetypes", "Campaign Sprint Tracker", "Multi-channel Content & Product Engine"],
   },
 ];
 
@@ -137,10 +110,8 @@ export const OnboardingModal: React.FC = () => {
       // Pre-select popular platforms based on identity
       if (defaultId === "artist") {
         setSelectedPlatforms(["spotify", "instagram", "tiktok", "youtube"]);
-      } else if (defaultId === "creator") {
-        setSelectedPlatforms(["youtube", "tiktok", "instagram"]);
       } else {
-        setSelectedPlatforms(["instagram", "linkedin", "tiktok"]);
+        setSelectedPlatforms(["instagram", "linkedin", "tiktok", "youtube"]);
       }
       setStep(1);
       setError(null);
@@ -181,9 +152,6 @@ export const OnboardingModal: React.FC = () => {
           setCampaignTitle(data.suggestedMilestone.title);
           if (data.suggestedMilestone.goal) setCampaignGoal(data.suggestedMilestone.goal);
           if (data.suggestedMilestone.targetDate) setCampaignTargetDate(data.suggestedMilestone.targetDate);
-        } else if (data.identityType === "creator" && data.suggestedMilestone.title) {
-          setProjectTitle(data.suggestedMilestone.title);
-          if (data.suggestedMilestone.description) setProjectDescription(data.suggestedMilestone.description);
         }
       }
 
@@ -231,20 +199,6 @@ export const OnboardingModal: React.FC = () => {
         goal: campaignGoal.trim(),
         targetDate: campaignTargetDate || undefined,
       };
-    } else if (selectedIdentity === "creator" && projectTitle.trim()) {
-      payload.currentProject = {
-        title: projectTitle.trim(),
-        description: projectDescription.trim(),
-      };
-    } else if ((selectedIdentity === "business" || selectedIdentity === "startup") && mainOffer.trim()) {
-      payload.mainOffer = mainOffer.trim();
-      if (campaignTitle.trim()) {
-        payload.upcomingCampaign = {
-          title: campaignTitle.trim(),
-          goal: campaignGoal.trim(),
-          targetDate: campaignTargetDate || undefined,
-        };
-      }
     }
 
     try {
@@ -412,8 +366,6 @@ export const OnboardingModal: React.FC = () => {
                     placeholder={
                       selectedIdentity === "artist"
                         ? "e.g., I'm an electronic producer dropping a 4-track EP next month with visualizers"
-                        : selectedIdentity === "creator"
-                        ? "e.g., Tech YouTuber launching a 30-day short-form review sprint across Reels & TikTok"
                         : "e.g., Sustainable streetwear brand dropping our winter collection and scaling ads"
                     }
                     className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-red-500"
@@ -466,8 +418,6 @@ export const OnboardingModal: React.FC = () => {
                   <label className="text-xs font-semibold text-zinc-300">
                     {selectedIdentity === "artist"
                       ? "Primary Music Genre / Style"
-                      : selectedIdentity === "creator"
-                      ? "Content Niche / Topic"
                       : "Industry / Market Category"}
                   </label>
                   <input
@@ -478,9 +428,7 @@ export const OnboardingModal: React.FC = () => {
                     placeholder={
                       selectedIdentity === "artist"
                         ? "e.g. Melodic Rap, Afrobeats, Synthwave, Indie Rock"
-                        : selectedIdentity === "creator"
-                        ? "e.g. Tech Reviews, Gaming & Stream Highlights, Lifestyle"
-                        : "e.g. Direct-To-Consumer Apparel, AI Productivity, B2B Growth"
+                        : "e.g. Direct-To-Consumer Apparel, Beauty & Skincare, Tech & SaaS"
                     }
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-red-500"
                   />
@@ -675,85 +623,6 @@ export const OnboardingModal: React.FC = () => {
                         value={campaignTargetDate}
                         onChange={(e) => setCampaignTargetDate(e.target.value)}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* CREATOR SPECIFIC */}
-              {selectedIdentity === "creator" && (
-                <div className="space-y-3.5 p-4 rounded-xl bg-zinc-950 border border-zinc-800">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-amber-400 uppercase tracking-wider">
-                    <Video className="h-4 w-4" /> Current Content Project
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] text-zinc-400">Project / Series Title</label>
-                    <input
-                      type="text"
-                      id="input-project-title"
-                      value={projectTitle}
-                      onChange={(e) => setProjectTitle(e.target.value)}
-                      placeholder="e.g. 30-Day Short-Form Sprint, Weekly Breakdown Show"
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] text-zinc-400">Sprint Goal & Concept</label>
-                    <input
-                      type="text"
-                      id="input-project-desc"
-                      value={projectDescription}
-                      onChange={(e) => setProjectDescription(e.target.value)}
-                      placeholder="e.g. 3 daily TikToks & Reels testing 3 signature hook angles"
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* STARTUP / BUSINESS */}
-              {(selectedIdentity === "startup" || selectedIdentity === "business") && (
-                <div className="space-y-3.5 p-4 rounded-xl bg-zinc-950 border border-zinc-800">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-purple-400 uppercase tracking-wider">
-                    <Rocket className="h-4 w-4" /> Flagship Product / Core Offer
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] text-zinc-400">Offer / Solution Name</label>
-                    <input
-                      type="text"
-                      id="input-main-offer"
-                      value={mainOffer}
-                      onChange={(e) => setMainOffer(e.target.value)}
-                      placeholder="e.g. AI Workflow Copilot, Creative Retainer Tier 1"
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-purple-500"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[11px] text-zinc-400">Launch / Sprint Title</label>
-                      <input
-                        type="text"
-                        id="input-biz-campaign"
-                        value={campaignTitle}
-                        onChange={(e) => setCampaignTitle(e.target.value)}
-                        placeholder="e.g. Public Beta Rollout, Q1 Retainer Drive"
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-purple-500"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] text-zinc-400">Target Outcome</label>
-                      <input
-                        type="text"
-                        id="input-biz-goal"
-                        value={campaignGoal}
-                        onChange={(e) => setCampaignGoal(e.target.value)}
-                        placeholder="e.g. 100 paid subscribers / 5 client retainers"
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-purple-500"
                       />
                     </div>
                   </div>

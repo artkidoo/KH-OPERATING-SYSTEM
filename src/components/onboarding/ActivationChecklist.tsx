@@ -91,6 +91,7 @@ export const ActivationChecklist: React.FC<ActivationChecklistProps> = ({
         ];
 
       case "brand":
+      default:
         return [
           {
             id: "brand-core",
@@ -113,7 +114,7 @@ export const ActivationChecklist: React.FC<ActivationChecklistProps> = ({
           {
             id: "brand-assets",
             label: "Upload Brand Kit & Visuals",
-            description: "Store logos, product mockups and lifestyle photography",
+            description: "Store logos, product mockups and marketing assets",
             completed: assetsCount > 0,
             actionTab: "resource-vault",
             actionLabel: "Asset Vault",
@@ -122,93 +123,11 @@ export const ActivationChecklist: React.FC<ActivationChecklistProps> = ({
           {
             id: "content-pillars",
             label: "Schedule Multi-Channel Sprint",
-            description: "Distribute customer proof, manifesto clips and UGC",
+            description: "Distribute proof, campaign clips and social content",
             completed: contentCount >= 3,
             actionTab: "artist-brain",
             actionLabel: "Content Calendar",
             category: "content",
-          },
-        ];
-
-      case "creator":
-        return [
-          {
-            id: "signature-series",
-            label: "Initialize Signature Content Series",
-            description: "Define your core format, production cadence and series hook",
-            completed: true,
-            actionTab: "creator-os",
-            actionLabel: "Creator OS",
-            category: "core",
-          },
-          {
-            id: "content-pipeline",
-            label: "Plan 5 Short-Form Hooks",
-            description: "Draft viral scripts & retention loops in Content Engine",
-            completed: contentCount >= 5,
-            actionTab: "artist-brain",
-            actionLabel: "Content Engine",
-            category: "content",
-          },
-          {
-            id: "asset-library",
-            label: "Organize B-Roll & Brand Kit",
-            description: "Centralize thumbnails, sound effects and visual assets",
-            completed: assetsCount > 0,
-            actionTab: "resource-vault",
-            actionLabel: "Asset Vault",
-            category: "assets",
-          },
-          {
-            id: "creative-radar",
-            label: "Scan Cultural & Niche Trends",
-            description: "Analyze trending audio, formats and audience sentiment",
-            completed: false,
-            actionTab: "creative-radar",
-            actionLabel: "Creative Radar",
-            category: "intelligence",
-          },
-        ];
-
-      case "startup":
-      case "business":
-      default:
-        return [
-          {
-            id: "product-offer",
-            label: "Configure Flagship Solution / Retainer",
-            description: "Define value proposition, pricing tiers and ICP deliverables",
-            completed: true,
-            actionTab: "brand-os",
-            actionLabel: "Brand Core",
-            category: "core",
-          },
-          {
-            id: "growth-campaign",
-            label: "Launch Growth & Inbound Sprint",
-            description: "Structure lead generation or beta onboarding milestones",
-            completed: campaignsCount > 0,
-            actionTab: "brand-os",
-            actionLabel: "Campaign OS",
-            category: "launch",
-          },
-          {
-            id: "thought-leadership",
-            label: "Schedule Authority Content",
-            description: "Post product breakdown, case study or insight carousel",
-            completed: contentCount > 0,
-            actionTab: "artist-brain",
-            actionLabel: "Content Engine",
-            category: "content",
-          },
-          {
-            id: "sales-assets",
-            label: "Upload Deck & Brand Assets",
-            description: "Centralize one-pagers, logo assets and media collateral",
-            completed: assetsCount > 0,
-            actionTab: "resource-vault",
-            actionLabel: "Asset Vault",
-            category: "assets",
           },
         ];
     }

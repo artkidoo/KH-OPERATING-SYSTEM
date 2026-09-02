@@ -151,14 +151,9 @@ export const WorkspaceManagementTab: React.FC<WorkspaceManagementTabProps> = ({
     switch (type) {
       case "artist":
         return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-500/20 text-red-400 border border-red-500/30">ARTIST OS</span>;
-      case "creator":
-        return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">CREATOR OS</span>;
       case "brand":
-        return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">BRAND OS</span>;
-      case "startup":
-        return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">STARTUP OS</span>;
       default:
-        return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">BUSINESS OS</span>;
+        return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">BRAND OS</span>;
     }
   };
 
@@ -214,10 +209,7 @@ export const WorkspaceManagementTab: React.FC<WorkspaceManagementTabProps> = ({
           >
             <option value="all">All Identities</option>
             <option value="artist">Artist OS</option>
-            <option value="creator">Creator OS</option>
             <option value="brand">Brand OS</option>
-            <option value="business">Business OS</option>
-            <option value="startup">Startup OS</option>
           </select>
 
           <select

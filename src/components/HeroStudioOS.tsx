@@ -28,13 +28,13 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 }) => {
   const { currentThemeConfig } = useTheme();
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
-  const [activeRole, setActiveRole] = useState<'artist' | 'brand' | 'creator' | 'startup'>('artist');
+  const [activeRole, setActiveRole] = useState<'artist' | 'brand'>('artist');
 
   const roleConfigs = {
     artist: {
       tag: "MUSIC ARTIST OS",
       title: "The Rollout Engine for Modern Musicians",
-      description: "You recorded the song. We engineer the 30-day promotional rollout, viral TikTok hooks, 3000x3000px artwork, DSP pitch letters, and press kits to dominate the algorithm.",
+      description: "You recorded the song. We engineer the 30-day promotional rollout, viral hooks, 3000x3000px artwork, DSP pitch letters, and press kits to dominate the algorithm.",
       ctaTab: "artist-os" as ActiveTab,
       ctaText: "Launch Artist OS",
       metrics: [
@@ -46,37 +46,13 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
     brand: {
       tag: "BRAND ARCHITECT OS",
       title: "Design Systems & High-Conversion Brand Engines",
-      description: "Transform your company into a recognized cultural authority. Vector brand marks, mathematically paired typography, responsive web architecture, and full commercial rights.",
+      description: "Transform your company into a recognized cultural authority. Vector brand marks, mathematically paired typography, responsive campaign architecture, and full commercial rights.",
       ctaTab: "brand-os" as ActiveTab,
       ctaText: "Open Brand Architecture OS",
       metrics: [
         { label: "Turnaround Time", val: "48-72h" },
         { label: "Commercial Rights", val: "100% Owned" },
         { label: "Asset Formats", val: "SVG, AI, PDF, Web" }
-      ]
-    },
-    creator: {
-      tag: "CREATOR HOOK OS",
-      title: "Short-Form Content & Viral Retention Architecture",
-      description: "Stop posting into the void. Access 30+ data-backed 3-second hook structures, thumbnail click-through blueprints, and live sponsorship rate calculators.",
-      ctaTab: "creator-os" as ActiveTab,
-      ctaText: "Launch Creator OS",
-      metrics: [
-        { label: "Hook Retention Boost", val: "+140%" },
-        { label: "Rate Card Accuracy", val: "Industry Standard" },
-        { label: "Cadence Engine", val: "Daily Blueprint" }
-      ]
-    },
-    startup: {
-      tag: "STARTUP LAUNCH OS",
-      title: "MVP Design, Pitch Decks & Web Applications",
-      description: "From napkin sketch to high-growth tech platform. Pitch decks that close seed rounds, interactive web apps, and automated lead capture funnels.",
-      ctaTab: "project-console" as ActiveTab,
-      ctaText: "Open Startup Project Console",
-      metrics: [
-        { label: "Seed Pitch Success", val: "Top Tier" },
-        { label: "Full Stack Tech", val: "React + TS + Node" },
-        { label: "Sprint Duration", val: "14 Days" }
       ]
     }
   };
@@ -129,19 +105,19 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
             ></div>
 
             <div className="space-y-4 sm:space-y-5 relative z-10">
-              {/* Identity Role Badges (Forced 2x2 Grid on Mobile, Flex on Desktop) */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl bg-[var(--bento-elevated)] border border-[var(--bento-border)]">
-                {(['artist', 'brand', 'creator', 'startup'] as const).map((r) => (
+              {/* Identity Role Badges (Artist & Brand OS) */}
+              <div className="flex items-center gap-1.5 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl bg-[var(--bento-elevated)] border border-[var(--bento-border)]">
+                {(['artist', 'brand'] as const).map((r) => (
                   <button
                     key={r}
                     onClick={() => setActiveRole(r)}
-                    className={`px-2.5 sm:px-3.5 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-mono font-semibold transition-all cursor-pointer uppercase text-center truncate ${
+                    className={`flex-1 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer uppercase text-center truncate ${
                       activeRole === r
                         ? "bg-theme-accent font-bold text-white shadow-sm"
                         : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-card)]"
                     }`}
                   >
-                    {r === 'artist' ? '🎵 Music Artist' : r === 'brand' ? '💼 Brand' : r === 'creator' ? '🎬 Creator' : '🚀 Startup'}
+                    {r === 'artist' ? '🎵 Music Artist OS' : '💼 Brand OS'}
                   </button>
                 ))}
               </div>
@@ -610,29 +586,29 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
               </div>
             </div>
 
-            {/* Module 8: Creator OS */}
+            {/* Module 8: Content Engine */}
             <div
-              onClick={() => setActiveTab("creator-os")}
+              onClick={() => setActiveTab("artist-brain")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-emerald-500/50"
             >
               <div className="space-y-2.5 sm:space-y-3.5">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Video className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
                   <span className="text-[8px] sm:text-[9px] font-mono text-emerald-500 font-bold uppercase tracking-wider">
-                    VIRAL HOOKS
+                    DISTRIBUTION
                   </span>
                   <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-emerald-500 transition-colors mt-0.5">
-                    Creator OS & Hooks
+                    Content Engine
                   </h3>
                   <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
-                    High-retention 3-second hook bank, thumbnail layouts, and rate card calculator.
+                    Multi-channel content calendar, pillar scheduling, and automated creative distribution.
                   </p>
                 </div>
               </div>
               <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-emerald-500 font-bold">
-                <span>Creator OS</span>
+                <span>Engine</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>

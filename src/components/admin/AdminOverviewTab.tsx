@@ -183,14 +183,9 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
                 switch (t) {
                   case "artist":
                     return "bg-red-500 text-red-400";
-                  case "creator":
-                    return "bg-amber-500 text-amber-400";
                   case "brand":
-                    return "bg-blue-500 text-blue-400";
-                  case "startup":
-                    return "bg-purple-500 text-purple-400";
                   default:
-                    return "bg-emerald-500 text-emerald-400";
+                    return "bg-blue-500 text-blue-400";
                 }
               };
 

@@ -19,14 +19,13 @@ export type ActiveTab =
   | 'splits-calculator'
   | 'presave-hub'
   | 'brand-os'
-  | 'creator-os'
   | 'epk-builder'
   | 'project-console'
   | 'resource-vault'
   | 'intel-hub'
   | 'admin';
 
-export type IdentityType = 'artist' | 'creator' | 'brand' | 'business' | 'startup';
+export type IdentityType = 'artist' | 'brand';
 
 export interface OnboardingPayload {
   workspaceId?: string;
@@ -860,7 +859,7 @@ export interface BrandCore {
   brandName: string;
   tagline: string;
   industry: string;
-  identityType?: 'artist' | 'brand' | 'business' | 'startup' | 'creator';
+  identityType?: 'artist' | 'brand';
   archetype: string;
   logoAssets: {
     primaryLogoUrl: string;
