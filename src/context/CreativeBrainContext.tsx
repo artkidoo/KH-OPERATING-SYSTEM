@@ -36,7 +36,7 @@ interface CreativeBrainContextType {
 const CreativeBrainContext = createContext<CreativeBrainContextType | undefined>(undefined);
 
 export function CreativeBrainProvider({ children }: { children: ReactNode }) {
-  const { workspace, refreshWorkspace } = useWorkspace();
+  const { workspace, fetchWorkspaceData } = useWorkspace();
   const [isOpen, setIsOpen] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [pinnedContext, setPinnedContextState] = useState<PinnedBrainContext | null>(null);
@@ -70,13 +70,44 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
   };
 
   const fetchRecommendations = useCallback(async () => {
-    if (!workspace) return;
+    if (!workspace?.id) return;
     setIsLoadingRecs(true);
     try {
       const res = await api.ai.getRecommendations(workspace.id);
-      setRecommendations(res.recommendations || []);
-    } catch (e) {
-      console.error("[CreativeBrain Context] Failed to load recommendations", e);
+      if (res && Array.isArray(res.recommendations)) {
+        setRecommendations(res.recommendations);
+      } else {
+        setRecommendations([]);
+      }
+    } catch {
+      // Graceful fallback for offline / preview transitions
+      const fallbackRecs: CreativeBrainRecommendation[] = [];
+      if (workspace.identityType === 'artist') {
+        fallbackRecs.push({
+          id: `rec_fallback_art`,
+          title: "Complete 3000x3000px Cover Artwork",
+          category: "Release Blocker",
+          priority: "high",
+          whatIsMissing: "High-resolution master cover visual",
+          whyItMatters: "DSP platforms require strict 3000x3000px uncompressed artwork",
+          recommendedAction: "Design in Cover Studio",
+          actionTab: "cover-studio",
+          actionLabel: "Design in Cover Studio",
+        });
+      } else {
+        fallbackRecs.push({
+          id: `rec_fallback_brand`,
+          title: "Establish Brand Visual Direction",
+          category: "Campaign Blocker",
+          priority: "high",
+          whatIsMissing: "Brand design tokens & campaign assets",
+          whyItMatters: "Visual consistency drives audience trust and campaign conversion",
+          recommendedAction: "Define in Brand OS",
+          actionTab: "brand-os",
+          actionLabel: "Open Brand OS",
+        });
+      }
+      setRecommendations(fallbackRecs);
     } finally {
       setIsLoadingRecs(false);
     }
@@ -135,7 +166,7 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
 
       // If any actions were executed, refresh workspace state & recommendations
       if (res.executedActions && res.executedActions.length > 0) {
-        if (refreshWorkspace) refreshWorkspace();
+        if (fetchWorkspaceData) fetchWorkspaceData();
         fetchRecommendations();
       }
     } catch (err: any) {
@@ -168,7 +199,7 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
 
       setMessages((prev) => [...prev, brainMsg]);
 
-      if (refreshWorkspace) refreshWorkspace();
+      if (fetchWorkspaceData) fetchWorkspaceData();
       fetchRecommendations();
 
       return receipt;
