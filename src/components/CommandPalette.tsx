@@ -134,7 +134,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     },
     {
       id: "nav-artist-os",
-      title: "Artist OS (7-Pillar Release Brain)",
+      title: "Artist Workspace (powered by Artist OS)",
       description: "Release rollout pipeline, DSP editorial pitch, cover studio, stems mastering & splits",
       icon: <Disc3 className="w-4 h-4 text-red-400" />,
       action: () => {
@@ -144,7 +144,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     },
     {
       id: "nav-brand-os",
-      title: "Brand & Business OS",
+      title: "Brand Workspace (powered by Brand OS)",
       description: "Brand core, visual guidelines, 30-day sprint campaign launcher & product catalog",
       icon: <Sparkles className="w-4 h-4 text-blue-400" />,
       action: () => {

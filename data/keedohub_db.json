@@ -37,6 +37,66 @@
       "token": "kdh_sess_5a0102788ebcc05a01ed4a8840a780ba3b49e4f9ed7a753e626a3e3a0d17503e",
       "userId": "usr_demo_keedohub",
       "expiresAt": "2026-10-02T09:48:49.344Z"
+    },
+    {
+      "token": "kdh_sess_fc3f6a63d6ee965e1eae20ce1458d40cc323589b6bb7d515e23165edc5fa047e",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:08:23.560Z"
+    },
+    {
+      "token": "kdh_sess_c7fb4aa33fc47fa2c0bde10f3e5338b16704402d1088cfa3f7c09569febc0baa",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:08:23.562Z"
+    },
+    {
+      "token": "kdh_sess_9c8ddafd2bf6d68f8f41179fdf42e7f485067b41b6098429577d865bfc24438f",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:39:13.236Z"
+    },
+    {
+      "token": "kdh_sess_cc7cc8473b575c1505372f98b45aa60180c8ff8814a57260594962bdfb165ca9",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:39:35.252Z"
+    },
+    {
+      "token": "kdh_sess_d99103e887ab19b327c3a9fca7a715161e4e3aaf921f00b1e8c1cb1217d5fe2c",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:40:27.279Z"
+    },
+    {
+      "token": "kdh_sess_d700c0d23062a4134286975b195b595d17e8cadc65fb2bb9143f81e2120a01bb",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:41:20.977Z"
+    },
+    {
+      "token": "kdh_sess_872927826484316271d4a649a5fde08b1bd2f5f537fb7a066e4cfb07592cec51",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:43:54.976Z"
+    },
+    {
+      "token": "kdh_sess_f2b6a2f7360c0c73635f81d58a55e375ca914a806d4aa634d54a6499bd16cb23",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:43:55.010Z"
+    },
+    {
+      "token": "kdh_sess_45ff057fb704d52e2221efa5f0e242d4a8051769090325fad55ac55d04e2b45f",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:43:55.038Z"
+    },
+    {
+      "token": "kdh_sess_4b6a6135d685557653a20e3aa57fe7051664c28aae22381898663a94dd8a305c",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:43:55.056Z"
+    },
+    {
+      "token": "kdh_sess_87bcc79c3371d86adf69171eabbfe298d632870c0957cd5c0afa0587977cb7fa",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:43:59.133Z"
+    },
+    {
+      "token": "kdh_sess_3d5e5554568a8f287f39f39b2a47c5a4560c9ac6f912d74136ecc5e6225d0a68",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T09:44:01.499Z"
     }
   ],
   "workspaces": [
@@ -414,56 +474,7 @@
       "updatedAt": "2026-09-02T08:38:56.603Z"
     }
   ],
-  "projects": [
-    {
-      "id": "proj_demo_1",
-      "workspaceId": "ws_demo_artist_os",
-      "title": "Midnight in Victoria Island — EP Launch Suite",
-      "description": "Full end-to-end 5-track visual rollout, 3000px artwork, kinetic lyrics visualizers and DSP pitch packaging.",
-      "category": "Music & Brand Launch",
-      "status": "in-progress",
-      "priority": "high",
-      "budget": 3500,
-      "currency": "USD",
-      "deadline": "2026-09-30",
-      "clientName": "AfroVibe Music Group",
-      "tags": [
-        "Music",
-        "EP Rollout",
-        "Visual Identity",
-        "DSP Campaign"
-      ],
-      "tasks": [
-        {
-          "id": "task_1",
-          "text": "Finalize 3000x3000px 300DPI Master Artwork in Cover Studio",
-          "completed": true
-        },
-        {
-          "id": "task_2",
-          "text": "Run LUFS loudness meter and dynamic range checks in Mastering Suite",
-          "completed": true
-        },
-        {
-          "id": "task_3",
-          "text": "Complete producer & songwriter split agreements in Split Calculator",
-          "completed": false
-        },
-        {
-          "id": "task_4",
-          "text": "Submit 5-week Spotify Editorial pitch via DSP Pitcher",
-          "completed": false
-        },
-        {
-          "id": "task_5",
-          "text": "Deploy Presave SmartLink Hub with fan lead capture",
-          "completed": false
-        }
-      ],
-      "createdAt": "2026-09-02T08:38:56.602Z",
-      "updatedAt": "2026-09-02T08:38:56.602Z"
-    }
-  ],
+  "projects": [],
   "folders": [
     {
       "id": "fld_demo_1",
@@ -511,98 +522,11 @@
       "createdAt": "2026-09-02T08:38:56.603Z"
     }
   ],
-  "milestones": [
-    {
-      "id": "mls_demo_1",
-      "workspaceId": "ws_demo_artist_os",
-      "projectId": "proj_demo_1",
-      "projectTitle": "Midnight in Victoria Island — EP Launch Suite",
-      "title": "Master Audio 24-bit 44.1kHz WAV Delivery & LUFS Check",
-      "targetDate": "2026-09-05",
-      "status": "achieved",
-      "deliverables": [
-        "Master WAV",
-        "Instrumental Stem",
-        "Acapella"
-      ],
-      "notes": "Mastered at -9.2 LUFS for streaming distribution.",
-      "completed": true,
-      "createdAt": "2026-09-02T08:38:56.603Z"
-    },
-    {
-      "id": "mls_demo_2",
-      "workspaceId": "ws_demo_artist_os",
-      "projectId": "proj_demo_1",
-      "projectTitle": "Midnight in Victoria Island — EP Launch Suite",
-      "title": "3000x3000px 300DPI Artwork Validation in Cover Studio",
-      "targetDate": "2026-09-08",
-      "status": "achieved",
-      "deliverables": [
-        "Square 3000px Artwork",
-        "Canvas Motion Banner",
-        "Spotify Header"
-      ],
-      "notes": "Exported RGB color space without borders or barcodes.",
-      "completed": true,
-      "createdAt": "2026-09-02T08:38:56.603Z"
-    },
-    {
-      "id": "mls_demo_3",
-      "workspaceId": "ws_demo_artist_os",
-      "projectId": "proj_demo_1",
-      "projectTitle": "Midnight in Victoria Island — EP Launch Suite",
-      "title": "DSP Editorial Pitch Letter Submission (Spotify / Apple / Amazon)",
-      "targetDate": "2026-09-12",
-      "status": "in-progress",
-      "deliverables": [
-        "DSP Pitch Deck",
-        "Mood & Genre Meta",
-        "Marketing Budget Validation"
-      ],
-      "notes": "Targeting African Heat, Naija 100, and New Music Friday.",
-      "completed": false,
-      "createdAt": "2026-09-02T08:38:56.603Z"
-    },
-    {
-      "id": "mls_demo_4",
-      "workspaceId": "ws_demo_artist_os",
-      "projectId": "proj_demo_1",
-      "projectTitle": "Midnight in Victoria Island — EP Launch Suite",
-      "title": "Deploy Smart Pre-Save Hub & Activate Fan Waitlist",
-      "targetDate": "2026-09-15",
-      "status": "in-progress",
-      "deliverables": [
-        "Pre-save Landing Page",
-        "Email Lead Hook",
-        "Audio Teaser Snippet"
-      ],
-      "notes": "Goal: 1,000 verified pre-saves prior to drop hour.",
-      "completed": false,
-      "createdAt": "2026-09-02T08:38:56.603Z"
-    },
-    {
-      "id": "mls_demo_5",
-      "workspaceId": "ws_demo_artist_os",
-      "projectId": "proj_demo_1",
-      "projectTitle": "Midnight in Victoria Island — EP Launch Suite",
-      "title": "Global Midnight Drop & Day-1 Velocity Push",
-      "targetDate": "2026-09-18",
-      "status": "pending",
-      "deliverables": [
-        "Live DSP Links Blast",
-        "Kinetic Lyric Video on YouTube",
-        "IG/TikTok Sound Blitz"
-      ],
-      "notes": "Execute 72-hour launch sprint for maximum playlist algorithmic trigger.",
-      "completed": false,
-      "createdAt": "2026-09-02T08:38:56.603Z"
-    }
-  ],
+  "milestones": [],
   "assets": [
     {
       "id": "ast_demo_1",
       "workspaceId": "ws_demo_artist_os",
-      "projectId": "proj_demo_1",
       "name": "Midnight in Victoria Island — Official 3000px Cover.png",
       "category": "cover",
       "url": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000&auto=format&fit=crop&q=80",
@@ -1343,7 +1267,7 @@
   ],
   "notifications": [
     {
-      "id": "notif_08b3b5b6",
+      "id": "notif_3cada645",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "studio_deliverable_review:sdel_demo_1",
       "title": "Deliverable Ready for Review: Midnight in VI — 3000x3000px Master Cover Artwork",
@@ -1361,7 +1285,7 @@
       "createdAt": "2026-09-01T08:38:56.603Z"
     },
     {
-      "id": "notif_5e54b68e",
+      "id": "notif_f477d938",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_433abb8b-",
       "title": "Radar Alert: Missing Hero Creative Asset for Campaign \"Q3 Global Streaming & Radio Push\"",
@@ -1379,7 +1303,7 @@
       "createdAt": "2026-09-02T08:46:36.430Z"
     },
     {
-      "id": "notif_90687ee9",
+      "id": "notif_241f10ed",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_1a1c7ef5-",
       "title": "Radar Alert: Master WAV Audio not linked for \"Midnight in Victoria Island\"",
@@ -1397,7 +1321,7 @@
       "createdAt": "2026-09-02T08:46:36.427Z"
     },
     {
-      "id": "notif_835f14b8",
+      "id": "notif_45cf6d1d",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_a0e5a2c9-",
       "title": "Radar Alert: Studio Deliverable \"Midnight in VI — 3000x3000px Master Cover Artwork\" (V1) ready for sign-off",
@@ -1415,7 +1339,7 @@
       "createdAt": "2026-09-02T08:46:36.431Z"
     },
     {
-      "id": "notif_e7dafe80",
+      "id": "notif_3121f2ac",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_a2c4ea6c-",
       "title": "Radar Alert: Studio Deliverable \"Spotify Canvas 9:16 3D Kinetic Loop\" (V1) ready for sign-off",
@@ -1431,6 +1355,291 @@
       "entityId": "sdel_demo_2",
       "entityTitle": "Spotify Canvas 9:16 3D Kinetic Loop",
       "createdAt": "2026-09-02T08:46:36.432Z"
+    },
+    {
+      "id": "notif_92966bc2",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "studio_deliverable_review:sdel_demo_1",
+      "title": "Deliverable Ready for Review: Midnight in VI — 3000x3000px Master Cover Artwork",
+      "message": "Version V1 has been uploaded and awaits your sign-off or revision notes.",
+      "category": "studio",
+      "severity": "high",
+      "type": "request",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Asset in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-01T08:38:56.603Z",
+      "resolvedAt": "2026-09-03T09:39:02.669Z"
+    },
+    {
+      "id": "notif_2a571df2",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_433abb8b-",
+      "title": "Radar Alert: Missing Hero Creative Asset for Campaign \"Q3 Global Streaming & Radio Push\"",
+      "message": "Campaign lacks a primary high-resolution hero visual banner or brand deck deliverable.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "brand-os",
+      "actionLabel": "Open Brand OS",
+      "entityType": "campaign",
+      "entityId": "cmp_demo_1",
+      "entityTitle": "Q3 Global Streaming & Radio Push",
+      "createdAt": "2026-09-02T08:46:36.430Z",
+      "resolvedAt": "2026-09-03T09:39:02.669Z"
+    },
+    {
+      "id": "notif_2eb5152b",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_1a1c7ef5-",
+      "title": "Radar Alert: Master WAV Audio not linked for \"Midnight in Victoria Island\"",
+      "message": "No 24-bit/44.1kHz or 48kHz lossless master audio file is attached to the release core.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "mastering-suite",
+      "actionLabel": "Open Mastering Suite",
+      "entityType": "release",
+      "entityId": "rel_demo_1",
+      "entityTitle": "Midnight in Victoria Island",
+      "createdAt": "2026-09-02T08:46:36.427Z",
+      "resolvedAt": "2026-09-03T09:39:02.669Z"
+    },
+    {
+      "id": "notif_4aad40da",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a0e5a2c9-",
+      "title": "Radar Alert: Studio Deliverable \"Midnight in VI — 3000x3000px Master Cover Artwork\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-02T08:46:36.431Z",
+      "resolvedAt": "2026-09-03T09:39:02.669Z"
+    },
+    {
+      "id": "notif_9d0a6061",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a2c4ea6c-",
+      "title": "Radar Alert: Studio Deliverable \"Spotify Canvas 9:16 3D Kinetic Loop\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_2",
+      "entityTitle": "Spotify Canvas 9:16 3D Kinetic Loop",
+      "createdAt": "2026-09-02T08:46:36.432Z",
+      "resolvedAt": "2026-09-03T09:39:02.669Z"
+    },
+    {
+      "id": "notif_10f5ec3b",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "studio_deliverable_review:sdel_demo_1",
+      "title": "Deliverable Ready for Review: Midnight in VI — 3000x3000px Master Cover Artwork",
+      "message": "Version V1 has been uploaded and awaits your sign-off or revision notes.",
+      "category": "studio",
+      "severity": "high",
+      "type": "request",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Asset in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-01T08:38:56.603Z",
+      "resolvedAt": "2026-09-03T09:19:49.907Z"
+    },
+    {
+      "id": "notif_0bdd144c",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_433abb8b-",
+      "title": "Radar Alert: Missing Hero Creative Asset for Campaign \"Q3 Global Streaming & Radio Push\"",
+      "message": "Campaign lacks a primary high-resolution hero visual banner or brand deck deliverable.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "brand-os",
+      "actionLabel": "Open Brand OS",
+      "entityType": "campaign",
+      "entityId": "cmp_demo_1",
+      "entityTitle": "Q3 Global Streaming & Radio Push",
+      "createdAt": "2026-09-02T08:46:36.430Z",
+      "resolvedAt": "2026-09-03T09:19:49.907Z"
+    },
+    {
+      "id": "notif_ad0370fb",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_1a1c7ef5-",
+      "title": "Radar Alert: Master WAV Audio not linked for \"Midnight in Victoria Island\"",
+      "message": "No 24-bit/44.1kHz or 48kHz lossless master audio file is attached to the release core.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "mastering-suite",
+      "actionLabel": "Open Mastering Suite",
+      "entityType": "release",
+      "entityId": "rel_demo_1",
+      "entityTitle": "Midnight in Victoria Island",
+      "createdAt": "2026-09-02T08:46:36.427Z",
+      "resolvedAt": "2026-09-03T09:19:49.907Z"
+    },
+    {
+      "id": "notif_548be50c",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a0e5a2c9-",
+      "title": "Radar Alert: Studio Deliverable \"Midnight in VI — 3000x3000px Master Cover Artwork\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-02T08:46:36.431Z",
+      "resolvedAt": "2026-09-03T09:19:49.907Z"
+    },
+    {
+      "id": "notif_e6e8831d",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a2c4ea6c-",
+      "title": "Radar Alert: Studio Deliverable \"Spotify Canvas 9:16 3D Kinetic Loop\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_2",
+      "entityTitle": "Spotify Canvas 9:16 3D Kinetic Loop",
+      "createdAt": "2026-09-02T08:46:36.432Z",
+      "resolvedAt": "2026-09-03T09:19:49.907Z"
+    },
+    {
+      "id": "notif_08b3b5b6",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "studio_deliverable_review:sdel_demo_1",
+      "title": "Deliverable Ready for Review: Midnight in VI — 3000x3000px Master Cover Artwork",
+      "message": "Version V1 has been uploaded and awaits your sign-off or revision notes.",
+      "category": "studio",
+      "severity": "high",
+      "type": "request",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Asset in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-01T08:38:56.603Z",
+      "resolvedAt": "2026-09-03T09:11:24.674Z"
+    },
+    {
+      "id": "notif_5e54b68e",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_433abb8b-",
+      "title": "Radar Alert: Missing Hero Creative Asset for Campaign \"Q3 Global Streaming & Radio Push\"",
+      "message": "Campaign lacks a primary high-resolution hero visual banner or brand deck deliverable.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "brand-os",
+      "actionLabel": "Open Brand OS",
+      "entityType": "campaign",
+      "entityId": "cmp_demo_1",
+      "entityTitle": "Q3 Global Streaming & Radio Push",
+      "createdAt": "2026-09-02T08:46:36.430Z",
+      "resolvedAt": "2026-09-03T09:11:24.674Z"
+    },
+    {
+      "id": "notif_90687ee9",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_1a1c7ef5-",
+      "title": "Radar Alert: Master WAV Audio not linked for \"Midnight in Victoria Island\"",
+      "message": "No 24-bit/44.1kHz or 48kHz lossless master audio file is attached to the release core.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "mastering-suite",
+      "actionLabel": "Open Mastering Suite",
+      "entityType": "release",
+      "entityId": "rel_demo_1",
+      "entityTitle": "Midnight in Victoria Island",
+      "createdAt": "2026-09-02T08:46:36.427Z",
+      "resolvedAt": "2026-09-03T09:11:24.674Z"
+    },
+    {
+      "id": "notif_835f14b8",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a0e5a2c9-",
+      "title": "Radar Alert: Studio Deliverable \"Midnight in VI — 3000x3000px Master Cover Artwork\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-02T08:46:36.431Z",
+      "resolvedAt": "2026-09-03T09:11:24.674Z"
+    },
+    {
+      "id": "notif_e7dafe80",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a2c4ea6c-",
+      "title": "Radar Alert: Studio Deliverable \"Spotify Canvas 9:16 3D Kinetic Loop\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_2",
+      "entityTitle": "Spotify Canvas 9:16 3D Kinetic Loop",
+      "createdAt": "2026-09-02T08:46:36.432Z",
+      "resolvedAt": "2026-09-03T09:11:24.674Z"
     },
     {
       "id": "notif_03d21222",
@@ -1827,6 +2036,28 @@
   ],
   "activity_logs": [
     {
+      "id": "act_6f2e80ff",
+      "workspaceId": "ws_demo_artist_os",
+      "userId": "usr_demo_keedohub",
+      "userEmail": "creator@keedohub.com",
+      "action": "ACKNOWLEDGE_RADAR_SIGNAL",
+      "entityType": "radar_signal",
+      "entityId": "sig_a2c4ea6c-",
+      "details": "Acknowledged radar signal: \"Studio Deliverable \"Spotify Canvas 9:16 3D Kinetic Loop\" (V1) ready for sign-off\"",
+      "createdAt": "2026-09-03T09:44:01.501Z"
+    },
+    {
+      "id": "act_a14081f7",
+      "workspaceId": "ws_demo_artist_os",
+      "userId": "usr_demo_keedohub",
+      "userEmail": "creator@keedohub.com",
+      "action": "EVALUATE_CREATIVE_RADAR",
+      "entityType": "radar",
+      "entityId": "ws_demo_artist_os",
+      "details": "Executed proactive radar evaluation: 7 active signals, 0 critical",
+      "createdAt": "2026-09-03T09:43:55.066Z"
+    },
+    {
       "id": "act_1",
       "workspaceId": "ws_demo_artist_os",
       "userId": "usr_demo_keedohub",
@@ -2092,7 +2323,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.436Z",
-      "updatedAt": "2026-09-02T09:23:14.912Z",
+      "updatedAt": "2026-09-03T09:43:55.064Z",
       "metadata": {}
     },
     {
@@ -2118,10 +2349,11 @@
         "targetTab": "studio",
         "actionDescription": "Inspect asset and approve or submit revision notes"
       },
-      "status": "new",
+      "status": "acknowledged",
       "createdAt": "2026-09-02T08:46:36.432Z",
-      "updatedAt": "2026-09-02T09:23:14.909Z",
-      "metadata": {}
+      "updatedAt": "2026-09-03T09:44:01.500Z",
+      "metadata": {},
+      "acknowledgedAt": "2026-09-03T09:44:01.500Z"
     },
     {
       "id": "sig_a0e5a2c9-",
@@ -2148,7 +2380,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.431Z",
-      "updatedAt": "2026-09-02T09:23:14.907Z",
+      "updatedAt": "2026-09-03T09:43:55.062Z",
       "metadata": {}
     },
     {
@@ -2176,7 +2408,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.431Z",
-      "updatedAt": "2026-09-02T09:23:14.906Z",
+      "updatedAt": "2026-09-03T09:43:55.061Z",
       "metadata": {}
     },
     {
@@ -2204,7 +2436,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.430Z",
-      "updatedAt": "2026-09-02T09:23:14.905Z",
+      "updatedAt": "2026-09-03T09:43:55.060Z",
       "metadata": {}
     },
     {
@@ -2232,7 +2464,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.429Z",
-      "updatedAt": "2026-09-02T09:23:14.904Z",
+      "updatedAt": "2026-09-03T09:43:55.059Z",
       "metadata": {}
     },
     {
@@ -2260,7 +2492,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.427Z",
-      "updatedAt": "2026-09-02T09:23:14.901Z",
+      "updatedAt": "2026-09-03T09:43:55.058Z",
       "metadata": {}
     }
   ],

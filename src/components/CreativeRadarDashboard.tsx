@@ -10,6 +10,7 @@ import {
 } from "../types";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { api } from "../services/api";
 import { 
   Radio, 
   AlertTriangle, 
@@ -50,7 +51,7 @@ export const CreativeRadarDashboard: React.FC<CreativeRadarDashboardProps> = ({
   onNotify,
   onNavigateTab,
 }) => {
-  const { activeWorkspace, token } = useAuth();
+  const { activeWorkspace } = useAuth();
   const { themeMode } = useTheme();
 
   const [signals, setSignals] = useState<RadarSignal[]>([]);
@@ -78,29 +79,13 @@ export const CreativeRadarDashboard: React.FC<CreativeRadarDashboardProps> = ({
   const [userFollowUpQuery, setUserFollowUpQuery] = useState("");
 
   const fetchRadarData = async (triggerScan = false) => {
-    if (!activeWorkspace) return;
+    if (!activeWorkspace?.id) return;
     try {
       if (triggerScan) setIsScanning(true);
       else setIsLoading(true);
 
-      const endpoint = triggerScan
-        ? `/api/workspaces/${activeWorkspace.id}/radar/evaluate`
-        : `/api/workspaces/${activeWorkspace.id}/radar/signals?includeArchived=true&autoEvaluate=true`;
-
-      const response = await fetch(endpoint, {
-        method: triggerScan ? "POST" : "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch radar intelligence");
-      }
-
       if (triggerScan) {
-        const data = await response.json();
+        const data = await api.radar.evaluate(activeWorkspace.id);
         setSignals(data.signals || []);
         setDigest(data.digest || null);
         setStats(data.stats || null);
@@ -108,22 +93,23 @@ export const CreativeRadarDashboard: React.FC<CreativeRadarDashboardProps> = ({
           onNotify(`Radar sweep completed: ${data.signals.length} active operational signals detected`, "success");
         }
       } else {
-        const data = await response.json();
+        const data = await api.radar.getSignals(activeWorkspace.id, {
+          includeArchived: true,
+          autoEvaluate: true,
+        });
         setSignals(data.signals || []);
 
-        // Also fetch digest & stats
-        const digestRes = await fetch(`/api/workspaces/${activeWorkspace.id}/radar/digest`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (digestRes.ok) {
-          const dData = await digestRes.json();
-          setDigest(dData.digest || null);
-          setStats(dData.stats || null);
+        try {
+          const digestData = await api.radar.getDigest(activeWorkspace.id);
+          setDigest(digestData.digest || null);
+          setStats(digestData.stats || null);
+        } catch (digestErr) {
+          console.warn("[Radar Dashboard] Digest sync notice:", digestErr);
         }
       }
     } catch (err: any) {
       console.error("[Radar Dashboard] Error loading data:", err);
-      if (onNotify) onNotify("Failed to synchronize Radar intelligence", "error");
+      if (onNotify) onNotify(err?.message || "Failed to synchronize Radar intelligence", "error");
     } finally {
       setIsLoading(false);
       setIsScanning(false);
@@ -131,58 +117,45 @@ export const CreativeRadarDashboard: React.FC<CreativeRadarDashboardProps> = ({
   };
 
   useEffect(() => {
-    fetchRadarData(false);
+    if (activeWorkspace?.id) {
+      fetchRadarData(false);
+    }
   }, [activeWorkspace?.id]);
 
   const handleAcknowledge = async (signalId: string) => {
-    if (!activeWorkspace) return;
+    if (!activeWorkspace?.id) return;
     try {
-      const res = await fetch(`/api/workspaces/${activeWorkspace.id}/radar/signals/${signalId}/acknowledge`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        setSignals((prev) =>
-          prev.map((s) => (s.id === signalId ? { ...s, status: "acknowledged" as RadarSignalStatus } : s))
-        );
-        if (onNotify) onNotify("Signal acknowledged and tracked", "info");
-      }
+      await api.radar.acknowledgeSignal(activeWorkspace.id, signalId);
+      setSignals((prev) =>
+        prev.map((s) => (s.id === signalId ? { ...s, status: "acknowledged" as RadarSignalStatus } : s))
+      );
+      if (onNotify) onNotify("Signal acknowledged and tracked", "info");
     } catch (err) {
       console.error("Error acknowledging signal:", err);
     }
   };
 
   const handleDismiss = async (signalId: string) => {
-    if (!activeWorkspace) return;
+    if (!activeWorkspace?.id) return;
     try {
-      const res = await fetch(`/api/workspaces/${activeWorkspace.id}/radar/signals/${signalId}/dismiss`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        setSignals((prev) =>
-          prev.map((s) => (s.id === signalId ? { ...s, status: "dismissed" as RadarSignalStatus } : s))
-        );
-        if (onNotify) onNotify("Signal dismissed", "info");
-      }
+      await api.radar.dismissSignal(activeWorkspace.id, signalId);
+      setSignals((prev) =>
+        prev.map((s) => (s.id === signalId ? { ...s, status: "dismissed" as RadarSignalStatus } : s))
+      );
+      if (onNotify) onNotify("Signal dismissed", "info");
     } catch (err) {
       console.error("Error dismissing signal:", err);
     }
   };
 
   const handleActioned = async (signalId: string) => {
-    if (!activeWorkspace) return;
+    if (!activeWorkspace?.id) return;
     try {
-      const res = await fetch(`/api/workspaces/${activeWorkspace.id}/radar/signals/${signalId}/action`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        setSignals((prev) =>
-          prev.map((s) => (s.id === signalId ? { ...s, status: "actioned" as RadarSignalStatus } : s))
-        );
-        if (onNotify) onNotify("Signal marked as resolved and actioned", "success");
-      }
+      await api.radar.actionSignal(activeWorkspace.id, signalId);
+      setSignals((prev) =>
+        prev.map((s) => (s.id === signalId ? { ...s, status: "actioned" as RadarSignalStatus } : s))
+      );
+      if (onNotify) onNotify("Signal marked as resolved and actioned", "success");
     } catch (err) {
       console.error("Error actioning signal:", err);
     }
@@ -198,23 +171,13 @@ export const CreativeRadarDashboard: React.FC<CreativeRadarDashboardProps> = ({
   };
 
   const handleAskBrain = async (signal: RadarSignal, customQuery?: string) => {
-    if (!activeWorkspace) return;
+    if (!activeWorkspace?.id) return;
     setSelectedSignalForBrain(signal);
     setIsBrainLoading(true);
     setBrainDiagnostic(null);
 
     try {
-      const res = await fetch(`/api/workspaces/${activeWorkspace.id}/radar/signals/${signal.id}/ask-brain`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ query: customQuery }),
-      });
-
-      if (!res.ok) throw new Error("Brain diagnostic failed");
-      const data = await res.json();
+      const data = await api.radar.askBrain(activeWorkspace.id, signal.id, customQuery);
       setBrainDiagnostic(data);
     } catch (err) {
       console.error("Ask Brain error:", err);
@@ -858,21 +821,21 @@ export const ContextualRadarBanner: React.FC<{
   entityId?: string;
   onNavigateTab?: (tab: ActiveTab) => void;
 }> = ({ category, entityId, onNavigateTab }) => {
-  const { activeWorkspace, token } = useAuth();
+  const { activeWorkspace } = useAuth();
   const [signals, setSignals] = useState<RadarSignal[]>([]);
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
-    if (!activeWorkspace) return;
+    if (!activeWorkspace?.id) return;
+    let isCancelled = false;
     const fetchContextualSignals = async () => {
       try {
-        let url = `/api/workspaces/${activeWorkspace.id}/radar/signals?category=${category}&status=active`;
-        if (entityId) url += `&entityId=${entityId}`;
-        const res = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` },
+        const data = await api.radar.getSignals(activeWorkspace.id, {
+          category,
+          entityId,
+          status: "active",
         });
-        if (res.ok) {
-          const data = await res.json();
+        if (!isCancelled) {
           setSignals(data.signals || []);
         }
       } catch (err) {
@@ -880,6 +843,9 @@ export const ContextualRadarBanner: React.FC<{
       }
     };
     fetchContextualSignals();
+    return () => {
+      isCancelled = true;
+    };
   }, [activeWorkspace?.id, category, entityId]);
 
   if (isDismissed || signals.length === 0) return null;

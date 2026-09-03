@@ -235,7 +235,11 @@ function MainAppContent() {
         )}
 
         {activeTab === "artist-os" && (
-          <ArtistOS onNavigateTab={setActiveTab} />
+          <WorkspaceHub
+            setActiveTab={setActiveTab}
+            onNotify={addNotification}
+            initialSubTab="artist-os"
+          />
         )}
 
         {activeTab === "content-engine" && (
@@ -300,7 +304,11 @@ function MainAppContent() {
         )}
 
         {activeTab === "brand-os" && (
-          <BrandOS onNotify={addNotification} onNavigateTab={setActiveTab} />
+          <WorkspaceHub
+            setActiveTab={setActiveTab}
+            onNotify={addNotification}
+            initialSubTab="brand-os"
+          />
         )}
 
         {activeTab === "epk-builder" && (
@@ -399,13 +407,13 @@ function MainAppContent() {
         </button>
 
         <button
-          onClick={() => setActiveTab(activeWorkspace?.identityType === "artist" ? "artist-os" : "brand-os")}
+          onClick={() => setActiveTab("workspace-hub")}
           className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
-            activeTab === "artist-os" || activeTab === "brand-os" ? "text-red-400 font-bold" : "text-zinc-400"
+            activeTab === "workspace-hub" || activeTab === "artist-os" || activeTab === "brand-os" ? "text-red-400 font-bold" : "text-zinc-400"
           }`}
         >
-          {activeWorkspace?.identityType === "artist" ? <Disc3 className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
-          <span className="text-[10px]">{activeWorkspace?.identityType === "artist" ? "Artist" : "Brand"}</span>
+          <HardDrive className="w-4 h-4" />
+          <span className="text-[10px]">Workspace</span>
         </button>
 
         <button

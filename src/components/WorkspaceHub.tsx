@@ -58,17 +58,37 @@ import {
   Check,
   ArrowUpRight,
   PieChart,
-  Megaphone
+  Megaphone,
+  Disc3,
+  ChevronDown,
+  Radio,
+  Headphones,
+  Percent,
+  BrainCircuit
 } from "lucide-react";
 import { NewProjectModal } from "./NewProjectModal";
+import { ArtistOS } from "./ArtistOS";
+import { BrandOS } from "./BrandOS";
+import { ContentEngine } from "./ContentEngine";
+import { CreativeMemoryDashboard } from "./CreativeMemoryDashboard";
+import { MasteringSuite } from "./MasteringSuite";
+import { LyricsStudio } from "./LyricsStudio";
+import { CoverStudio } from "./CoverStudio";
+import { DSPPitcher } from "./DSPPitcher";
+import { SplitsCalculator } from "./SplitsCalculator";
+import { PresaveHub } from "./PresaveHub";
+import { EPKBuilder } from "./EPKBuilder";
+import { useCreativeBrain } from "../context/CreativeBrainContext";
 
 interface WorkspaceHubProps {
   setActiveTab: (tab: ActiveTab) => void;
   onNotify: (text: string, type?: "success" | "info" | "error") => void;
+  initialSubTab?: string;
 }
 
-export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
-  const { user, switchWorkspace, workspaces } = useAuth();
+export function WorkspaceHub({ setActiveTab, onNotify, initialSubTab }: WorkspaceHubProps) {
+  const { user, switchWorkspace, workspaces, activeWorkspace, openOnboarding } = useAuth();
+  const { openBrainWithContext, toggleBrain } = useCreativeBrain();
   const {
     workspace,
     overview,
@@ -104,11 +124,148 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
     markNotificationAsRead,
     fetchWorkspaceData,
     isLoading,
+    calculateReleaseReadiness,
+    calculateCampaignReadiness,
+    activeRelease,
+    activeCampaign,
   } = useWorkspace();
 
-  const [activeSubTab, setActiveSubTab] = useState<
-    "dashboard" | "pipeline" | "tasks" | "milestones" | "releases" | "assets" | "campaigns" | "content" | "memory" | "activity"
-  >("dashboard");
+  const isArtist = (workspace?.identityType || activeWorkspace?.identityType) === "artist";
+  const isBrand = (workspace?.identityType || activeWorkspace?.identityType) === "brand";
+
+  type WorkspaceSubTab =
+    | "artist-os"
+    | "brand-os"
+    | "dashboard"
+    | "pipeline"
+    | "tasks"
+    | "milestones"
+    | "artist-tools"
+    | "releases"
+    | "assets"
+    | "campaigns"
+    | "content"
+    | "memory"
+    | "activity";
+
+  const [activeSubTab, setActiveSubTab] = useState<WorkspaceSubTab>(() => {
+    if (initialSubTab) {
+      if (initialSubTab === "artist-os" || initialSubTab === "brand-os") return initialSubTab;
+      if (
+        initialSubTab === "mastering-suite" ||
+        initialSubTab === "lyrics-studio" ||
+        initialSubTab === "cover-studio" ||
+        initialSubTab === "dsp-pitcher" ||
+        initialSubTab === "splits-calculator" ||
+        initialSubTab === "presave-hub" ||
+        initialSubTab === "epk-builder"
+      ) {
+        return "artist-tools";
+      }
+      return initialSubTab as WorkspaceSubTab;
+    }
+    return isArtist ? "artist-os" : "brand-os";
+  });
+
+  const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
+  const [selectedArtistTool, setSelectedArtistTool] = useState<
+    "mastering" | "lyrics" | "cover" | "dsp" | "splits" | "presave" | "epk"
+  >(() => {
+    if (initialSubTab === "lyrics-studio") return "lyrics";
+    if (initialSubTab === "cover-studio") return "cover";
+    if (initialSubTab === "dsp-pitcher") return "dsp";
+    if (initialSubTab === "splits-calculator") return "splits";
+    if (initialSubTab === "presave-hub") return "presave";
+    if (initialSubTab === "epk-builder") return "epk";
+    return "mastering";
+  });
+
+  // Sync internal navigation if initialSubTab or workspace identity changes
+  useEffect(() => {
+    if (initialSubTab) {
+      if (initialSubTab === "mastering-suite") {
+        setActiveSubTab("artist-tools");
+        setSelectedArtistTool("mastering");
+      } else if (initialSubTab === "lyrics-studio") {
+        setActiveSubTab("artist-tools");
+        setSelectedArtistTool("lyrics");
+      } else if (initialSubTab === "cover-studio") {
+        setActiveSubTab("artist-tools");
+        setSelectedArtistTool("cover");
+      } else if (initialSubTab === "dsp-pitcher") {
+        setActiveSubTab("artist-tools");
+        setSelectedArtistTool("dsp");
+      } else if (initialSubTab === "splits-calculator") {
+        setActiveSubTab("artist-tools");
+        setSelectedArtistTool("splits");
+      } else if (initialSubTab === "presave-hub") {
+        setActiveSubTab("artist-tools");
+        setSelectedArtistTool("presave");
+      } else if (initialSubTab === "epk-builder") {
+        setActiveSubTab("artist-tools");
+        setSelectedArtistTool("epk");
+      } else if (initialSubTab === "artist-os") {
+        setActiveSubTab("artist-os");
+      } else if (initialSubTab === "brand-os") {
+        setActiveSubTab("brand-os");
+      } else if (initialSubTab === "content-engine") {
+        setActiveSubTab("content");
+      } else if (initialSubTab === "creative-memory") {
+        setActiveSubTab("memory");
+      } else if (initialSubTab === "resource-vault") {
+        setActiveSubTab("assets");
+      } else {
+        setActiveSubTab(initialSubTab as WorkspaceSubTab);
+      }
+    } else {
+      if (isArtist && activeSubTab === "brand-os") {
+        setActiveSubTab("artist-os");
+      } else if (isBrand && (activeSubTab === "artist-os" || activeSubTab === "artist-tools")) {
+        setActiveSubTab("brand-os");
+      }
+    }
+  }, [initialSubTab, workspace?.id, workspace?.identityType, isArtist, isBrand]);
+
+  const handleInternalNavigate = (targetTab: string) => {
+    if (targetTab === "mastering-suite") {
+      setActiveSubTab("artist-tools");
+      setSelectedArtistTool("mastering");
+    } else if (targetTab === "lyrics-studio") {
+      setActiveSubTab("artist-tools");
+      setSelectedArtistTool("lyrics");
+    } else if (targetTab === "cover-studio") {
+      setActiveSubTab("artist-tools");
+      setSelectedArtistTool("cover");
+    } else if (targetTab === "dsp-pitcher") {
+      setActiveSubTab("artist-tools");
+      setSelectedArtistTool("dsp");
+    } else if (targetTab === "splits-calculator") {
+      setActiveSubTab("artist-tools");
+      setSelectedArtistTool("splits");
+    } else if (targetTab === "presave-hub") {
+      setActiveSubTab("artist-tools");
+      setSelectedArtistTool("presave");
+    } else if (targetTab === "epk-builder") {
+      setActiveSubTab("artist-tools");
+      setSelectedArtistTool("epk");
+    } else if (targetTab === "artist-os") {
+      setActiveSubTab("artist-os");
+    } else if (targetTab === "brand-os") {
+      setActiveSubTab("brand-os");
+    } else if (targetTab === "content-engine") {
+      setActiveSubTab("content");
+    } else if (targetTab === "resource-vault") {
+      setActiveSubTab("assets");
+    } else if (targetTab === "creative-memory") {
+      setActiveSubTab("memory");
+    } else if (targetTab === "project-console") {
+      setActiveSubTab("pipeline");
+    } else if (targetTab === "workspace-hub" || targetTab === "command-center") {
+      setActiveSubTab(isArtist ? "artist-os" : "brand-os");
+    } else {
+      setActiveTab(targetTab as ActiveTab);
+    }
+  };
 
   // Modals state
   const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
@@ -686,28 +843,102 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
                 className="w-16 h-16 rounded-2xl object-cover border-2 border-zinc-700/80 shadow-lg"
               />
               <div className="absolute -bottom-1 -right-1 p-1 bg-zinc-950 rounded-lg border border-zinc-800">
-                {getIdentityIcon(workspace?.identityType)}
+                {isArtist ? <Disc3 className="w-4 h-4 text-red-500" /> : <Building2 className="w-4 h-4 text-blue-500" />}
               </div>
             </div>
 
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight font-['Space_Grotesk']">
-                  {workspace?.name || "Keedohub Creative OS"}
-                </h1>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-red-500/15 text-red-400 border border-red-500/30">
-                  {workspace?.identityType || "Artist"} OS
+                <div className="relative">
+                  <button
+                    onClick={() => setIsWorkspaceDropdownOpen(!isWorkspaceDropdownOpen)}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-500 text-sm font-bold text-white transition-all cursor-pointer"
+                    title="Switch active workspace"
+                  >
+                    <span className={`w-2 h-2 rounded-full ${isArtist ? "bg-red-500" : "bg-blue-500"} animate-pulse`} />
+                    <span className="font-['Space_Grotesk'] font-black tracking-tight">{workspace?.name || "Keedohub Workspace"}</span>
+                    <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${isWorkspaceDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {/* Switcher Dropdown */}
+                  {isWorkspaceDropdownOpen && (
+                    <div className="absolute left-0 mt-2 w-72 bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-2.5 z-50 animate-fade-in space-y-1">
+                      <div className="px-2 py-1 text-[10px] font-mono uppercase font-bold text-zinc-400 border-b border-zinc-800/80 pb-1.5 flex items-center justify-between">
+                        <span>Available Workspaces</span>
+                        <span className="text-zinc-500 font-normal">{workspaces.length} total</span>
+                      </div>
+
+                      <div className="max-h-56 overflow-y-auto space-y-1 py-1">
+                        {workspaces.map((ws) => {
+                          const isActive = ws.id === workspace?.id;
+                          const isWsArtist = ws.identityType === "artist";
+                          return (
+                            <button
+                              key={ws.id}
+                              onClick={() => {
+                                switchWorkspace(ws.id);
+                                setIsWorkspaceDropdownOpen(false);
+                                onNotify(`Switched to ${ws.name} (${isWsArtist ? "Artist OS" : "Brand OS"})`, "success");
+                              }}
+                              className={`w-full flex items-center justify-between p-2 rounded-xl text-left transition-all cursor-pointer ${
+                                isActive
+                                  ? "bg-zinc-800/90 border border-zinc-700 text-white font-bold"
+                                  : "hover:bg-zinc-900 text-zinc-300 border border-transparent"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 truncate">
+                                <div className={`p-1.5 rounded-lg shrink-0 ${isWsArtist ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
+                                  {isWsArtist ? <Disc3 className="w-3.5 h-3.5" /> : <Building2 className="w-3.5 h-3.5" />}
+                                </div>
+                                <div className="truncate">
+                                  <div className="text-xs truncate font-semibold">{ws.name}</div>
+                                  <div className="text-[10px] text-zinc-500 font-mono capitalize">{ws.identityType} OS</div>
+                                </div>
+                              </div>
+                              {isActive && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-2" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="pt-2 border-t border-zinc-800/80">
+                        <button
+                          onClick={() => {
+                            setIsWorkspaceDropdownOpen(false);
+                            openOnboarding({ isNewAccount: false, defaultIdentity: isArtist ? "artist" : "brand" });
+                          }}
+                          className="w-full flex items-center justify-center gap-2 p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-zinc-200 transition-colors cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5 text-red-400" />
+                          <span>+ Create New Workspace</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
+                  isArtist
+                    ? "bg-red-500/15 text-red-400 border-red-500/30"
+                    : "bg-blue-500/15 text-blue-400 border-blue-500/30"
+                }`}>
+                  {isArtist ? "Artist Operating Environment" : "Brand Operating Environment"}
                 </span>
+
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300 border border-zinc-700/40">
-                  Owner: {user?.fullName || "Keedohub Creator"}
+                  Account: {user?.fullName || "Keedohub Creator"}
                 </span>
               </div>
+
               <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl">
-                {workspace?.bio || "Central operating system for creative projects, release rollouts, visual assets, and marketing campaigns."}
+                {isArtist
+                  ? "Unified Artist Workspace: Rollout operations, music production tools, stems vault, 30-day schedules, DSP pitching, and Creative Brain."
+                  : "Unified Brand Workspace: Brand strategy, campaigns, growth sprints, asset kit, content engine, and brand intelligence."}
               </p>
+
               {workspace?.genreOrNiche && (
                 <div className="flex items-center gap-2 mt-2 text-xs text-zinc-500 font-mono">
-                  <span className="font-semibold text-zinc-400">Niche:</span> {workspace.genreOrNiche}
+                  <span className="font-semibold text-zinc-400">{isArtist ? "Genre" : "Industry"}:</span> {workspace.genreOrNiche}
                 </div>
               )}
             </div>
@@ -715,6 +946,23 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
 
           {/* Top Quick Actions */}
           <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              onClick={() => {
+                if (isArtist && activeRelease) {
+                  openBrainWithContext(`I am in the Artist Workspace for release "${activeRelease.title}". Help me with rollout timeline, DSP pitching, and viral promo.`);
+                } else if (isBrand && activeCampaign) {
+                  openBrainWithContext(`I am in the Brand Workspace for campaign "${activeCampaign.name}". Help me optimize brand positioning, campaign sprints, and content.`);
+                } else {
+                  toggleBrain();
+                }
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-gradient-to-r from-red-950/80 to-zinc-900 border border-red-500/40 hover:border-red-400 text-white text-xs sm:text-sm font-bold rounded-xl shadow-lg shadow-red-950/40 transition-all cursor-pointer min-h-[44px]"
+              title="Ask Creative Brain with current Workspace context"
+            >
+              <BrainCircuit className="w-4 h-4 text-red-400 animate-pulse" />
+              <span>Ask Brain</span>
+            </button>
+
             <button
               onClick={() => fetchWorkspaceData()}
               disabled={isLoading}
@@ -729,12 +977,12 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
               className="flex items-center gap-1.5 px-3.5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-red-950/60 transition-all cursor-pointer min-h-[44px]"
             >
               <Plus className="w-4 h-4" />
-              <span>New Project</span>
+              <span>{isArtist ? "New Project" : "New Initiative"}</span>
             </button>
 
             <button
               onClick={() => setIsNewTaskOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs sm:text-sm font-semibold rounded-xl border border-zinc-700/60 transition-colors cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs sm:text-sm font-semibold rounded-xl border border-zinc-700/60 transition-colors cursor-pointer min-h-[44px]"
             >
               <CheckSquare className="w-4 h-4 text-emerald-400" />
               <span>Add Task</span>
@@ -742,7 +990,7 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
 
             <button
               onClick={() => setIsNewMilestoneOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs sm:text-sm font-semibold rounded-xl border border-zinc-700/60 transition-colors cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs sm:text-sm font-semibold rounded-xl border border-zinc-700/60 transition-colors cursor-pointer min-h-[44px]"
             >
               <Target className="w-4 h-4 text-amber-400" />
               <span>Milestone</span>
@@ -751,10 +999,25 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
         </div>
 
         {/* Real-time Workspace Counters */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 mt-6 pt-6 border-t border-zinc-800/80">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6 pt-6 border-t border-zinc-800/80">
           <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
             <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
-              <span>Projects</span>
+              <span>{isArtist ? "Release Readiness" : "Campaign Readiness"}</span>
+              <TrendingUp className={`w-3.5 h-3.5 ${isArtist ? "text-red-400" : "text-blue-400"}`} />
+            </div>
+            <div className="text-xl font-black text-white font-['Space_Grotesk']">
+              {isArtist
+                ? `${activeRelease ? calculateReleaseReadiness(activeRelease).score : 78}%`
+                : `${activeCampaign ? calculateCampaignReadiness(activeCampaign).score : 85}%`}
+            </div>
+            <div className="text-[10px] text-zinc-500 mt-0.5 truncate">
+              {isArtist ? (activeRelease?.title || "Upcoming Drop") : (activeCampaign?.name || "Active Sprint")}
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
+            <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
+              <span>{isArtist ? "Projects" : "Initiatives"}</span>
               <FolderPlus className="w-3.5 h-3.5 text-blue-400" />
             </div>
             <div className="text-xl font-black text-white font-['Space_Grotesk']">{projects.length}</div>
@@ -776,21 +1039,12 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
               <Target className="w-3.5 h-3.5 text-amber-400" />
             </div>
             <div className="text-xl font-black text-white font-['Space_Grotesk']">{milestones.length}</div>
-            <div className="text-[10px] text-zinc-500 mt-0.5">{milestones.filter(m => m.status !== "completed").length} active roadmap</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">{milestones.filter(m => m.status !== "completed").length} scheduled</div>
           </div>
 
           <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
             <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
-              <span>Releases</span>
-              <Music className="w-3.5 h-3.5 text-red-400" />
-            </div>
-            <div className="text-xl font-black text-white font-['Space_Grotesk']">{releases.length}</div>
-            <div className="text-[10px] text-zinc-500 mt-0.5">{releases[0]?.releaseDate ? `Next: ${releases[0].releaseDate}` : "30-day plans"}</div>
-          </div>
-
-          <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
-            <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
-              <span>Asset Vault</span>
+              <span>{isArtist ? "Asset Vault" : "Brand Kit Vault"}</span>
               <HardDrive className="w-3.5 h-3.5 text-cyan-400" />
             </div>
             <div className="text-xl font-black text-white font-['Space_Grotesk']">{assets.length}</div>
@@ -803,138 +1057,361 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
               <Calendar className="w-3.5 h-3.5 text-purple-400" />
             </div>
             <div className="text-xl font-black text-white font-['Space_Grotesk']">{contentItems.length}</div>
-            <div className="text-[10px] text-zinc-500 mt-0.5">Scheduled rollouts</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">Queue items</div>
           </div>
         </div>
       </div>
 
       {/* NAVIGATION TABS WITH LIVE COUNTS */}
       <div className="flex items-center gap-1.5 border-b border-zinc-800 pb-2 overflow-x-auto no-scrollbar">
-        <button
-          onClick={() => setActiveSubTab("dashboard")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "dashboard"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          <span>Command Center</span>
-          {attentionItems.length > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-red-950 text-red-300 font-mono">
-              {attentionItems.length}
-            </span>
-          )}
-        </button>
+        {isArtist ? (
+          <>
+            <button
+              onClick={() => setActiveSubTab("artist-os")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "artist-os"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <Disc3 className="w-4 h-4 text-red-400" />
+              <span>Rollout OS</span>
+            </button>
 
-        <button
-          onClick={() => setActiveSubTab("pipeline")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "pipeline"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <FolderPlus className="w-4 h-4" />
-          <span>Projects ({projects.length})</span>
-        </button>
+            <button
+              onClick={() => setActiveSubTab("pipeline")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "pipeline"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <FolderPlus className="w-4 h-4" />
+              <span>Projects ({projects.length})</span>
+            </button>
 
-        <button
-          onClick={() => setActiveSubTab("tasks")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "tasks"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <CheckSquare className="w-4 h-4" />
-          <span>Tasks ({tasks.length})</span>
-        </button>
+            <button
+              onClick={() => setActiveSubTab("tasks")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "tasks"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <CheckSquare className="w-4 h-4" />
+              <span>Tasks ({tasks.length})</span>
+            </button>
 
-        <button
-          onClick={() => setActiveSubTab("milestones")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "milestones"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <Target className="w-4 h-4" />
-          <span>Milestones ({milestones.length})</span>
-        </button>
+            <button
+              onClick={() => setActiveSubTab("milestones")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "milestones"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <Target className="w-4 h-4" />
+              <span>Milestones ({milestones.length})</span>
+            </button>
 
-        <button
-          onClick={() => setActiveSubTab("releases")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "releases"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <Music className="w-4 h-4" />
-          <span>Releases ({releases.length})</span>
-        </button>
+            <button
+              onClick={() => setActiveSubTab("artist-tools")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "artist-tools"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <Sliders className="w-4 h-4 text-red-400" />
+              <span>Artist Tools Suite</span>
+            </button>
 
-        <button
-          onClick={() => setActiveSubTab("assets")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "assets"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <HardDrive className="w-4 h-4" />
-          <span>Asset Vault ({assets.length})</span>
-        </button>
+            <button
+              onClick={() => setActiveSubTab("assets")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "assets"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <HardDrive className="w-4 h-4" />
+              <span>Asset Vault ({assets.length})</span>
+            </button>
 
-        <button
-          onClick={() => setActiveSubTab("campaigns")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "campaigns"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <Megaphone className="w-4 h-4" />
-          <span>Campaigns ({campaigns.length})</span>
-        </button>
+            <button
+              onClick={() => setActiveSubTab("content")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "content"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Content Engine ({contentItems.length})</span>
+            </button>
 
-        <button
-          onClick={() => setActiveSubTab("content")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "content"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <Calendar className="w-4 h-4" />
-          <span>Content Queue ({contentItems.length})</span>
-        </button>
+            <button
+              onClick={() => setActiveSubTab("memory")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "memory"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <BrainCircuit className="w-4 h-4 text-red-400" />
+              <span>Creative Memory & Brain</span>
+            </button>
 
-        <button
-          onClick={() => setActiveSubTab("memory")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "memory"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <Palette className="w-4 h-4" />
-          <span>Creative Memory</span>
-        </button>
+            <button
+              onClick={() => setActiveSubTab("activity")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "activity"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Audit Log ({activityLogs.length})</span>
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => setActiveSubTab("brand-os")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "brand-os"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-blue-400" />
+              <span>Brand OS & Strategy</span>
+            </button>
 
-        <button
-          onClick={() => setActiveSubTab("activity")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
-            activeSubTab === "activity"
-              ? "bg-red-600 text-white shadow-md shadow-red-950/40"
-              : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
-          }`}
-        >
-          <ShieldCheck className="w-4 h-4" />
-          <span>Audit Log ({activityLogs.length})</span>
-        </button>
+            <button
+              onClick={() => setActiveSubTab("pipeline")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "pipeline"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <FolderPlus className="w-4 h-4" />
+              <span>Initiatives ({projects.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSubTab("tasks")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "tasks"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <CheckSquare className="w-4 h-4" />
+              <span>Tasks ({tasks.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSubTab("milestones")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "milestones"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <Target className="w-4 h-4" />
+              <span>Milestones ({milestones.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSubTab("campaigns")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "campaigns"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <Megaphone className="w-4 h-4" />
+              <span>Campaigns ({campaigns.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSubTab("assets")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "assets"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <HardDrive className="w-4 h-4" />
+              <span>Brand Kit Vault ({assets.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSubTab("content")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "content"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Content Engine ({contentItems.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSubTab("memory")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "memory"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <BrainCircuit className="w-4 h-4 text-blue-400" />
+              <span>Brand Intelligence</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSubTab("activity")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
+                activeSubTab === "activity"
+                  ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                  : "bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Audit Log ({activityLogs.length})</span>
+            </button>
+          </>
+        )}
       </div>
+
+      {/* ========================================================================= */}
+      {/* SUBTAB: ARTIST OS (Integrated Artist Operating Environment)               */}
+      {/* ========================================================================= */}
+      {activeSubTab === "artist-os" && (
+        <div className="space-y-6">
+          <ArtistOS onNavigateTab={handleInternalNavigate} />
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUBTAB: BRAND OS (Integrated Brand Strategy & Execution Environment)      */}
+      {/* ========================================================================= */}
+      {activeSubTab === "brand-os" && (
+        <div className="space-y-6">
+          <BrandOS onNotify={onNotify} onNavigateTab={handleInternalNavigate} />
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUBTAB: ARTIST TOOLS SUITE                                                */}
+      {/* ========================================================================= */}
+      {activeSubTab === "artist-tools" && (
+        <div className="space-y-6">
+          {/* Sub-navigation for Artist Tools */}
+          <div className="p-4 rounded-2xl bg-zinc-900/60 border border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
+                  <Sliders className="w-4 h-4" />
+                </span>
+                <h2 className="text-base font-bold text-white font-['Space_Grotesk']">
+                  Artist Creative Tools Suite
+                </h2>
+              </div>
+              <p className="text-xs text-zinc-400 mt-1">
+                Embedded production, marketing, and release assets built directly into your Artist Workspace.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-1.5 flex-wrap overflow-x-auto">
+              <button
+                onClick={() => setSelectedArtistTool("mastering")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer min-h-[38px] ${
+                  selectedArtistTool === "mastering"
+                    ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                Mastering QA
+              </button>
+              <button
+                onClick={() => setSelectedArtistTool("lyrics")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer min-h-[38px] ${
+                  selectedArtistTool === "lyrics"
+                    ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                Lyrics Studio
+              </button>
+              <button
+                onClick={() => setSelectedArtistTool("cover")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer min-h-[38px] ${
+                  selectedArtistTool === "cover"
+                    ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                Cover Art Studio
+              </button>
+              <button
+                onClick={() => setSelectedArtistTool("dsp")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer min-h-[38px] ${
+                  selectedArtistTool === "dsp"
+                    ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                DSP Pitcher
+              </button>
+              <button
+                onClick={() => setSelectedArtistTool("splits")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer min-h-[38px] ${
+                  selectedArtistTool === "splits"
+                    ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                Splits Calculator
+              </button>
+              <button
+                onClick={() => setSelectedArtistTool("presave")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer min-h-[38px] ${
+                  selectedArtistTool === "presave"
+                    ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                Pre-Save Hub
+              </button>
+              <button
+                onClick={() => setSelectedArtistTool("epk")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer min-h-[38px] ${
+                  selectedArtistTool === "epk"
+                    ? "bg-red-600 text-white shadow-md shadow-red-950/40"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                EPK Dossier
+              </button>
+            </div>
+          </div>
+
+          {/* Active Artist Tool Render */}
+          <div className="pt-2">
+            {selectedArtistTool === "mastering" && <MasteringSuite onNotify={onNotify} />}
+            {selectedArtistTool === "lyrics" && <LyricsStudio onNotify={onNotify} />}
+            {selectedArtistTool === "cover" && <CoverStudio onNotify={onNotify} />}
+            {selectedArtistTool === "dsp" && <DSPPitcher onNotify={onNotify} />}
+            {selectedArtistTool === "splits" && <SplitsCalculator onNotify={onNotify} />}
+            {selectedArtistTool === "presave" && <PresaveHub onNotify={onNotify} />}
+            {selectedArtistTool === "epk" && <EPKBuilder onNotify={onNotify} />}
+          </div>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* SUBTAB 0: INTELLIGENT COMMAND CENTER DASHBOARD                           */}
@@ -2013,208 +2490,79 @@ export function WorkspaceHub({ setActiveTab, onNotify }: WorkspaceHubProps) {
       )}
 
       {/* ========================================================================= */}
-      {/* SUBTAB 7: CONTENT QUEUE                                                   */}
+      {/* SUBTAB 7: CONTENT QUEUE & ENGINE                                          */}
       {/* ========================================================================= */}
       {activeSubTab === "content" && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-            <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-purple-500" />
-              <span>Programmed Content Queue</span>
-            </h2>
-            <button
-              onClick={() => setActiveTab("artist-brain")}
-              className="px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 min-h-[44px] cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Generate 30-Day Calendar</span>
-            </button>
-          </div>
+        <div className="space-y-6">
+          <ContentEngine />
 
-          {contentItems.length === 0 ? (
-            <div className="p-8 text-center bg-zinc-900/30 border border-zinc-800/80 rounded-2xl">
-              <Calendar className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-              <p className="text-sm font-semibold text-zinc-300">No scheduled content pieces in queue</p>
-              <p className="text-xs text-zinc-500 mt-1">Commit rollout items from the Artist Content Brain</p>
+          <div className="pt-6 border-t border-zinc-800 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-purple-500" />
+                <span>Programmed Content Queue</span>
+              </h2>
               <button
-                onClick={() => setActiveTab("artist-brain")}
-                className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl min-h-[44px] cursor-pointer"
+                onClick={() => {
+                  openBrainWithContext(`Generate a high-converting 30-day content calendar for ${workspace?.name || "this workspace"}`);
+                }}
+                className="px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 min-h-[44px] cursor-pointer"
               >
-                Open Artist Brain
+                <Plus className="w-3.5 h-3.5" />
+                <span>Generate 30-Day Calendar</span>
               </button>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {contentItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-start justify-between gap-4"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                        {item.platform}
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-300">
-                        {item.contentType}
-                      </span>
-                      <span className="text-[10px] text-zinc-500 font-mono">Date: {item.scheduledDate || "T-10"}</span>
+
+            {contentItems.length === 0 ? (
+              <div className="p-8 text-center bg-zinc-900/30 border border-zinc-800/80 rounded-2xl">
+                <Calendar className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-zinc-300">No scheduled content pieces in queue</p>
+                <p className="text-xs text-zinc-500 mt-1">Commit rollout items from the Content Engine or Creative Brain</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {contentItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-start justify-between gap-4"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                          {item.platform}
+                        </span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-300">
+                          {item.contentType}
+                        </span>
+                        <span className="text-[10px] text-zinc-500 font-mono">Date: {item.scheduledDate || "T-10"}</span>
+                      </div>
+
+                      <h4 className="text-sm font-bold text-white tracking-tight">{item.title}</h4>
+                      <p className="text-xs text-zinc-300 font-medium">"{item.captionHook}"</p>
+                      <p className="text-[11px] text-zinc-500">{item.concept}</p>
                     </div>
 
-                    <h4 className="text-sm font-bold text-white tracking-tight">{item.title}</h4>
-                    <p className="text-xs text-zinc-300 font-medium">"{item.captionHook}"</p>
-                    <p className="text-[11px] text-zinc-500">{item.concept}</p>
+                    <button
+                      onClick={() => deleteContentItem(item.id)}
+                      className="text-zinc-500 hover:text-red-400 p-1.5 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      title="Remove from queue"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => deleteContentItem(item.id)}
-                    className="text-zinc-500 hover:text-red-400 p-1.5 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    title="Remove from queue"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* SUBTAB 8: CREATIVE MEMORY                                                 */}
+      {/* SUBTAB 8: CREATIVE MEMORY & CODIFICATION                                  */}
       {/* ========================================================================= */}
       {activeSubTab === "memory" && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-            <div>
-              <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-red-500" />
-                <span>Persistent Creative Memory & Brand Codification</span>
-              </h2>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                Codified narrative rules, visual tokens, and sonic guidelines that contextualize the Creative Brain.
-              </p>
-            </div>
-
-            {editingMemory ? (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setEditingMemory(false)}
-                  className="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold rounded-xl min-h-[44px] cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveMemory}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl min-h-[44px] cursor-pointer"
-                >
-                  Save Memory
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setEditingMemory(true)}
-                className="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700/60 min-h-[44px] cursor-pointer"
-              >
-                Edit Memory
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Identity & Narrative */}
-            <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <FileText className="w-3.5 h-3.5 text-red-400" />
-                <span>Core Identity & Narrative</span>
-              </h3>
-
-              {editingMemory ? (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-[11px] text-zinc-400 mb-1">Identity Summary</label>
-                    <textarea
-                      rows={2}
-                      value={memorySummary}
-                      onChange={(e) => setMemorySummary(e.target.value)}
-                      className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-red-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] text-zinc-400 mb-1">Core Strategic Narrative</label>
-                    <textarea
-                      rows={3}
-                      value={memoryNarrative}
-                      onChange={(e) => setMemoryNarrative(e.target.value)}
-                      className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-red-500"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2 text-xs text-zinc-300 leading-relaxed">
-                  <p><strong className="text-white">Summary:</strong> {creativeMemory?.identitySummary || "No summary set."}</p>
-                  <p><strong className="text-white">Narrative:</strong> {creativeMemory?.coreNarrative || "No narrative set."}</p>
-                </div>
-              )}
-
-              {/* Tone Traits */}
-              <div className="pt-3 border-t border-zinc-800">
-                <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                  Tone & Voice Traits
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {(creativeMemory?.toneTraits || ["Authentic", "Bold", "Sophisticated"]).map((trait, i) => (
-                    <span
-                      key={i}
-                      className="px-2.5 py-1 rounded-lg bg-zinc-800/80 text-zinc-200 text-xs font-medium border border-zinc-700/60"
-                    >
-                      {trait}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Visual Tokens & Audio Signatures */}
-            <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4">
-              <div>
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 mb-3">
-                  <Palette className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Codified Brand Color Tokens</span>
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {(creativeMemory?.brandColors || [
-                    { name: "Keedohub Crimson", hex: "#EF4444", role: "Primary Accent" },
-                    { name: "Flame Gold", hex: "#F97316", role: "Energy" },
-                    { name: "Obsidian Deep", hex: "#09090B", role: "Canvas" },
-                    { name: "Carbon Surface", hex: "#18181B", role: "Surface" },
-                  ]).map((color, idx) => (
-                    <div key={idx} className="flex items-center gap-2.5 p-2 rounded-xl bg-zinc-950/60 border border-zinc-800">
-                      <div className="w-6 h-6 rounded-lg shadow-sm border border-white/10 shrink-0" style={{ backgroundColor: color.hex }} />
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-white truncate">{color.name}</div>
-                        <div className="text-[10px] font-mono text-zinc-400">{color.hex} • {color.role}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-zinc-800">
-                <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                  Visual & Audio Guidelines
-                </div>
-                <ul className="space-y-1.5 text-xs text-zinc-300 list-disc list-inside">
-                  {(creativeMemory?.visualRules || [
-                    "3000x3000px 300DPI master canvas specifications",
-                    "High-contrast dark editorial layout with clean vector typography",
-                  ]).map((rule, idx) => (
-                    <li key={idx}>{rule}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+        <div className="space-y-6">
+          <CreativeMemoryDashboard onNotify={onNotify} onNavigateTab={handleInternalNavigate} />
         </div>
       )}
 

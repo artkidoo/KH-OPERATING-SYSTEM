@@ -12,6 +12,7 @@ interface AuthContextType {
   user: User | null;
   workspaces: Workspace[];
   activeWorkspace: Workspace | null;
+  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   isOnboardingOpen: boolean;
@@ -41,22 +42,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null);
+  const [token, setToken] = useState<string | null>(getStoredToken());
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
   const [onboardingOptions, setOnboardingOptions] = useState<OnboardingModalOptions>({});
 
   const initAuth = async () => {
     setIsLoading(true);
-    const token = getStoredToken();
+    const storedToken = getStoredToken();
+    setToken(storedToken);
 
     // If no token exists, provide initial seamless demo login or guest state
-    if (!token) {
+    if (!storedToken) {
       try {
         // Log in to default demo creator account for instant access
         const res = await api.auth.login({ email: "creator@keedohub.com", password: "keedohub2026" });
         setUser(res.user);
         setWorkspaces(res.workspaces);
         setActiveWorkspace(res.activeWorkspace);
+        setToken(getStoredToken());
       } catch (err) {
         console.warn("[Auth] Demo login fallback:", err);
       } finally {
@@ -70,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(res.user);
       setWorkspaces(res.workspaces);
       setActiveWorkspace(res.activeWorkspace);
+      setToken(getStoredToken());
     } catch {
       // Stale or expired token in localStorage — gracefully recover with fresh demo login
       try {
@@ -77,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(res.user);
         setWorkspaces(res.workspaces);
         setActiveWorkspace(res.activeWorkspace);
+        setToken(getStoredToken());
       } catch {
         setUser(null);
       }
@@ -125,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(res.user);
       setWorkspaces(res.workspaces);
       setActiveWorkspace(res.activeWorkspace);
+      setToken(getStoredToken());
     } finally {
       setIsLoading(false);
     }
@@ -145,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(res.user);
       setWorkspaces(res.workspaces);
       setActiveWorkspace(res.activeWorkspace);
+      setToken(getStoredToken());
       
       // Trigger progressive setup wizard for newly registered user
       setOnboardingOptions({
@@ -165,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setWorkspaces([]);
       setActiveWorkspace(null);
+      setToken(null);
       setIsOnboardingOpen(false);
     } finally {
       setIsLoading(false);
@@ -186,6 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.activeWorkspace) {
         setActiveWorkspace(res.activeWorkspace);
       }
+      setToken(getStoredToken());
     } catch (err) {
       console.error("[Auth] Failed to refresh user:", err);
     }
@@ -202,6 +212,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         workspaces,
         activeWorkspace,
+        token,
         isLoading,
         isAuthenticated: Boolean(user),
         isOnboardingOpen,

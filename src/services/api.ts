@@ -59,6 +59,9 @@ import {
   PlatformSettings,
   AdminOverviewStats,
   SystemAdminRole,
+  RadarSignal,
+  RadarDigest,
+  RadarStats,
 } from "../types";
 
 const TOKEN_KEY = "keedohub_session_token";
@@ -1547,6 +1550,100 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ role }),
       });
+    },
+  },
+
+  radar: {
+    getSignals: async (
+      workspaceId: string,
+      params?: {
+        category?: string;
+        severity?: string;
+        status?: string;
+        entityType?: string;
+        entityId?: string;
+        search?: string;
+        includeArchived?: boolean;
+        autoEvaluate?: boolean;
+      }
+    ) => {
+      const searchParams = new URLSearchParams();
+      if (params?.category) searchParams.set("category", params.category);
+      if (params?.severity) searchParams.set("severity", params.severity);
+      if (params?.status) searchParams.set("status", params.status);
+      if (params?.entityType) searchParams.set("entityType", params.entityType);
+      if (params?.entityId) searchParams.set("entityId", params.entityId);
+      if (params?.search) searchParams.set("search", params.search);
+      if (params?.includeArchived !== undefined) searchParams.set("includeArchived", String(params.includeArchived));
+      if (params?.autoEvaluate !== undefined) searchParams.set("autoEvaluate", String(params.autoEvaluate));
+      const qs = searchParams.toString() ? `?${searchParams.toString()}` : "";
+      return request<{ signals: RadarSignal[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals${qs}`);
+    },
+
+    evaluate: async (workspaceId: string) => {
+      return request<{ signals: RadarSignal[]; digest: RadarDigest; stats: RadarStats }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/evaluate`,
+        { method: "POST" }
+      );
+    },
+
+    getDigest: async (workspaceId: string) => {
+      return request<{ digest: RadarDigest; stats: RadarStats }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/digest`
+      );
+    },
+
+    getStats: async (workspaceId: string) => {
+      return request<{ stats: RadarStats }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/stats`
+      );
+    },
+
+    acknowledgeSignal: async (workspaceId: string, signalId: string) => {
+      return request<{ success: boolean; signal: RadarSignal }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/${encodeURIComponent(signalId)}/acknowledge`,
+        { method: "POST" }
+      );
+    },
+
+    dismissSignal: async (workspaceId: string, signalId: string) => {
+      return request<{ success: boolean; signal: RadarSignal }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/${encodeURIComponent(signalId)}/dismiss`,
+        { method: "POST" }
+      );
+    },
+
+    actionSignal: async (workspaceId: string, signalId: string) => {
+      return request<{ success: boolean; signal: RadarSignal }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/${encodeURIComponent(signalId)}/action`,
+        { method: "POST" }
+      );
+    },
+
+    batchAction: async (workspaceId: string, signalIds: string[], action: "acknowledge" | "dismiss" | "restore") => {
+      return request<{ success: boolean; updatedCount: number }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/batch`,
+        {
+          method: "POST",
+          body: JSON.stringify({ signalIds, action }),
+        }
+      );
+    },
+
+    askBrain: async (workspaceId: string, signalId: string, query?: string) => {
+      return request<{
+        explanation: string;
+        rootCause: string;
+        actionPlan: string[];
+        aiGuidance: string;
+        affectedEntityName: string;
+      }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/${encodeURIComponent(signalId)}/ask-brain`,
+        {
+          method: "POST",
+          body: JSON.stringify({ query }),
+        }
+      );
     },
   },
 };

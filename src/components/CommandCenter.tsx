@@ -791,7 +791,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                   onClick={() => onNavigateTab("artist-os")}
                   className="text-xs text-red-400 hover:text-red-300 font-semibold flex items-center gap-1 cursor-pointer"
                 >
-                  <span>Launch Artist OS</span>
+                  <span>Open Artist Workspace</span>
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
@@ -896,7 +896,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                   onClick={() => onNavigateTab("brand-os")}
                   className="text-xs text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 cursor-pointer"
                 >
-                  <span>Open Hub</span>
+                  <span>Open Brand Workspace</span>
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>

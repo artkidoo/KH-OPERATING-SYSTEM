@@ -116,33 +116,6 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { id: "admin", label: "Admin Control", icon: <ShieldAlert className="w-3.5 h-3.5" />, badge: "PHASE 16" },
-    { id: "command-center", label: "Command Center", icon: <Rocket className="w-3.5 h-3.5" />, badge: "PHASE 10" },
-    { id: "collaboration", label: "Collaboration & Approvals", icon: <Users className="w-3.5 h-3.5" />, badge: "PHASE 15" },
-    { id: "workflow", label: "Workflow & Tasks", icon: <CheckSquare className="w-3.5 h-3.5" />, badge: "PHASE 14" },
-    { id: "creative-radar", label: "Creative Radar", icon: <Radio className="w-3.5 h-3.5" />, badge: "PHASE 9" },
-    { id: "analytics", label: "Analytics & Growth", icon: <TrendingUp className="w-3.5 h-3.5" />, badge: "PHASE 11" },
-    { id: "artist-os", label: "Artist OS", icon: <Disc3 className="w-3.5 h-3.5" />, badge: "PHASE 3" },
-    { id: "content-engine", label: "Content Engine", icon: <Layers className="w-3.5 h-3.5" />, badge: "PHASE 6" },
-    { id: "studio", label: "Keedohub Studio", icon: <Palette className="w-3.5 h-3.5" />, badge: "PHASE 7" },
-    { id: "creative-memory", label: "Creative Memory", icon: <BrainCircuit className="w-3.5 h-3.5" />, badge: "PHASE 8" },
-    { id: "creative-brain", label: "Creative Brain", icon: <BrainCircuit className="w-3.5 h-3.5" />, badge: "OS AI" },
-    { id: "workspace-hub", label: "Workspace OS", icon: <HardDrive className="w-3.5 h-3.5" />, badge: "HUB" },
-    { id: "brand-os", label: "Brand OS", icon: <Sparkles className="w-3.5 h-3.5" /> },
-    { id: "artist-brain", label: "Artist Brain", icon: <Music className="w-3.5 h-3.5" /> },
-    { id: "lyrics-studio", label: "Lyric Studio", icon: <Music className="w-3.5 h-3.5" /> },
-    { id: "dsp-pitcher", label: "DSP Pitch", icon: <Target className="w-3.5 h-3.5" /> },
-    { id: "mastering-suite", label: "Mastering & LUFS", icon: <Activity className="w-3.5 h-3.5" /> },
-    { id: "splits-calculator", label: "Splits & Royalties", icon: <Percent className="w-3.5 h-3.5" /> },
-    { id: "presave-hub", label: "Smart Pre-Save", icon: <Radio className="w-3.5 h-3.5" /> },
-    { id: "cover-studio", label: "Cover Studio", icon: <Layers className="w-3.5 h-3.5" /> },
-    { id: "epk-builder", label: "EPK Kit", icon: <FileText className="w-3.5 h-3.5" /> },
-    { id: "project-console", label: "Project Console", icon: <Briefcase className="w-3.5 h-3.5" /> },
-    { id: "resource-vault", label: "Vault & Legal", icon: <ShieldCheck className="w-3.5 h-3.5" /> },
-    { id: "intel-hub", label: "KH Intel", icon: <BookOpen className="w-3.5 h-3.5" /> },
-  ];
-
   const getIdentityBadge = (type?: IdentityType) => {
     switch (type) {
       case "artist":

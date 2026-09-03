@@ -32,11 +32,11 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
   const roleConfigs = {
     artist: {
-      tag: "MUSIC ARTIST OS",
+      tag: "ARTIST WORKSPACE",
       title: "The Rollout Engine for Modern Musicians",
       description: "You recorded the song. We engineer the 30-day promotional rollout, viral hooks, 3000x3000px artwork, DSP pitch letters, and press kits to dominate the algorithm.",
       ctaTab: "artist-os" as ActiveTab,
-      ctaText: "Launch Artist OS",
+      ctaText: "Enter Artist Workspace",
       metrics: [
         { label: "DSP Pitch Rate", val: "94%" },
         { label: "Avg First 48h Streams", val: "50K+" },
@@ -44,11 +44,11 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
       ]
     },
     brand: {
-      tag: "BRAND ARCHITECT OS",
+      tag: "BRAND WORKSPACE",
       title: "Design Systems & High-Conversion Brand Engines",
       description: "Transform your company into a recognized cultural authority. Vector brand marks, mathematically paired typography, responsive campaign architecture, and full commercial rights.",
       ctaTab: "brand-os" as ActiveTab,
-      ctaText: "Open Brand Architecture OS",
+      ctaText: "Enter Brand Workspace",
       metrics: [
         { label: "Turnaround Time", val: "48-72h" },
         { label: "Commercial Rights", val: "100% Owned" },
