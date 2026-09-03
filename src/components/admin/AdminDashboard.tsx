@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   ChevronRight,
   AlertTriangle,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
@@ -30,6 +31,7 @@ import { SupportViewTab } from "./SupportViewTab";
 import { SystemHealthTab } from "./SystemHealthTab";
 import { FeatureFlagsTab } from "./FeatureFlagsTab";
 import { PlatformSettingsTab } from "./PlatformSettingsTab";
+import { DocumentTemplateManagementTab } from "./DocumentTemplateManagementTab";
 
 interface AdminDashboardProps {
   onBackToApp?: () => void;
@@ -43,7 +45,8 @@ type AdminSubTab =
   | "support"
   | "system-health"
   | "feature-flags"
-  | "settings";
+  | "settings"
+  | "document-templates";
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) => {
   const { user } = useAuth();
@@ -83,6 +86,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
     { id: "system-health", label: "System Health", icon: <Cpu className="w-4 h-4" /> },
     { id: "feature-flags", label: "Feature Flags", icon: <Sliders className="w-4 h-4" /> },
     { id: "settings", label: "Platform Settings", icon: <Settings className="w-4 h-4" />, badge: "ROOT" },
+    { id: "document-templates", label: "Document Templates", icon: <FileText className="w-4 h-4" /> },
   ];
 
   const getRoleBadge = (role: SystemAdminRole) => {
@@ -267,6 +271,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
 
           {activeSubTab === "settings" && (
             <PlatformSettingsTab currentUserRole={effectiveRole} />
+          )}
+
+          {activeSubTab === "document-templates" && (
+            <DocumentTemplateManagementTab currentUserRole={effectiveRole} />
           )}
         </div>
       </div>

@@ -14,6 +14,7 @@ import { WorkspaceHub } from "./components/WorkspaceHub";
 import { ArtistContentBrain } from "./components/ArtistContentBrain";
 import { CoverStudio } from "./components/CoverStudio";
 import { BrandOS } from "./components/BrandOS";
+import { BusinessDocumentsStudio } from "./components/brand/BusinessDocumentsStudio";
 import { EPKBuilder } from "./components/EPKBuilder";
 import { ProjectConsole } from "./components/ProjectConsole";
 import { ResourceVault } from "./components/ResourceVault";
@@ -94,6 +95,8 @@ function getTabFromPath(path: string): ActiveTab {
       return "command-center";
     case "/studios":
       return "studio";
+    case "/business-documents":
+      return "business-studio";
     case "/creative-brain":
       return "creative-brain";
     case "/artist-os":
@@ -258,6 +261,10 @@ function MainAppContent() {
           />
         )}
 
+        {activeTab === "business-studio" && (
+          <BusinessDocumentsStudio onNotify={addNotification} />
+        )}
+
         {activeTab === "workspace-hub" && (
           <WorkspaceHub
             setActiveTab={setActiveTab}
@@ -316,8 +323,16 @@ function MainAppContent() {
             onNotify={addNotification}
             onNavigateTab={(tab) => {
               if (tab.startsWith("studio:")) {
-                setStudioServiceCategory(tab.replace("studio:", "") as StudioServiceCategory);
-                setActiveTab("studio");
+                const serviceCategory = tab.replace("studio:", "") as StudioServiceCategory;
+                if (serviceCategory === "business_documents") {
+                  setActiveTab("business-studio");
+                } else {
+                  setStudioServiceCategory(serviceCategory);
+                  setActiveTab("studio");
+                }
+              } else if (tab === "business-studio") {
+                setStudioServiceCategory("business_documents");
+                setActiveTab("business-studio");
               } else {
                 setActiveTab(tab as ActiveTab);
               }

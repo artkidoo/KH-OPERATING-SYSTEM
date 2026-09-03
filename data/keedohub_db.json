@@ -3187,6 +3187,582 @@
   ],
   "admin_audit_logs": [
     {
+      "id": "a-log-602bcb2d",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:55:48.146Z"
+    },
+    {
+      "id": "a-log-a668a8fe",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:55:47.927Z"
+    },
+    {
+      "id": "a-log-00e813ec",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:55:36.274Z"
+    },
+    {
+      "id": "a-log-bdadcdfa",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:55:36.114Z"
+    },
+    {
+      "id": "a-log-4494f4cd",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:55:25.138Z"
+    },
+    {
+      "id": "a-log-bf9101ef",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:55:24.946Z"
+    },
+    {
+      "id": "a-log-96f2d394",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:55:08.914Z"
+    },
+    {
+      "id": "a-log-bc2902fe",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:55:08.723Z"
+    },
+    {
+      "id": "a-log-d57d913e",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:58.132Z"
+    },
+    {
+      "id": "a-log-57a8b248",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:57.887Z"
+    },
+    {
+      "id": "a-log-a39d30c2",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:46.077Z"
+    },
+    {
+      "id": "a-log-3e152f7f",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:45.874Z"
+    },
+    {
+      "id": "a-log-3b2d00d6",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:34.898Z"
+    },
+    {
+      "id": "a-log-e2574eb7",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:34.738Z"
+    },
+    {
+      "id": "a-log-20f17142",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:26.546Z"
+    },
+    {
+      "id": "a-log-0c947e6d",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:26.354Z"
+    },
+    {
+      "id": "a-log-08bd8d91",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:15.442Z"
+    },
+    {
+      "id": "a-log-cc954d95",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:15.226Z"
+    },
+    {
+      "id": "a-log-63e51cee",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:02.691Z"
+    },
+    {
+      "id": "a-log-88afce46",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:54:02.530Z"
+    },
+    {
+      "id": "a-log-e9fe3eb0",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:53:57.970Z"
+    },
+    {
+      "id": "a-log-b27b9f1f",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:53:57.810Z"
+    },
+    {
+      "id": "a-log-f3d6a6be",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:53:50.962Z"
+    },
+    {
+      "id": "a-log-a9c77092",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T19:53:50.772Z"
+    },
+    {
       "id": "a-log-b1250be8",
       "adminUserId": "usr_demo_keedohub",
       "adminEmail": "creator@keedohub.com",

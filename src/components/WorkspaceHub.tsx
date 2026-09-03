@@ -1189,6 +1189,14 @@ export function WorkspaceHub({ setActiveTab, onNotify, initialSubTab }: Workspac
             </button>
 
             <button
+              onClick={() => setActiveTab("business-studio")}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            >
+              <FileText className="w-4 h-4 text-blue-400" />
+              <span>Business Documents</span>
+            </button>
+
+            <button
               onClick={() => setActiveSubTab("pipeline")}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 min-h-[44px] ${
                 activeSubTab === "pipeline"

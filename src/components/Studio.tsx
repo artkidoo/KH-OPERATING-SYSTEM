@@ -1291,8 +1291,12 @@ export const Studio: React.FC<StudioProps> = ({
                   <span className="text-xs font-mono font-bold text-white">{cat.startingPrice}</span>
                   <button
                     onClick={() => {
-                      setSelectedCategory(cat.id);
-                      setIsBriefBuilderOpen(true);
+                      if (cat.id === "business_documents") {
+                        onNavigateTab?.("business-studio");
+                      } else {
+                        setSelectedCategory(cat.id);
+                        setIsBriefBuilderOpen(true);
+                      }
                     }}
                     className="px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white text-xs font-semibold transition-all cursor-pointer flex items-center gap-1"
                   >

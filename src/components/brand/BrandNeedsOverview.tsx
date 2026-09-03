@@ -60,7 +60,7 @@ export const BrandNeedsOverview: React.FC<BrandNeedsOverviewProps> = ({ onNotify
   };
   const navigateNeed = (need: { actionTab?: ActiveTab; studioServiceCategory?: string }) => {
     if (need.actionTab === "studio" && need.studioServiceCategory) {
-      onNavigateTab?.(`studio:${need.studioServiceCategory}`);
+      onNavigateTab?.(need.studioServiceCategory === "business_documents" ? "business-studio" : `studio:${need.studioServiceCategory}`);
       return;
     }
     navigate(need.actionTab);
@@ -169,7 +169,7 @@ export const BrandNeedsOverview: React.FC<BrandNeedsOverviewProps> = ({ onNotify
               <div><p className="font-bold text-zinc-200">Why KeedoHub recommends it</p><p className="mt-1 leading-6 text-zinc-400">{selectedNeed.whyRecommended}</p></div>
               <div><p className="font-bold text-zinc-200">What completing it unlocks</p><p className="mt-1 leading-6 text-zinc-400">A stronger foundation for the next stage of your business visibility and customer experience.</p></div>
             </div>
-            <button onClick={() => { navigateNeed(selectedNeed.need); setSelectedNeed(null); }} className="mt-6 w-full rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white hover:bg-red-500">{selectedNeed.action} <ArrowUpRight className="ml-1 inline h-4 w-4" /></button>
+            <button onClick={() => { navigateNeed(selectedNeed.need); setSelectedNeed(null); }} className="mt-6 w-full rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white hover:bg-red-500">{selectedNeed.action} with KeedoHub <ArrowUpRight className="ml-1 inline h-4 w-4" /></button>
           </div>
         </div>
       )}
