@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { ActiveTab } from "../types";
 import { KeedohubLogo } from "./KeedohubLogo";
 import { 
   Send, 
   PhoneCall, 
   Mail, 
-  ChevronDown, 
-  ChevronUp,
   ArrowUpRight,
   ShieldCheck
 } from "lucide-react";
@@ -17,17 +15,6 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ setActiveTab, openBriefModal }) => {
-  const [mobileSectionsOpen, setMobileSectionsOpen] = useState<Record<string, boolean>>({
-    product: false,
-    company: false,
-    resources: false,
-    legal: false,
-  });
-
-  const toggleMobileSection = (sec: string) => {
-    setMobileSectionsOpen(prev => ({ ...prev, [sec]: !prev[sec] }));
-  };
-
   const handleNavigate = (tab: ActiveTab, path: string) => {
     if (typeof window !== "undefined") {
       window.history.pushState({}, "", path);
@@ -75,9 +62,9 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openBriefModal }) 
         </div>
 
         {/* Structured Desktop / Mobile Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-6 sm:gap-8 pt-2">
+        <div className="grid grid-cols-2 md:grid-cols-12 gap-x-4 gap-y-5 sm:gap-x-6 sm:gap-y-6 pt-2">
           {/* Brand Identity & Summary (Col 1 to 4) */}
-          <div className="sm:col-span-2 md:col-span-4 space-y-3">
+          <div className="col-span-2 md:col-span-4 space-y-3">
             <div className="flex items-center gap-2">
               <KeedohubLogo size="sm" showText={true} badge="OS" />
             </div>
@@ -99,19 +86,13 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openBriefModal }) 
           </div>
 
           {/* Column 2: PRODUCT (2 cols) */}
-          <div className="md:col-span-2 space-y-2.5">
-            <div 
-              className="flex items-center justify-between sm:justify-start cursor-pointer sm:cursor-default"
-              onClick={() => toggleMobileSection("product")}
-            >
+          <div className="md:col-span-2 space-y-1.5">
+            <div>
               <h3 className="font-mono text-[10px] font-bold text-[var(--bento-text)] uppercase tracking-wider">
                 Product
               </h3>
-              <span className="sm:hidden text-[var(--bento-muted)]">
-                {mobileSectionsOpen.product ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </span>
             </div>
-            <ul className={`space-y-2 text-xs ${mobileSectionsOpen.product ? "block" : "hidden sm:block"}`}>
+            <ul className="space-y-1.5 text-xs">
               <li>
                 <button
                   id="footer-link-home"
@@ -152,19 +133,13 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openBriefModal }) 
           </div>
 
           {/* Column 3: COMPANY (2 cols) */}
-          <div className="md:col-span-2 space-y-2.5">
-            <div 
-              className="flex items-center justify-between sm:justify-start cursor-pointer sm:cursor-default"
-              onClick={() => toggleMobileSection("company")}
-            >
+          <div className="md:col-span-2 space-y-1.5">
+            <div>
               <h3 className="font-mono text-[10px] font-bold text-[var(--bento-text)] uppercase tracking-wider">
                 Company
               </h3>
-              <span className="sm:hidden text-[var(--bento-muted)]">
-                {mobileSectionsOpen.company ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </span>
             </div>
-            <ul className={`space-y-2 text-xs ${mobileSectionsOpen.company ? "block" : "hidden sm:block"}`}>
+            <ul className="space-y-1.5 text-xs">
               <li>
                 <button
                   id="footer-link-about"
@@ -205,19 +180,13 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openBriefModal }) 
           </div>
 
           {/* Column 4: RESOURCES (2 cols) */}
-          <div className="md:col-span-2 space-y-2.5">
-            <div 
-              className="flex items-center justify-between sm:justify-start cursor-pointer sm:cursor-default"
-              onClick={() => toggleMobileSection("resources")}
-            >
+          <div className="md:col-span-2 space-y-1.5">
+            <div>
               <h3 className="font-mono text-[10px] font-bold text-[var(--bento-text)] uppercase tracking-wider">
                 Resources
               </h3>
-              <span className="sm:hidden text-[var(--bento-muted)]">
-                {mobileSectionsOpen.resources ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </span>
             </div>
-            <ul className={`space-y-2 text-xs ${mobileSectionsOpen.resources ? "block" : "hidden sm:block"}`}>
+            <ul className="space-y-1.5 text-xs">
               <li>
                 <button
                   id="footer-link-faq"
@@ -258,19 +227,13 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openBriefModal }) 
           </div>
 
           {/* Column 5: LEGAL (2 cols) */}
-          <div className="md:col-span-2 space-y-2.5">
-            <div 
-              className="flex items-center justify-between sm:justify-start cursor-pointer sm:cursor-default"
-              onClick={() => toggleMobileSection("legal")}
-            >
+          <div className="md:col-span-2 space-y-1.5">
+            <div>
               <h3 className="font-mono text-[10px] font-bold text-[var(--bento-text)] uppercase tracking-wider">
                 Legal
               </h3>
-              <span className="sm:hidden text-[var(--bento-muted)]">
-                {mobileSectionsOpen.legal ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </span>
             </div>
-            <ul className={`space-y-2 text-xs ${mobileSectionsOpen.legal ? "block" : "hidden sm:block"}`}>
+            <ul className="space-y-1.5 text-xs">
               <li>
                 <button
                   id="footer-link-privacy"

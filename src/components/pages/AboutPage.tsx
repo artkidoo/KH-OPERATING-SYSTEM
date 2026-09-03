@@ -1,16 +1,15 @@
 import React from "react";
 import { ActiveTab } from "../../types";
-import { 
-  Sparkles, 
-  ArrowRight, 
-  Disc3, 
-  Briefcase, 
-  Cpu, 
-  ShieldCheck, 
-  Users, 
-  Zap, 
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  Cpu,
+  Disc3,
   Globe2,
-  CheckCircle2
+  Layers3,
+  ShieldCheck,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 
 interface PageProps {
@@ -18,145 +17,159 @@ interface PageProps {
   openBriefModal: () => void;
 }
 
+const PILLARS = [
+  {
+    icon: Disc3,
+    label: "Release readiness",
+    copy: "Audio, artwork, metadata, rights and rollout momentum in one view.",
+    tone: "text-red-400 bg-red-500/10 border-red-500/20",
+  },
+  {
+    icon: BriefcaseBusiness,
+    label: "Commercial ownership",
+    copy: "Your masters, stems, strategy and brand systems stay yours.",
+    tone: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+  },
+  {
+    icon: Zap,
+    label: "Proactive intelligence",
+    copy: "Creative Brain spots the next bottleneck before it costs you.",
+    tone: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+  },
+  {
+    icon: Globe2,
+    label: "Global by design",
+    copy: "Built in Lagos for ambitious teams everywhere.",
+    tone: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+  },
+];
+
 export const AboutPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }) => {
   return (
-    <div className="space-y-12 sm:space-y-16 py-4 sm:py-8 animate-fade-in text-left">
-      {/* Page Hero */}
-      <section className="relative overflow-hidden rounded-3xl bento-card p-6 sm:p-10 md:p-14 border border-[var(--bento-border)] bg-gradient-to-b from-[var(--bento-card)] to-[var(--bento-bg)]">
-        <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-light)] border border-[var(--accent-border)] text-[var(--accent-pill-text)] text-xs font-mono font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-red-500" />
-            <span>About Keedohub</span>
+    <div className="space-y-14 sm:space-y-20 py-3 sm:py-8 animate-fade-in text-left">
+      <section className="relative overflow-hidden rounded-[2rem] bento-card border border-[var(--bento-border)] bg-gradient-to-br from-[var(--bento-card)] via-[var(--bento-card)] to-[var(--bento-bg)]">
+        <div className="absolute inset-0 bg-bento-grid opacity-25 pointer-events-none" />
+        <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-[var(--accent-color)] opacity-10 blur-3xl pointer-events-none" />
+        <div className="relative grid gap-10 p-6 sm:p-10 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:gap-14 lg:p-14">
+          <div className="space-y-6">
+            <div className="bento-pill w-fit">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>About Keedohub / 01</span>
+            </div>
+            <div className="space-y-4">
+              <h1 className="max-w-3xl font-['Space_Grotesk'] text-4xl font-extrabold leading-[1.04] tracking-tight text-[var(--bento-text)] sm:text-5xl lg:text-6xl">
+                The infrastructure behind <span className="text-theme-accent">better work.</span>
+              </h1>
+              <p className="max-w-2xl text-base leading-relaxed text-[var(--bento-muted)] sm:text-lg">
+                Keedohub is the creative operating system for artists and brands who are ready to move from scattered output to intentional momentum.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => onNavigateTab("command-center")}
+                className="inline-flex items-center gap-2 rounded-xl bg-theme-accent px-5 py-3 font-['Space_Grotesk'] text-sm font-bold shadow-md transition-all hover:scale-[1.02] active:scale-[.98] cursor-pointer"
+              >
+                Enter the workspace <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                onClick={openBriefModal}
+                className="rounded-xl border border-[var(--bento-border)] bg-[var(--bento-card)] px-5 py-3 text-sm font-semibold text-[var(--bento-text)] transition-colors hover:bg-[var(--bento-elevated)] cursor-pointer"
+              >
+                Start a project
+              </button>
+            </div>
           </div>
-          <h1 className="font-['Space_Grotesk'] text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--bento-text)] tracking-tight leading-tight">
-            The Creative Operating System for Artists & Brands.
-          </h1>
-          <p className="text-base sm:text-lg text-[var(--bento-muted)] leading-relaxed font-normal">
-            Keedohub unifies release architecture, visual design studios, strategic marketing intelligence, and asset management into one coherent environment — eliminating creative fragmentation so creators can execute at the highest global caliber.
-          </p>
-          <div className="pt-2 flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => onNavigateTab("command-center")}
-              className="px-5 py-2.5 rounded-xl bg-theme-accent text-white font-bold text-xs sm:text-sm font-['Space_Grotesk'] flex items-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
-            >
-              <span>Enter Workspace</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={openBriefModal}
-              className="px-5 py-2.5 rounded-xl bg-[var(--bento-card)] hover:bg-[var(--bento-elevated)] border border-[var(--bento-border)] text-[var(--bento-text)] font-semibold text-xs sm:text-sm transition-all cursor-pointer"
-            >
-              Start a Project
-            </button>
+
+          <div className="relative min-h-[19rem] overflow-hidden rounded-3xl border border-[var(--bento-border)] bg-[var(--bento-bg)] p-4 sm:min-h-[23rem] sm:p-6">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-light)] via-transparent to-transparent" />
+            <div className="relative flex h-full flex-col justify-between gap-8">
+              <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[.2em] text-[var(--bento-subtle)]">
+                <span>One creative system</span>
+                <span className="inline-flex items-center gap-1.5 text-emerald-400"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Live</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                {[
+                  ["Artist OS", "Release control", "bg-red-500/10 text-red-300"],
+                  ["Brand OS", "Market clarity", "bg-blue-500/10 text-blue-300"],
+                  ["Creative Brain", "Next best action", "bg-purple-500/10 text-purple-300"],
+                  ["Asset memory", "Nothing gets lost", "bg-amber-500/10 text-amber-300"],
+                ].map(([title, subtitle, tone]) => (
+                  <div key={title} className={`rounded-2xl border border-[var(--bento-border)] p-3 sm:p-4 ${tone}`}>
+                    <Layers3 className="mb-5 h-4 w-4 opacity-80" />
+                    <div className="font-['Space_Grotesk'] text-sm font-bold text-[var(--bento-text)]">{title}</div>
+                    <div className="mt-1 text-[10px] text-[var(--bento-muted)]">{subtitle}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-3 border-t border-[var(--bento-border)] pt-4 text-xs text-[var(--bento-muted)]">
+                <Cpu className="h-4 w-4 text-theme-accent" />
+                <span>Less coordination. More creation.</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* The Core Problem & Solution */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-        <div className="bento-card p-6 sm:p-8 rounded-2xl border border-[var(--bento-border)] space-y-4">
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
-            <Cpu className="w-5 h-5" />
+      <section className="grid gap-4 sm:grid-cols-3">
+        {[
+          ["01", "One source of truth", "Every brief, asset and decision has a home."],
+          ["02", "Built for velocity", "Turn a good idea into a ready-to-ship system."],
+          ["03", "Ownership by default", "Your creative work is never the platform’s product."],
+        ].map(([number, title, copy]) => (
+          <div key={number} className="bento-card rounded-2xl border border-[var(--bento-border)] p-5 sm:p-6">
+            <div className="mb-8 font-mono text-xs font-bold tracking-widest text-theme-accent">{number}</div>
+            <h2 className="font-['Space_Grotesk'] text-lg font-bold text-[var(--bento-text)]">{title}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--bento-muted)]">{copy}</p>
           </div>
-          <h2 className="font-['Space_Grotesk'] text-xl sm:text-2xl font-bold text-[var(--bento-text)]">
-            The Problem We Solved
-          </h2>
-          <p className="text-sm text-[var(--bento-muted)] leading-relaxed">
-            Modern creators and brands do not suffer from lack of talent — they suffer from operational chaos. Tracks get finished, but rollouts stall because artwork, DSP pitching, split sheets, social hooks, and budget timelines are scattered across spreadsheets, messy folders, and disjointed freelance threads.
-          </p>
-          <p className="text-sm text-[var(--bento-muted)] leading-relaxed">
-            Keedohub was engineered to replace this chaotic patchwork with a singular, high-precision operating system.
-          </p>
-        </div>
+        ))}
+      </section>
 
-        <div className="bento-card p-6 sm:p-8 rounded-2xl border border-[var(--bento-border)] space-y-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <h2 className="font-['Space_Grotesk'] text-xl sm:text-2xl font-bold text-[var(--bento-text)]">
-            Two Operating Environments
+      <section className="grid gap-6 lg:grid-cols-[.8fr_1.2fr] lg:gap-12">
+        <div className="space-y-4">
+          <div className="text-xs font-mono font-bold uppercase tracking-[.2em] text-theme-accent">Why we exist</div>
+          <h2 className="max-w-md font-['Space_Grotesk'] text-3xl font-bold leading-tight text-[var(--bento-text)] sm:text-4xl">
+            Talent should not have to become an operations department.
           </h2>
-          <p className="text-sm text-[var(--bento-muted)] leading-relaxed">
-            Keedohub is structured around two dedicated user environments:
-          </p>
-          <ul className="space-y-2 text-sm text-[var(--bento-text)]">
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-              <span><strong>Artist Workspace (powered by Artist OS):</strong> Built for musicians, producers, and label managers to handle release readiness, mastering quality, metadata, cover art, and editorial pitching.</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-              <span><strong>Brand Workspace (powered by Brand OS):</strong> Engineered for businesses, agencies, and ventures to execute brand positioning, multi-channel campaigns, asset consistency, and conversion funnels.</span>
-            </li>
-          </ul>
+        </div>
+        <div className="space-y-4 text-sm leading-relaxed text-[var(--bento-muted)] sm:text-base">
+          <p>Great work is often slowed by the invisible layer around it: version control, rights, deadlines, handoffs and a dozen disconnected tools. Keedohub brings that layer into focus.</p>
+          <p>We give independent creators the same operational leverage as an elite studio, without asking them to trade away their voice or ownership.</p>
+          <div className="flex items-center gap-3 border-l-2 border-[var(--accent-color)] pl-4 pt-2 font-['Space_Grotesk'] text-base font-semibold text-[var(--bento-text)]">
+            <ShieldCheck className="h-5 w-5 shrink-0 text-theme-accent" />
+            Enterprise-grade rails. Creator-first control.
+          </div>
         </div>
       </section>
 
-      {/* Core Pillars */}
       <section className="space-y-6">
-        <div className="space-y-2">
-          <div className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--bento-muted)]">
-            Foundation & Philosophy
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+          <div>
+            <div className="text-xs font-mono font-bold uppercase tracking-[.2em] text-[var(--bento-muted)]">The Keedohub standard</div>
+            <h2 className="mt-2 font-['Space_Grotesk'] text-3xl font-bold text-[var(--bento-text)]">A system with a point of view.</h2>
           </div>
-          <h2 className="font-['Space_Grotesk'] text-2xl sm:text-3xl font-bold text-[var(--bento-text)]">
-            What Defines Keedohub
-          </h2>
+          <p className="max-w-xs text-sm leading-relaxed text-[var(--bento-muted)]">Four principles that shape every workflow we ship.</p>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <div className="bento-card p-5 rounded-2xl border border-[var(--bento-border)] space-y-2">
-            <Disc3 className="w-6 h-6 text-red-400" />
-            <h3 className="font-['Space_Grotesk'] font-bold text-base text-[var(--bento-text)]">7-Pillar Readiness</h3>
-            <p className="text-xs text-[var(--bento-muted)] leading-relaxed">
-              Every drop is measured against deterministic standards: audio mastering, cover art, synchronized lyrics, legal splits, pre-save velocity, press dossier, and editorial pitch.
-            </p>
-          </div>
-
-          <div className="bento-card p-5 rounded-2xl border border-[var(--bento-border)] space-y-2">
-            <Briefcase className="w-6 h-6 text-blue-400" />
-            <h3 className="font-['Space_Grotesk'] font-bold text-base text-[var(--bento-text)]">Commercial Ownership</h3>
-            <p className="text-xs text-[var(--bento-muted)] leading-relaxed">
-              100% creator ownership. Everything generated or managed inside your workspace — stems, split sheets, vectors, and brand tokens — remains strictly your intellectual property.
-            </p>
-          </div>
-
-          <div className="bento-card p-5 rounded-2xl border border-[var(--bento-border)] space-y-2">
-            <Zap className="w-6 h-6 text-amber-400" />
-            <h3 className="font-['Space_Grotesk'] font-bold text-base text-[var(--bento-text)]">Intelligence In Action</h3>
-            <p className="text-xs text-[var(--bento-muted)] leading-relaxed">
-              Our Creative Brain and Creative Radar analyze gaps proactively, recommending exact actions before bottlenecks threaten drop day or campaign deadlines.
-            </p>
-          </div>
-
-          <div className="bento-card p-5 rounded-2xl border border-[var(--bento-border)] space-y-2">
-            <Globe2 className="w-6 h-6 text-emerald-400" />
-            <h3 className="font-['Space_Grotesk'] font-bold text-base text-[var(--bento-text)]">Global Execution</h3>
-            <p className="text-xs text-[var(--bento-muted)] leading-relaxed">
-              Engineered in Lagos, Nigeria and serving creators, labels, and businesses across London, New York, Johannesburg, Toronto, and beyond.
-            </p>
-          </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PILLARS.map(({ icon: Icon, label, copy, tone }) => (
+            <div key={label} className="bento-card rounded-2xl border border-[var(--bento-border)] p-5">
+              <div className={`mb-7 flex h-10 w-10 items-center justify-center rounded-xl border ${tone}`}><Icon className="h-5 w-5" /></div>
+              <h3 className="font-['Space_Grotesk'] text-base font-bold text-[var(--bento-text)]">{label}</h3>
+              <p className="mt-2 text-xs leading-relaxed text-[var(--bento-muted)]">{copy}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Leadership & Origin */}
-      <section className="bento-card p-6 sm:p-10 rounded-2xl border border-[var(--bento-border)] flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-3 max-w-2xl">
-          <div className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--bento-muted)]">
-            Founder & Direction
+      <section className="bento-card relative overflow-hidden rounded-3xl border border-[var(--accent-border)] bg-gradient-to-r from-[var(--accent-light)] to-[var(--bento-card)] p-6 sm:p-10">
+        <div className="relative flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
+          <div className="max-w-2xl space-y-2">
+            <div className="text-xs font-mono font-bold uppercase tracking-[.2em] text-theme-accent">Make room for the work</div>
+            <h2 className="font-['Space_Grotesk'] text-2xl font-bold text-[var(--bento-text)] sm:text-3xl">Your next chapter deserves better infrastructure.</h2>
           </div>
-          <h2 className="font-['Space_Grotesk'] text-2xl font-bold text-[var(--bento-text)]">
-            Built by Creators Who Understand the Stakes
-          </h2>
-          <p className="text-sm text-[var(--bento-muted)] leading-relaxed">
-            Keedohub was founded by <strong>Ojo Abdulkareem</strong> with a singular mission: to provide the next generation of music artists and innovative brands with enterprise-grade operating tools that match the speed of modern culture.
-          </p>
+          <button onClick={() => onNavigateTab("contact")} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-theme-accent px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] cursor-pointer">
+            Meet the team <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
-        <button
-          onClick={() => onNavigateTab("contact")}
-          className="px-5 py-2.5 rounded-xl bg-[var(--bento-input)] hover:bg-[var(--bento-card-hover)] border border-[var(--bento-border)] text-xs sm:text-sm font-semibold text-[var(--bento-text)] shrink-0 transition-all cursor-pointer"
-        >
-          Get In Touch With Team
-        </button>
       </section>
     </div>
   );

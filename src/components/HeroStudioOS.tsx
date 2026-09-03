@@ -137,22 +137,22 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
               </div>
 
               {/* Quick Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 pt-1">
+              <div className="flex flex-row items-center gap-2 sm:gap-2.5 pt-1">
                 <button
                   id="hero-primary-cta-btn"
                   onClick={() => setActiveTab(currentRole.ctaTab)}
-                  className="flex items-center justify-center gap-1.5 px-3.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl bg-theme-accent font-bold text-xs font-['Space_Grotesk'] text-white shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-[var(--accent-border)]"
+                  className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-2.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl bg-theme-accent font-bold text-xs font-['Space_Grotesk'] text-white shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-[var(--accent-border)]"
                 >
-                  <span>{currentRole.ctaText}</span>
+                  <span className="truncate">{currentRole.ctaText}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
                 <button
                   id="hero-request-brief-btn"
                   onClick={openBriefModal}
-                  className="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-[var(--bento-elevated)] hover:bg-[var(--bento-border)] text-[var(--bento-text)] font-semibold text-xs border border-[var(--bento-border)] transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-[var(--bento-elevated)] hover:bg-[var(--bento-border)] text-[var(--bento-text)] font-semibold text-xs border border-[var(--bento-border)] transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                 >
-                  <span>Request Custom Brief</span>
+                  <span className="truncate">Request Custom Brief</span>
                 </button>
               </div>
             </div>
