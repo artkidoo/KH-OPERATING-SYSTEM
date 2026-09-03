@@ -30,7 +30,7 @@ export const DocumentationPage: React.FC<PageProps> = ({ onNavigateTab, openBrie
   };
 
   return (
-    <div className="space-y-12 sm:space-y-16 py-4 sm:py-8 animate-fade-in text-left">
+    <div className="space-y-10 sm:space-y-14 py-3 sm:py-8 animate-fade-in text-left">
       {/* Page Hero */}
       <section className="relative overflow-hidden rounded-3xl bento-card p-6 sm:p-10 md:p-14 border border-[var(--bento-border)] bg-gradient-to-b from-[var(--bento-card)] to-[var(--bento-bg)]">
         <div className="max-w-3xl space-y-4">
@@ -57,9 +57,9 @@ export const DocumentationPage: React.FC<PageProps> = ({ onNavigateTab, openBrie
       </section>
 
       {/* 2-Column Documentation View */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-start">
         {/* Navigation Sidebar */}
-        <div className="lg:col-span-4 space-y-3 sticky top-20">
+        <div className="lg:col-span-4 space-y-3 lg:sticky lg:top-20">
           <div className="bento-card p-4 rounded-2xl border border-[var(--bento-border)] space-y-1">
             <div className="px-3 py-2 text-[10px] font-mono font-bold uppercase text-[var(--bento-muted)] tracking-wider">
               Architecture Reference
@@ -96,7 +96,7 @@ export const DocumentationPage: React.FC<PageProps> = ({ onNavigateTab, openBrie
         {/* Content Body */}
         <div className="lg:col-span-8 space-y-8 text-[var(--bento-text)]">
           {/* Section 1: Workspace Core */}
-          <section id="core-architecture" className="bento-card p-6 sm:p-8 rounded-2xl border border-[var(--bento-border)] space-y-4">
+          <section id="core-architecture" className="bento-card p-4 sm:p-6 rounded-2xl border border-[var(--bento-border)] space-y-4">
             <h2 className="font-['Space_Grotesk'] text-xl sm:text-2xl font-bold">
               1. Workspace Core & Environments
             </h2>
@@ -116,7 +116,7 @@ export const DocumentationPage: React.FC<PageProps> = ({ onNavigateTab, openBrie
           </section>
 
           {/* Section 2: 7-Pillar Release Engine */}
-          <section id="release-engine" className="bento-card p-6 sm:p-8 rounded-2xl border border-[var(--bento-border)] space-y-4">
+          <section id="release-engine" className="bento-card p-4 sm:p-6 rounded-2xl border border-[var(--bento-border)] space-y-4">
             <h2 className="font-['Space_Grotesk'] text-xl sm:text-2xl font-bold">
               2. 7-Pillar Music Release Engine
             </h2>

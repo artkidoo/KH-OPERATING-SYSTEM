@@ -22,7 +22,7 @@ interface PageProps {
 
 export const HelpCenterPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }) => {
   return (
-    <div className="space-y-12 sm:space-y-16 py-4 sm:py-8 animate-fade-in text-left">
+    <div className="space-y-10 sm:space-y-14 py-3 sm:py-8 animate-fade-in text-left">
       {/* Page Hero */}
       <section className="relative overflow-hidden rounded-3xl bento-card p-6 sm:p-10 md:p-14 border border-[var(--bento-border)] bg-gradient-to-b from-[var(--bento-card)] to-[var(--bento-bg)]">
         <div className="max-w-3xl space-y-4">
@@ -65,13 +65,13 @@ export const HelpCenterPage: React.FC<PageProps> = ({ onNavigateTab, openBriefMo
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-3">
           {/* Card 1 */}
-          <div className="bento-card p-6 rounded-2xl border border-[var(--bento-border)] space-y-3">
-            <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
-              <Disc3 className="w-5 h-5" />
+          <div className="bento-card p-3.5 sm:p-5 rounded-2xl border border-[var(--bento-border)] space-y-2.5 sm:space-y-3 transition-all hover:border-red-500/40">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
+              <Disc3 className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <h3 className="font-['Space_Grotesk'] font-bold text-lg text-[var(--bento-text)]">
+            <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">
               Release Readiness & Audio
             </h3>
             <p className="text-xs text-[var(--bento-muted)] leading-relaxed">
@@ -90,11 +90,11 @@ export const HelpCenterPage: React.FC<PageProps> = ({ onNavigateTab, openBriefMo
           </div>
 
           {/* Card 2 */}
-          <div className="bento-card p-6 rounded-2xl border border-[var(--bento-border)] space-y-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
-              <Briefcase className="w-5 h-5" />
+          <div className="bento-card p-3.5 sm:p-5 rounded-2xl border border-[var(--bento-border)] space-y-2.5 sm:space-y-3 transition-all hover:border-blue-500/40">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+              <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <h3 className="font-['Space_Grotesk'] font-bold text-lg text-[var(--bento-text)]">
+            <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">
               Brand OS & Campaigns
             </h3>
             <p className="text-xs text-[var(--bento-muted)] leading-relaxed">
@@ -113,11 +113,11 @@ export const HelpCenterPage: React.FC<PageProps> = ({ onNavigateTab, openBriefMo
           </div>
 
           {/* Card 3 */}
-          <div className="bento-card p-6 rounded-2xl border border-[var(--bento-border)] space-y-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
-              <Users className="w-5 h-5" />
+          <div className="bento-card p-3.5 sm:p-5 rounded-2xl border border-[var(--bento-border)] space-y-2.5 sm:space-y-3 transition-all hover:border-purple-500/40">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <h3 className="font-['Space_Grotesk'] font-bold text-lg text-[var(--bento-text)]">
+            <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">
               Collaboration & Roles
             </h3>
             <p className="text-xs text-[var(--bento-muted)] leading-relaxed">

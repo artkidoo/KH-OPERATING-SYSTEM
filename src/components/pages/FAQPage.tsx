@@ -101,7 +101,7 @@ export const FAQPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }) 
   }, [activeCategory, searchQuery]);
 
   return (
-    <div className="space-y-12 sm:space-y-16 py-4 sm:py-8 animate-fade-in text-left">
+    <div className="space-y-10 sm:space-y-14 py-3 sm:py-8 animate-fade-in text-left">
       {/* Page Hero */}
       <section className="relative overflow-hidden rounded-3xl bento-card p-6 sm:p-10 md:p-14 border border-[var(--bento-border)] bg-gradient-to-b from-[var(--bento-card)] to-[var(--bento-bg)]">
         <div className="max-w-3xl space-y-4">
@@ -156,7 +156,7 @@ export const FAQPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }) 
         </div>
 
         {/* Accordion Questions */}
-        <div className="space-y-3 pt-2">
+        <div className="space-y-2.5 pt-2">
           {filteredFaqs.length === 0 ? (
             <div className="p-8 bento-card rounded-2xl border border-[var(--bento-border)] text-center text-sm text-[var(--bento-muted)]">
               No questions found matching "{searchQuery}". Try a different keyword or contact our support team.
@@ -171,7 +171,7 @@ export const FAQPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }) 
                 >
                   <button
                     onClick={() => toggleItem(item.id)}
-                    className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-[var(--bento-elevated)] transition-colors"
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 cursor-pointer hover:bg-[var(--bento-elevated)] transition-colors"
                   >
                     <span className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">
                       {item.question}
