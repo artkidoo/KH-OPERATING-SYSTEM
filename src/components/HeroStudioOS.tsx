@@ -172,129 +172,31 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
             </div>
           </div>
 
-          {/* Right Column: Interactive Bento Phone Mockup Card (5 cols) */}
-          <div className="lg:col-span-5 bento-card p-4 sm:p-7 flex flex-col items-center justify-center relative overflow-hidden">
-            <div className="w-full max-w-xs sm:max-w-sm">
-              {/* Studio OS Phone Container */}
-              <div className="relative rounded-[28px] sm:rounded-[32px] bg-gradient-to-b from-[var(--bento-elevated)] to-[var(--bento-card)] p-2.5 sm:p-3 shadow-xl border border-[var(--bento-border)] overflow-hidden">
-                {/* Top Notch Status */}
-                <div className="flex items-center justify-between px-3 py-1.5 text-[10px] font-mono text-[var(--bento-muted)]">
-                  <span className="font-bold text-[var(--bento-text)]">9:41</span>
-                  <div className="w-12 sm:w-16 h-3 bg-black/40 rounded-full mx-auto"></div>
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: currentThemeConfig.primaryColor }}></span>
-                    <span className="font-bold text-[10px]" style={{ color: currentThemeConfig.primaryColor }}>LIVE</span>
+          {/* Right Column: Open laptop showing the active creative workspace */}
+          <div className="lg:col-span-5 flex items-center justify-center relative overflow-hidden px-1 sm:px-4 py-4 sm:py-7">
+            <div className="w-full max-w-lg">
+              <div className="relative mx-auto w-[92%]">
+                <div className="relative rounded-t-[14px] sm:rounded-t-[20px] border-[5px] sm:border-[7px] border-zinc-700 bg-zinc-950 p-1.5 sm:p-2 shadow-2xl">
+                  <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-zinc-600"></div>
+                  <div className="aspect-[16/10] overflow-hidden rounded-[5px] sm:rounded-[8px] bg-[#111116]">
+                    <div className="flex h-full text-left">
+                      <aside className="hidden sm:flex w-[24%] flex-col justify-between border-r border-white/10 bg-[#19191f] p-2.5">
+                        <div><div className="mb-4 flex items-center gap-1.5 text-[8px] font-bold text-white"><span className="h-2 w-2 rounded-sm bg-red-500"></span>KEEDOHUB</div><div className="space-y-2 text-[7px] font-mono text-zinc-500"><div className="text-zinc-200">Workspace</div><div>Assets</div><div>Guidelines</div><div>Timeline</div></div></div>
+                        <div className="text-[7px] font-mono text-emerald-400">● AUTOSAVED</div>
+                      </aside>
+                      <div className="flex min-w-0 flex-1 flex-col p-2.5 sm:p-4">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-2"><div><div className="text-[7px] font-mono uppercase tracking-widest text-red-400">{activeRole === "artist" ? "Artist workspace" : "Brand workspace"}</div><div className="mt-0.5 truncate text-[11px] sm:text-sm font-bold text-white">{activeRole === "artist" ? 'Victoria — cover direction' : "Keedohub — identity system"}</div></div><div className="flex items-center gap-1 text-[7px] font-mono text-emerald-400"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400"></span>LIVE</div></div>
+                        <div className="grid min-h-0 flex-1 grid-cols-[1.4fr_1fr] gap-2.5 pt-3">
+                          <div className="relative overflow-hidden rounded-md border border-white/10 bg-gradient-to-br from-red-950 via-zinc-900 to-black p-2.5"><div className="absolute -right-5 -top-5 h-24 w-24 rounded-full border-[12px] border-red-500/20"></div><div className="relative flex h-full flex-col justify-between"><span className="w-fit rounded bg-black/60 px-1 py-0.5 text-[6px] font-mono uppercase tracking-wider text-zinc-300">{activeRole === "artist" ? "Cover art v03" : "Brand board v02"}</span><div><div className="text-[7px] font-mono uppercase tracking-widest text-red-300">{activeRole === "artist" ? "Afro-fusion single" : "Visual direction"}</div><div className="mt-1 text-base sm:text-xl font-bold leading-none text-white">{activeRole === "artist" ? "VICTORIA" : <>MAKE IT<br />RECOGNISABLE</>}</div></div></div></div>
+                          <div className="space-y-2"><div className="rounded-md border border-white/10 bg-white/[0.04] p-2"><div className="mb-1 flex justify-between text-[7px] font-mono text-zinc-500"><span>{activeRole === "artist" ? "ROLLOUT PROGRESS" : "IDENTITY PROGRESS"}</span><span className="text-white">{activeRole === "artist" ? "68%" : "42%"}</span></div><div className="h-1 rounded-full bg-zinc-800"><div className="h-1 rounded-full bg-red-500" style={{ width: activeRole === "artist" ? "68%" : "42%" }}></div></div></div><div className="rounded-md border border-white/10 bg-white/[0.04] p-2 text-[7px] font-mono text-zinc-400"><div className="mb-1 text-zinc-200">IN PROGRESS</div><div className="space-y-1"><div>✓ Direction locked</div><div className="text-red-300">◐ {activeRole === "artist" ? "Artwork exploration" : "Tone of voice"}</div><div>○ Final review</div></div></div></div>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-[7px] font-mono text-zinc-500"><span>{activeRole === "artist" ? "3 collaborators editing" : "2 collaborators editing"}</span>{activeRole === "artist" && <button onClick={() => setIsPlayingPreview(!isPlayingPreview)} className="flex items-center gap-1 text-red-300 cursor-pointer">{isPlayingPreview ? <Pause className="h-2.5 w-2.5" /> : <Play className="h-2.5 w-2.5 fill-current" />} PREVIEW</button>}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                {/* Inner Screen */}
-                <div className="bg-[var(--bento-bg)] rounded-[20px] sm:rounded-[24px] p-3 sm:p-4 space-y-2.5 sm:space-y-3.5 border border-[var(--bento-border)]">
-                  {/* Studio Active Record Header */}
-                  <div className="flex items-center justify-between pb-2 border-b border-[var(--bento-border)]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[var(--accent-light)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent-pill-text)]">
-                        {activeRole === "artist" ? (
-                          <Disc3 className={`w-3.5 h-3.5 ${isPlayingPreview ? 'animate-spin' : ''}`} />
-                        ) : (
-                          <Palette className="w-3.5 h-3.5" />
-                        )}
-                      </div>
-                      <div className="text-left">
-                        <div className="text-[11px] sm:text-xs font-bold text-[var(--bento-text)] truncate max-w-[150px] sm:max-w-none">
-                          {activeRole === "artist" ? 'ZACK KHALIFA — "VICTORIA"' : "KEEDOHUB BUSINESS PROFILE"}
-                        </div>
-                        <div className="text-[8px] sm:text-[9px] font-mono text-[var(--accent-pill-text)]">
-                          {activeRole === "artist" ? "ROLLOUT ENGINE ACTIVE" : "BRAND OS ACTIVE"}
-                        </div>
-                      </div>
-                    </div>
-                    {activeRole === "artist" && (
-                      <button
-                        onClick={() => setIsPlayingPreview(!isPlayingPreview)}
-                        className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-theme-accent flex items-center justify-center cursor-pointer transition-colors shadow-sm font-bold text-white"
-                        title={isPlayingPreview ? "Pause Audio Preview" : "Play Audio Preview"}
-                      >
-                        {isPlayingPreview ? <Pause className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 ml-0.5 fill-current" />}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Album Cover 3D Canvas Preview */}
-                  <div className={`relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden p-3 sm:p-4 flex flex-col justify-between border border-[var(--accent-border)] shadow-inner group ${activeRole === "artist" ? "bg-gradient-to-br from-red-950/80 via-zinc-900 to-black" : "bg-gradient-to-br from-[var(--accent-light)] via-zinc-900 to-black"}`}>
-                    {/* Vinyl spinning disc overlay */}
-                    {activeRole === "artist" && (
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 sm:w-44 h-36 sm:h-44 rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-800 via-zinc-950 to-black opacity-35 border-4 border-zinc-700 pointer-events-none group-hover:scale-105 transition-transform duration-500">
-                        <div className="absolute inset-[38%] rounded-full" style={{ backgroundColor: currentThemeConfig.primaryColor }}></div>
-                      </div>
-                    )}
-
-                    {/* Top tags */}
-                    <div className="flex items-center justify-between relative z-10">
-                      <span className="text-[8px] sm:text-[9px] font-mono font-bold tracking-widest px-1.5 py-0.2 rounded-full bg-black/70 text-white backdrop-blur-md border border-white/10 uppercase">
-                        {activeRole === "artist" ? "MASTER" : "PROFILE"}
-                      </span>
-                      <span className="text-[8px] sm:text-[9px] font-mono text-amber-300 bg-amber-950/70 px-1.5 py-0.2 rounded-full border border-amber-500/30">
-                        {activeRole === "artist" ? "3000px" : "READY"}
-                      </span>
-                    </div>
-
-                    {/* Cover typography */}
-                    <div className="text-left relative z-10 space-y-0.5">
-                      <div className="text-[8px] sm:text-[10px] font-mono text-red-300 font-semibold tracking-widest uppercase">
-                        {activeRole === "artist" ? "AFRO-FUSION SINGLE" : "BUSINESS IDENTITY"}
-                      </div>
-                      <div className="font-['Space_Grotesk'] text-lg sm:text-2xl font-bold text-white tracking-tight leading-none drop-shadow-md">
-                        {activeRole === "artist" ? "MIDNIGHT IN VI" : "YOUR BRAND, CLEARLY"}
-                      </div>
-                      <div className="text-[10px] sm:text-xs text-zinc-300 font-medium">
-                        {activeRole === "artist" ? "PROD. BY KEEDOHUB" : "POWERED BY KEEDOHUB"}
-                      </div>
-                    </div>
-
-                    {/* Bottom badges */}
-                    <div className="flex items-end justify-between relative z-10 pt-1">
-                      <div className="px-1 py-0.2 bg-black border border-white/20 text-[7px] sm:text-[8px] font-mono font-bold text-white uppercase tracking-tighter rounded">
-                        {activeRole === "artist" ? "PARENTAL ADVISORY" : "BRAND FOUNDATION"}
-                      </div>
-                      <div className="text-[7px] sm:text-[8px] font-mono text-zinc-400">
-                        {activeRole === "artist" ? "HIGH-FIDELITY" : "BUSINESS READY"}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Micro Rollout Dashboard Cards */}
-                  <div className="grid grid-cols-2 gap-1.5 text-left">
-                    <div 
-                      onClick={() => setActiveTab(activeRole === "artist" ? "artist-brain" : "brand-os")}
-                      className="p-2 rounded-lg bg-[var(--bento-card)] border border-[var(--bento-border)] hover:border-[var(--accent-border)] cursor-pointer transition-colors"
-                    >
-                      <div className="text-[8px] font-mono text-[var(--bento-muted)]">{activeRole === "artist" ? "30-DAY TIMELINE" : "BUSINESS NEEDS"}</div>
-                      <div className="text-[11px] font-bold text-[var(--bento-text)] flex items-center justify-between">
-                        <span>{activeRole === "artist" ? "Pre-Save" : "Overview"}</span>
-                        <ArrowRight className="w-2.5 h-2.5 text-[var(--accent-pill-text)]" />
-                      </div>
-                    </div>
-                    <div 
-                      onClick={() => setActiveTab(activeRole === "artist" ? "cover-studio" : "brand-os")}
-                      className="p-2 rounded-lg bg-[var(--bento-card)] border border-[var(--bento-border)] hover:border-amber-500/50 cursor-pointer transition-colors"
-                    >
-                      <div className="text-[8px] font-mono text-[var(--bento-muted)]">{activeRole === "artist" ? "COVER STUDIO" : "BRAND PROFILE"}</div>
-                      <div className="text-[11px] font-bold text-[var(--bento-text)] flex items-center justify-between">
-                        <span>{activeRole === "artist" ? "3D Canvas" : "Identity Setup"}</span>
-                        <ArrowRight className="w-2.5 h-2.5 text-amber-500" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Launch Engine CTA Button */}
-                  <button
-                    onClick={() => setActiveTab(currentRole.ctaTab)}
-                    className="w-full py-2 rounded-lg bg-theme-accent text-[11px] font-bold font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-md text-white"
-                  >
-                    <Zap className="w-3 h-3 fill-current" />
-                    <span>{activeRole === "artist" ? "Run Rollout Campaign" : "Open Brand OS"}</span>
-                  </button>
-                </div>
+                <div className="h-1.5 bg-zinc-800 shadow-inner"></div>
+                <div className="relative -mx-[7%] h-14 sm:h-20 rounded-b-[8px] sm:rounded-b-[14px] bg-gradient-to-b from-zinc-600 to-zinc-800 px-[13%] pt-2 shadow-2xl [clip-path:polygon(5%_0,95%_0,100%_100%,0_100%)]"><div className="grid grid-cols-12 gap-0.5 sm:gap-1">{Array.from({ length: 48 }).map((_, index) => <span key={index} className="h-1.5 sm:h-2 rounded-[2px] bg-zinc-950/70"></span>)}</div><div className="mx-auto mt-2 h-4 w-16 sm:h-6 sm:w-24 rounded border border-zinc-500/60 bg-zinc-700/50"></div></div>
               </div>
             </div>
           </div>
