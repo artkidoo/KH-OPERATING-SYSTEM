@@ -19,6 +19,7 @@ export type ActiveTab =
   | 'splits-calculator'
   | 'presave-hub'
   | 'brand-os'
+  | 'business-studio'
   | 'epk-builder'
   | 'project-console'
   | 'resource-vault'
@@ -1094,6 +1095,7 @@ export interface FanLead {
 
 export type StudioServiceCategory = 
   | 'brand_identity'
+  | 'business_documents'
   | 'cover_design'
   | 'web_ui_ux'
   | 'social_media'
@@ -2334,5 +2336,3 @@ export interface WorkspaceDiagnosticReport {
   storageUsedBytes: number;
   recommendations: string[];
 }
-
-

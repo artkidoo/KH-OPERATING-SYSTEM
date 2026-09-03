@@ -163,9 +163,9 @@ export const BrandCoreEditor: React.FC<BrandCoreEditorProps> = ({ onNotify }) =>
             <span className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500">
               <Compass className="w-5 h-5" />
             </span>
-            <h2 className="text-xl font-bold text-zinc-100 tracking-tight">Brand Core & Identity System</h2>
+            <h2 className="text-xl font-bold text-zinc-100 tracking-tight">Brand Profile</h2>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">
-              Master Spec
+              Business identity source of truth
             </span>
           </div>
           <p className="text-sm text-zinc-400 mt-1">

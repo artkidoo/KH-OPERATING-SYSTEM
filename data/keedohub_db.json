@@ -97,6 +97,31 @@
       "token": "kdh_sess_3d5e5554568a8f287f39f39b2a47c5a4560c9ac6f912d74136ecc5e6225d0a68",
       "userId": "usr_demo_keedohub",
       "expiresAt": "2026-10-03T09:44:01.499Z"
+    },
+    {
+      "token": "kdh_sess_1e4625805705b8b37544866db5a593b383f972fc9119b9d6161ea6d1584a6af4",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T16:30:48.459Z"
+    },
+    {
+      "token": "kdh_sess_e80dd1b4aa6aeb1d0baff21f6f2d01b60b32e8a79ee66fc5c34df104b32a504e",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T16:30:48.462Z"
+    },
+    {
+      "token": "kdh_sess_67b5c7a1acfb08fe485d4ff3b93654c55f2645d021478f4319763e46c8a0992d",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T16:30:50.515Z"
+    },
+    {
+      "token": "kdh_sess_33d21b745a469bbfb8335045bfb39a269ddc114bbea0603e80fe4bff7087a11f",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T16:31:01.846Z"
+    },
+    {
+      "token": "kdh_sess_dabc692f334ff574a158aaa926bfa96516dfea005da50bb4981dc1e1bda1a9d7",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-03T16:31:01.983Z"
     }
   ],
   "workspaces": [
@@ -108,7 +133,7 @@
       "identityType": "artist",
       "avatarUrl": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150&auto=format&fit=crop&q=80",
       "bio": "Global Afro-Fusion recording artist & creative lab pushing boundary sonics from Lagos to London.",
-      "genreOrNiche": "Afro-Fusion / Alté / Global Sounds",
+      "genreOrNiche": "restaurant",
       "website": "https://keedohub.com",
       "settings": {
         "defaultCurrency": "USD",
@@ -119,7 +144,7 @@
         }
       },
       "createdAt": "2026-09-02T08:38:56.602Z",
-      "updatedAt": "2026-09-02T08:38:56.602Z",
+      "updatedAt": "2026-09-03T16:53:38.303Z",
       "status": "active"
     }
   ],
@@ -2035,6 +2060,39 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": "act_dbdcf702",
+      "workspaceId": "ws_demo_artist_os",
+      "userId": "usr_demo_keedohub",
+      "userEmail": "creator@keedohub.com",
+      "action": "UPDATE_WORKSPACE",
+      "entityType": "workspace",
+      "entityId": "ws_demo_artist_os",
+      "details": "Updated settings for workspace 'AfroVibe World OS'",
+      "createdAt": "2026-09-03T16:53:38.304Z"
+    },
+    {
+      "id": "act_bc7eda86",
+      "workspaceId": "ws_demo_artist_os",
+      "userId": "usr_demo_keedohub",
+      "userEmail": "creator@keedohub.com",
+      "action": "UPDATE_WORKSPACE",
+      "entityType": "workspace",
+      "entityId": "ws_demo_artist_os",
+      "details": "Updated settings for workspace 'AfroVibe World OS'",
+      "createdAt": "2026-09-03T16:44:02.750Z"
+    },
+    {
+      "id": "act_a4a38f7b",
+      "workspaceId": "ws_demo_artist_os",
+      "userId": "usr_demo_keedohub",
+      "userEmail": "creator@keedohub.com",
+      "action": "UPDATE_WORKSPACE",
+      "entityType": "workspace",
+      "entityId": "ws_demo_artist_os",
+      "details": "Updated settings for workspace 'AfroVibe World OS'",
+      "createdAt": "2026-09-03T16:35:35.501Z"
+    },
     {
       "id": "act_6f2e80ff",
       "workspaceId": "ws_demo_artist_os",

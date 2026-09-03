@@ -204,6 +204,16 @@ export const Studio: React.FC<StudioProps> = ({
       deliverables: ["Primary & Secondary Vector Marks", "Color Palette Tokens", "Typography Pairing System", "PDF Brand Guidelines"],
     },
     {
+      id: "business_documents",
+      title: "Business Documents & Templates",
+      description: "Professional letterheads, proposals, quotations, invoices, receipts, company profiles, business cards, and email signatures built from your Brand Profile.",
+      icon: <FileText className="w-5 h-5 text-blue-400" />,
+      turnaround: "1-3 Business Days",
+      startingPrice: "$120 / ₦100k",
+      idealFor: "Businesses, Startups, Restaurants, Automotive Companies, Brands",
+      deliverables: ["Print-ready PDF", "Editable document template", "Digital sharing version", "Brand-consistent layout system"],
+    },
+    {
       id: "motion_animation",
       title: "Motion Graphics & 2D Animation",
       description: "Kinetic lyric videos, 3D animated cover loops, release countdown teasers, and high-engagement social reels.",

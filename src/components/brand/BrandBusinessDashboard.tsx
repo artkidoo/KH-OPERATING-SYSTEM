@@ -6,6 +6,7 @@ import { CampaignBuilder } from './CampaignBuilder';
 import { BrandCoreEditor } from './BrandCoreEditor';
 import { ContextualRadarBanner } from '../CreativeRadarDashboard';
 import { IdentityType, ActiveTab } from '../../types';
+import { BrandNeedsOverview } from './BrandNeedsOverview';
 import { 
   Rocket, 
   Compass, 
@@ -29,14 +30,15 @@ import {
 interface BrandBusinessDashboardProps {
   onNotify: (msg: string, type?: 'success' | 'info' | 'error') => void;
   onNavigateTab?: (tab: string) => void;
+  standalone?: boolean;
 }
 
-export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ onNotify, onNavigateTab }) => {
+export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ onNotify, onNavigateTab, standalone = false }) => {
   const { workspace, brandCore, activeCampaign, calculateCampaignReadiness, products, contentItems } = useWorkspace();
   const { openWithContext } = useCreativeBrain();
 
-  type BrandWorkstationTab = 'campaigns' | 'brand_core' | 'products' | 'content_engine' | 'readiness_radar';
-  const [activeTab, setActiveTab] = useState<BrandWorkstationTab>('campaigns');
+  type BrandWorkstationTab = 'overview' | 'campaigns' | 'brand_core' | 'products' | 'content_engine' | 'readiness_radar';
+  const [activeTab, setActiveTab] = useState<BrandWorkstationTab>('overview');
 
   const readiness = calculateCampaignReadiness(activeCampaign);
 
@@ -70,7 +72,9 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
               </span>
             </div>
             <p className="text-xs text-zinc-400 mt-0.5">
-              {brandCore?.tagline || 'Sovereign Brand & Business Operating Architecture'}
+              {standalone
+                ? 'Your business identity, documents, presence, marketing, sales, and growth in one place.'
+                : brandCore?.tagline || 'Sovereign Brand & Business Operating Architecture'}
             </p>
           </div>
         </div>
@@ -94,7 +98,7 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
             <span>Ask Creative Brain</span>
           </button>
 
-          {activeCampaign && (
+          {!standalone && activeCampaign && (
             <div className="flex items-center gap-3 bg-zinc-950 px-4 py-2 rounded-xl border border-zinc-800">
               <div>
                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Master Campaign</span>
@@ -107,19 +111,21 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
               </div>
             </div>
           )}
+
         </div>
       </div>
 
       {/* Contextual Radar Signals Banner */}
-      <ContextualRadarBanner category="campaign" onNavigateTab={onNavigateTab as (tab: ActiveTab) => void} />
+      {!standalone && <ContextualRadarBanner category="campaign" onNavigateTab={onNavigateTab as (tab: ActiveTab) => void} />}
 
       {/* Main Workstation Navigation Bar */}
       <div className="flex items-center gap-2 border-b border-zinc-800 overflow-x-auto pb-1">
         {[
-          { id: 'campaigns', label: 'Master Campaign Engine', icon: Rocket, count: activeCampaign ? 'Active' : undefined },
-          { id: 'brand_core', label: 'Brand Core & Identity', icon: Compass, count: 'Master Spec' },
+          { id: 'overview', label: 'Brand OS Overview', icon: Building2, count: undefined },
+          ...(!standalone ? [{ id: 'campaigns', label: 'Master Campaign Engine', icon: Rocket, count: activeCampaign ? 'Active' : undefined }] : []),
+          { id: 'brand_core', label: 'Brand Profile', icon: Compass, count: 'Identity' },
           { id: 'products', label: 'Products & Services Catalog', icon: Package, count: `${products.length}` },
-          { id: 'readiness_radar', label: 'Launch Readiness Radar', icon: ShieldCheck, count: `${readiness?.score ?? 0}%` },
+          ...(!standalone ? [{ id: 'readiness_radar', label: 'Launch Readiness Radar', icon: ShieldCheck, count: `${readiness?.score ?? 0}%` }] : []),
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -149,6 +155,20 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
 
       {/* Active Workstation Module Rendering */}
       <div className="mt-2">
+        {activeTab === 'overview' && (
+          <BrandNeedsOverview
+            onNotify={onNotify}
+            brandMode={standalone}
+            onNavigateTab={(tab) => {
+              if (['campaigns', 'brand_core', 'products', 'readiness_radar'].includes(tab)) {
+                setActiveTab(tab as BrandWorkstationTab);
+              } else {
+                onNavigateTab?.(tab);
+              }
+            }}
+          />
+        )}
+
         {activeTab === 'campaigns' && (
           <CampaignBuilder onNotify={onNotify} onNavigateTab={onNavigateTab} />
         )}

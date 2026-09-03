@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ActiveTab } from "./types";
+import { ActiveTab, StudioServiceCategory } from "./types";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { WorkspaceProvider } from "./context/WorkspaceContext";
@@ -121,6 +121,7 @@ function MainAppContent() {
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isBriefOpen, setIsBriefOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [studioServiceCategory, setStudioServiceCategory] = useState<StudioServiceCategory | undefined>();
 
   const { activeWorkspace, user } = useAuth();
   const { toggleBrain } = useCreativeBrain();
@@ -247,7 +248,11 @@ function MainAppContent() {
         )}
 
         {activeTab === "studio" && (
-          <Studio onNotify={addNotification} onNavigateTab={setActiveTab} />
+          <Studio
+            onNotify={addNotification}
+            onNavigateTab={setActiveTab}
+            initialServiceCategory={studioServiceCategory}
+          />
         )}
 
         {activeTab === "workspace-hub" && (
@@ -304,10 +309,17 @@ function MainAppContent() {
         )}
 
         {activeTab === "brand-os" && (
-          <WorkspaceHub
-            setActiveTab={setActiveTab}
+          <BrandOS
             onNotify={addNotification}
-            initialSubTab="brand-os"
+            onNavigateTab={(tab) => {
+              if (tab.startsWith("studio:")) {
+                setStudioServiceCategory(tab.replace("studio:", "") as StudioServiceCategory);
+                setActiveTab("studio");
+              } else {
+                setActiveTab(tab as ActiveTab);
+              }
+            }}
+            standalone
           />
         )}
 
