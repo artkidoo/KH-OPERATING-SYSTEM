@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { useCreativeBrain } from "../context/CreativeBrainContext";
 import { useWorkspace } from "../context/WorkspaceContext";
 import { ActiveTab, CreativeBrainRecommendation } from "../types";
@@ -14,14 +14,8 @@ import {
   Pin,
   Flame,
   AlertTriangle,
-  Lightbulb,
-  Play,
-  Calendar,
-  Disc3,
-  Megaphone,
-  Briefcase,
-  Zap,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 interface CreativeBrainSlideOverProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -42,17 +36,11 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
     executeAction,
   } = useCreativeBrain();
 
-  const { workspace, projects, releases, campaigns, assets } = useWorkspace();
+  const { workspace, projects, releases, assets } = useWorkspace();
+  const { isAuthenticated } = useAuth();
+  const isArtistWorkspace = workspace?.identityType === "artist";
   const [activeBrainView, setActiveBrainView] = useState<"chat" | "recommendations">("chat");
   const [input, setInput] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isOpen && activeBrainView === "chat") {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, isOpen, isThinking, activeBrainView]);
-
   if (!isOpen) return null;
 
   const handleSend = async (e: React.FormEvent) => {
@@ -87,59 +75,51 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
         "Generate 3 viral TikTok audio hooks",
       ]
     : [
-        "Is my campaign ready for launch?",
-        "What should we prioritize this week?",
-        "Generate creative direction for our flagship product",
-        "Create task: Review Q3 performance analytics",
+        "What is the most important missing part of my Brand OS?",
+        "Help me improve my business identity and presentation",
+        "Which business document should I create first?",
+        "What should I do next to attract more customers?",
       ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs animate-fade-in flex justify-end">
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-4 backdrop-blur-[2px] animate-fade-in sm:items-center"
+      onClick={closeBrain}
+    >
       <div
-        className="w-full max-w-xl bg-zinc-950 border-l border-zinc-800 flex flex-col h-full shadow-2xl animate-slide-left"
+        className="flex h-[min(680px,calc(100dvh-2rem))] max-h-[calc(100dvh-2rem)] w-full max-w-md min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--bento-border)] bg-[var(--bento-card)] shadow-2xl animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header */}
-        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-zinc-900/70 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-800 flex items-center justify-center text-white shadow-lg shadow-red-950/50">
-              <BrainCircuit className="w-5 h-5 animate-pulse" />
+        <div className="flex min-w-0 items-center justify-between gap-3 border-b border-[var(--bento-border)] bg-[var(--bento-card)] p-3 sm:p-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-theme-accent text-white shadow-lg sm:h-10 sm:w-10">
+              <BrainCircuit className="h-5 w-5 animate-pulse" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white tracking-tight">Keedohub Creative Brain</h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-500/20 text-red-400 border border-red-500/30 uppercase tracking-wide">
-                  Intelligence OS
-                </span>
-              </div>
-              <p className="text-xs text-zinc-400 truncate max-w-[280px]">
-                {workspace?.name} • {workspace?.identityType?.toUpperCase()}
+            <div className="min-w-0">
+              <h3 className="text-sm font-bold tracking-tight text-[var(--bento-text)]">KH Chat</h3>
+              <p className="max-w-[250px] truncate text-xs text-[var(--bento-muted)]">
+                {!isAuthenticated && !workspace
+                  ? "Guest support · No account required"
+                  : isArtistWorkspace
+                  ? "Your Artist OS guide"
+                  : "Your Brand OS guide"}{" "}
+                · {workspace?.name || "Keedohub visitor"}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setActiveTab("creative-brain");
-                closeBrain();
-              }}
-              title="Open full-screen Brain Console workstation"
-              className="px-2.5 py-1 text-[11px] font-semibold text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg border border-zinc-700/60 transition-colors flex items-center gap-1 cursor-pointer"
-            >
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Full Console</span>
-            </button>
+          <div className="flex shrink-0 items-center gap-1">
             <button
               onClick={clearHistory}
               title="Reset context conversation"
-              className="p-1.5 text-zinc-400 hover:text-zinc-200 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="rounded-lg p-1.5 text-[var(--bento-muted)] transition-colors hover:bg-[var(--bento-input)] hover:text-[var(--bento-text)]"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
             <button
               onClick={closeBrain}
-              className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="rounded-lg p-1.5 text-[var(--bento-muted)] transition-colors hover:bg-[var(--bento-input)] hover:text-[var(--bento-text)]"
             >
               <X className="w-4 h-4" />
             </button>
@@ -147,10 +127,10 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
         </div>
 
         {/* Navigation Sub-Tabs */}
-        <div className="flex items-center border-b border-zinc-800 bg-zinc-900/40 px-4">
+        <div className="flex shrink-0 border-b border-zinc-800 bg-zinc-900/40 px-2">
           <button
             onClick={() => setActiveBrainView("chat")}
-            className={`py-2.5 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
+            className={`min-w-0 flex-1 px-2 py-2.5 text-[11px] font-semibold transition-colors cursor-pointer sm:px-3 sm:text-xs ${
               activeBrainView === "chat"
                 ? "border-red-500 text-white"
                 : "border-transparent text-zinc-400 hover:text-zinc-200"
@@ -160,13 +140,13 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
           </button>
           <button
             onClick={() => setActiveBrainView("recommendations")}
-            className={`py-2.5 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+            className={`min-w-0 flex-1 justify-center gap-1 px-2 py-2.5 text-[11px] font-semibold transition-colors cursor-pointer sm:px-3 sm:text-xs ${
               activeBrainView === "recommendations"
                 ? "border-red-500 text-white"
                 : "border-transparent text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <span>Live Blockers & Recs</span>
+            <span className="truncate">Recommended next steps</span>
             {recommendations.length > 0 && (
               <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
                 {recommendations.length}
@@ -177,8 +157,8 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
 
         {/* Pinned Context Banner (if any) */}
         {pinnedContext && (
-          <div className="px-4 py-2 bg-red-950/30 border-b border-red-500/20 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center justify-between gap-2 border-b border-red-500/20 bg-red-950/30 px-3 py-2 text-xs">
+            <div className="flex min-w-0 items-center gap-2">
               <Pin className="w-3.5 h-3.5 text-red-400 shrink-0" />
               <span className="text-zinc-400">Pinned Context:</span>
               <strong className="text-zinc-100 truncate">{pinnedContext.title}</strong>
@@ -196,14 +176,17 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
         )}
 
         {/* Context Summary Strip */}
-        <div className="px-4 py-2 bg-zinc-900/30 border-b border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-400 overflow-x-auto gap-4">
-          <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-zinc-800/80 bg-zinc-900/30 px-3 py-2 text-[11px] text-zinc-400">
+          <div className="flex min-w-0 items-center gap-1.5">
             <Layers className="w-3.5 h-3.5 text-red-400" />
             <span>
-              Release: <strong className="text-zinc-200">{releases[0]?.title || "None scheduled"}</strong>
+              {isArtistWorkspace ? "Release" : "Business needs"}:{" "}
+              <strong className="text-zinc-200">
+                <span className="max-w-[180px] truncate align-bottom">{isArtistWorkspace ? releases[0]?.title || "None scheduled" : "Ready to review"}</span>
+              </strong>
             </span>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex shrink-0 items-center gap-3">
             <span>Projects: <strong className="text-zinc-200">{projects.length}</strong></span>
             <span>Vault: <strong className="text-zinc-200">{assets.length}</strong></span>
           </div>
@@ -211,9 +194,9 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
 
         {/* Main Content Area */}
         {activeBrainView === "chat" ? (
-          <>
+          <div className="flex min-h-0 flex-1 flex-col">
             {/* Messages Scroll Area */}
-            <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-4">
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3 sm:p-5">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -292,17 +275,16 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
                 </div>
               )}
 
-              <div ref={messagesEndRef} />
             </div>
 
             {/* Quick Suggestion Chips */}
-            <div className="p-3 bg-zinc-900/30 border-t border-zinc-800/60 overflow-x-auto flex gap-1.5 no-scrollbar">
+            <div className="grid shrink-0 grid-cols-1 gap-2 border-t border-zinc-800/60 bg-zinc-900/30 p-3 sm:grid-cols-2">
               {quickPrompts.map((prompt, idx) => (
                 <button
                   key={idx}
                   onClick={() => askBrain(prompt)}
                   disabled={isThinking}
-                  className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-[11px] text-zinc-300 border border-zinc-800 shrink-0 transition-colors cursor-pointer disabled:opacity-50"
+                  className="min-h-9 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-left text-[11px] leading-4 text-zinc-300 transition-colors hover:bg-zinc-800 cursor-pointer disabled:opacity-50"
                 >
                   {prompt}
                 </button>
@@ -310,35 +292,40 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
             </div>
 
             {/* Input Form */}
-            <form onSubmit={handleSend} className="p-3.5 border-t border-zinc-800 bg-zinc-900/80 flex items-center gap-2">
+            <form onSubmit={handleSend} className="flex items-center gap-2 border-t border-zinc-800 bg-zinc-900/80 p-3">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                disabled={!workspace}
                 placeholder={
-                  pinnedContext
-                    ? `Ask Brain about ${pinnedContext.title}...`
-                    : "Ask Creative Brain (e.g. 'What am I missing before my release?' or 'Create task: ...')"
+                pinnedContext
+                  ? `Ask Brain about ${pinnedContext.title}...`
+                  : workspace
+                  ? isArtistWorkspace
+                    ? "Ask about your release, artwork, content, or promotion..."
+                    : "Ask about your Brand OS, business needs, or next action..."
+                  : "Sign in to ask about your workspace..."
                 }
                 className="flex-1 px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-red-500 transition-colors"
               />
               <button
                 type="submit"
-                disabled={!input.trim() || isThinking}
+                disabled={!workspace || !input.trim() || isThinking}
                 className="p-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl disabled:opacity-40 transition-all cursor-pointer shadow-md shadow-red-950/50"
               >
                 <Send className="w-4 h-4" />
               </button>
             </form>
-          </>
+          </div>
         ) : (
           /* Recommendations View */
-          <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3 sm:p-5">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                 Workspace Strategic Blockers ({recommendations.length})
               </h4>
-              <span className="text-[11px] text-zinc-500">Real-time 7-Pillar Evaluation</span>
+              <span className="text-[11px] text-zinc-500">Based on your workspace</span>
             </div>
 
             {isLoadingRecs ? (
@@ -351,7 +338,7 @@ export function CreativeBrainSlideOver({ setActiveTab }: CreativeBrainSlideOverP
                 <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
                 <h4 className="text-sm font-bold text-white mb-1">All Operational Pillars Cleared</h4>
                 <p className="text-xs text-zinc-400">
-                  No blocking readiness gaps detected in releases, campaigns, or projects.
+                  No immediate gaps detected in your current workspace.
                 </p>
               </div>
             ) : (

@@ -50,14 +50,13 @@ import { SecurityPage } from "./components/pages/SecurityPage";
 import { ForumPage } from "./components/pages/ForumPage";
 import { TrendingPage } from "./components/pages/TrendingPage";
 import { 
-  PhoneCall, 
   Search, 
+  BrainCircuit,
   Rocket, 
   Radio, 
   Disc3, 
   Sparkles, 
   Layers, 
-  BrainCircuit, 
   Palette, 
   HardDrive 
 } from "lucide-react";
@@ -129,6 +128,9 @@ function MainAppContent() {
   // URL synchronization helper
   const setActiveTab = (tab: ActiveTab) => {
     setActiveTabState(tab);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   };
 
   // Sync with browser back/forward buttons
@@ -136,6 +138,7 @@ function MainAppContent() {
     const handlePopState = () => {
       const tab = getTabFromPath(window.location.pathname);
       setActiveTabState(tab);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -396,6 +399,17 @@ function MainAppContent() {
         )}
       </main>
 
+      {/* Floating in-portal assistant trigger */}
+      <button
+        id="floating-chat-assistant-btn"
+        onClick={toggleBrain}
+        className="fixed bottom-16 sm:bottom-6 left-4 sm:left-6 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--accent-border)] bg-theme-accent text-white shadow-lg transition-all hover:scale-105"
+        title="Open KH Chat assistant"
+      >
+        <BrainCircuit className="h-4 w-4" />
+        <span className="sr-only">KH Chat</span>
+      </button>
+
       {/* Mobile Sticky Bottom Navigation Bar */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bento-card)] border-t border-[var(--bento-border)] px-2 py-2 flex items-center justify-around backdrop-blur-xl shadow-2xl">
         <button
@@ -429,14 +443,6 @@ function MainAppContent() {
         </button>
 
         <button
-          onClick={() => toggleBrain()}
-          className="flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer text-purple-400"
-        >
-          <BrainCircuit className="w-4 h-4" />
-          <span className="text-[10px]">Brain</span>
-        </button>
-
-        <button
           onClick={() => setActiveTab("studio")}
           className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
             activeTab === "studio" ? "text-pink-400 font-bold" : "text-zinc-400"
@@ -445,21 +451,6 @@ function MainAppContent() {
           <Palette className="w-4 h-4" />
           <span className="text-[10px]">Studio</span>
         </button>
-      </div>
-
-      {/* Floating Bottom Direct Chat Trigger */}
-      <div className="fixed bottom-16 sm:bottom-6 left-4 sm:left-6 z-30">
-        <a
-          id="floating-whatsapp-btn"
-          href="https://wa.me/2348104465924?text=Hi%20Keedohub!%20I%20am%20using%20the%20Creative%20OS%20and%20want%20to%20collaborate."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/50 border border-emerald-400/30 hover:scale-105 transition-all duration-200 cursor-pointer"
-          title="Chat on WhatsApp (+234-810-446-5924)"
-        >
-          <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          <span className="text-xs font-semibold tracking-tight">Chat with us</span>
-        </a>
       </div>
 
       {/* Footer */}

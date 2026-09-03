@@ -45,7 +45,7 @@ export const ThemeSelectorModal: React.FC<ThemeSelectorModalProps> = ({ isOpen, 
     >
       <div
         id="theme-selector-modal"
-        className="w-full max-w-sm bg-[var(--bento-card)] border border-[var(--bento-border)] rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 text-left"
+        className="w-full max-w-xs bg-[var(--bento-card)] border border-[var(--bento-border)] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 text-left"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Compact Modal Header */}
@@ -86,28 +86,26 @@ export const ThemeSelectorModal: React.FC<ThemeSelectorModalProps> = ({ isOpen, 
                 id="select-dark-mode-btn"
                 type="button"
                 onClick={() => setThemeMode("dark")}
-                className={`py-1.5 px-3 rounded-lg text-xs font-mono font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                className={`py-2 rounded-lg text-xs font-mono font-semibold flex items-center justify-center transition-all cursor-pointer ${
                   themeMode === "dark"
                     ? "bg-[#18181B] text-white shadow-sm border border-zinc-700"
                     : "text-[var(--bento-muted)] hover:text-[var(--bento-text)]"
                 }`}
               >
-                <Moon className="w-3.5 h-3.5 text-zinc-300" />
-                <span>Dark</span>
+                <Moon className="w-4 h-4 text-zinc-300" />
               </button>
 
               <button
                 id="select-light-mode-btn"
                 type="button"
                 onClick={() => setThemeMode("light")}
-                className={`py-1.5 px-3 rounded-lg text-xs font-mono font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                className={`py-2 rounded-lg text-xs font-mono font-semibold flex items-center justify-center transition-all cursor-pointer ${
                   themeMode === "light"
                     ? "bg-white text-zinc-900 shadow-sm border border-zinc-200"
                     : "text-[var(--bento-muted)] hover:text-[var(--bento-text)]"
                 }`}
               >
-                <Sun className="w-3.5 h-3.5 text-amber-500" />
-                <span>Light</span>
+                <Sun className="w-4 h-4 text-amber-500" />
               </button>
             </div>
           </div>
@@ -119,7 +117,7 @@ export const ThemeSelectorModal: React.FC<ThemeSelectorModalProps> = ({ isOpen, 
               <span className="text-[9px] text-[var(--bento-muted)]">Instant Apply</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {themeOptions.map((t) => {
                 const isSelected = colorTheme === t.id;
                 return (
@@ -128,31 +126,15 @@ export const ThemeSelectorModal: React.FC<ThemeSelectorModalProps> = ({ isOpen, 
                     id={`theme-card-${t.id}`}
                     type="button"
                     onClick={() => setColorTheme(t.id)}
-                    className={`p-2 sm:p-2.5 rounded-xl border text-left cursor-pointer transition-all flex items-center justify-between gap-2 ${
+                    className={`h-10 rounded-xl border cursor-pointer transition-all flex items-center justify-center ${
                       isSelected
                         ? "bg-[var(--bento-input)] border-[var(--accent-color)] ring-1 ring-[var(--accent-color)] shadow-xs"
                         : "bg-[var(--bento-card)] border-[var(--bento-border)] hover:bg-[var(--bento-elevated)] hover:border-[var(--bento-muted)]/40"
                     }`}
+                    title={t.name}
+                    aria-label={`Use ${t.name} theme`}
                   >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div
-                        className="w-4 h-4 rounded-full border border-black/20 shrink-0 shadow-xs flex items-center justify-center"
-                        style={{ backgroundColor: t.primaryColor }}
-                      />
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold font-['Space_Grotesk'] text-[var(--bento-text)] truncate flex items-center gap-1">
-                          {t.name.split(" ")[0]}
-                          {t.id === "keedohub-red" && (
-                            <span className="text-[8px] px-1 py-0.2 rounded font-mono font-bold bg-red-500/10 text-red-500 border border-red-500/20">
-                              CORE
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[10px] text-[var(--bento-muted)] font-mono truncate">
-                          {t.id === "keedohub-red" ? "Signature Red" : t.id === "flame-gold" ? "Flame Orange" : t.id === "neon-emerald" ? "Emerald Green" : "Amethyst Purple"}
-                        </div>
-                      </div>
-                    </div>
+                    <div className="flex items-center justify-center">{getThemeIcon(t.id)}</div>
 
                     <div
                       className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[9px] transition-colors ${
@@ -194,4 +176,3 @@ export const ThemeSelectorModal: React.FC<ThemeSelectorModalProps> = ({ isOpen, 
     </div>
   );
 };
-

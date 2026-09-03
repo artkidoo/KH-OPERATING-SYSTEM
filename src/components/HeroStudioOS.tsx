@@ -33,26 +33,26 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
   const roleConfigs = {
     artist: {
       tag: "ARTIST WORKSPACE",
-      title: "The Rollout Engine for Modern Musicians",
-      description: "You recorded the song. We engineer the 30-day promotional rollout, viral hooks, 3000x3000px artwork, DSP pitch letters, and press kits to dominate the algorithm.",
+      title: "Release music with a complete creative system",
+      description: "Plan your release, create artwork and content, prepare DSP materials, and move from recorded song to a professional rollout.",
       ctaTab: "artist-os" as ActiveTab,
       ctaText: "Enter Artist Workspace",
       metrics: [
-        { label: "DSP Pitch Rate", val: "94%" },
-        { label: "Avg First 48h Streams", val: "50K+" },
-        { label: "Artwork Spec", val: "3000px 300DPI" }
+        { label: "Release planning", val: "30-day" },
+        { label: "Artwork standard", val: "3000px" },
+        { label: "Core workflow", val: "4 steps" }
       ]
     },
     brand: {
       tag: "BRAND WORKSPACE",
-      title: "Design Systems & High-Conversion Brand Engines",
-      description: "Transform your company into a recognized cultural authority. Vector brand marks, mathematically paired typography, responsive campaign architecture, and full commercial rights.",
+      title: "Build a brand your business can grow with",
+      description: "Understand what your business needs, organize your brand identity, create essential documents, and build a clearer path to visibility and sales.",
       ctaTab: "brand-os" as ActiveTab,
       ctaText: "Enter Brand Workspace",
       metrics: [
-        { label: "Turnaround Time", val: "48-72h" },
-        { label: "Commercial Rights", val: "100% Owned" },
-        { label: "Asset Formats", val: "SVG, AI, PDF, Web" }
+        { label: "Business needs", val: "6 areas" },
+        { label: "Brand essentials", val: "7 items" },
+        { label: "Growth path", val: "1 next move" }
       ]
     }
   };
@@ -129,17 +129,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
                   <span>{currentRole.tag}</span>
                 </div>
                 <h1 className="font-['Space_Grotesk'] text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[var(--bento-text)] leading-[1.15]">
-                  We Design <br className="hidden sm:block" />
-                  <span 
-                    className="text-transparent bg-clip-text bg-gradient-to-r"
-                    style={{
-                      backgroundImage: `linear-gradient(to right, ${currentThemeConfig.primaryColor}, ${currentThemeConfig.secondaryColor})`
-                    }}
-                  >
-                    Creative Empires
-                  </span>{" "}
-                  <br />
-                  For Bold Visionaries.
+                  {currentRole.title}
                 </h1>
                 <p className="text-xs sm:text-sm md:text-base text-[var(--bento-muted)] max-w-xl leading-relaxed">
                   {currentRole.description}
@@ -203,59 +193,71 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
                   <div className="flex items-center justify-between pb-2 border-b border-[var(--bento-border)]">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[var(--accent-light)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent-pill-text)]">
-                        <Disc3 className={`w-3.5 h-3.5 ${isPlayingPreview ? 'animate-spin' : ''}`} />
+                        {activeRole === "artist" ? (
+                          <Disc3 className={`w-3.5 h-3.5 ${isPlayingPreview ? 'animate-spin' : ''}`} />
+                        ) : (
+                          <Palette className="w-3.5 h-3.5" />
+                        )}
                       </div>
                       <div className="text-left">
-                        <div className="text-[11px] sm:text-xs font-bold text-[var(--bento-text)] truncate max-w-[150px] sm:max-w-none">ZACK KHALIFA — "VICTORIA"</div>
-                        <div className="text-[8px] sm:text-[9px] font-mono text-[var(--accent-pill-text)]">ROLLOUT ENGINE ACTIVE</div>
+                        <div className="text-[11px] sm:text-xs font-bold text-[var(--bento-text)] truncate max-w-[150px] sm:max-w-none">
+                          {activeRole === "artist" ? 'ZACK KHALIFA — "VICTORIA"' : "KEEDOHUB BUSINESS PROFILE"}
+                        </div>
+                        <div className="text-[8px] sm:text-[9px] font-mono text-[var(--accent-pill-text)]">
+                          {activeRole === "artist" ? "ROLLOUT ENGINE ACTIVE" : "BRAND OS ACTIVE"}
+                        </div>
                       </div>
                     </div>
-                    <button
-                      onClick={() => setIsPlayingPreview(!isPlayingPreview)}
-                      className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-theme-accent flex items-center justify-center cursor-pointer transition-colors shadow-sm font-bold text-white"
-                      title={isPlayingPreview ? "Pause Audio Preview" : "Play Audio Preview"}
-                    >
-                      {isPlayingPreview ? <Pause className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 ml-0.5 fill-current" />}
-                    </button>
+                    {activeRole === "artist" && (
+                      <button
+                        onClick={() => setIsPlayingPreview(!isPlayingPreview)}
+                        className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-theme-accent flex items-center justify-center cursor-pointer transition-colors shadow-sm font-bold text-white"
+                        title={isPlayingPreview ? "Pause Audio Preview" : "Play Audio Preview"}
+                      >
+                        {isPlayingPreview ? <Pause className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 ml-0.5 fill-current" />}
+                      </button>
+                    )}
                   </div>
 
                   {/* Album Cover 3D Canvas Preview */}
-                  <div className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-red-950/80 via-zinc-900 to-black p-3 sm:p-4 flex flex-col justify-between border border-[var(--accent-border)] shadow-inner group">
+                  <div className={`relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden p-3 sm:p-4 flex flex-col justify-between border border-[var(--accent-border)] shadow-inner group ${activeRole === "artist" ? "bg-gradient-to-br from-red-950/80 via-zinc-900 to-black" : "bg-gradient-to-br from-[var(--accent-light)] via-zinc-900 to-black"}`}>
                     {/* Vinyl spinning disc overlay */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 sm:w-44 h-36 sm:h-44 rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-800 via-zinc-950 to-black opacity-35 border-4 border-zinc-700 pointer-events-none group-hover:scale-105 transition-transform duration-500">
-                      <div className="absolute inset-[38%] rounded-full" style={{ backgroundColor: currentThemeConfig.primaryColor }}></div>
-                    </div>
+                    {activeRole === "artist" && (
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 sm:w-44 h-36 sm:h-44 rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-800 via-zinc-950 to-black opacity-35 border-4 border-zinc-700 pointer-events-none group-hover:scale-105 transition-transform duration-500">
+                        <div className="absolute inset-[38%] rounded-full" style={{ backgroundColor: currentThemeConfig.primaryColor }}></div>
+                      </div>
+                    )}
 
                     {/* Top tags */}
                     <div className="flex items-center justify-between relative z-10">
                       <span className="text-[8px] sm:text-[9px] font-mono font-bold tracking-widest px-1.5 py-0.2 rounded-full bg-black/70 text-white backdrop-blur-md border border-white/10 uppercase">
-                        MASTER
+                        {activeRole === "artist" ? "MASTER" : "PROFILE"}
                       </span>
                       <span className="text-[8px] sm:text-[9px] font-mono text-amber-300 bg-amber-950/70 px-1.5 py-0.2 rounded-full border border-amber-500/30">
-                        3000px
+                        {activeRole === "artist" ? "3000px" : "READY"}
                       </span>
                     </div>
 
                     {/* Cover typography */}
                     <div className="text-left relative z-10 space-y-0.5">
                       <div className="text-[8px] sm:text-[10px] font-mono text-red-300 font-semibold tracking-widest uppercase">
-                        AFRO-FUSION SINGLE
+                        {activeRole === "artist" ? "AFRO-FUSION SINGLE" : "BUSINESS IDENTITY"}
                       </div>
                       <div className="font-['Space_Grotesk'] text-lg sm:text-2xl font-bold text-white tracking-tight leading-none drop-shadow-md">
-                        MIDNIGHT IN VI
+                        {activeRole === "artist" ? "MIDNIGHT IN VI" : "YOUR BRAND, CLEARLY"}
                       </div>
                       <div className="text-[10px] sm:text-xs text-zinc-300 font-medium">
-                        PROD. BY KEEDOHUB
+                        {activeRole === "artist" ? "PROD. BY KEEDOHUB" : "POWERED BY KEEDOHUB"}
                       </div>
                     </div>
 
                     {/* Bottom badges */}
                     <div className="flex items-end justify-between relative z-10 pt-1">
                       <div className="px-1 py-0.2 bg-black border border-white/20 text-[7px] sm:text-[8px] font-mono font-bold text-white uppercase tracking-tighter rounded">
-                        PARENTAL ADVISORY
+                        {activeRole === "artist" ? "PARENTAL ADVISORY" : "BRAND FOUNDATION"}
                       </div>
                       <div className="text-[7px] sm:text-[8px] font-mono text-zinc-400">
-                        HIGH-FIDELITY
+                        {activeRole === "artist" ? "HIGH-FIDELITY" : "BUSINESS READY"}
                       </div>
                     </div>
                   </div>
@@ -263,22 +265,22 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
                   {/* Micro Rollout Dashboard Cards */}
                   <div className="grid grid-cols-2 gap-1.5 text-left">
                     <div 
-                      onClick={() => setActiveTab("artist-brain")}
+                      onClick={() => setActiveTab(activeRole === "artist" ? "artist-brain" : "brand-os")}
                       className="p-2 rounded-lg bg-[var(--bento-card)] border border-[var(--bento-border)] hover:border-[var(--accent-border)] cursor-pointer transition-colors"
                     >
-                      <div className="text-[8px] font-mono text-[var(--bento-muted)]">30-DAY TIMELINE</div>
+                      <div className="text-[8px] font-mono text-[var(--bento-muted)]">{activeRole === "artist" ? "30-DAY TIMELINE" : "BUSINESS NEEDS"}</div>
                       <div className="text-[11px] font-bold text-[var(--bento-text)] flex items-center justify-between">
-                        <span>Pre-Save</span>
+                        <span>{activeRole === "artist" ? "Pre-Save" : "Overview"}</span>
                         <ArrowRight className="w-2.5 h-2.5 text-[var(--accent-pill-text)]" />
                       </div>
                     </div>
                     <div 
-                      onClick={() => setActiveTab("cover-studio")}
+                      onClick={() => setActiveTab(activeRole === "artist" ? "cover-studio" : "brand-os")}
                       className="p-2 rounded-lg bg-[var(--bento-card)] border border-[var(--bento-border)] hover:border-amber-500/50 cursor-pointer transition-colors"
                     >
-                      <div className="text-[8px] font-mono text-[var(--bento-muted)]">COVER STUDIO</div>
+                      <div className="text-[8px] font-mono text-[var(--bento-muted)]">{activeRole === "artist" ? "COVER STUDIO" : "BRAND PROFILE"}</div>
                       <div className="text-[11px] font-bold text-[var(--bento-text)] flex items-center justify-between">
-                        <span>3D Canvas</span>
+                        <span>{activeRole === "artist" ? "3D Canvas" : "Identity Setup"}</span>
                         <ArrowRight className="w-2.5 h-2.5 text-amber-500" />
                       </div>
                     </div>
@@ -286,11 +288,11 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
                   {/* Launch Engine CTA Button */}
                   <button
-                    onClick={() => setActiveTab("artist-brain")}
+                    onClick={() => setActiveTab(currentRole.ctaTab)}
                     className="w-full py-2 rounded-lg bg-theme-accent text-[11px] font-bold font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-md text-white"
                   >
                     <Zap className="w-3 h-3 fill-current" />
-                    <span>Run Rollout Campaign</span>
+                    <span>{activeRole === "artist" ? "Run Rollout Campaign" : "Open Brand OS"}</span>
                   </button>
                 </div>
               </div>

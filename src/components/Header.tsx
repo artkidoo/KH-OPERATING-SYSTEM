@@ -3,7 +3,6 @@ import { ActiveTab, IdentityType } from "../types";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useWorkspace } from "../context/WorkspaceContext";
-import { useCreativeBrain } from "../context/CreativeBrainContext";
 import { ThemeSelectorModal } from "./ThemeSelectorModal";
 import { AuthModal } from "./AuthModal";
 import { NotificationCenterModal } from "./NotificationCenterModal";
@@ -23,16 +22,12 @@ import {
   X, 
   Activity,
   ShieldCheck,
-  Sun,
-  Moon,
   Palette,
   Music,
-  Radio,
   Sliders,
   Percent,
   TrendingUp,
   Target,
-  BrainCircuit,
   ChevronDown,
   User as UserIcon,
   LogOut,
@@ -60,9 +55,8 @@ export const Header: React.FC<HeaderProps> = ({
   openCommandPalette,
   openBriefModal,
 }) => {
-  const { colorTheme, themeMode, toggleThemeMode, currentThemeConfig } = useTheme();
+  const { colorTheme, currentThemeConfig } = useTheme();
   const { user, workspaces, activeWorkspace, switchWorkspace, logout, openOnboarding } = useAuth();
-  const { toggleBrain, isOpen: isBrainOpen } = useCreativeBrain();
   
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -154,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-3">
+          <div className="relative flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-3">
             {/* Left: Logo & Workspace Switcher */}
             <div className="flex items-center gap-3">
               <button
@@ -254,7 +248,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Desktop Public Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1 bg-[var(--bento-card)] border border-[var(--bento-border)] p-1 rounded-full shadow-inner">
+            <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-[var(--bento-card)] border border-[var(--bento-border)] p-1 rounded-full shadow-inner">
               <button
                 id="header-nav-home"
                 onClick={() => {
@@ -349,34 +343,6 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
               </button>
 
-              {/* Creative Radar Trigger */}
-              <button
-                id="header-creative-radar-btn"
-                onClick={() => setActiveTab("creative-radar")}
-                className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-md hover:scale-105 cursor-pointer group ${
-                  activeTab === "creative-radar"
-                    ? "bg-red-600 text-white border-red-400 shadow-red-950/60"
-                    : "bg-zinc-900/90 text-red-300 border-red-500/40 hover:border-red-400 hover:text-white"
-                }`}
-                title="Open Creative Radar — Proactive Intelligence"
-              >
-                <Radio className="w-3.5 h-3.5 text-red-400 group-hover:scale-110 transition-transform animate-pulse" />
-                <span className="hidden sm:inline">Radar</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              </button>
-
-              {/* Creative Brain Slide-over Trigger */}
-              <button
-                id="header-creative-brain-btn"
-                onClick={toggleBrain}
-                className="relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-red-950/80 to-zinc-900 border border-red-500/40 hover:border-red-400 text-xs text-white font-bold transition-all shadow-md shadow-red-950/40 hover:scale-105 cursor-pointer group"
-                title="Open Workspace Creative Brain Assistant"
-              >
-                <BrainCircuit className="w-3.5 h-3.5 text-red-400 group-hover:scale-110 transition-transform" />
-                <span className="hidden sm:inline">Brain</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              </button>
-
               {/* Theme Selector Trigger */}
               <button
                 id="header-theme-selector-btn"
@@ -390,21 +356,6 @@ export const Header: React.FC<HeaderProps> = ({
                   className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full ring-1 ring-[var(--bento-bg)]"
                   style={{ backgroundColor: currentThemeConfig.primaryColor }}
                 />
-              </button>
-
-              {/* Dark / Light Mode Toggle Button */}
-              <button
-                id="header-darkmode-toggle-btn"
-                onClick={toggleThemeMode}
-                className="p-1.5 sm:p-2 rounded-xl bg-[var(--bento-card)] hover:bg-[var(--bento-elevated)] border border-[var(--bento-border)] hover:border-[var(--accent-border)] text-[var(--bento-muted)] hover:text-[var(--bento-text)] transition-all cursor-pointer shadow-sm group"
-                title={`Switch to ${themeMode === 'dark' ? 'Light' : 'Dark'} Mode`}
-                aria-label="Toggle Dark/Light Mode"
-              >
-                {themeMode === "dark" ? (
-                  <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 group-hover:rotate-45 transition-transform" />
-                ) : (
-                  <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 group-hover:-rotate-12 transition-transform" />
-                )}
               </button>
 
               {/* Global Command Palette Trigger */}
@@ -508,7 +459,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl bg-theme-accent text-white text-xs font-bold font-['Space_Grotesk'] transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer border border-[var(--accent-border)]"
               >
                 <Rocket className="w-3.5 h-3.5" />
-                <span className="whitespace-nowrap">Get Started</span>
+                <span className="whitespace-nowrap">Start</span>
               </button>
 
               {/* Mobile Hamburger Menu Toggle */}
@@ -525,7 +476,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Mobile Horizontal Quick-Scroll Navigation */}
-        <div className="lg:hidden overflow-x-auto scrollbar-none py-1.5 px-3 border-t border-[var(--bento-border)]/60 bg-[var(--bento-bg)] flex items-center gap-1.5">
+        <div className="lg:hidden overflow-x-auto scrollbar-none py-1.5 px-3 border-t border-[var(--bento-border)]/60 bg-[var(--bento-bg)] flex items-center justify-center gap-1.5">
           <button
             onClick={() => {
               window.history.pushState({}, "", "/home");
@@ -606,7 +557,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setActiveTab("overview");
                   setMobileMenuOpen(false);
                 }}
-                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer ${
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer ${
                   activeTab === "overview"
                     ? "bg-theme-accent text-white font-bold"
                     : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
@@ -621,7 +572,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setActiveTab("studio");
                   setMobileMenuOpen(false);
                 }}
-                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer ${
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer ${
                   activeTab === "studio"
                     ? "bg-theme-accent text-white font-bold"
                     : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
@@ -636,7 +587,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setActiveTab("forum");
                   setMobileMenuOpen(false);
                 }}
-                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer ${
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer ${
                   activeTab === "forum"
                     ? "bg-theme-accent text-white font-bold"
                     : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
@@ -651,7 +602,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setActiveTab("trending");
                   setMobileMenuOpen(false);
                 }}
-                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer ${
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer ${
                   activeTab === "trending"
                     ? "bg-theme-accent text-white font-bold"
                     : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
@@ -666,7 +617,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setActiveTab("contact");
                   setMobileMenuOpen(false);
                 }}
-                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer col-span-2 ${
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer col-span-2 ${
                   activeTab === "contact"
                     ? "bg-theme-accent text-white font-bold"
                     : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"

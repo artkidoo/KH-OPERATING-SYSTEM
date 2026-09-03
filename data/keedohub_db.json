@@ -1292,7 +1292,7 @@
   ],
   "notifications": [
     {
-      "id": "notif_3cada645",
+      "id": "notif_70f6d867",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "studio_deliverable_review:sdel_demo_1",
       "title": "Deliverable Ready for Review: Midnight in VI — 3000x3000px Master Cover Artwork",
@@ -1310,7 +1310,7 @@
       "createdAt": "2026-09-01T08:38:56.603Z"
     },
     {
-      "id": "notif_f477d938",
+      "id": "notif_a2bbebae",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_433abb8b-",
       "title": "Radar Alert: Missing Hero Creative Asset for Campaign \"Q3 Global Streaming & Radio Push\"",
@@ -1328,7 +1328,7 @@
       "createdAt": "2026-09-02T08:46:36.430Z"
     },
     {
-      "id": "notif_241f10ed",
+      "id": "notif_bb5c20b6",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_1a1c7ef5-",
       "title": "Radar Alert: Master WAV Audio not linked for \"Midnight in Victoria Island\"",
@@ -1346,7 +1346,7 @@
       "createdAt": "2026-09-02T08:46:36.427Z"
     },
     {
-      "id": "notif_45cf6d1d",
+      "id": "notif_46845f2b",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_a0e5a2c9-",
       "title": "Radar Alert: Studio Deliverable \"Midnight in VI — 3000x3000px Master Cover Artwork\" (V1) ready for sign-off",
@@ -1364,7 +1364,7 @@
       "createdAt": "2026-09-02T08:46:36.431Z"
     },
     {
-      "id": "notif_3121f2ac",
+      "id": "notif_05d46fe6",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_a2c4ea6c-",
       "title": "Radar Alert: Studio Deliverable \"Spotify Canvas 9:16 3D Kinetic Loop\" (V1) ready for sign-off",
@@ -1380,6 +1380,101 @@
       "entityId": "sdel_demo_2",
       "entityTitle": "Spotify Canvas 9:16 3D Kinetic Loop",
       "createdAt": "2026-09-02T08:46:36.432Z"
+    },
+    {
+      "id": "notif_3cada645",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "studio_deliverable_review:sdel_demo_1",
+      "title": "Deliverable Ready for Review: Midnight in VI — 3000x3000px Master Cover Artwork",
+      "message": "Version V1 has been uploaded and awaits your sign-off or revision notes.",
+      "category": "studio",
+      "severity": "high",
+      "type": "request",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Asset in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-01T08:38:56.603Z",
+      "resolvedAt": "2026-09-03T18:01:34.989Z"
+    },
+    {
+      "id": "notif_f477d938",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_433abb8b-",
+      "title": "Radar Alert: Missing Hero Creative Asset for Campaign \"Q3 Global Streaming & Radio Push\"",
+      "message": "Campaign lacks a primary high-resolution hero visual banner or brand deck deliverable.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "brand-os",
+      "actionLabel": "Open Brand OS",
+      "entityType": "campaign",
+      "entityId": "cmp_demo_1",
+      "entityTitle": "Q3 Global Streaming & Radio Push",
+      "createdAt": "2026-09-02T08:46:36.430Z",
+      "resolvedAt": "2026-09-03T18:01:34.989Z"
+    },
+    {
+      "id": "notif_241f10ed",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_1a1c7ef5-",
+      "title": "Radar Alert: Master WAV Audio not linked for \"Midnight in Victoria Island\"",
+      "message": "No 24-bit/44.1kHz or 48kHz lossless master audio file is attached to the release core.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "mastering-suite",
+      "actionLabel": "Open Mastering Suite",
+      "entityType": "release",
+      "entityId": "rel_demo_1",
+      "entityTitle": "Midnight in Victoria Island",
+      "createdAt": "2026-09-02T08:46:36.427Z",
+      "resolvedAt": "2026-09-03T18:01:34.989Z"
+    },
+    {
+      "id": "notif_45cf6d1d",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a0e5a2c9-",
+      "title": "Radar Alert: Studio Deliverable \"Midnight in VI — 3000x3000px Master Cover Artwork\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-02T08:46:36.431Z",
+      "resolvedAt": "2026-09-03T18:01:34.989Z"
+    },
+    {
+      "id": "notif_3121f2ac",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a2c4ea6c-",
+      "title": "Radar Alert: Studio Deliverable \"Spotify Canvas 9:16 3D Kinetic Loop\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_2",
+      "entityTitle": "Spotify Canvas 9:16 3D Kinetic Loop",
+      "createdAt": "2026-09-02T08:46:36.432Z",
+      "resolvedAt": "2026-09-03T18:01:34.989Z"
     },
     {
       "id": "notif_92966bc2",
@@ -2381,7 +2476,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.436Z",
-      "updatedAt": "2026-09-03T09:43:55.064Z",
+      "updatedAt": "2026-09-03T18:06:56.339Z",
       "metadata": {}
     },
     {
@@ -2409,7 +2504,7 @@
       },
       "status": "acknowledged",
       "createdAt": "2026-09-02T08:46:36.432Z",
-      "updatedAt": "2026-09-03T09:44:01.500Z",
+      "updatedAt": "2026-09-03T18:06:56.338Z",
       "metadata": {},
       "acknowledgedAt": "2026-09-03T09:44:01.500Z"
     },
@@ -2438,7 +2533,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.431Z",
-      "updatedAt": "2026-09-03T09:43:55.062Z",
+      "updatedAt": "2026-09-03T18:06:56.337Z",
       "metadata": {}
     },
     {
@@ -2466,7 +2561,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.431Z",
-      "updatedAt": "2026-09-03T09:43:55.061Z",
+      "updatedAt": "2026-09-03T18:06:56.335Z",
       "metadata": {}
     },
     {
@@ -2494,7 +2589,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.430Z",
-      "updatedAt": "2026-09-03T09:43:55.060Z",
+      "updatedAt": "2026-09-03T18:06:56.334Z",
       "metadata": {}
     },
     {
@@ -2522,7 +2617,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.429Z",
-      "updatedAt": "2026-09-03T09:43:55.059Z",
+      "updatedAt": "2026-09-03T18:06:56.333Z",
       "metadata": {}
     },
     {
@@ -2550,7 +2645,7 @@
       },
       "status": "new",
       "createdAt": "2026-09-02T08:46:36.427Z",
-      "updatedAt": "2026-09-03T09:43:55.058Z",
+      "updatedAt": "2026-09-03T18:06:56.332Z",
       "metadata": {}
     }
   ],
@@ -3081,6 +3176,54 @@
     }
   ],
   "admin_audit_logs": [
+    {
+      "id": "a-log-b1250be8",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T18:09:32.947Z"
+    },
+    {
+      "id": "a-log-9ff8fe2f",
+      "adminUserId": "usr_demo_keedohub",
+      "adminEmail": "creator@keedohub.com",
+      "adminName": "Keedohub Artist Studio",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "127.0.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-03T18:09:32.758Z"
+    },
     {
       "id": "a-log-5d256c4f",
       "adminUserId": "usr_demo_keedohub",

@@ -47,15 +47,27 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
     {
       id: "init_msg",
       sender: "brain",
-      text: "⚡ **Keedohub Creative Brain Active**.\n\nI have indexed your workspace, active release blueprint, creative memory tokens, and asset vault. How can I direct your creative operations today?",
+      text: "Hi, I’m KH Chat.\n\nI help you understand your Artist OS or Brand OS, identify what is missing, and choose the next Keedohub action. What are you working on?",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       suggestedActions: [
-        { label: "Audit Release Readiness", actionTab: "artist-brain" },
-        { label: "Design Master Artwork", actionTab: "cover-studio" },
-        { label: "Verify Audio Mastering", actionTab: "mastering-suite" },
+        { label: "Show my next step", actionTab: "overview" },
+        { label: "Open my workspace", actionTab: "workspace-hub" },
       ],
     },
   ]);
+
+  useEffect(() => {
+    if (!workspace?.id) return;
+    const isArtist = workspace.identityType === "artist";
+    setMessages([{
+      id: `init_${workspace.id}`,
+      sender: "brain",
+      text: isArtist
+        ? "Hi, I’m KH Chat.\n\nI understand your Artist OS and can help with releases, artwork, content, promotion, and the next action in your workspace."
+        : "Hi, I’m KH Chat.\n\nI understand your Brand OS and can help identify missing business foundations, documents, digital presence, marketing, sales, and the next action for your business.",
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    }]);
+  }, [workspace?.id, workspace?.identityType]);
 
   const openBrain = () => setIsOpen(true);
   const closeBrain = () => setIsOpen(false);
@@ -218,11 +230,14 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
   };
 
   const clearHistory = () => {
+    const isArtist = workspace?.identityType === "artist";
     setMessages([
       {
         id: "reset_msg",
         sender: "brain",
-        text: "⚡ **Keedohub Creative Brain Reset**.\n\nContext re-indexed for your active workspace. What are we building next?",
+        text: isArtist
+          ? "Your KH Chat context is refreshed.\n\nI’m ready to help with the next step in your Artist OS."
+          : "Your KH Chat context is refreshed.\n\nI’m ready to help with the next step in your Brand OS.",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       },
     ]);
