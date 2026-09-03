@@ -46,7 +46,7 @@ const PILLARS = [
 
 export const AboutPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }) => {
   return (
-    <div className="space-y-14 sm:space-y-20 py-3 sm:py-8 animate-fade-in text-left">
+    <div className="space-y-10 sm:space-y-14 py-3 sm:py-8 animate-fade-in text-left">
       <section className="relative overflow-hidden rounded-[2rem] bento-card border border-[var(--bento-border)] bg-gradient-to-br from-[var(--bento-card)] via-[var(--bento-card)] to-[var(--bento-bg)]">
         <div className="absolute inset-0 bg-bento-grid opacity-25 pointer-events-none" />
         <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-[var(--accent-color)] opacity-10 blur-3xl pointer-events-none" />
@@ -110,16 +110,16 @@ export const AboutPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-3">
         {[
           ["01", "One source of truth", "Every brief, asset and decision has a home."],
           ["02", "Built for velocity", "Turn a good idea into a ready-to-ship system."],
           ["03", "Ownership by default", "Your creative work is never the platform’s product."],
         ].map(([number, title, copy]) => (
-          <div key={number} className="bento-card rounded-2xl border border-[var(--bento-border)] p-5 sm:p-6">
-            <div className="mb-8 font-mono text-xs font-bold tracking-widest text-theme-accent">{number}</div>
-            <h2 className="font-['Space_Grotesk'] text-lg font-bold text-[var(--bento-text)]">{title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--bento-muted)]">{copy}</p>
+          <div key={number} className="bento-card rounded-2xl border border-[var(--bento-border)] p-3.5 sm:p-5 transition-all hover:border-[var(--accent-border)]">
+            <div className="mb-5 font-mono text-[10px] font-bold tracking-widest text-theme-accent">{number}</div>
+            <h2 className="font-['Space_Grotesk'] text-sm sm:text-base font-bold text-[var(--bento-text)]">{title}</h2>
+            <p className="mt-2 text-[11px] sm:text-xs leading-relaxed text-[var(--bento-muted)]">{copy}</p>
           </div>
         ))}
       </section>

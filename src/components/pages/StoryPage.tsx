@@ -25,7 +25,7 @@ const MILESTONES = [
 
 export const StoryPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }) => {
   return (
-    <div className="space-y-14 sm:space-y-20 py-3 sm:py-8 animate-fade-in text-left">
+    <div className="space-y-10 sm:space-y-14 py-3 sm:py-8 animate-fade-in text-left">
       <section className="relative overflow-hidden rounded-[2rem] bento-card border border-[var(--bento-border)] bg-gradient-to-br from-[var(--bento-card)] to-[var(--bento-bg)]">
         <div className="absolute inset-0 bg-bento-grid opacity-25 pointer-events-none" />
         <div className="absolute -right-24 -top-20 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
@@ -73,7 +73,7 @@ export const StoryPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1fr_.9fr] lg:items-start lg:gap-12">
-        <div className="bento-card rounded-3xl border border-[var(--bento-border)] p-6 sm:p-8">
+        <div className="bento-card rounded-3xl border border-[var(--bento-border)] p-4 sm:p-6">
           <div className="mb-8 flex items-center justify-between"><div className="text-xs font-mono font-bold uppercase tracking-[.2em] text-[var(--bento-muted)]">The build log</div><Disc3 className="h-5 w-5 text-theme-accent" /></div>
           <div className="space-y-0">
             {MILESTONES.map(([title, copy], index) => (
@@ -86,7 +86,7 @@ export const StoryPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }
           </div>
         </div>
         <div className="space-y-4">
-          <div className="bento-card rounded-3xl border border-[var(--accent-border)] bg-gradient-to-br from-[var(--accent-light)] to-[var(--bento-card)] p-6 sm:p-8">
+          <div className="bento-card rounded-3xl border border-[var(--accent-border)] bg-gradient-to-br from-[var(--accent-light)] to-[var(--bento-card)] p-4 sm:p-6">
             <Award className="mb-6 h-6 w-6 text-theme-accent" />
             <div className="text-xs font-mono font-bold uppercase tracking-[.2em] text-theme-accent">The Keedohub promise</div>
             <h2 className="mt-3 font-['Space_Grotesk'] text-2xl font-bold leading-tight text-[var(--bento-text)]">We build the rails. You build the world.</h2>

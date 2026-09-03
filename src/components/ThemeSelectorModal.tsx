@@ -154,7 +154,7 @@ export const ThemeSelectorModal: React.FC<ThemeSelectorModalProps> = ({ isOpen, 
           {/* Quick Logo Brand Check */}
           <div className="py-2 px-3 rounded-xl bg-[var(--bento-input)] border border-[var(--bento-border)] flex items-center justify-between">
             <span className="text-[10px] font-mono text-[var(--bento-muted)]">Live Preview:</span>
-            <KeedohubLogo size="sm" showText={true} badge="ACTIVE" />
+            <KeedohubLogo size="sm" showText={false} />
           </div>
         </div>
 

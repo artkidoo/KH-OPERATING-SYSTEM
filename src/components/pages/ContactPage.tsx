@@ -39,7 +39,7 @@ export const ContactPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal
   };
 
   return (
-    <div className="space-y-14 sm:space-y-20 py-3 sm:py-8 animate-fade-in text-left">
+    <div className="space-y-10 sm:space-y-14 py-3 sm:py-8 animate-fade-in text-left">
       <section className="relative overflow-hidden rounded-[2rem] bento-card border border-[var(--bento-border)] bg-gradient-to-br from-[var(--bento-card)] to-[var(--bento-bg)]">
         <div className="absolute inset-0 bg-bento-grid opacity-25 pointer-events-none" />
         <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
@@ -57,7 +57,7 @@ export const ContactPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1.15fr_.85fr] lg:gap-10">
-        <section className="bento-card rounded-3xl border border-[var(--bento-border)] p-6 sm:p-8 lg:p-10">
+        <section className="bento-card rounded-3xl border border-[var(--bento-border)] p-4 sm:p-6 lg:p-8">
           <div className="mb-8 space-y-2">
             <div className="text-xs font-mono font-bold uppercase tracking-[.2em] text-theme-accent">Start a conversation</div>
             <h2 className="font-['Space_Grotesk'] text-2xl font-bold text-[var(--bento-text)] sm:text-3xl">Send a direct dispatch.</h2>
@@ -106,7 +106,7 @@ export const ContactPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal
         </section>
 
         <aside className="space-y-4">
-          <div className="bento-card rounded-3xl border border-[var(--bento-border)] p-6 sm:p-8">
+          <div className="bento-card rounded-3xl border border-[var(--bento-border)] p-4 sm:p-6">
             <div className="mb-6 flex items-center justify-between"><h2 className="font-['Space_Grotesk'] text-xl font-bold text-[var(--bento-text)]">Direct channels</h2><ArrowRight className="h-4 w-4 text-[var(--bento-subtle)]" /></div>
             <div className="space-y-3">
               <a href="mailto:official_keedohub@gmail.com" className="group flex items-start gap-3 rounded-2xl border border-[var(--bento-border)] bg-[var(--bento-bg)] p-4 transition-colors hover:border-[var(--accent-border)]">

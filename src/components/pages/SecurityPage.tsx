@@ -9,7 +9,7 @@ interface PageProps {
 
 export const SecurityPage: React.FC<PageProps> = ({ onNavigateTab }) => {
   return (
-    <div className="space-y-12 sm:space-y-16 py-4 sm:py-8 animate-fade-in text-left">
+    <div className="space-y-10 sm:space-y-14 py-3 sm:py-8 animate-fade-in text-left">
       {/* Page Hero */}
       <section className="relative overflow-hidden rounded-3xl bento-card p-6 sm:p-10 md:p-14 border border-[var(--bento-border)] bg-gradient-to-b from-[var(--bento-card)] to-[var(--bento-bg)]">
         <div className="max-w-3xl space-y-4">
@@ -36,12 +36,12 @@ export const SecurityPage: React.FC<PageProps> = ({ onNavigateTab }) => {
       </section>
 
       {/* Security Pillars */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bento-card p-6 rounded-2xl border border-[var(--bento-border)] space-y-3">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-3">
+        <div className="bento-card p-3.5 sm:p-5 rounded-2xl border border-[var(--bento-border)] space-y-2.5 sm:space-y-3 transition-all hover:border-emerald-500/40">
           <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
             <Lock className="w-5 h-5" />
           </div>
-          <h3 className="font-['Space_Grotesk'] font-bold text-lg text-[var(--bento-text)]">
+          <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">
             Encryption In Transit & At Rest
           </h3>
           <p className="text-xs sm:text-sm text-[var(--bento-muted)] leading-relaxed">
@@ -49,11 +49,11 @@ export const SecurityPage: React.FC<PageProps> = ({ onNavigateTab }) => {
           </p>
         </div>
 
-        <div className="bento-card p-6 rounded-2xl border border-[var(--bento-border)] space-y-3">
+        <div className="bento-card p-3.5 sm:p-5 rounded-2xl border border-[var(--bento-border)] space-y-2.5 sm:space-y-3 transition-all hover:border-blue-500/40">
           <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
             <Key className="w-5 h-5" />
           </div>
-          <h3 className="font-['Space_Grotesk'] font-bold text-lg text-[var(--bento-text)]">
+          <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">
             Workspace Tenant Isolation
           </h3>
           <p className="text-xs sm:text-sm text-[var(--bento-muted)] leading-relaxed">
@@ -61,11 +61,11 @@ export const SecurityPage: React.FC<PageProps> = ({ onNavigateTab }) => {
           </p>
         </div>
 
-        <div className="bento-card p-6 rounded-2xl border border-[var(--bento-border)] space-y-3">
+        <div className="bento-card p-3.5 sm:p-5 rounded-2xl border border-[var(--bento-border)] space-y-2.5 sm:space-y-3 transition-all hover:border-purple-500/40">
           <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
             <EyeOff className="w-5 h-5" />
           </div>
-          <h3 className="font-['Space_Grotesk'] font-bold text-lg text-[var(--bento-text)]">
+          <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">
             Zero Unauthorized Model Training
           </h3>
           <p className="text-xs sm:text-sm text-[var(--bento-muted)] leading-relaxed">

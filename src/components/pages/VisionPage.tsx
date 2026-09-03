@@ -50,7 +50,7 @@ const PRINCIPLES = [
 
 export const VisionPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }) => {
   return (
-    <div className="space-y-14 sm:space-y-20 py-3 sm:py-8 animate-fade-in text-left">
+    <div className="space-y-10 sm:space-y-14 py-3 sm:py-8 animate-fade-in text-left">
       <section className="relative overflow-hidden rounded-[2rem] bento-card border border-[var(--bento-border)] bg-gradient-to-br from-[var(--bento-card)] to-[var(--bento-bg)]">
         <div className="absolute inset-0 bg-bento-grid opacity-25 pointer-events-none" />
         <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
@@ -95,15 +95,15 @@ export const VisionPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal 
           <h2 className="font-['Space_Grotesk'] text-3xl font-bold leading-tight text-[var(--bento-text)] sm:text-4xl">A better future is built in layers.</h2>
           <p className="max-w-sm text-sm leading-relaxed text-[var(--bento-muted)]">Our roadmap is less about adding tools and more about removing the invisible tax on creative ambition.</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-3">
           {HORIZONS.map(({ number, title, copy, icon: Icon, tone }) => (
-            <article key={number} className="bento-card relative rounded-2xl border border-[var(--bento-border)] p-5 sm:p-6">
-              <div className="mb-8 flex items-center justify-between">
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${tone}`}><Icon className="h-4 w-4" /></div>
+            <article key={number} className="bento-card relative rounded-2xl border border-[var(--bento-border)] p-3.5 sm:p-5 transition-all hover:border-[var(--accent-border)]">
+              <div className="mb-5 flex items-center justify-between">
+                <div className={`flex h-8 w-8 items-center justify-center rounded-xl border ${tone}`}><Icon className="h-4 w-4" /></div>
                 <span className="font-mono text-xs text-[var(--bento-subtle)]">{number}</span>
               </div>
-              <h3 className="font-['Space_Grotesk'] text-lg font-bold text-[var(--bento-text)]">{title}</h3>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--bento-muted)]">{copy}</p>
+              <h3 className="font-['Space_Grotesk'] text-sm sm:text-base font-bold text-[var(--bento-text)]">{title}</h3>
+              <p className="mt-2 text-[11px] sm:text-xs leading-relaxed text-[var(--bento-muted)]">{copy}</p>
             </article>
           ))}
         </div>

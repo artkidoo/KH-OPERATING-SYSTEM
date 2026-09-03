@@ -130,11 +130,11 @@ export const ForumPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }
           </button>
         </div>
 
-        <div className="space-y-2.5 pt-2">
+        <div className="grid grid-cols-2 gap-2.5 pt-2 sm:gap-4 lg:grid-cols-3">
           {FORUM_THREADS.filter(t => activeCategory === "All" || t.category === activeCategory).map(thread => (
             <div
               key={thread.id}
-              className="bento-card p-4 sm:p-5 rounded-2xl border border-[var(--bento-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-red-500/40 transition-colors cursor-pointer group"
+              className="bento-card p-3.5 sm:p-5 rounded-2xl border border-[var(--bento-border)] flex flex-col justify-between gap-3 hover:border-red-500/40 transition-colors cursor-pointer group"
               onClick={() => onNavigateTab("command-center")}
             >
               <div className="space-y-1.5 min-w-0">
@@ -151,7 +151,7 @@ export const ForumPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }
                 <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)] group-hover:text-red-400 transition-colors">
                   {thread.title}
                 </h3>
-                <div className="flex items-center gap-3 text-xs text-[var(--bento-muted)]">
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-[var(--bento-muted)]">
                   <span>By <strong>{thread.author}</strong></span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
@@ -161,7 +161,7 @@ export const ForumPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal }
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-xs font-mono text-[var(--bento-muted)] shrink-0 self-end sm:self-center">
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--bento-muted)] shrink-0">
                 <MessageCircle className="w-4 h-4 text-red-400" />
                 <span>{thread.replies} replies</span>
               </div>
