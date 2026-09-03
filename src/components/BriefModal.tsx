@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Send, ShieldCheck } from "lucide-react";
+import { X, Send, ShieldCheck, Music2, BriefcaseBusiness, Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface BriefModalProps {
@@ -11,12 +11,24 @@ interface BriefModalProps {
 export const BriefModal: React.FC<BriefModalProps> = ({ isOpen, onClose, onNotify }) => {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [projectType, setProjectType] = useState<"artist" | "brand" | "other">("artist");
   const [service, setService] = useState("Music Cover Art & Release Suite");
   const [budget, setBudget] = useState("₦50,000 - ₦150,000 ($60 - $200)");
   const [timeline, setTimeline] = useState("48-72 Hours");
   const [details, setDetails] = useState("");
 
   if (!isOpen) return null;
+
+  const projectOptions = {
+    artist: ["Music Cover Art & Release Suite", "30-Day Music Rollout & Content Campaign", "EPK, DSP Pitch & Release Readiness"],
+    brand: ["Full Brand Identity & Vector System", "Brand OS Strategy & Campaign System", "Web Application & Landing Page"],
+    other: ["Motion Graphics & Lyric Visualizer", "Web Application & Landing Page", "Custom Creative Direction"],
+  };
+  const projectLabels = { artist: "Artist OS", brand: "Brand OS", other: "Other / Custom" };
+  const handleProjectTypeChange = (type: "artist" | "brand" | "other") => {
+    setProjectType(type);
+    setService(projectOptions[type][0]);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,8 +39,9 @@ export const BriefModal: React.FC<BriefModalProps> = ({ isOpen, onClose, onNotif
 
     const message = `🚀 *NEW PROJECT BRIEF — KEEDOHUB CREATIVE OS*
 
-*Name / Artist:* ${name}
+*Name / Artist / Business:* ${name}
 *Contact:* ${contact}
+*Project Track:* ${projectLabels[projectType]}
 *Requested Studio:* ${service}
 *Budget Tier:* ${budget}
 *Target Timeline:* ${timeline}
@@ -91,6 +104,22 @@ ${details || "Standard high-priority production request."}
             />
           </div>
 
+          <div>
+            <label className="block text-[var(--bento-text)] font-semibold mb-2">What are you building?</label>
+            <div className="grid grid-cols-3 gap-1 rounded-xl border border-[var(--bento-border)] bg-[var(--bento-input)] p-1">
+              {([
+                ["artist", Music2, "Artist OS"],
+                ["brand", BriefcaseBusiness, "Brand OS"],
+                ["other", Sparkles, "Other / Custom"],
+              ] as const).map(([type, Icon, label]) => (
+                <button key={type} type="button" onClick={() => handleProjectTypeChange(type)} className={`flex min-h-0 items-center justify-center gap-1 rounded-lg px-1.5 py-1.5 text-[10px] font-semibold transition-all cursor-pointer sm:px-2 sm:text-xs ${projectType === type ? "bg-theme-accent font-bold text-white shadow-sm" : "text-[var(--bento-muted)] hover:bg-[var(--bento-card)] hover:text-[var(--bento-text)]"}`}>
+                  <Icon className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" />
+                  <span className="truncate">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[var(--bento-text)] font-semibold mb-1">Email / WhatsApp Number *</label>
@@ -112,11 +141,9 @@ ${details || "Standard high-priority production request."}
                 onChange={(e) => setService(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bento-input)] border border-[var(--bento-border)] text-[var(--bento-text)] font-medium cursor-pointer"
               >
-                <option value="Music Cover Art & Release Suite">Music Cover Art (3000x3000px)</option>
-                <option value="30-Day Music Rollout & Content Campaign">30-Day Music Rollout Engine</option>
-                <option value="Full Brand Identity & Vector System">Full Brand Identity System</option>
-                <option value="Web Application & Landing Page">Web Application / Landing Page</option>
-                <option value="Motion Graphics & Lyric Visualizer">Motion Graphics & Visualizer</option>
+                {projectOptions[projectType].map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -153,7 +180,9 @@ ${details || "Standard high-priority production request."}
           </div>
 
           <div>
-            <label className="block text-[var(--bento-text)] font-semibold mb-1">Project Details, Song Links & Vision</label>
+            <label className="block text-[var(--bento-text)] font-semibold mb-1">
+              {projectType === "artist" ? "Project Details, Song Links & Vision" : projectType === "brand" ? "Business Goals, References & Vision" : "Project Details, References & Vision"}
+            </label>
             <textarea
               id="brief-textarea-details"
               rows={3}
@@ -168,10 +197,10 @@ ${details || "Standard high-priority production request."}
             <button
               id="brief-submit-btn"
               type="submit"
-              className="w-full py-3.5 rounded-2xl bg-theme-accent font-bold text-xs sm:text-sm font-mono uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-xl transition-all hover:-translate-y-0.5"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-theme-accent px-3 py-3 text-center text-[10px] font-bold leading-tight tracking-wide text-white shadow-lg transition-all hover:-translate-y-0.5 cursor-pointer sm:rounded-2xl sm:px-4 sm:py-3.5 sm:text-sm sm:tracking-wider"
             >
-              <Send className="w-4 h-4" />
-              <span>Dispatch Brief to WhatsApp (+2348104465924)</span>
+              <Send className="h-4 w-4 shrink-0" />
+              <span className="min-w-0">Dispatch Brief to WhatsApp <span className="whitespace-nowrap">(+234 810 446 5924)</span></span>
             </button>
           </div>
 
