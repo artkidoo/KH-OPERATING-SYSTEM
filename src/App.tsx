@@ -36,6 +36,19 @@ import { BriefModal } from "./components/BriefModal";
 import { CreativeBrainSlideOver } from "./components/CreativeBrainSlideOver";
 import { OnboardingModal } from "./components/onboarding/OnboardingModal";
 import { Toast, ToastMessage } from "./components/Toast";
+import { AboutPage } from "./components/pages/AboutPage";
+import { VisionPage } from "./components/pages/VisionPage";
+import { StoryPage } from "./components/pages/StoryPage";
+import { ContactPage } from "./components/pages/ContactPage";
+import { FAQPage } from "./components/pages/FAQPage";
+import { HelpCenterPage } from "./components/pages/HelpCenterPage";
+import { DocumentationPage } from "./components/pages/DocumentationPage";
+import { ResourcesPage } from "./components/pages/ResourcesPage";
+import { PrivacyPolicyPage } from "./components/pages/PrivacyPolicyPage";
+import { TermsOfServicePage } from "./components/pages/TermsOfServicePage";
+import { SecurityPage } from "./components/pages/SecurityPage";
+import { ForumPage } from "./components/pages/ForumPage";
+import { TrendingPage } from "./components/pages/TrendingPage";
 import { 
   PhoneCall, 
   Search, 
@@ -49,14 +62,83 @@ import {
   HardDrive 
 } from "lucide-react";
 
+function getTabFromPath(path: string): ActiveTab {
+  const normalized = path.toLowerCase().replace(/\/$/, "");
+  switch (normalized) {
+    case "/about":
+      return "about";
+    case "/vision":
+      return "vision";
+    case "/story":
+      return "story";
+    case "/contact":
+      return "contact";
+    case "/faq":
+      return "faq";
+    case "/help":
+      return "help";
+    case "/docs":
+      return "docs";
+    case "/resources":
+      return "resources";
+    case "/privacy":
+      return "privacy";
+    case "/terms":
+      return "terms";
+    case "/security":
+      return "security";
+    case "/forum":
+      return "forum";
+    case "/trending":
+      return "trending";
+    case "/workspace":
+      return "command-center";
+    case "/studios":
+      return "studio";
+    case "/creative-brain":
+      return "creative-brain";
+    case "/artist-os":
+      return "artist-os";
+    case "/brand-os":
+      return "brand-os";
+    case "/admin":
+      return "admin";
+    case "/home":
+    case "":
+      return "overview";
+    default:
+      return "overview";
+  }
+}
+
 function MainAppContent() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
+  const [activeTab, setActiveTabState] = useState<ActiveTab>(() => {
+    if (typeof window !== "undefined") {
+      return getTabFromPath(window.location.pathname);
+    }
+    return "overview";
+  });
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isBriefOpen, setIsBriefOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const { activeWorkspace, user } = useAuth();
   const { toggleBrain } = useCreativeBrain();
+
+  // URL synchronization helper
+  const setActiveTab = (tab: ActiveTab) => {
+    setActiveTabState(tab);
+  };
+
+  // Sync with browser back/forward buttons
+  React.useEffect(() => {
+    const handlePopState = () => {
+      const tab = getTabFromPath(window.location.pathname);
+      setActiveTabState(tab);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   const addNotification = (text: string, type: "success" | "info" | "error" = "info") => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -239,6 +321,58 @@ function MainAppContent() {
 
         {activeTab === "admin" && (
           <AdminDashboard onBackToApp={() => setActiveTab("command-center")} />
+        )}
+
+        {activeTab === "about" && (
+          <AboutPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "vision" && (
+          <VisionPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "story" && (
+          <StoryPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "contact" && (
+          <ContactPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "faq" && (
+          <FAQPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "help" && (
+          <HelpCenterPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "docs" && (
+          <DocumentationPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "resources" && (
+          <ResourcesPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "privacy" && (
+          <PrivacyPolicyPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "terms" && (
+          <TermsOfServicePage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "security" && (
+          <SecurityPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "forum" && (
+          <ForumPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+
+        {activeTab === "trending" && (
+          <TrendingPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
         )}
       </main>
 

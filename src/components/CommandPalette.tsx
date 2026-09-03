@@ -292,6 +292,131 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     },
   ];
 
+  // Company & Public Information Pages
+  const companyPages = [
+    {
+      id: "page-about",
+      title: "About KeedoHub",
+      description: "Company overview, philosophy, operating architecture and leadership",
+      icon: <FileText className="w-4 h-4 text-blue-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/about");
+        setActiveTab("about");
+        onClose();
+      },
+    },
+    {
+      id: "page-vision",
+      title: "Vision & Philosophy",
+      description: "Our long-term creative mission, architectural principles and craft standards",
+      icon: <Sparkles className="w-4 h-4 text-purple-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/vision");
+        setActiveTab("vision");
+        onClose();
+      },
+    },
+    {
+      id: "page-story",
+      title: "The KeedoHub Story",
+      description: "Origins, evolution from creative studio to enterprise Creative Operating System",
+      icon: <BookOpen className="w-4 h-4 text-emerald-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/story");
+        setActiveTab("story");
+        onClose();
+      },
+    },
+    {
+      id: "page-contact",
+      title: "Contact Team & Support",
+      description: "Direct enterprise inquiries, client services, press and collaboration",
+      icon: <PhoneCall className="w-4 h-4 text-amber-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/contact");
+        setActiveTab("contact");
+        onClose();
+      },
+    },
+    {
+      id: "page-forum",
+      title: "Creator Community Forum",
+      description: "Discussions, feedback, release breakdowns and creator peer network",
+      icon: <Users className="w-4 h-4 text-indigo-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/forum");
+        setActiveTab("forum");
+        onClose();
+      },
+    },
+    {
+      id: "page-trending",
+      title: "KH Trending & Chart Radar",
+      description: "Real-time viral cultural radar, TikTok sounds and streaming momentum",
+      icon: <TrendingUp className="w-4 h-4 text-red-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/trending");
+        setActiveTab("trending");
+        onClose();
+      },
+    },
+    {
+      id: "page-faq",
+      title: "Frequently Asked Questions",
+      description: "Common inquiries regarding workspaces, security, services and billing",
+      icon: <FileText className="w-4 h-4 text-zinc-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/faq");
+        setActiveTab("faq");
+        onClose();
+      },
+    },
+    {
+      id: "page-docs",
+      title: "Documentation & OS Guides",
+      description: "Workflows, intelligence engine manuals, API references and setup instructions",
+      icon: <BookOpen className="w-4 h-4 text-cyan-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/docs");
+        setActiveTab("docs");
+        onClose();
+      },
+    },
+    {
+      id: "page-privacy",
+      title: "Privacy Policy",
+      description: "Enterprise data rights, biometric protection, cloud security and encryption",
+      icon: <ShieldCheck className="w-4 h-4 text-emerald-500" />,
+      action: () => {
+        window.history.pushState({}, "", "/privacy");
+        setActiveTab("privacy");
+        onClose();
+      },
+    },
+    {
+      id: "page-terms",
+      title: "Terms of Service",
+      description: "Commercial IP ownership, workspace guidelines and platform governance",
+      icon: <ShieldCheck className="w-4 h-4 text-zinc-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/terms");
+        setActiveTab("terms");
+        onClose();
+      },
+    },
+    {
+      id: "page-security",
+      title: "Security & Trust Architecture",
+      description: "Data encryption, zero-retention AI processing and audit protocols",
+      icon: <ShieldCheck className="w-4 h-4 text-red-400" />,
+      action: () => {
+        window.history.pushState({}, "", "/security");
+        setActiveTab("security");
+        onClose();
+      },
+    },
+  ];
+
   // Build Results Structure
   let groups: { group: string; items: any[] }[] = [];
 
@@ -324,11 +449,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     // Filter Navigation & Actions locally as well
     const q = query.toLowerCase();
     const matchingModules = osModules.filter((m) => m.title.toLowerCase().includes(q) || m.description.toLowerCase().includes(q));
+    const matchingPages = companyPages.filter((p) => p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
     const matchingActions = quickActions.filter((a) => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
     const matchingThemes = themeActions.filter((t) => t.title.toLowerCase().includes(q));
 
     if (matchingModules.length > 0) {
       groups.push({ group: "Operating Systems", items: matchingModules });
+    }
+    if (matchingPages.length > 0) {
+      groups.push({ group: "Keedohub Company & Resources", items: matchingPages });
     }
     if (matchingActions.length > 0) {
       groups.push({ group: "Actions & Workflows", items: matchingActions });
@@ -337,10 +466,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       groups.push({ group: "Appearance", items: matchingThemes });
     }
   } else {
-    // Default state: Quick Actions + Core OS Modules + Theme
+    // Default state: Quick Actions + Core OS Modules + Theme + Company Pages
     groups = [
       { group: "Quick Actions", items: quickActions },
       { group: "Keedohub Operating Systems", items: osModules },
+      { group: "Company & Resources", items: companyPages.slice(0, 4) },
       { group: "Display & Appearance", items: themeActions },
     ];
   }

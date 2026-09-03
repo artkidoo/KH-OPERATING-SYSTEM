@@ -280,31 +280,82 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            {/* Desktop Navigation Pills */}
-            <nav className="hidden xl:flex items-center gap-1 bg-[var(--bento-card)] border border-[var(--bento-border)] p-1 rounded-full shadow-inner">
-              {navItems.slice(0, 7).map((item) => {
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    id={`nav-item-${item.id}`}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                      isActive
-                        ? "bg-theme-accent font-bold shadow-sm"
-                        : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
-                    }`}
-                  >
-                    {item.icon}
-                    <span>{item.label}</span>
-                    {item.badge && (
-                      <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-mono uppercase ${isActive ? 'bg-black/20 text-white' : 'bg-[var(--accent-light)] text-[var(--accent-pill-text)]'}`}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+            {/* Desktop Public Navigation Links */}
+            <nav className="hidden lg:flex items-center gap-1 bg-[var(--bento-card)] border border-[var(--bento-border)] p-1 rounded-full shadow-inner">
+              <button
+                id="header-nav-home"
+                onClick={() => {
+                  window.history.pushState({}, "", "/home");
+                  setActiveTab("overview");
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                  activeTab === "overview"
+                    ? "bg-theme-accent text-white font-bold shadow-sm"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                Home
+              </button>
+
+              <button
+                id="header-nav-studios"
+                onClick={() => {
+                  window.history.pushState({}, "", "/studios");
+                  setActiveTab("studio");
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                  activeTab === "studio"
+                    ? "bg-theme-accent text-white font-bold shadow-sm"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                Studios
+              </button>
+
+              <button
+                id="header-nav-forum"
+                onClick={() => {
+                  window.history.pushState({}, "", "/forum");
+                  setActiveTab("forum");
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                  activeTab === "forum"
+                    ? "bg-theme-accent text-white font-bold shadow-sm"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                Forum
+              </button>
+
+              <button
+                id="header-nav-trending"
+                onClick={() => {
+                  window.history.pushState({}, "", "/trending");
+                  setActiveTab("trending");
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                  activeTab === "trending"
+                    ? "bg-theme-accent text-white font-bold shadow-sm"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                KH Trending
+              </button>
+
+              <button
+                id="header-nav-contact"
+                onClick={() => {
+                  window.history.pushState({}, "", "/contact");
+                  setActiveTab("contact");
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                  activeTab === "contact"
+                    ? "bg-theme-accent text-white font-bold shadow-sm"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                Contact
+              </button>
             </nav>
 
             {/* Right Action Controls */}
@@ -466,15 +517,25 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
               </div>
 
-              {/* Start Project CTA */}
+              {/* Sign In & Get Started public buttons */}
               <button
-                id="header-start-project-btn"
-                onClick={openBriefModal}
-                className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-theme-accent text-xs font-bold transition-all shadow-md hover:scale-105 cursor-pointer border border-[var(--accent-border)]"
+                id="header-sign-in-btn"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="hidden md:inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold text-[var(--bento-text)] hover:bg-[var(--bento-elevated)] border border-[var(--bento-border)] transition-colors cursor-pointer"
               >
-                <Send className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                <span className="whitespace-nowrap hidden xs:inline">Brief</span>
-                <span className="whitespace-nowrap xs:hidden">New</span>
+                Sign In
+              </button>
+
+              <button
+                id="header-get-started-btn"
+                onClick={() => {
+                  window.history.pushState({}, "", "/workspace");
+                  setActiveTab("command-center");
+                }}
+                className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl bg-theme-accent text-white text-xs font-bold font-['Space_Grotesk'] transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer border border-[var(--accent-border)]"
+              >
+                <Rocket className="w-3.5 h-3.5" />
+                <span className="whitespace-nowrap">Get Started</span>
               </button>
 
               {/* Mobile Hamburger Menu Toggle */}
@@ -490,107 +551,180 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Mobile Horizontal Quick-Scroll Pill Navigation */}
+        {/* Mobile Horizontal Quick-Scroll Navigation */}
         <div className="lg:hidden overflow-x-auto scrollbar-none py-1.5 px-3 border-t border-[var(--bento-border)]/60 bg-[var(--bento-bg)] flex items-center gap-1.5">
           <button
-            onClick={() => setActiveTab("workspace-hub")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold whitespace-nowrap shrink-0 transition-all ${
-              activeTab === "workspace-hub"
-                ? "bg-theme-accent text-white shadow-sm font-bold"
-                : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
-            }`}
-          >
-            <HardDrive className="w-3.5 h-3.5" />
-            <span>Workspace</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold whitespace-nowrap shrink-0 transition-all ${
+            onClick={() => {
+              window.history.pushState({}, "", "/home");
+              setActiveTab("overview");
+            }}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               activeTab === "overview"
                 ? "bg-theme-accent text-white shadow-sm font-bold"
                 : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
             }`}
           >
-            <span>Overview</span>
+            Home
           </button>
-          {navItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
-                  isActive
-                    ? "bg-theme-accent text-white shadow-sm font-bold"
-                    : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
-                }`}
-              >
-                <span className={isActive ? "text-white" : "text-[var(--accent-pill-text)]"}>{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+          <button
+            onClick={() => {
+              window.history.pushState({}, "", "/studios");
+              setActiveTab("studio");
+            }}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
+              activeTab === "studio"
+                ? "bg-theme-accent text-white shadow-sm font-bold"
+                : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
+            }`}
+          >
+            Studios
+          </button>
+          <button
+            onClick={() => {
+              window.history.pushState({}, "", "/forum");
+              setActiveTab("forum");
+            }}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
+              activeTab === "forum"
+                ? "bg-theme-accent text-white shadow-sm font-bold"
+                : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
+            }`}
+          >
+            Forum
+          </button>
+          <button
+            onClick={() => {
+              window.history.pushState({}, "", "/trending");
+              setActiveTab("trending");
+            }}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
+              activeTab === "trending"
+                ? "bg-theme-accent text-white shadow-sm font-bold"
+                : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
+            }`}
+          >
+            KH Trending
+          </button>
+          <button
+            onClick={() => {
+              window.history.pushState({}, "", "/contact");
+              setActiveTab("contact");
+            }}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
+              activeTab === "contact"
+                ? "bg-theme-accent text-white shadow-sm font-bold"
+                : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
+            }`}
+          >
+            Contact
+          </button>
         </div>
 
-        {/* Mobile Dropdown Drawer Menu (Forced 2-Column Grid) */}
+        {/* Mobile Dropdown Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-[var(--bento-border)] bg-[var(--bento-bg)] px-4 py-4 space-y-3 animate-fade-in shadow-xl max-h-[70vh] overflow-y-auto">
+          <div className="lg:hidden border-t border-[var(--bento-border)] bg-[var(--bento-bg)] px-4 py-4 space-y-3 animate-fade-in shadow-xl max-h-[75vh] overflow-y-auto">
             <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--bento-muted)] mb-1">
-              Creative OS Workstations
+              Public Navigation
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => {
-                  setActiveTab("workspace-hub");
+                  window.history.pushState({}, "", "/home");
+                  setActiveTab("overview");
                   setMobileMenuOpen(false);
                 }}
-                className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer col-span-2 ${
-                  activeTab === "workspace-hub"
-                    ? "bg-theme-accent font-bold"
-                    : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer ${
+                  activeTab === "overview"
+                    ? "bg-theme-accent text-white font-bold"
+                    : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
                 }`}
               >
-                <HardDrive className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="truncate">Workspace OS Hub</span>
+                Home
               </button>
 
               <button
                 onClick={() => {
-                  setActiveTab("overview");
+                  window.history.pushState({}, "", "/studios");
+                  setActiveTab("studio");
                   setMobileMenuOpen(false);
                 }}
-                className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer ${
-                  activeTab === "overview"
-                    ? "bg-theme-accent font-bold"
-                    : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer ${
+                  activeTab === "studio"
+                    ? "bg-theme-accent text-white font-bold"
+                    : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
                 }`}
               >
-                <Layers className="w-4 h-4 text-[var(--accent-pill-text)] shrink-0" />
-                <span className="truncate">Overview</span>
+                Studios
               </button>
 
-              {navItems.map((item) => {
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-medium transition-all text-left cursor-pointer ${
-                      isActive
-                        ? "bg-theme-accent font-bold"
-                        : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
-                    }`}
-                  >
-                    <span className={isActive ? "text-white" : "text-[var(--accent-pill-text)]"}>
-                      {item.icon}
-                    </span>
-                    <span className="truncate">{item.label}</span>
-                  </button>
-                );
-              })}
+              <button
+                onClick={() => {
+                  window.history.pushState({}, "", "/forum");
+                  setActiveTab("forum");
+                  setMobileMenuOpen(false);
+                }}
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer ${
+                  activeTab === "forum"
+                    ? "bg-theme-accent text-white font-bold"
+                    : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
+                }`}
+              >
+                Forum
+              </button>
+
+              <button
+                onClick={() => {
+                  window.history.pushState({}, "", "/trending");
+                  setActiveTab("trending");
+                  setMobileMenuOpen(false);
+                }}
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer ${
+                  activeTab === "trending"
+                    ? "bg-theme-accent text-white font-bold"
+                    : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
+                }`}
+              >
+                KH Trending
+              </button>
+
+              <button
+                onClick={() => {
+                  window.history.pushState({}, "", "/contact");
+                  setActiveTab("contact");
+                  setMobileMenuOpen(false);
+                }}
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left cursor-pointer col-span-2 ${
+                  activeTab === "contact"
+                    ? "bg-theme-accent text-white font-bold"
+                    : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
+                }`}
+              >
+                Contact Team
+              </button>
+            </div>
+
+            <div className="pt-2 border-t border-[var(--bento-border)] space-y-2">
+              <button
+                onClick={() => {
+                  window.history.pushState({}, "", "/workspace");
+                  setActiveTab("command-center");
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 px-3 rounded-xl bg-theme-accent text-white font-bold text-xs font-['Space_Grotesk'] flex items-center justify-center gap-2"
+              >
+                <Rocket className="w-3.5 h-3.5" />
+                <span>Enter Workspace</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsAuthModalOpen(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2 px-3 rounded-xl bg-[var(--bento-input)] border border-[var(--bento-border)] text-xs text-[var(--bento-text)] font-semibold"
+              >
+                Sign In / Switch Account
+              </button>
             </div>
           </div>
         )}

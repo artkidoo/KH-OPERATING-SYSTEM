@@ -23,7 +23,20 @@ export type ActiveTab =
   | 'project-console'
   | 'resource-vault'
   | 'intel-hub'
-  | 'admin';
+  | 'admin'
+  | 'about'
+  | 'vision'
+  | 'story'
+  | 'contact'
+  | 'faq'
+  | 'help'
+  | 'docs'
+  | 'resources'
+  | 'privacy'
+  | 'terms'
+  | 'security'
+  | 'forum'
+  | 'trending';
 
 export type IdentityType = 'artist' | 'brand';
 
