@@ -179,11 +179,11 @@ function createProceduralCover(title: string, artist: string, themeColor: string
   // Title Box
   ctx.fillStyle = "#FFFFFF";
   ctx.font = "bold 44px 'Space Grotesk', sans-serif";
-  ctx.fillText(title.toUpperCase(), 500, 840);
+  ctx.fillText((title || "UNTITLED").toUpperCase(), 500, 840);
 
   ctx.fillStyle = "#A1A1AA";
   ctx.font = "26px 'Plus Jakarta Sans', sans-serif";
-  ctx.fillText(artist.toUpperCase(), 500, 890);
+  ctx.fillText((artist || "ARTIST").toUpperCase(), 500, 890);
 
   ctx.fillStyle = themeColor || "#DC2626";
   ctx.font = "bold 18px 'JetBrains Mono', monospace";
@@ -286,7 +286,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
     const art = createProceduralCover(trackTitle, artistName, color);
     onCoverChange(art);
     setEffectiveArt(art);
-    onNotify(`Loaded ${presetType.toUpperCase()} Artwork Template`, "info");
+    onNotify(`Loaded ${(presetType || "custom").toUpperCase()} Artwork Template`, "info");
   };
 
   const copyText = (text: string, id: string) => {
@@ -357,7 +357,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
           ctx.fillStyle = currentTemplate.accentColor;
           ctx.font = "bold 26px 'Space Grotesk', sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText(`• ${badgeText.toUpperCase()} •`, width / 2, 85);
+          ctx.fillText(`• ${(badgeText || "").toUpperCase()} •`, width / 2, 85);
 
           // Title
           ctx.fillStyle = currentTemplate.textColor;
@@ -372,7 +372,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
           if (customSubtitle) {
             ctx.fillStyle = currentTemplate.accentColor;
             ctx.font = "bold 20px 'JetBrains Mono', monospace";
-            ctx.fillText(customSubtitle.toUpperCase(), width / 2, 930);
+            ctx.fillText((customSubtitle || "").toUpperCase(), width / 2, 930);
           }
 
           // Streaming row
@@ -420,7 +420,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
           // Badge Pill
           ctx.fillStyle = currentTemplate.accentColor;
           ctx.font = "bold 32px 'Space Grotesk', sans-serif";
-          ctx.fillText(`🔥 ${badgeText.toUpperCase()}`, width / 2, 360);
+          ctx.fillText(`🔥 ${(badgeText || "").toUpperCase()}`, width / 2, 360);
 
           // Title & Artist
           ctx.fillStyle = currentTemplate.textColor;
@@ -434,7 +434,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
           if (showReleaseDate) {
             ctx.fillStyle = currentTemplate.accentColor;
             ctx.font = "bold 24px 'JetBrains Mono', monospace";
-            ctx.fillText(`RELEASE: ${releaseDate} • ${genre.toUpperCase()}`, width / 2, 1410);
+            ctx.fillText(`RELEASE: ${releaseDate} • ${(genre || "").toUpperCase()}`, width / 2, 1410);
           }
 
           // CTA Pill
@@ -445,7 +445,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
 
           ctx.fillStyle = "#000000";
           ctx.font = "bold 30px 'Space Grotesk', sans-serif";
-          ctx.fillText(ctaText.toUpperCase(), width / 2, 1552);
+          ctx.fillText((ctaText || "").toUpperCase(), width / 2, 1552);
 
           if (showStreamingLogos) {
             ctx.fillStyle = currentTemplate.textColor;
@@ -475,7 +475,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
           // Badge
           ctx.fillStyle = currentTemplate.accentColor;
           ctx.font = "bold 26px 'Space Grotesk', sans-serif";
-          ctx.fillText(`• ${badgeText.toUpperCase()}`, textX, 330);
+          ctx.fillText(`• ${(badgeText || "").toUpperCase()}`, textX, 330);
 
           // Track Title
           ctx.fillStyle = currentTemplate.textColor;
@@ -490,7 +490,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
           // Metadata Details
           ctx.fillStyle = currentTemplate.accentColor;
           ctx.font = "bold 22px 'JetBrains Mono', monospace";
-          ctx.fillText(`GENRE: ${genre.toUpperCase()} | DROP: ${releaseDate}`, textX, 555);
+          ctx.fillText(`GENRE: ${(genre || "").toUpperCase()} | DROP: ${releaseDate}`, textX, 555);
 
           if (customSubtitle) {
             ctx.fillStyle = currentTemplate.mutedColor;
@@ -513,7 +513,7 @@ export const AssetStudio: React.FC<AssetStudioProps> = ({
           ctx.fillStyle = "#000000";
           ctx.font = "bold 24px 'Space Grotesk', sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText(ctaText.toUpperCase(), textX + 210, 770);
+          ctx.fillText((ctaText || "").toUpperCase(), textX + 210, 770);
         }
 
         resolve(canvas.toDataURL("image/png", 0.95));

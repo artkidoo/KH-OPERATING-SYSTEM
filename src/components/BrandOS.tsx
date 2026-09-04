@@ -1,5 +1,5 @@
 import React from "react";
-import { BrandBusinessDashboard } from "./brand/BrandBusinessDashboard";
+import { BrandOperatingEnvironment } from "./brand/BrandOperatingEnvironment";
 
 interface BrandOSProps {
   onNotify: (msg: string, type?: "success" | "info" | "error") => void;
@@ -7,8 +7,10 @@ interface BrandOSProps {
   standalone?: boolean;
 }
 
-export const BrandOS: React.FC<BrandOSProps> = ({ onNotify, onNavigateTab, standalone = false }) => {
+export const BrandOS: React.FC<BrandOSProps> = ({ onNotify, onNavigateTab }) => {
   return (
-    <BrandBusinessDashboard onNotify={onNotify} onNavigateTab={onNavigateTab} standalone={standalone} />
+    <BrandOperatingEnvironment onNotify={onNotify} onNavigateTab={onNavigateTab} />
   );
 };
+
+export default BrandOS;

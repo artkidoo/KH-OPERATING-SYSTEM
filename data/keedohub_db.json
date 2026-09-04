@@ -10,6 +10,28 @@
       "createdAt": "2026-09-02T08:38:56.602Z",
       "systemRole": "user",
       "status": "active"
+    },
+    {
+      "id": "usr_demo_artist",
+      "email": "artist@keedohub.com",
+      "passwordHash": "8275d05b17ebf63a795c08f1a0c134470a09db15de5df8e1a42a3b5916e30597",
+      "fullName": "Keedohub Music Artist",
+      "avatarUrl": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150&auto=format&fit=crop&q=80",
+      "defaultWorkspaceId": "ws_demo_artist_os",
+      "systemRole": "admin",
+      "status": "active",
+      "createdAt": "2026-09-04T10:25:12.922Z"
+    },
+    {
+      "id": "usr_demo_brand",
+      "email": "brand@keedohub.com",
+      "passwordHash": "8275d05b17ebf63a795c08f1a0c134470a09db15de5df8e1a42a3b5916e30597",
+      "fullName": "Pulse Global Brand Studio",
+      "avatarUrl": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+      "defaultWorkspaceId": "ws_demo_brand_os",
+      "systemRole": "admin",
+      "status": "active",
+      "createdAt": "2026-09-04T10:25:12.922Z"
     }
   ],
   "sessions": [
@@ -17,11 +39,6 @@
       "token": "kdh_sess_f54324f95f8ec380c149df356adcaace7727458c213f0ac4bc0b83296b12af07",
       "userId": "usr_demo_keedohub",
       "expiresAt": "2026-10-02T08:40:55.555Z"
-    },
-    {
-      "token": "kdh_sess_957d33ad42ac9f95ae479bfdad13fbb56f8679f17be4f4d8c3394a4f793557fe",
-      "userId": "usr_demo_keedohub",
-      "expiresAt": "2026-10-02T08:40:55.702Z"
     },
     {
       "token": "kdh_sess_59aa87505d82dec4a5704225574a5be4f9b4e085ea9e5160f87aae7d22a96072",
@@ -142,6 +159,61 @@
       "token": "kdh_sess_44866554b711190974bddebf02f13b146fb88783f64211d21c0cad44cf318454",
       "userId": "usr_demo_keedohub",
       "expiresAt": "2026-10-03T21:44:14.922Z"
+    },
+    {
+      "token": "kdh_sess_b3082173c49ed2459e26a23f3289fefa511c191be800ea9e2500e5ccd37a0af2",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-04T09:36:32.153Z"
+    },
+    {
+      "token": "kdh_sess_3d2f44118f45e3999588818cff7379e694ce5db81ec7b82e968756c4e3a95d17",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-04T09:36:32.329Z"
+    },
+    {
+      "token": "kdh_sess_083ed1872d1f5026e9b8b788087220a8a9dbf4e5cbd7301cb62eeaa301e9fb14",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-04T09:36:39.337Z"
+    },
+    {
+      "token": "kdh_sess_6ed787b8fdcce83ff352790eae09f24ea57542c645acbb5871fbef648efb6337",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-04T09:36:39.488Z"
+    },
+    {
+      "token": "kdh_sess_9f38aae0863003c6caebe9472720e4f847436db297de986b01844b62a8d44868",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-04T09:36:59.592Z"
+    },
+    {
+      "token": "kdh_sess_ce680e81e84e2abbcbfdeee40e2e8962c32c5544164311db7fc90d2f1cd154a6",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-04T09:36:59.825Z"
+    },
+    {
+      "token": "kdh_sess_727b41c5faae951920a89b151986cec3d171aa4ab3cc28fba4315f9c3069acef",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-04T10:25:23.178Z"
+    },
+    {
+      "token": "kdh_sess_09fe5b1a54d88987aa1bc8bdb62de38894091faafe813110f4b3a019f8b71b79",
+      "userId": "usr_demo_brand",
+      "expiresAt": "2026-10-04T10:25:27.172Z"
+    },
+    {
+      "token": "kdh_sess_d4bbf24c9572ff9e9eb09a8d064c1f487370b367f73ce22fdda3da0f71160086",
+      "userId": "usr_demo_artist",
+      "expiresAt": "2026-10-04T10:25:30.459Z"
+    },
+    {
+      "token": "kdh_sess_b6a560f89e4e30cf37eeb3dd4cb69d369d56dc06ce641eaef17a97d047d2280c",
+      "userId": "usr_demo_keedohub",
+      "expiresAt": "2026-10-04T10:28:30.849Z"
+    },
+    {
+      "token": "kdh_sess_dc5f52b8cb6d140d83529edbacb48c20493eeb65c67abaad8a008f735765c5a3",
+      "userId": "usr_demo_brand",
+      "expiresAt": "2026-10-04T10:28:35.085Z"
     }
   ],
   "workspaces": [
@@ -166,6 +238,27 @@
       "createdAt": "2026-09-02T08:38:56.602Z",
       "updatedAt": "2026-09-03T16:53:38.303Z",
       "status": "active"
+    },
+    {
+      "id": "ws_demo_brand_os",
+      "name": "Pulse Global Brand OS",
+      "slug": "pulse-global",
+      "ownerId": "usr_demo_brand",
+      "identityType": "brand",
+      "avatarUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
+      "bio": "Next-generation cultural commerce studio scaling direct-to-consumer and lifestyle media.",
+      "genreOrNiche": "Creative Tech & Lifestyle Media",
+      "website": "https://pulse.keedohub.com",
+      "status": "active",
+      "settings": {
+        "defaultCurrency": "USD",
+        "socialLinks": {
+          "instagram": "@pulseglobal",
+          "website": "https://pulse.keedohub.com"
+        }
+      },
+      "createdAt": "2026-09-04T10:25:12.922Z",
+      "updatedAt": "2026-09-04T10:25:12.922Z"
     }
   ],
   "workspace_members": [
@@ -311,6 +404,30 @@
       },
       "joinedAt": "2026-08-26T08:38:56.603Z",
       "lastActiveAt": "2026-09-02T07:38:56.603Z"
+    },
+    {
+      "id": "mem_0c0ed498",
+      "workspaceId": "ws_demo_brand_os",
+      "userId": "usr_demo_keedohub",
+      "role": "owner",
+      "status": "active",
+      "joinedAt": "2026-09-04T10:25:12.923Z"
+    },
+    {
+      "id": "mem_3903f786",
+      "workspaceId": "ws_demo_artist_os",
+      "userId": "usr_demo_artist",
+      "role": "owner",
+      "status": "active",
+      "joinedAt": "2026-09-04T10:25:12.923Z"
+    },
+    {
+      "id": "mem_f1dc3856",
+      "workspaceId": "ws_demo_brand_os",
+      "userId": "usr_demo_brand",
+      "role": "owner",
+      "status": "active",
+      "joinedAt": "2026-09-04T10:25:12.923Z"
     }
   ],
   "brand_cores": [
@@ -445,6 +562,31 @@
       },
       "brandGuidelinesText": "# AfroVibe World Brand Guidelines\n\n## Brand Purpose\nTo champion independent sonic craftsmanship and project modern African culture onto the global stage with uncompromising artistic and visual fidelity.\n\n## Visual Rules\n- Obsidian dark canvas (#09090B)\n- Crimson primary CTA (#EF4444)\n- 3000x3000px high-resolution imagery\n- Bold display typography with tight letter spacing.",
       "updatedAt": "2026-09-02T08:38:56.603Z"
+    },
+    {
+      "id": "bc_demo_brand",
+      "workspaceId": "ws_demo_brand_os",
+      "brandName": "Pulse Global",
+      "tagline": "The Operating Infrastructure for Cultural Commerce",
+      "mission": "To transform creative intellectual property into enduring physical products and digital media ecosystems.",
+      "vision": "The definitive operational platform for next-generation brands and creative enterprises worldwide.",
+      "values": [
+        "Aesthetic Rigor",
+        "Radical Quality",
+        "Cultural Provenance",
+        "Velocity of Execution"
+      ],
+      "brandVoice": "Authoritative, culturally grounded, bold, and design-led.",
+      "industry": "Creative Tech & Lifestyle Media",
+      "positioning": {
+        "targetCustomer": "Design-conscious consumers, corporate sponsors, and global creative collaborators.",
+        "categoryName": "Cultural Commerce & Brand OS",
+        "primaryBenefit": "Seamless quote-to-cash execution with enterprise-grade brand fidelity.",
+        "competitiveAlternative": "Fragmented agency spreadsheets and disconnected design tools.",
+        "positioningStatement": "For modern brands scaling cultural commerce, Pulse Global provides the unified operating infrastructure to design, launch, and monetize at global scale."
+      },
+      "brandGuidelinesText": "# Pulse Global Brand Guidelines\n\n- Primary Palette: #EF4444 (Crimson Accent), #09090B (Obsidian Core)\n- Typography: Space Grotesk (Display) & Plus Jakarta Sans (Body)\n- Photography: High-contrast editorial with natural grain",
+      "updatedAt": "2026-09-04T10:25:12.923Z"
     }
   ],
   "products": [
@@ -517,6 +659,70 @@
       "launchDate": "2026-09-25",
       "createdAt": "2026-09-02T08:38:56.603Z",
       "updatedAt": "2026-09-02T08:38:56.603Z"
+    },
+    {
+      "id": "prd_brand_1",
+      "workspaceId": "ws_demo_brand_os",
+      "name": "Global Cultural Capsule — Merch & Artifact Production",
+      "type": "physical_merch",
+      "tagline": "Heavyweight 450gsm organic cotton streetwear & numbered collector artifacts",
+      "description": "End-to-end design, sustainable manufacturing, and worldwide fulfillment for limited-edition brand drops.",
+      "category": "Physical Merchandise",
+      "pricing": {
+        "amount": 85,
+        "currency": "USD",
+        "billingInterval": "one_time",
+        "tierName": "Capsule Unit"
+      },
+      "targetAudience": "Global tastemakers and cultural community members.",
+      "keyFeatures": [
+        "450gsm custom-milled French terry cotton",
+        "Screenprinted archival pigments with high-density embroidery",
+        "Individual NFC authentication tag embedded in hem"
+      ],
+      "benefits": [
+        "Immediate brand equity enhancement and high gross margins",
+        "Zero fulfillment headaches with integrated 3PL logistics"
+      ],
+      "uniqueSellingPoints": [
+        "Every piece is individually numbered and verified on-chain"
+      ],
+      "heroImageUrl": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop&q=80",
+      "status": "active",
+      "createdAt": "2026-09-04T10:25:12.923Z",
+      "updatedAt": "2026-09-04T10:25:12.923Z"
+    },
+    {
+      "id": "prd_brand_2",
+      "workspaceId": "ws_demo_brand_os",
+      "name": "Enterprise Brand System & Motion Design Sprint",
+      "type": "service",
+      "tagline": "Complete visual identity, 3D motion assets, and design system in 14 days",
+      "description": "Rapid design system rollout for high-growth ventures preparing for product launches or funding rounds.",
+      "category": "Design & Strategy",
+      "pricing": {
+        "amount": 4500,
+        "currency": "USD",
+        "billingInterval": "one_time",
+        "tierName": "Sprint Retainer"
+      },
+      "targetAudience": "Funded startups, music labels, and scaling lifestyle brands.",
+      "keyFeatures": [
+        "Complete vector logo suite & typographic hierarchy",
+        "Custom component library in Figma & code tokens",
+        "6 motion social templates for Instagram, TikTok, and LinkedIn"
+      ],
+      "benefits": [
+        "Cohesive global brand presence across every customer touchpoint",
+        "Compressed turnaround from concept to production"
+      ],
+      "uniqueSellingPoints": [
+        "Directly authored by top-tier creative directors"
+      ],
+      "heroImageUrl": "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=800&auto=format&fit=crop&q=80",
+      "status": "active",
+      "createdAt": "2026-09-04T10:25:12.923Z",
+      "updatedAt": "2026-09-04T10:25:12.923Z"
     }
   ],
   "projects": [],
@@ -784,6 +990,52 @@
       "currency": "USD",
       "createdAt": "2026-09-02T08:38:56.602Z",
       "updatedAt": "2026-09-02T08:38:56.602Z"
+    },
+    {
+      "id": "cmp_demo_brand_1",
+      "workspaceId": "ws_demo_brand_os",
+      "title": "Autumn 2026 Global Brand Activation",
+      "status": "active",
+      "goal": "Drive 500,000 impressions and secure $75,000 in early merchandise capsule pre-orders.",
+      "targetAudience": "Metropolitan creative leaders across Lagos, London, New York, and Paris.",
+      "budget": 6500,
+      "currency": "USD",
+      "startDate": "2026-09-01",
+      "endDate": "2026-10-15",
+      "channels": [
+        "Instagram",
+        "TikTok",
+        "LinkedIn",
+        "YouTube",
+        "Direct Email"
+      ],
+      "keyMetrics": {
+        "targetImpressions": 500000,
+        "targetConversions": 1500,
+        "targetRevenue": 75000
+      },
+      "milestones": [
+        {
+          "id": "m_1",
+          "title": "Brand Identity Reveal & Teaser Trailer",
+          "deadline": "2026-09-10",
+          "completed": true
+        },
+        {
+          "id": "m_2",
+          "title": "Limited Capsule Pre-order VIP Access",
+          "deadline": "2026-09-20",
+          "completed": false
+        },
+        {
+          "id": "m_3",
+          "title": "Global Public Launch & Press Distribution",
+          "deadline": "2026-10-01",
+          "completed": false
+        }
+      ],
+      "createdAt": "2026-09-04T10:25:12.923Z",
+      "updatedAt": "2026-09-04T10:25:12.923Z"
     }
   ],
   "content_pillars": [
@@ -1312,7 +1564,7 @@
   ],
   "notifications": [
     {
-      "id": "notif_70f6d867",
+      "id": "notif_63bf2d4a",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "studio_deliverable_review:sdel_demo_1",
       "title": "Deliverable Ready for Review: Midnight in VI — 3000x3000px Master Cover Artwork",
@@ -1330,7 +1582,7 @@
       "createdAt": "2026-09-01T08:38:56.603Z"
     },
     {
-      "id": "notif_a2bbebae",
+      "id": "notif_60e26370",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_433abb8b-",
       "title": "Radar Alert: Missing Hero Creative Asset for Campaign \"Q3 Global Streaming & Radio Push\"",
@@ -1348,7 +1600,7 @@
       "createdAt": "2026-09-02T08:46:36.430Z"
     },
     {
-      "id": "notif_bb5c20b6",
+      "id": "notif_18d86dee",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_1a1c7ef5-",
       "title": "Radar Alert: Master WAV Audio not linked for \"Midnight in Victoria Island\"",
@@ -1366,7 +1618,7 @@
       "createdAt": "2026-09-02T08:46:36.427Z"
     },
     {
-      "id": "notif_46845f2b",
+      "id": "notif_06186408",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_a0e5a2c9-",
       "title": "Radar Alert: Studio Deliverable \"Midnight in VI — 3000x3000px Master Cover Artwork\" (V1) ready for sign-off",
@@ -1384,7 +1636,7 @@
       "createdAt": "2026-09-02T08:46:36.431Z"
     },
     {
-      "id": "notif_05d46fe6",
+      "id": "notif_063a5f12",
       "workspaceId": "ws_demo_artist_os",
       "fingerprint": "radar:sig_a2c4ea6c-",
       "title": "Radar Alert: Studio Deliverable \"Spotify Canvas 9:16 3D Kinetic Loop\" (V1) ready for sign-off",
@@ -1400,6 +1652,101 @@
       "entityId": "sdel_demo_2",
       "entityTitle": "Spotify Canvas 9:16 3D Kinetic Loop",
       "createdAt": "2026-09-02T08:46:36.432Z"
+    },
+    {
+      "id": "notif_70f6d867",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "studio_deliverable_review:sdel_demo_1",
+      "title": "Deliverable Ready for Review: Midnight in VI — 3000x3000px Master Cover Artwork",
+      "message": "Version V1 has been uploaded and awaits your sign-off or revision notes.",
+      "category": "studio",
+      "severity": "high",
+      "type": "request",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Asset in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-01T08:38:56.603Z",
+      "resolvedAt": "2026-09-04T09:35:17.365Z"
+    },
+    {
+      "id": "notif_a2bbebae",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_433abb8b-",
+      "title": "Radar Alert: Missing Hero Creative Asset for Campaign \"Q3 Global Streaming & Radio Push\"",
+      "message": "Campaign lacks a primary high-resolution hero visual banner or brand deck deliverable.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "brand-os",
+      "actionLabel": "Open Brand OS",
+      "entityType": "campaign",
+      "entityId": "cmp_demo_1",
+      "entityTitle": "Q3 Global Streaming & Radio Push",
+      "createdAt": "2026-09-02T08:46:36.430Z",
+      "resolvedAt": "2026-09-04T09:35:17.365Z"
+    },
+    {
+      "id": "notif_bb5c20b6",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_1a1c7ef5-",
+      "title": "Radar Alert: Master WAV Audio not linked for \"Midnight in Victoria Island\"",
+      "message": "No 24-bit/44.1kHz or 48kHz lossless master audio file is attached to the release core.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "mastering-suite",
+      "actionLabel": "Open Mastering Suite",
+      "entityType": "release",
+      "entityId": "rel_demo_1",
+      "entityTitle": "Midnight in Victoria Island",
+      "createdAt": "2026-09-02T08:46:36.427Z",
+      "resolvedAt": "2026-09-04T09:35:17.365Z"
+    },
+    {
+      "id": "notif_46845f2b",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a0e5a2c9-",
+      "title": "Radar Alert: Studio Deliverable \"Midnight in VI — 3000x3000px Master Cover Artwork\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_1",
+      "entityTitle": "Midnight in VI — 3000x3000px Master Cover Artwork",
+      "createdAt": "2026-09-02T08:46:36.431Z",
+      "resolvedAt": "2026-09-04T09:35:17.365Z"
+    },
+    {
+      "id": "notif_05d46fe6",
+      "workspaceId": "ws_demo_artist_os",
+      "fingerprint": "radar:sig_a2c4ea6c-",
+      "title": "Radar Alert: Studio Deliverable \"Spotify Canvas 9:16 3D Kinetic Loop\" (V1) ready for sign-off",
+      "message": "Studio producers have completed the creative asset. Review and approve delivery or request revisions.",
+      "category": "radar",
+      "severity": "high",
+      "type": "warning",
+      "read": true,
+      "resolved": true,
+      "actionTab": "studio",
+      "actionLabel": "Review Deliverable in Studio",
+      "entityType": "studio_deliverable",
+      "entityId": "sdel_demo_2",
+      "entityTitle": "Spotify Canvas 9:16 3D Kinetic Loop",
+      "createdAt": "2026-09-02T08:46:36.432Z",
+      "resolvedAt": "2026-09-04T09:35:17.365Z"
     },
     {
       "id": "notif_3cada645",

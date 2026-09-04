@@ -267,6 +267,22 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
+                id="header-nav-journal"
+                onClick={() => {
+                  window.history.pushState({}, "", "/journal");
+                  setActiveTab("journal" as any);
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  (activeTab as string) === "journal"
+                    ? "bg-theme-accent text-white font-bold shadow-sm"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                <BookOpen className="w-3 h-3 text-red-400" />
+                <span>Journal</span>
+              </button>
+
+              <button
                 id="header-nav-studios"
                 onClick={() => {
                   window.history.pushState({}, "", "/studios");
@@ -279,21 +295,6 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 Studios
-              </button>
-
-              <button
-                id="header-nav-forum"
-                onClick={() => {
-                  window.history.pushState({}, "", "/forum");
-                  setActiveTab("forum");
-                }}
-                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                  activeTab === "forum"
-                    ? "bg-theme-accent text-white font-bold shadow-sm"
-                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
-                }`}
-              >
-                Forum
               </button>
 
               <button

@@ -159,7 +159,8 @@ export function getBrandIndustry(workspace?: Workspace | null, brandCore?: Brand
   return industryAliases[value] || (workspace?.identityType === "artist" ? "artist" : "other");
 }
 
-export function getIndustryLabel(industry: BrandIndustry): string {
+export function getIndustryLabel(industry?: BrandIndustry): string {
+  if (!industry) return "General / Other";
   return industry === "artist" ? "Artist / Musician" : industry.charAt(0).toUpperCase() + industry.slice(1);
 }
 

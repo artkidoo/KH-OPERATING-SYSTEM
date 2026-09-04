@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, Workspace, IdentityType, OnboardingPayload } from "../types";
-import { api, getStoredToken } from "../services/api";
+import { api, getStoredToken, setStoredToken } from "../services/api";
 
 interface OnboardingModalOptions {
   isNewAccount?: boolean;
@@ -52,20 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedToken = getStoredToken();
     setToken(storedToken);
 
-    // If no token exists, provide initial seamless demo login or guest state
+    // If no token exists, do not auto-login or fabricate a session
     if (!storedToken) {
-      try {
-        // Log in to default demo creator account for instant access
-        const res = await api.auth.login({ email: "creator@keedohub.com", password: "keedohub2026" });
-        setUser(res.user);
-        setWorkspaces(res.workspaces);
-        setActiveWorkspace(res.activeWorkspace);
-        setToken(getStoredToken());
-      } catch (err) {
-        console.warn("[Auth] Demo login fallback:", err);
-      } finally {
-        setIsLoading(false);
-      }
+      setUser(null);
+      setWorkspaces([]);
+      setActiveWorkspace(null);
+      setIsLoading(false);
       return;
     }
 
@@ -75,17 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setWorkspaces(res.workspaces);
       setActiveWorkspace(res.activeWorkspace);
       setToken(getStoredToken());
-    } catch {
-      // Stale or expired token in localStorage — gracefully recover with fresh demo login
-      try {
-        const res = await api.auth.login({ email: "creator@keedohub.com", password: "keedohub2026" });
-        setUser(res.user);
-        setWorkspaces(res.workspaces);
-        setActiveWorkspace(res.activeWorkspace);
-        setToken(getStoredToken());
-      } catch {
-        setUser(null);
-      }
+    } catch (err) {
+      // Invalid or expired token: clear token and reset session
+      setStoredToken(null);
+      setUser(null);
+      setWorkspaces([]);
+      setActiveWorkspace(null);
+      setToken(null);
     } finally {
       setIsLoading(false);
     }

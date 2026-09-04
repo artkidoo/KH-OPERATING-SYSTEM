@@ -50,7 +50,10 @@ import { TermsOfServicePage } from "./components/pages/TermsOfServicePage";
 import { SecurityPage } from "./components/pages/SecurityPage";
 import { ForumPage } from "./components/pages/ForumPage";
 import { TrendingPage } from "./components/pages/TrendingPage";
+import { JournalPage } from "./components/pages/JournalPage";
 import { IntegrationsHub } from "./components/integrations/IntegrationsHub";
+import { AuthGate } from "./components/auth/AuthGate";
+import { AuthModal } from "./components/AuthModal";
 import { 
   Search, 
   BrainCircuit,
@@ -92,6 +95,9 @@ function getTabFromPath(path: string): ActiveTab {
       return "forum";
     case "/trending":
       return "trending";
+    case "/journal":
+    case "/blog":
+      return "journal";
     case "/workspace":
       return "command-center";
     case "/studios":
@@ -116,6 +122,24 @@ function getTabFromPath(path: string): ActiveTab {
   }
 }
 
+const PUBLIC_TABS: ActiveTab[] = [
+  "overview",
+  "journal",
+  "about",
+  "vision",
+  "story",
+  "contact",
+  "faq",
+  "help",
+  "docs",
+  "resources",
+  "privacy",
+  "terms",
+  "security",
+  "trending",
+  "forum",
+];
+
 function MainAppContent() {
   const [activeTab, setActiveTabState] = useState<ActiveTab>(() => {
     if (typeof window !== "undefined") {
@@ -125,6 +149,8 @@ function MainAppContent() {
   });
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isBriefOpen, setIsBriefOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [studioServiceCategory, setStudioServiceCategory] = useState<StudioServiceCategory | undefined>();
 
@@ -162,6 +188,8 @@ function MainAppContent() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const isPublicRoute = PUBLIC_TABS.includes(activeTab);
+
   return (
     <div className="min-h-screen bg-[var(--bento-bg)] text-[var(--bento-text)] flex flex-col font-['Plus_Jakarta_Sans'] selection:bg-[var(--accent-color)] selection:text-[var(--accent-text)] transition-colors duration-200 pb-16 sm:pb-0">
       {/* Global Command Palette */}
@@ -182,6 +210,13 @@ function MainAppContent() {
       {/* Progressive Onboarding & Activation Layer */}
       <OnboardingModal />
 
+      {/* Global Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authModalMode}
+      />
+
       {/* Creative Brain Slide-over Assistant */}
       <CreativeBrainSlideOver setActiveTab={setActiveTab} />
 
@@ -198,12 +233,34 @@ function MainAppContent() {
 
       {/* Main Content Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {activeTab === "overview" && (
-          <HeroStudioOS
-            setActiveTab={setActiveTab}
-            openBriefModal={() => setIsBriefOpen(true)}
+        {/* Private Route Protection: Never auto-login, require authenticated session */}
+        {!user && !isPublicRoute ? (
+          <AuthGate
+            areaName={activeTab}
+            onOpenAuth={(mode) => {
+              setAuthModalMode(mode || "login");
+              setIsAuthModalOpen(true);
+            }}
+            onNavigatePublic={setActiveTab}
           />
-        )}
+        ) : (
+          <>
+            {activeTab === "overview" && (
+              <HeroStudioOS
+                setActiveTab={setActiveTab}
+                openBriefModal={() => setIsBriefOpen(true)}
+              />
+            )}
+
+            {activeTab === "journal" && (
+              <JournalPage
+                onNavigateTab={setActiveTab}
+                onOpenAuth={(mode) => {
+                  setAuthModalMode(mode || "signup");
+                  setIsAuthModalOpen(true);
+                }}
+              />
+            )}
 
         {activeTab === "command-center" && (
           <CommandCenter
@@ -418,6 +475,8 @@ function MainAppContent() {
 
         {activeTab === "trending" && (
           <TrendingPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
+        )}
+          </>
         )}
       </main>
 

@@ -60,7 +60,7 @@ export function NewProjectModal({ isOpen, onClose, onSuccess }: NewProjectModalP
         clientName: clientName || undefined,
         status: "in-progress",
         tasks,
-        tags: [category, priority.toUpperCase()],
+        tags: [category, (priority || "medium").toUpperCase()],
       });
       onSuccess?.();
       onClose();

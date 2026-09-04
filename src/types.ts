@@ -38,6 +38,7 @@ export type ActiveTab =
   | 'security'
   | 'forum'
   | 'trending'
+  | 'journal'
   | 'integrations';
 
 export type IdentityType = 'artist' | 'brand';

@@ -83,8 +83,9 @@ export const generateEPKPdf = async (
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
     doc.setTextColor(textSecondary[0], textSecondary[1], textSecondary[2]);
+    const safeArtist = (epk.artistName || "ARTIST").toUpperCase();
     doc.text(
-      `KEEDOHUB CREATIVE OS • ${epk.artistName.toUpperCase()} OFFICIAL DOSSIER • CONFIDENTIAL`,
+      `KEEDOHUB CREATIVE OS • ${safeArtist} OFFICIAL DOSSIER • CONFIDENTIAL`,
       margin,
       footerY
     );
@@ -131,13 +132,14 @@ export const generateEPKPdf = async (
 
   // Artist Title & Meta
   const titleX = margin + monogramSize + 12;
+  const safeArtistHeader = (epk.artistName || "ARTIST").toUpperCase();
   doc.setFont("helvetica", "bold");
   doc.setFontSize(15);
   doc.setTextColor(textPrimary[0], textPrimary[1], textPrimary[2]);
-  doc.text(epk.artistName.toUpperCase(), titleX, currentY + 13);
+  doc.text(safeArtistHeader, titleX, currentY + 13);
 
   // Badge pill next to title
-  const nameWidth = doc.getTextWidth(epk.artistName.toUpperCase());
+  const nameWidth = doc.getTextWidth(safeArtistHeader);
   doc.setFillColor(accentLight[0], accentLight[1], accentLight[2]);
   doc.setDrawColor(accentPrimary[0], accentPrimary[1], accentPrimary[2]);
   doc.setLineWidth(0.2);

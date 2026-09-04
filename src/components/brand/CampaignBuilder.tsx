@@ -263,7 +263,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({ onNotify, onNa
     try {
       await createContentItem({
         campaignId: activeCampaign.id,
-        title: `${activeCampaign.title} - ${quickPostPlatform.toUpperCase()}`,
+        title: `${activeCampaign.title} - ${(quickPostPlatform || "post").toUpperCase()}`,
         platform: quickPostPlatform,
         contentType: quickPostPlatform === 'linkedin' ? 'Article / Post' : 'Video / Reel',
         concept: quickPostConcept || quickPostHook,

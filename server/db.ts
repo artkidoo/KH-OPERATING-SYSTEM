@@ -3247,6 +3247,7 @@ class Database {
 
   constructor() {
     this.data = this.load();
+    this.ensureDefaultDemoAccounts();
   }
 
   private load(): DatabaseSchema {
@@ -3345,6 +3346,312 @@ class Database {
 
   public save() {
     this.persist();
+  }
+
+  private ensureDefaultDemoAccounts() {
+    let changed = false;
+
+    // 1. Ensure Brand OS Workspace exists
+    const brandWsId = "ws_demo_brand_os";
+    let brandWs = this.data.workspaces.find((w) => w.id === brandWsId || w.slug === "pulse-global");
+    if (!brandWs) {
+      brandWs = {
+        id: brandWsId,
+        name: "Pulse Global Brand OS",
+        slug: "pulse-global",
+        ownerId: "usr_demo_brand",
+        identityType: "brand",
+        avatarUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
+        bio: "Next-generation cultural commerce studio scaling direct-to-consumer and lifestyle media.",
+        genreOrNiche: "Creative Tech & Lifestyle Media",
+        website: "https://pulse.keedohub.com",
+        status: "active",
+        settings: {
+          defaultCurrency: "USD",
+          socialLinks: {
+            instagram: "@pulseglobal",
+            website: "https://pulse.keedohub.com",
+          },
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      this.data.workspaces.push(brandWs);
+      changed = true;
+    }
+
+    // 2. Ensure Artist OS User (creator@keedohub.com) exists with password keedohub2026
+    let creatorUser = this.data.users.find((u) => u.email.toLowerCase() === "creator@keedohub.com");
+    if (!creatorUser) {
+      creatorUser = {
+        id: "usr_demo_keedohub",
+        email: "creator@keedohub.com",
+        passwordHash: hashPassword("keedohub2026"),
+        fullName: "Keedohub Artist Studio",
+        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        defaultWorkspaceId: "ws_demo_artist_os",
+        systemRole: "super_admin",
+        status: "active",
+        createdAt: new Date().toISOString(),
+      };
+      this.data.users.push(creatorUser);
+      changed = true;
+    } else {
+      if (creatorUser.passwordHash !== hashPassword("keedohub2026")) {
+        creatorUser.passwordHash = hashPassword("keedohub2026");
+        changed = true;
+      }
+    }
+
+    // 3. Ensure artist alias (artist@keedohub.com) exists with password keedohub2026
+    let artistUser = this.data.users.find((u) => u.email.toLowerCase() === "artist@keedohub.com");
+    if (!artistUser) {
+      artistUser = {
+        id: "usr_demo_artist",
+        email: "artist@keedohub.com",
+        passwordHash: hashPassword("keedohub2026"),
+        fullName: "Keedohub Music Artist",
+        avatarUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150&auto=format&fit=crop&q=80",
+        defaultWorkspaceId: "ws_demo_artist_os",
+        systemRole: "admin",
+        status: "active",
+        createdAt: new Date().toISOString(),
+      };
+      this.data.users.push(artistUser);
+      changed = true;
+    } else if (artistUser.passwordHash !== hashPassword("keedohub2026")) {
+      artistUser.passwordHash = hashPassword("keedohub2026");
+      changed = true;
+    }
+
+    // 4. Ensure Brand OS User (brand@keedohub.com) exists with password keedohub2026
+    let brandUser = this.data.users.find((u) => u.email.toLowerCase() === "brand@keedohub.com");
+    if (!brandUser) {
+      brandUser = {
+        id: "usr_demo_brand",
+        email: "brand@keedohub.com",
+        passwordHash: hashPassword("keedohub2026"),
+        fullName: "Pulse Global Brand Studio",
+        avatarUrl: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+        defaultWorkspaceId: brandWs.id,
+        systemRole: "admin",
+        status: "active",
+        createdAt: new Date().toISOString(),
+      };
+      this.data.users.push(brandUser);
+      changed = true;
+    } else if (brandUser.passwordHash !== hashPassword("keedohub2026")) {
+      brandUser.passwordHash = hashPassword("keedohub2026");
+      changed = true;
+    }
+
+    // 5. Ensure workspace memberships:
+    // - creator@keedohub.com has access to both Artist and Brand OS
+    // - artist@keedohub.com has access to Artist OS
+    // - brand@keedohub.com has access to Brand OS
+    const memberships = [
+      { userId: creatorUser.id, wsId: "ws_demo_artist_os", role: "owner" },
+      { userId: creatorUser.id, wsId: brandWs.id, role: "owner" },
+      { userId: artistUser.id, wsId: "ws_demo_artist_os", role: "owner" },
+      { userId: brandUser.id, wsId: brandWs.id, role: "owner" },
+    ];
+
+    if (!this.data.workspace_members) this.data.workspace_members = [];
+    memberships.forEach(({ userId, wsId, role }) => {
+      const exists = this.data.workspace_members.some((m) => m.userId === userId && m.workspaceId === wsId);
+      if (!exists) {
+        this.data.workspace_members.push({
+          id: "mem_" + crypto.randomUUID().substring(0, 8),
+          workspaceId: wsId,
+          userId,
+          role: role as any,
+          status: "active",
+          joinedAt: new Date().toISOString(),
+        });
+        changed = true;
+      }
+    });
+
+    // 6. Ensure Brand Core for ws_demo_brand_os
+    if (!this.data.brand_cores) this.data.brand_cores = [];
+    let brandCore = this.data.brand_cores.find((bc) => bc.workspaceId === brandWs!.id);
+    if (!brandCore) {
+      brandCore = {
+        id: "bc_demo_brand",
+        workspaceId: brandWs.id,
+        brandName: "Pulse Global",
+        tagline: "The Operating Infrastructure for Cultural Commerce",
+        industry: "Creative Tech & Lifestyle Media",
+        identityType: "brand",
+        archetype: "Creator / Ruler",
+        logoAssets: {
+          primaryLogoUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+          darkLogoUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+          iconMarkUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+        },
+        colorPalette: [
+          { name: "Pulse Crimson", hex: "#EF4444", role: "Primary Accent & CTA" },
+          { name: "Obsidian Core", hex: "#09090B", role: "Canvas Background" },
+          { name: "Pure Platinum", hex: "#F4F4F5", role: "High-Contrast Typography" },
+          { name: "Slate Muted", hex: "#71717A", role: "Secondary Details" },
+        ],
+        typographyPairing: {
+          heading: "Space Grotesk (Bold 700)",
+          body: "Plus Jakarta Sans (Medium 500)",
+          monospace: "JetBrains Mono",
+        },
+        visualDirection: {
+          aestheticKeywords: ["Minimalist Luxury", "Obsidian & Crimson", "Editorial Print", "Precision Geometry"],
+          moodSummary: "High-contrast luxury editorial aesthetic paired with industrial precision.",
+          imageryGuidelines: "Use monochrome and duotone product photography with crisp shadows.",
+          dos: ["Maintain rigorous contrast ratios", "Highlight primary actions with pulse crimson"],
+          donts: ["Do not use decorative drop-shadow gradients", "Do not clip labels inside tags"],
+        },
+        voiceAndTone: {
+          traits: ["Authoritative", "Culturally Grounded", "Bold", "Design-Led"],
+          doSay: ["Operating infrastructure", "Cultural commerce", "Master artifact"],
+          dontSay: ["Disruptive", "Synergy", "Turnkey solution"],
+          vocabulary: ["Standard", "Sprint", "Mastery", "Ecosystem"],
+          communicationPrinciples: ["Clarity over cleverness", "Proof in delivery"],
+        },
+        audience: {
+          primaryICP: "Culturally fluent brand directors and modern creative operators.",
+          targetSegments: ["High-growth D2C founders", "Global music enterprises", "Luxury streetwear collectives"],
+          painPoints: ["Fragmented design-to-production workflows", "Slow go-to-market execution"],
+          coreDesires: ["Enterprise reliability with boutique cultural taste"],
+        },
+        positioning: {
+          marketCategory: "Cultural Commerce & Brand OS",
+          valueProposition: "Seamless quote-to-cash execution with enterprise-grade brand fidelity.",
+          uniqueSellingPoints: [
+            "Unified brand guidelines, physical merch manufacturing, and marketing campaigns",
+            "Real-time creative memory and asset generation pipeline"
+          ],
+          competitorDifferentiators: [
+            "Integrated operating environment replacing fragmented agency spreadsheets"
+          ],
+          positioningStatement: "For modern brands scaling cultural commerce, Pulse Global provides the unified operating infrastructure to design, launch, and monetize at global scale."
+        },
+        brandGuidelinesText: `# Pulse Global Brand Guidelines\n\n- Primary Palette: #EF4444 (Crimson Accent), #09090B (Obsidian Core)\n- Typography: Space Grotesk (Display) & Plus Jakarta Sans (Body)\n- Photography: High-contrast editorial with natural grain`,
+        updatedAt: new Date().toISOString(),
+      };
+      this.data.brand_cores.push(brandCore);
+      changed = true;
+    }
+
+    // 7. Ensure default products for ws_demo_brand_os
+    if (!this.data.products) this.data.products = [];
+    const brandProducts = this.data.products.filter((p) => p.workspaceId === brandWs!.id);
+    if (brandProducts.length === 0) {
+      this.data.products.push(
+        {
+          id: "prd_brand_1",
+          workspaceId: brandWs.id,
+          name: "Global Cultural Capsule — Merch & Artifact Production",
+          type: "merch",
+          tagline: "Heavyweight 450gsm organic cotton streetwear & numbered collector artifacts",
+          description: "End-to-end design, sustainable manufacturing, and worldwide fulfillment for limited-edition brand drops.",
+          category: "Physical Merchandise",
+          pricing: {
+            amount: 85,
+            currency: "USD",
+            billingInterval: "one_time",
+            tierName: "Capsule Unit"
+          },
+          targetAudience: "Global tastemakers and cultural community members.",
+          keyFeatures: [
+            "450gsm custom-milled French terry cotton",
+            "Screenprinted archival pigments with high-density embroidery",
+            "Individual NFC authentication tag embedded in hem"
+          ],
+          benefits: [
+            "Immediate brand equity enhancement and high gross margins",
+            "Zero fulfillment headaches with integrated 3PL logistics"
+          ],
+          uniqueSellingPoints: [
+            "Every piece is individually numbered and verified on-chain"
+          ],
+          heroImageUrl: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop&q=80",
+          status: "active",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: "prd_brand_2",
+          workspaceId: brandWs.id,
+          name: "Enterprise Brand System & Motion Design Sprint",
+          type: "service",
+          tagline: "Complete visual identity, 3D motion assets, and design system in 14 days",
+          description: "Rapid design system rollout for high-growth ventures preparing for product launches or funding rounds.",
+          category: "Design & Strategy",
+          pricing: {
+            amount: 4500,
+            currency: "USD",
+            billingInterval: "one_time",
+            tierName: "Sprint Retainer"
+          },
+          targetAudience: "Funded startups, music labels, and scaling lifestyle brands.",
+          keyFeatures: [
+            "Complete vector logo suite & typographic hierarchy",
+            "Custom component library in Figma & code tokens",
+            "6 motion social templates for Instagram, TikTok, and LinkedIn"
+          ],
+          benefits: [
+            "Cohesive global brand presence across every customer touchpoint",
+            "Compressed turnaround from concept to production"
+          ],
+          uniqueSellingPoints: [
+            "Directly authored by top-tier creative directors"
+          ],
+          heroImageUrl: "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=800&auto=format&fit=crop&q=80",
+          status: "active",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+      );
+      changed = true;
+    }
+
+    // 8. Ensure default campaign for ws_demo_brand_os
+    if (!this.data.campaigns) this.data.campaigns = [];
+    const brandCampaigns = this.data.campaigns.filter((c) => c.workspaceId === brandWs!.id);
+    if (brandCampaigns.length === 0) {
+      this.data.campaigns.push({
+        id: "cmp_demo_brand_1",
+        workspaceId: brandWs.id,
+        title: "Autumn 2026 Global Brand Activation",
+        status: "active",
+        goal: "Drive 500,000 impressions and secure $75,000 in early merchandise capsule pre-orders.",
+        targetAudience: "Metropolitan creative leaders across Lagos, London, New York, and Paris.",
+        budget: 6500,
+        currency: "USD",
+        startDate: "2026-09-01",
+        endDate: "2026-10-15",
+        platforms: ["Instagram", "TikTok", "LinkedIn", "YouTube"],
+        sprintDays: [
+          { day: "Day 1-3", task: "Hero product shoot & teaser cuts in Studio", completed: true },
+          { day: "Day 4-7", task: "Direct VIP capsule pre-order email blast", completed: false },
+          { day: "Day 8-14", task: "Paid omni-channel scale & influencer seeding", completed: false },
+        ],
+        goals: {
+          targetImpressions: 500000,
+          targetLeadsOrSales: 1500,
+          targetRevenue: 75000,
+        },
+        milestones: [
+          { id: "m_1", title: "Brand Identity Reveal & Teaser Trailer", date: "2026-09-10", completed: true },
+          { id: "m_2", title: "Limited Capsule Pre-order VIP Access", date: "2026-09-20", completed: false },
+          { id: "m_3", title: "Global Public Launch & Press Distribution", date: "2026-10-01", completed: false },
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      changed = true;
+    }
+
+    if (changed) {
+      this.persist();
+    }
   }
 
   // --- Auth & Users ---

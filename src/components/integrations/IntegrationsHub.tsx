@@ -478,7 +478,7 @@ export const IntegrationsHub: React.FC<IntegrationsHubProps> = ({
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-white tracking-tight">{provider.name}</h3>
-                      <span className="text-[11px] text-zinc-400">{provider.badge || provider.authType.toUpperCase()}</span>
+                      <span className="text-[11px] text-zinc-400">{provider.badge || (provider.authType ? provider.authType.toUpperCase() : "OAUTH")}</span>
                     </div>
                   </div>
 

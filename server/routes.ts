@@ -25,7 +25,7 @@ export interface AuthenticatedRequest extends Request {
   session?: SessionRecord;
 }
 
-// Authentication Middleware with Graceful Studio Session Fallback
+// Authentication Middleware: Strictly requires a valid authenticated session
 export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   let token = "";
@@ -34,44 +34,23 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
   }
 
   // Treat string "undefined", "null", or empty values as missing token
-  if (token === "undefined" || token === "null") {
-    token = "";
+  if (token === "undefined" || token === "null" || !token) {
+    return res.status(401).json({ error: "Unauthorized: Missing authentication token" });
   }
 
-  if (token) {
-    const session = db.getSession(token);
-    if (session) {
-      const user = db.getUserById(session.userId);
-      if (user) {
-        req.user = user;
-        req.session = session;
-        return next();
-      }
-    }
-    
-    // If the token is stale or expired (e.g. from a previous container spin or cleared storage),
-    // seamlessly restore a fresh session for the primary default studio user rather than breaking API calls
-    const defaultUser = db.getUserByEmail("creator@keedohub.com") || db.getUserById("usr_demo_keedohub");
-    if (defaultUser) {
-      req.user = defaultUser;
-      const newSession = db.createSession(defaultUser.id);
-      req.session = newSession;
-      return next();
-    }
-
+  const session = db.getSession(token);
+  if (!session) {
     return res.status(401).json({ error: "Unauthorized: Invalid or expired session token" });
   }
 
-  // Graceful fallback for initial landing or demo sessions: Auto-authenticate default studio user
-  const defaultUser = db.getUserByEmail("creator@keedohub.com") || db.getUserById("usr_demo_keedohub");
-  if (defaultUser) {
-    req.user = defaultUser;
-    const session = db.createSession(defaultUser.id);
-    req.session = session;
-    return next();
+  const user = db.getUserById(session.userId);
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized: User not found for session" });
   }
 
-  return res.status(401).json({ error: "Unauthorized: Missing authentication token" });
+  req.user = user;
+  req.session = session;
+  return next();
 }
 
 // Workspace Access Verification Middleware
@@ -86,22 +65,23 @@ export function requireWorkspaceAccess(req: AuthenticatedRequest, res: Response,
     return res.status(404).json({ error: "Workspace not found" });
   }
 
-  // If user is authenticated, verify workspace membership or ownership
-  if (req.user) {
-    if (
-      req.user.systemRole === "super_admin" ||
-      req.user.systemRole === "admin" ||
-      req.user.email === "creator@keedohub.com" ||
-      wsExists.ownerId === req.user.id
-    ) {
-      return next();
-    }
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized: Active session required" });
+  }
 
-    const memberships = db.getWorkspacesForUser(req.user.id);
-    const hasAccess = memberships.some((w) => w.id === workspaceId);
-    if (!hasAccess) {
-      return res.status(403).json({ error: "Forbidden: You do not have access to this workspace" });
-    }
+  // Workspace owner or super/system administrator
+  if (
+    req.user.systemRole === "super_admin" ||
+    req.user.systemRole === "admin" ||
+    wsExists.ownerId === req.user.id
+  ) {
+    return next();
+  }
+
+  const memberships = db.getWorkspacesForUser(req.user.id);
+  const hasAccess = memberships.some((w) => w.id === workspaceId);
+  if (!hasAccess) {
+    return res.status(403).json({ error: "Forbidden: You do not have access to this workspace" });
   }
   next();
 }
@@ -2460,8 +2440,8 @@ apiRouter.post("/ai/creative-brain", requireAuth, requireWorkspaceAccess, async 
     return res.status(400).json({ error: "Message prompt or directActionRequest is required" });
   }
 
-  const userId = req.user?.id || "usr_demo_keedohub";
-  const userEmail = req.user?.email || "creator@keedohub.com";
+  const userId = req.user!.id;
+  const userEmail = req.user!.email;
 
   try {
     const result = await CreativeBrainService.processRequest({
@@ -2488,8 +2468,8 @@ apiRouter.post("/ai/creative-brain/action", requireAuth, requireWorkspaceAccess,
     return res.status(400).json({ error: "toolName is required" });
   }
 
-  const userId = req.user?.id || "usr_demo_keedohub";
-  const userEmail = req.user?.email || "creator@keedohub.com";
+  const userId = req.user!.id;
+  const userEmail = req.user!.email;
 
   try {
     const receipt = executeBrainTool({

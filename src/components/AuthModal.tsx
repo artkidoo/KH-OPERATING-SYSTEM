@@ -91,6 +91,72 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = "login" }:
             </div>
           )}
 
+          {mode === "login" && (
+            <div className="p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
+                  Default Demo Environments
+                </span>
+                <span className="text-[10px] text-zinc-500 font-mono">Password: keedohub2026</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setEmail("creator@keedohub.com");
+                    setPassword("keedohub2026");
+                    try {
+                      await login({ email: "creator@keedohub.com", password: "keedohub2026" });
+                      onSuccess?.();
+                      onClose();
+                    } catch (err: any) {
+                      setError(err.message || "Failed to log in as Artist");
+                    }
+                  }}
+                  className="flex items-center gap-2.5 p-2.5 rounded-lg border border-red-500/30 bg-red-950/20 hover:bg-red-950/40 text-left transition-all group cursor-pointer"
+                >
+                  <div className="p-1.5 rounded-md bg-red-600/20 text-red-400 group-hover:scale-105 transition-transform">
+                    <Music className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-bold text-white flex items-center justify-between">
+                      <span>Artist OS</span>
+                      <span className="text-[10px] text-red-400 font-normal">Instant →</span>
+                    </div>
+                    <div className="text-[10px] text-zinc-400 truncate">creator@keedohub.com</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setEmail("brand@keedohub.com");
+                    setPassword("keedohub2026");
+                    try {
+                      await login({ email: "brand@keedohub.com", password: "keedohub2026" });
+                      onSuccess?.();
+                      onClose();
+                    } catch (err: any) {
+                      setError(err.message || "Failed to log in as Brand");
+                    }
+                  }}
+                  className="flex items-center gap-2.5 p-2.5 rounded-lg border border-purple-500/30 bg-purple-950/20 hover:bg-purple-950/40 text-left transition-all group cursor-pointer"
+                >
+                  <div className="p-1.5 rounded-md bg-purple-600/20 text-purple-400 group-hover:scale-105 transition-transform">
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-bold text-white flex items-center justify-between">
+                      <span>Brand OS</span>
+                      <span className="text-[10px] text-purple-400 font-normal">Instant →</span>
+                    </div>
+                    <div className="text-[10px] text-zinc-400 truncate">brand@keedohub.com</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
           {mode === "signup" && (
             <>
               {/* Full Name */}
