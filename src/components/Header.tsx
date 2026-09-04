@@ -41,8 +41,10 @@ import {
   Users,
   ShieldAlert,
   Radio,
-  Zap
+  Zap,
+  Home
 } from "lucide-react";
+import { isWorkspaceTab, isStudioTab } from "../utils/navigation";
 
 interface HeaderProps {
   activeTab: ActiveTab;
@@ -254,7 +256,6 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="header-nav-home"
                 onClick={() => {
-                  window.history.pushState({}, "", "/home");
                   setActiveTab("overview");
                 }}
                 className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
@@ -267,9 +268,38 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
+                id="header-nav-workspace"
+                onClick={() => {
+                  setActiveTab("command-center");
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  isWorkspaceTab(activeTab)
+                    ? "bg-theme-accent text-white font-bold shadow-sm"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                <HardDrive className="w-3 h-3" />
+                <span>Workspace</span>
+              </button>
+
+              <button
+                id="header-nav-studios"
+                onClick={() => {
+                  setActiveTab("studio");
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  isStudioTab(activeTab)
+                    ? "bg-theme-accent text-white font-bold shadow-sm"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                <Palette className="w-3 h-3" />
+                <span>Studios</span>
+              </button>
+
+              <button
                 id="header-nav-journal"
                 onClick={() => {
-                  window.history.pushState({}, "", "/journal");
                   setActiveTab("journal" as any);
                 }}
                 className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
@@ -283,24 +313,8 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
-                id="header-nav-studios"
-                onClick={() => {
-                  window.history.pushState({}, "", "/studios");
-                  setActiveTab("studio");
-                }}
-                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                  activeTab === "studio"
-                    ? "bg-theme-accent text-white font-bold shadow-sm"
-                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
-                }`}
-              >
-                Studios
-              </button>
-
-              <button
                 id="header-nav-trending"
                 onClick={() => {
-                  window.history.pushState({}, "", "/trending");
                   setActiveTab("trending");
                 }}
                 className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
@@ -315,7 +329,6 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="header-nav-integrations"
                 onClick={() => {
-                  window.history.pushState({}, "", "/integrations");
                   setActiveTab("integrations");
                 }}
                 className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
@@ -331,7 +344,6 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="header-nav-contact"
                 onClick={() => {
-                  window.history.pushState({}, "", "/contact");
                   setActiveTab("contact");
                 }}
                 className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap ${
@@ -484,13 +496,16 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="header-get-started-btn"
                 onClick={() => {
-                  window.history.pushState({}, "", "/workspace");
                   setActiveTab("command-center");
                 }}
-                className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl bg-theme-accent text-white text-xs font-bold font-['Space_Grotesk'] transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer border border-[var(--accent-border)]"
+                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold font-['Space_Grotesk'] transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer border ${
+                  isWorkspaceTab(activeTab)
+                    ? "bg-red-600 text-white border-red-500 ring-2 ring-red-500/30 shadow-red-950/50"
+                    : "bg-theme-accent text-white border-[var(--accent-border)]"
+                }`}
               >
                 <Rocket className="w-3.5 h-3.5" />
-                <span className="whitespace-nowrap">Start</span>
+                <span className="whitespace-nowrap">{isWorkspaceTab(activeTab) ? "In Workspace" : "Start"}</span>
               </button>
 
               {/* Mobile Hamburger Menu Toggle */}
@@ -507,12 +522,13 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Mobile Horizontal Quick-Scroll Navigation */}
-        <div className="lg:hidden overflow-x-auto scrollbar-none py-1.5 px-3 border-t border-[var(--bento-border)]/60 bg-[var(--bento-bg)] flex items-center justify-center gap-1.5">
+        <div 
+          id="mobile-header-quick-nav"
+          className="lg:hidden overflow-x-auto scrollbar-none py-1.5 px-3 border-t border-[var(--bento-border)]/60 bg-[var(--bento-bg)] flex items-center justify-start sm:justify-center gap-1.5"
+        >
           <button
-            onClick={() => {
-              window.history.pushState({}, "", "/home");
-              setActiveTab("overview");
-            }}
+            id="mobile-header-nav-home"
+            onClick={() => setActiveTab("overview")}
             className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               activeTab === "overview"
                 ? "bg-theme-accent text-white shadow-sm font-bold"
@@ -522,23 +538,31 @@ export const Header: React.FC<HeaderProps> = ({
             Home
           </button>
           <button
-            onClick={() => {
-              window.history.pushState({}, "", "/studios");
-              setActiveTab("studio");
-            }}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
-              activeTab === "studio"
+            id="mobile-header-nav-workspace"
+            onClick={() => setActiveTab("command-center")}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all flex items-center gap-1 ${
+              isWorkspaceTab(activeTab)
                 ? "bg-theme-accent text-white shadow-sm font-bold"
                 : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
             }`}
           >
-            Studios
+            <HardDrive className="w-3 h-3" />
+            <span>Workspace</span>
           </button>
           <button
-            onClick={() => {
-              window.history.pushState({}, "", "/forum");
-              setActiveTab("forum");
-            }}
+            id="mobile-header-nav-studios"
+            onClick={() => setActiveTab("studio")}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all flex items-center gap-1 ${
+              isStudioTab(activeTab)
+                ? "bg-theme-accent text-white shadow-sm font-bold"
+                : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
+            }`}
+          >
+            <Palette className="w-3 h-3" />
+            <span>Studios</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("forum")}
             className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               activeTab === "forum"
                 ? "bg-theme-accent text-white shadow-sm font-bold"
@@ -548,10 +572,7 @@ export const Header: React.FC<HeaderProps> = ({
             Forum
           </button>
           <button
-            onClick={() => {
-              window.history.pushState({}, "", "/trending");
-              setActiveTab("trending");
-            }}
+            onClick={() => setActiveTab("trending")}
             className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               activeTab === "trending"
                 ? "bg-theme-accent text-white shadow-sm font-bold"
@@ -561,10 +582,7 @@ export const Header: React.FC<HeaderProps> = ({
             KH Trending
           </button>
           <button
-            onClick={() => {
-              window.history.pushState({}, "", "/contact");
-              setActiveTab("contact");
-            }}
+            onClick={() => setActiveTab("contact")}
             className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               activeTab === "contact"
                 ? "bg-theme-accent text-white shadow-sm font-bold"
@@ -579,12 +597,12 @@ export const Header: React.FC<HeaderProps> = ({
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-[var(--bento-border)] bg-[var(--bento-bg)] px-4 py-4 space-y-3 animate-fade-in shadow-xl max-h-[75vh] overflow-y-auto">
             <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--bento-muted)] mb-1">
-              Public Navigation
+              Navigation
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
+                id="mobile-nav-home"
                 onClick={() => {
-                  window.history.pushState({}, "", "/home");
                   setActiveTab("overview");
                   setMobileMenuOpen(false);
                 }}
@@ -598,23 +616,40 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
+                id="mobile-nav-workspace"
                 onClick={() => {
-                  window.history.pushState({}, "", "/studios");
-                  setActiveTab("studio");
+                  setActiveTab("command-center");
                   setMobileMenuOpen(false);
                 }}
-                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer ${
-                  activeTab === "studio"
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 ${
+                  isWorkspaceTab(activeTab)
                     ? "bg-theme-accent text-white font-bold"
                     : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
                 }`}
               >
-                Studios
+                <HardDrive className="w-3.5 h-3.5" />
+                <span>Workspace</span>
               </button>
 
               <button
+                id="mobile-nav-studios"
                 onClick={() => {
-                  window.history.pushState({}, "", "/forum");
+                  setActiveTab("studio");
+                  setMobileMenuOpen(false);
+                }}
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 ${
+                  isStudioTab(activeTab)
+                    ? "bg-theme-accent text-white font-bold"
+                    : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
+                }`}
+              >
+                <Palette className="w-3.5 h-3.5" />
+                <span>Studios</span>
+              </button>
+
+              <button
+                id="mobile-nav-forum"
+                onClick={() => {
                   setActiveTab("forum");
                   setMobileMenuOpen(false);
                 }}
@@ -628,8 +663,8 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
+                id="mobile-nav-trending"
                 onClick={() => {
-                  window.history.pushState({}, "", "/trending");
                   setActiveTab("trending");
                   setMobileMenuOpen(false);
                 }}
@@ -645,7 +680,6 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="mobile-nav-integrations"
                 onClick={() => {
-                  window.history.pushState({}, "", "/integrations");
                   setActiveTab("integrations");
                   setMobileMenuOpen(false);
                 }}
@@ -659,8 +693,8 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
+                id="mobile-nav-contact"
                 onClick={() => {
-                  window.history.pushState({}, "", "/contact");
                   setActiveTab("contact");
                   setMobileMenuOpen(false);
                 }}
@@ -676,15 +710,19 @@ export const Header: React.FC<HeaderProps> = ({
 
             <div className="pt-2 border-t border-[var(--bento-border)] space-y-2">
               <button
+                id="mobile-drawer-enter-workspace"
                 onClick={() => {
-                  window.history.pushState({}, "", "/workspace");
                   setActiveTab("command-center");
                   setMobileMenuOpen(false);
                 }}
-                className="w-full py-2.5 px-3 rounded-xl bg-theme-accent text-white font-bold text-xs font-['Space_Grotesk'] flex items-center justify-center gap-2"
+                className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs font-['Space_Grotesk'] flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  isWorkspaceTab(activeTab)
+                    ? "bg-red-600 text-white shadow-lg ring-2 ring-red-500/40"
+                    : "bg-theme-accent text-white hover:bg-theme-accent/90"
+                }`}
               >
                 <Rocket className="w-3.5 h-3.5" />
-                <span>Enter Workspace</span>
+                <span>{isWorkspaceTab(activeTab) ? "In Workspace" : "Enter Workspace"}</span>
               </button>
 
               <button

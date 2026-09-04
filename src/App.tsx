@@ -63,64 +63,15 @@ import {
   Sparkles, 
   Layers, 
   Palette, 
-  HardDrive 
+  HardDrive,
+  Home
 } from "lucide-react";
-
-function getTabFromPath(path: string): ActiveTab {
-  const normalized = path.toLowerCase().replace(/\/$/, "");
-  switch (normalized) {
-    case "/about":
-      return "about";
-    case "/vision":
-      return "vision";
-    case "/story":
-      return "story";
-    case "/contact":
-      return "contact";
-    case "/faq":
-      return "faq";
-    case "/help":
-      return "help";
-    case "/docs":
-      return "docs";
-    case "/resources":
-      return "resources";
-    case "/privacy":
-      return "privacy";
-    case "/terms":
-      return "terms";
-    case "/security":
-      return "security";
-    case "/forum":
-      return "forum";
-    case "/trending":
-      return "trending";
-    case "/journal":
-    case "/blog":
-      return "journal";
-    case "/workspace":
-      return "command-center";
-    case "/studios":
-      return "studio";
-    case "/business-documents":
-      return "business-studio";
-    case "/creative-brain":
-      return "creative-brain";
-    case "/artist-os":
-      return "artist-os";
-    case "/brand-os":
-      return "brand-os";
-    case "/admin":
-      return "admin";
-    case "/integrations":
-      return "integrations";
-    case "/home":
-    case "":
-      return "overview";
-    default:
-      return "overview";
-  }
-}
+import { 
+  getTabFromPath, 
+  getPathFromTab, 
+  isWorkspaceTab, 
+  isStudioTab 
+} from "./utils/navigation";
 
 const PUBLIC_TABS: ActiveTab[] = [
   "overview",
@@ -160,6 +111,12 @@ function MainAppContent() {
   // URL synchronization helper
   const setActiveTab = (tab: ActiveTab) => {
     setActiveTabState(tab);
+    if (typeof window !== "undefined") {
+      const targetPath = getPathFromTab(tab);
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ tab }, "", targetPath);
+      }
+    }
     window.requestAnimationFrame(() => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -167,8 +124,8 @@ function MainAppContent() {
 
   // Sync with browser back/forward buttons
   React.useEffect(() => {
-    const handlePopState = () => {
-      const tab = getTabFromPath(window.location.pathname);
+    const handlePopState = (e: PopStateEvent) => {
+      const tab = (e.state && e.state.tab) || getTabFromPath(window.location.pathname);
       setActiveTabState(tab);
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -492,47 +449,69 @@ function MainAppContent() {
       </button>
 
       {/* Mobile Sticky Bottom Navigation Bar */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bento-card)] border-t border-[var(--bento-border)] px-2 py-2 flex items-center justify-around backdrop-blur-xl shadow-2xl">
+      <nav 
+        id="mobile-bottom-navigation-bar"
+        aria-label="Mobile Navigation"
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bento-card)]/95 border-t border-[var(--bento-border)] px-2 py-1.5 flex items-center justify-around backdrop-blur-xl shadow-2xl safe-area-bottom"
+      >
         <button
+          id="mobile-bottom-nav-home"
+          onClick={() => setActiveTab("overview")}
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer min-w-[50px] min-h-[44px] justify-center transition-all ${
+            activeTab === "overview" ? "text-red-500 font-bold" : "text-zinc-400 hover:text-zinc-200"
+          }`}
+          aria-current={activeTab === "overview" ? "page" : undefined}
+        >
+          <Home className="w-4 h-4" />
+          <span className="text-[10px]">Home</span>
+        </button>
+
+        <button
+          id="mobile-bottom-nav-workspace"
           onClick={() => setActiveTab("command-center")}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
-            activeTab === "command-center" ? "text-red-500 font-bold" : "text-zinc-400"
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer min-w-[50px] min-h-[44px] justify-center transition-all ${
+            isWorkspaceTab(activeTab) ? "text-red-500 font-bold" : "text-zinc-400 hover:text-zinc-200"
           }`}
-        >
-          <Rocket className="w-4 h-4" />
-          <span className="text-[10px]">Command</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("creative-radar")}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
-            activeTab === "creative-radar" ? "text-amber-400 font-bold" : "text-zinc-400"
-          }`}
-        >
-          <Radio className="w-4 h-4" />
-          <span className="text-[10px]">Radar</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("workspace-hub")}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
-            activeTab === "workspace-hub" || activeTab === "artist-os" || activeTab === "brand-os" ? "text-red-400 font-bold" : "text-zinc-400"
-          }`}
+          aria-current={isWorkspaceTab(activeTab) ? "page" : undefined}
         >
           <HardDrive className="w-4 h-4" />
           <span className="text-[10px]">Workspace</span>
         </button>
 
         <button
+          id="mobile-bottom-nav-studio"
           onClick={() => setActiveTab("studio")}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer ${
-            activeTab === "studio" ? "text-pink-400 font-bold" : "text-zinc-400"
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer min-w-[50px] min-h-[44px] justify-center transition-all ${
+            isStudioTab(activeTab) ? "text-pink-400 font-bold" : "text-zinc-400 hover:text-zinc-200"
           }`}
+          aria-current={isStudioTab(activeTab) ? "page" : undefined}
         >
           <Palette className="w-4 h-4" />
           <span className="text-[10px]">Studio</span>
         </button>
-      </div>
+
+        <button
+          id="mobile-bottom-nav-radar"
+          onClick={() => setActiveTab("creative-radar")}
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer min-w-[50px] min-h-[44px] justify-center transition-all ${
+            activeTab === "creative-radar" ? "text-amber-400 font-bold" : "text-zinc-400 hover:text-zinc-200"
+          }`}
+          aria-current={activeTab === "creative-radar" ? "page" : undefined}
+        >
+          <Radio className="w-4 h-4" />
+          <span className="text-[10px]">Radar</span>
+        </button>
+
+        <button
+          id="mobile-bottom-nav-command"
+          onClick={() => setIsCommandOpen(true)}
+          className="flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer min-w-[50px] min-h-[44px] justify-center text-zinc-400 hover:text-zinc-200 transition-all"
+          title="Open Command Palette"
+        >
+          <Rocket className="w-4 h-4" />
+          <span className="text-[10px]">Command</span>
+        </button>
+      </nav>
 
       {/* Footer */}
       <Footer
