@@ -62,6 +62,9 @@ import {
   RadarSignal,
   RadarDigest,
   RadarStats,
+  IntegrationConnection,
+  IntegrationSyncLog,
+  IntegrationsHealthOverview,
 } from "../types";
 
 const TOKEN_KEY = "keedohub_session_token";
@@ -1643,6 +1646,78 @@ export const api = {
           method: "POST",
           body: JSON.stringify({ query }),
         }
+      );
+    },
+  },
+
+  integrations: {
+    list: async (workspaceId: string) => {
+      return request<{ connections: IntegrationConnection[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations`
+      );
+    },
+
+    connect: async (workspaceId: string, data: Partial<IntegrationConnection> & { providerId: string }) => {
+      return request<{ connection: IntegrationConnection; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/connect`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    disconnect: async (workspaceId: string, connectionId: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/${encodeURIComponent(connectionId)}/disconnect`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    reconnect: async (workspaceId: string, connectionId: string) => {
+      return request<{ connection: IntegrationConnection; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/${encodeURIComponent(connectionId)}/reconnect`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    test: async (workspaceId: string, connectionId: string) => {
+      return request<{ healthy: boolean; latencyMs: number; message: string; checkedAt: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/${encodeURIComponent(connectionId)}/test`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    sync: async (workspaceId: string, connectionId: string) => {
+      return request<{
+        success: boolean;
+        recordsProcessed: number;
+        targetEntities: string[];
+        durationMs: number;
+        message: string;
+      }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/${encodeURIComponent(connectionId)}/sync`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    getLogs: async (workspaceId: string) => {
+      return request<{ logs: IntegrationSyncLog[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/logs`
+      );
+    },
+
+    getHealth: async (workspaceId: string) => {
+      return request<{ health: IntegrationsHealthOverview }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/health`
       );
     },
   },

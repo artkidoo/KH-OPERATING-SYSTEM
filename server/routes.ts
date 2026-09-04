@@ -7,6 +7,7 @@ import { creativeRadarService } from "./radar/creativeRadarService";
 import { commandCenterService } from "./command/commandCenterService";
 import { analyticsService } from "./analytics/analyticsService";
 import { WorkflowEngine } from "./workflow/workflowEngine";
+import { serverIntegrationService } from "./integrations/serverIntegrationService";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -5132,6 +5133,136 @@ apiRouter.post(
     } catch (err: any) {
       console.error("[Demo Switch Role Error]", err);
       res.status(500).json({ error: "Failed to switch demo role" });
+    }
+  }
+);
+
+// ==========================================
+// EXTERNAL INTEGRATION FRAMEWORK (PHASE: LAUNCH READINESS)
+// ==========================================
+
+apiRouter.get(
+  "/workspaces/:workspaceId/integrations",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { workspaceId } = req.params;
+      const connections = serverIntegrationService.getConnections(workspaceId);
+      res.json({ connections });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to fetch workspace integrations" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/integrations/connect",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { workspaceId } = req.params;
+      const connection = serverIntegrationService.saveConnection(workspaceId, req.body);
+      res.json({ connection, message: "Provider authorized and registered successfully." });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to connect provider" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/integrations/:connectionId/disconnect",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { workspaceId, connectionId } = req.params;
+      const success = serverIntegrationService.disconnect(workspaceId, connectionId);
+      if (!success) {
+        return res.status(404).json({ error: "Integration connection not found" });
+      }
+      res.json({ success: true, message: "Provider disconnected safely." });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to disconnect provider" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/integrations/:connectionId/reconnect",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { workspaceId, connectionId } = req.params;
+      const connection = serverIntegrationService.reconnect(workspaceId, connectionId);
+      if (!connection) {
+        return res.status(404).json({ error: "Integration connection not found" });
+      }
+      res.json({ connection, message: "Provider credentials re-authenticated successfully." });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to reconnect provider" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/integrations/:connectionId/test",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { workspaceId, connectionId } = req.params;
+      const result = serverIntegrationService.testConnection(workspaceId, connectionId);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to run diagnostics" });
+    }
+  }
+);
+
+apiRouter.post(
+  "/workspaces/:workspaceId/integrations/:connectionId/sync",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { workspaceId, connectionId } = req.params;
+      const result = serverIntegrationService.syncConnection(workspaceId, connectionId);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to sync provider data" });
+    }
+  }
+);
+
+apiRouter.get(
+  "/workspaces/:workspaceId/integrations/logs",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { workspaceId } = req.params;
+      const logs = serverIntegrationService.getSyncLogs(workspaceId);
+      res.json({ logs });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to fetch sync logs" });
+    }
+  }
+);
+
+apiRouter.get(
+  "/workspaces/:workspaceId/integrations/health",
+  requireAuth,
+  requireWorkspaceAccess,
+  (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { workspaceId } = req.params;
+      const health = serverIntegrationService.getHealth(workspaceId);
+      res.json({ health });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to calculate integration health" });
     }
   }
 );

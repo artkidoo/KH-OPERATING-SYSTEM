@@ -50,6 +50,7 @@ import { TermsOfServicePage } from "./components/pages/TermsOfServicePage";
 import { SecurityPage } from "./components/pages/SecurityPage";
 import { ForumPage } from "./components/pages/ForumPage";
 import { TrendingPage } from "./components/pages/TrendingPage";
+import { IntegrationsHub } from "./components/integrations/IntegrationsHub";
 import { 
   Search, 
   BrainCircuit,
@@ -105,6 +106,8 @@ function getTabFromPath(path: string): ActiveTab {
       return "brand-os";
     case "/admin":
       return "admin";
+    case "/integrations":
+      return "integrations";
     case "/home":
     case "":
       return "overview";
@@ -359,6 +362,10 @@ function MainAppContent() {
 
         {activeTab === "admin" && (
           <AdminDashboard onBackToApp={() => setActiveTab("command-center")} />
+        )}
+
+        {activeTab === "integrations" && (
+          <IntegrationsHub onNotify={addNotification} onNavigateTab={setActiveTab} />
         )}
 
         {activeTab === "about" && (

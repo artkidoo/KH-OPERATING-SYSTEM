@@ -578,6 +578,7 @@ interface WorkspaceContextType {
   
   // Brand Core & Products (Brand/Business OS)
   updateBrandCore: (updates: Partial<BrandCore>) => Promise<BrandCore>;
+  saveBrandCore: (updates: Partial<BrandCore>) => Promise<BrandCore>;
   createProduct: (product: Partial<ProductService> & { name: string }) => Promise<ProductService>;
   updateProduct: (productId: string, updates: Partial<ProductService>) => Promise<ProductService>;
   deleteProduct: (productId: string) => Promise<void>;
@@ -1257,6 +1258,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         saveActiveRelease,
         deleteRelease,
         updateBrandCore,
+        saveBrandCore: updateBrandCore,
         createProduct,
         updateProduct,
         deleteProduct,

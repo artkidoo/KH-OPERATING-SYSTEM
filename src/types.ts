@@ -37,7 +37,8 @@ export type ActiveTab =
   | 'terms'
   | 'security'
   | 'forum'
-  | 'trending';
+  | 'trending'
+  | 'integrations';
 
 export type IdentityType = 'artist' | 'brand';
 
@@ -2336,3 +2337,141 @@ export interface WorkspaceDiagnosticReport {
   storageUsedBytes: number;
   recommendations: string[];
 }
+
+// ==========================================
+// EXTERNAL INTEGRATION FRAMEWORK (PHASE: LAUNCH READINESS)
+// ==========================================
+
+export type IntegrationCategory =
+  | 'social'
+  | 'music_dsp'
+  | 'cloud_storage'
+  | 'email_notifications'
+  | 'analytics'
+  | 'payments';
+
+export type IntegrationProviderId =
+  // Social
+  | 'youtube'
+  | 'instagram'
+  | 'tiktok'
+  | 'meta_facebook'
+  | 'twitter_x'
+  | 'linkedin'
+  // Music / DSP
+  | 'spotify'
+  | 'apple_music'
+  | 'audiomack'
+  | 'soundcloud'
+  | 'youtube_music'
+  // Cloud Storage
+  | 'google_drive'
+  | 'dropbox'
+  | 'aws_s3'
+  // Email & Notifications
+  | 'resend'
+  | 'sendgrid'
+  | 'postmark'
+  | 'twilio'
+  // Analytics
+  | 'google_analytics'
+  | 'plausible'
+  | 'mixpanel'
+  | 'meta_pixel'
+  // Payments
+  | 'stripe'
+  | 'paystack'
+  | 'flutterwave';
+
+export type ConnectionStatus =
+  | 'connected'
+  | 'disconnected'
+  | 'configuring'
+  | 'degraded'
+  | 'expired'
+  | 'error';
+
+export type SyncStatus =
+  | 'idle'
+  | 'syncing'
+  | 'success'
+  | 'partial'
+  | 'failed';
+
+export type SyncFrequency = 'manual' | 'hourly' | 'daily' | 'realtime';
+
+export type SyncTargetEntity = 'analytics' | 'content' | 'release' | 'campaign';
+
+export interface ProviderScopeDefinition {
+  id: string;
+  name: string;
+  description: string;
+  isDefault?: boolean;
+}
+
+export interface IntegrationProviderDefinition {
+  id: IntegrationProviderId;
+  name: string;
+  category: IntegrationCategory;
+  description: string;
+  icon: string;
+  accentColor: string;
+  authType: 'oauth2' | 'api_key' | 'webhook';
+  availableScopes: ProviderScopeDefinition[];
+  targetEntities: SyncTargetEntity[];
+  supportsAutoSync: boolean;
+  docUrl: string;
+  badge?: string;
+  sandboxAvailable?: boolean;
+}
+
+export interface IntegrationConnection {
+  id: string;
+  workspaceId: string;
+  providerId: IntegrationProviderId;
+  category: IntegrationCategory;
+  name: string;
+  status: ConnectionStatus;
+  connectedAt?: string;
+  expiresAt?: string;
+  accountIdentifier?: string; // Masked identifier, e.g. "acct_***8921", NEVER access tokens or secrets!
+  grantedScopes: string[];
+  syncFrequency: SyncFrequency;
+  lastSyncAt?: string;
+  lastSyncStatus: SyncStatus;
+  lastError?: {
+    code: string;
+    message: string;
+    timestamp: string;
+  };
+  syncCount: number;
+  environment: 'production' | 'sandbox';
+  metadata?: Record<string, any>;
+}
+
+export interface IntegrationSyncLog {
+  id: string;
+  workspaceId: string;
+  connectionId: string;
+  providerId: IntegrationProviderId;
+  timestamp: string;
+  status: SyncStatus;
+  durationMs: number;
+  recordsProcessed: number;
+  targetEntities: SyncTargetEntity[];
+  details: string;
+  errorCode?: string;
+  errorMessage?: string;
+  triggeredBy: 'manual' | 'scheduled' | 'webhook';
+}
+
+export interface IntegrationsHealthOverview {
+  totalConfigured: number;
+  activeConnected: number;
+  degradedCount: number;
+  failedSyncs24h: number;
+  overallStatus: 'ready' | 'degraded' | 'attention_needed';
+  launchReadinessScore: number; // 0 - 100
+  lastGlobalSyncAt?: string;
+}
+

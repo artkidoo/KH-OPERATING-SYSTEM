@@ -24,7 +24,13 @@ interface CreativeBrainContextType {
   openBrain: () => void;
   closeBrain: () => void;
   toggleBrain: () => void;
-  openWithContext: (ctx: PinnedBrainContext, initialPrompt?: string) => void;
+  openWithContext: (ctx: PinnedBrainContext | string, initialPrompt?: string) => void;
+  openBrainWithContext: (
+    promptOrTypeOrCtx: PinnedBrainContext | string,
+    idOrPrompt?: string,
+    title?: string,
+    details?: any
+  ) => void;
   setPinnedContext: (ctx: PinnedBrainContext | null) => void;
   clearPinnedContext: () => void;
   askBrain: (prompt: string, overrideContext?: PinnedBrainContext) => Promise<void>;
@@ -131,12 +137,44 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
     }
   }, [workspace?.id, fetchRecommendations]);
 
-  const openWithContext = (ctx: PinnedBrainContext, initialPrompt?: string) => {
-    setPinnedContextState(ctx);
-    setIsOpen(true);
-    if (initialPrompt) {
-      askBrain(initialPrompt, ctx);
+  const openBrainWithContext = (
+    promptOrTypeOrCtx: PinnedBrainContext | string,
+    idOrPrompt?: string,
+    title?: string,
+    details?: any
+  ) => {
+    if (typeof promptOrTypeOrCtx === "object" && promptOrTypeOrCtx !== null) {
+      setPinnedContextState(promptOrTypeOrCtx);
+      setIsOpen(true);
+      if (idOrPrompt) {
+        askBrain(idOrPrompt, promptOrTypeOrCtx);
+      }
+      return;
     }
+
+    if (typeof promptOrTypeOrCtx === "string") {
+      const knownTypes = ["release", "campaign", "project", "brand_core", "general"];
+      if (knownTypes.includes(promptOrTypeOrCtx) && (idOrPrompt || title || details)) {
+        const ctx: PinnedBrainContext = {
+          type: promptOrTypeOrCtx as any,
+          id: idOrPrompt,
+          title: title,
+          details: details,
+        };
+        setPinnedContextState(ctx);
+        setIsOpen(true);
+        if (title) {
+          askBrain(`I am reviewing ${title}. What are the immediate recommendations and next steps?`, ctx);
+        }
+      } else {
+        setIsOpen(true);
+        askBrain(promptOrTypeOrCtx);
+      }
+    }
+  };
+
+  const openWithContext = (ctx: PinnedBrainContext | string, initialPrompt?: string) => {
+    openBrainWithContext(ctx, initialPrompt);
   };
 
   const askBrain = async (prompt: string, overrideContext?: PinnedBrainContext) => {
@@ -256,6 +294,7 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
         closeBrain,
         toggleBrain,
         openWithContext,
+        openBrainWithContext,
         setPinnedContext,
         clearPinnedContext,
         askBrain,

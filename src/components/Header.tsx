@@ -39,7 +39,9 @@ import {
   Bell,
   HardDrive,
   Users,
-  ShieldAlert
+  ShieldAlert,
+  Radio,
+  Zap
 } from "lucide-react";
 
 interface HeaderProps {
@@ -310,6 +312,22 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
+                id="header-nav-integrations"
+                onClick={() => {
+                  window.history.pushState({}, "", "/integrations");
+                  setActiveTab("integrations");
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  activeTab === "integrations"
+                    ? "bg-theme-accent text-white font-bold shadow-sm"
+                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
+                }`}
+              >
+                <Radio className="w-3 h-3 text-emerald-400" />
+                <span>Integrations</span>
+              </button>
+
+              <button
                 id="header-nav-contact"
                 onClick={() => {
                   window.history.pushState({}, "", "/contact");
@@ -402,6 +420,18 @@ export const Header: React.FC<HeaderProps> = ({
                       >
                         <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
                         <span>Admin Control Center</span>
+                      </button>
+
+                      <button
+                        id="user-menu-integrations-btn"
+                        onClick={() => {
+                          setActiveTab("integrations");
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/30 transition-colors cursor-pointer font-semibold"
+                      >
+                        <Radio className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Integrations & Telemetry</span>
                       </button>
 
                       <button
@@ -609,6 +639,22 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 KH Trending
+              </button>
+
+              <button
+                id="mobile-nav-integrations"
+                onClick={() => {
+                  window.history.pushState({}, "", "/integrations");
+                  setActiveTab("integrations");
+                  setMobileMenuOpen(false);
+                }}
+                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer ${
+                  activeTab === "integrations"
+                    ? "bg-theme-accent text-white font-bold"
+                    : "bg-[var(--bento-card)] border-[var(--bento-border)] text-[var(--bento-text)]"
+                }`}
+              >
+                Integrations
               </button>
 
               <button
