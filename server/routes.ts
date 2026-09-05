@@ -826,6 +826,36 @@ apiRouter.put("/workspaces/:workspaceId/brand-core", requireAuth, requireWorkspa
   }
 });
 
+// --- Artist DNA Routes ---
+apiRouter.get("/workspaces/:workspaceId/artist-dna", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const dna = db.getArtistDNA(req.params.workspaceId);
+  res.json({ artistDNA: dna });
+});
+
+apiRouter.put("/workspaces/:workspaceId/artist-dna", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const updated = db.updateArtistDNA(req.params.workspaceId, req.body);
+    res.json({ artistDNA: updated });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message || "Failed to update Artist DNA" });
+  }
+});
+
+// --- Brand DNA Routes ---
+apiRouter.get("/workspaces/:workspaceId/brand-dna", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  const dna = db.getBrandDNA(req.params.workspaceId);
+  res.json({ brandDNA: dna });
+});
+
+apiRouter.put("/workspaces/:workspaceId/brand-dna", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const updated = db.updateBrandDNA(req.params.workspaceId, req.body);
+    res.json({ brandDNA: updated });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message || "Failed to update Brand DNA" });
+  }
+});
+
 // --- Products & Services Routes ---
 apiRouter.get("/workspaces/:workspaceId/products", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
   const products = db.getProducts(req.params.workspaceId);

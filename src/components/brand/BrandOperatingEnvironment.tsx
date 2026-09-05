@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Building2,
   TrendingUp,
@@ -59,6 +59,8 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
     attentionItems,
     calculateCampaignReadiness,
     updateCreativeMemory,
+    loadBrandDNA,
+    saveBrandDNA,
   } = useWorkspace();
 
   const { openBrainWithContext } = useCreativeBrain();
@@ -91,31 +93,84 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
     return calculateCampaignReadiness(activeCampaign);
   }, [calculateCampaignReadiness, activeCampaign]);
 
-  // Brand DNA State (persisted via Workspace Context & Memory)
+  // Brand DNA State (persisted to brand_dna database table)
   const [brandDNA, setBrandDNA] = useState({
-    identity: brandCore?.brandName || workspace?.name || 'Vanguard Brand Co.',
-    positioning: brandCore?.positioningStatement || workspace?.positioning || 'The high-velocity operating partner for modern creative enterprises.',
-    businessCategory: brandCore?.industry || workspace?.genreOrNiche || 'Creative Technology & Digital Agency',
-    audience: brandCore?.targetAudience || workspace?.targetAudience || 'Founders, creative directors, music labels, and scaling DTC brands seeking unified execution.',
-    valueProposition: brandCore?.valueProposition || 'Unified Brand Operating System eliminating fragmented dashboards and accelerating quote-to-cash workflows.',
-    offers: [
-      { id: 'off_1', name: 'Brand OS Implementation', price: '$4,500', type: 'Fixed Sprint' },
-      { id: 'off_2', name: 'Quarterly Creative Strategy Retainer', price: '$2,800/mo', type: 'Recurring' },
-    ],
-    voice: 'Authoritative, clear, minimal, pragmatic. Zero corporate jargon or hyperbole.',
-    visualIdentity: 'Refined deep obsidian canvas, high-contrast monochrome typography, precision borders, bold signal-red accents.',
-    competitivePositioning: 'Unlike traditional scattered SaaS point solutions, Keedohub provides one single unified operating context.',
-    contentPillars: ['Operational Efficiency & Systems', 'High-Conviction Brand Design', 'Quote-to-Cash Acceleration', 'Creative Intelligence Frameworks'],
-    growthGoals: ['$50,000 Monthly Recurring Revenue', '15 Enterprise Client Retainers', 'Sub-24-hour proposal turnaround'],
-    businessModel: 'B2B Software & Strategic Advisory Hybrid',
+    identity: brandCore?.brandName || workspace?.name || '',
+    positioning: brandCore?.positioningStatement || workspace?.positioning || '',
+    businessCategory: brandCore?.industry || workspace?.genreOrNiche || '',
+    audience: brandCore?.targetAudience || workspace?.targetAudience || '',
+    valueProposition: brandCore?.valueProposition || '',
+    offers: [],
+    voice: '',
+    visualIdentity: '',
+    competitivePositioning: '',
+    contentPillars: [],
+    growthGoals: [],
+    businessModel: '',
+    marketingPriorities: [],
+    platforms: [],
+    preferences: '',
+    thingsToAvoid: [],
   });
 
   const [isDNASaving, setIsDNASaving] = useState(false);
+  const [dnaLoaded, setDnaLoaded] = useState(false);
+
+  // Load Brand DNA from database on mount
+  useEffect(() => {
+    const loadDNA = async () => {
+      try {
+        const dna = await loadBrandDNA();
+        if (dna) {
+          setBrandDNA({
+            identity: dna.identity || brandCore?.brandName || workspace?.name || '',
+            positioning: dna.positioning || brandCore?.positioningStatement || workspace?.positioning || '',
+            businessCategory: dna.businessCategory || brandCore?.industry || workspace?.genreOrNiche || '',
+            audience: dna.audience || brandCore?.targetAudience || workspace?.targetAudience || '',
+            valueProposition: dna.valueProposition || brandCore?.valueProposition || '',
+            offers: dna.offers || [],
+            voice: dna.voice || '',
+            visualIdentity: dna.visualIdentity || '',
+            competitivePositioning: dna.competitivePositioning || '',
+            contentPillars: dna.contentPillars || [],
+            growthGoals: dna.growthGoals || [],
+            businessModel: dna.businessModel || '',
+            marketingPriorities: dna.marketingPriorities || [],
+            platforms: dna.platforms || [],
+            preferences: dna.preferences || '',
+            thingsToAvoid: dna.thingsToAvoid || [],
+          });
+        }
+      } catch {
+        // DNA not yet created, use empty state
+      } finally {
+        setDnaLoaded(true);
+      }
+    };
+    loadDNA();
+  }, [workspace?.id]);
 
   const handleSaveBrandDNA = async () => {
     setIsDNASaving(true);
     try {
-      await updateCreativeMemory('brand_dna_core', 'strategy', JSON.stringify(brandDNA));
+      await saveBrandDNA({
+        identity: brandDNA.identity,
+        positioning: brandDNA.positioning,
+        businessCategory: brandDNA.businessCategory,
+        audience: brandDNA.audience,
+        valueProposition: brandDNA.valueProposition,
+        offers: brandDNA.offers,
+        voice: brandDNA.voice,
+        visualIdentity: brandDNA.visualIdentity,
+        competitivePositioning: brandDNA.competitivePositioning,
+        contentPillars: brandDNA.contentPillars,
+        growthGoals: brandDNA.growthGoals,
+        businessModel: brandDNA.businessModel,
+        marketingPriorities: brandDNA.marketingPriorities,
+        platforms: brandDNA.platforms,
+        preferences: brandDNA.preferences,
+        thingsToAvoid: brandDNA.thingsToAvoid,
+      });
       onNotify('Brand DNA context saved. Creative Brain synchronized!', 'success');
     } catch {
       onNotify('Failed to save Brand DNA', 'error');
@@ -628,24 +683,36 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {brandDNA.contentPillars.map((pillar, idx) => (
-              <div key={idx} className="p-5 rounded-3xl border border-zinc-800 bg-zinc-900/40 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">
-                    Pillar {idx + 1}
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                    Active
-                  </span>
+          {brandDNA.contentPillars.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {brandDNA.contentPillars.map((pillar, idx) => (
+                <div key={idx} className="p-5 rounded-3xl border border-zinc-800 bg-zinc-900/40 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">
+                      Pillar {idx + 1}
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
+                      Active
+                    </span>
+                  </div>
+                  <h4 className="text-sm font-bold text-white">{pillar}</h4>
+                  <p className="text-xs text-zinc-400">
+                    Automated prompts for LinkedIn carousels, founder letters, and case study breakdowns.
+                  </p>
                 </div>
-                <h4 className="text-sm font-bold text-white">{pillar}</h4>
-                <p className="text-xs text-zinc-400">
-                  Automated prompts for LinkedIn carousels, founder letters, and case study breakdowns.
-                </p>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900/40 p-8 text-center">
+              <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-6 h-6 text-zinc-500" />
               </div>
-            ))}
-          </div>
+              <h4 className="text-sm font-bold text-white mb-2">No Content Pillars Yet</h4>
+              <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                Define your content pillars in the Brand DNA section to guide your content strategy.
+              </p>
+            </div>
+          )}
         </div>
       )}
 

@@ -449,6 +449,30 @@ export const api = {
     },
   },
 
+  artistDNA: {
+    get: async (workspaceId: string) => {
+      return request<{ artistDNA: any }>(`/api/workspaces/${workspaceId}/artist-dna`);
+    },
+    update: async (workspaceId: string, updates: any) => {
+      return request<{ artistDNA: any }>(`/api/workspaces/${workspaceId}/artist-dna`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+  },
+
+  brandDNA: {
+    get: async (workspaceId: string) => {
+      return request<{ brandDNA: any }>(`/api/workspaces/${workspaceId}/brand-dna`);
+    },
+    update: async (workspaceId: string, updates: any) => {
+      return request<{ brandDNA: any }>(`/api/workspaces/${workspaceId}/brand-dna`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+  },
+
   products: {
     list: async (workspaceId: string) => {
       return request<{ products: ProductService[] }>(`/api/workspaces/${workspaceId}/products`);

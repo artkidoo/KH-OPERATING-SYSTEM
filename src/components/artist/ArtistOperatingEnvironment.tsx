@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Disc3,
   Layers,
@@ -83,6 +83,8 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
     updateContentItem,
     creativeMemory,
     updateCreativeMemory,
+    loadArtistDNA,
+    saveArtistDNA,
   } = useWorkspace();
 
   const { activeWorkspace } = useAuth();
@@ -139,31 +141,80 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
   // Content Engine lifecycle filtering
   const [contentStageFilter, setContentStageFilter] = useState<'all' | 'pre_release' | 'launch_window' | 'post_release'>('all');
 
-  // Artist DNA Editor State (persisted via Workspace Context & Creative Memory)
+  // Artist DNA Editor State (persisted to artist_dna database table)
   const [artistDNA, setArtistDNA] = useState({
-    identity: workspace?.name || 'Artist Vanguard',
-    story: workspace?.bio || 'Independent sonic artist crafting atmospheric soundscapes bridging electronic synthesis with acoustic soul.',
-    genre: workspace?.genreOrNiche || 'Alternative Electronic / Alt-R&B',
-    sound: 'Deep analog sub-bass, organic textured foley, pitched vocal chops, minimalist chord voicings.',
-    audience: 'Ages 18-32, design-forward, late-night music discoverers, underground club culture & editorial playlist listeners.',
-    voice: 'Introspective, refined, enigmatic, sincere. Speaks with brevity and artistic conviction.',
-    language: 'English, occasional ambient poetic fragments.',
-    visualDirection: 'Monochrome contrast, film grain, brutalist typography, warm amber backlight on deep obsidian.',
-    contentPillars: ['Studio Process & Sound Architecture', 'Sonic Storytelling & Track Origins', 'Live Instrumentation & Jam Cuts', 'Aesthetic Moods & Late Night Musings'],
-    recurringThemes: ['Identity & solitude', 'Modern urban kinetics', 'Nostalgia for future moments', 'Sonic minimalism'],
-    goals: 'Reach 250,000 monthly algorithmic listeners, secure DSP editorial placement, build direct-to-fan vinyl subscribers.',
-    positioning: 'High-craft independent sound innovator standing out against repetitive commercial formula.',
-    platforms: ['Spotify', 'Apple Music', 'Instagram', 'TikTok', 'YouTube', 'SoundCloud'],
-    preferences: 'Prefers 4K vertical film aesthetic over fast trending dance trends. Focuses on sonic depth.',
-    thingsToAvoid: ['Generic engagement bait ("comment your favorite emoji")', 'Overly polished corporate graphics', 'Rushing rollouts before master is certified'],
+    identity: workspace?.name || '',
+    story: workspace?.bio || '',
+    genre: workspace?.genreOrNiche || '',
+    sound: '',
+    audience: '',
+    voice: '',
+    language: '',
+    visualDirection: '',
+    contentPillars: [],
+    recurringThemes: [],
+    goals: '',
+    positioning: '',
+    platforms: [],
+    preferences: '',
+    thingsToAvoid: [],
   });
 
   const [isDNASaving, setIsDNASaving] = useState(false);
+  const [dnaLoaded, setDnaLoaded] = useState(false);
+
+  // Load Artist DNA from database on mount
+  useEffect(() => {
+    const loadDNA = async () => {
+      try {
+        const dna = await loadArtistDNA();
+        if (dna) {
+          setArtistDNA({
+            identity: dna.artistIdentity || workspace?.name || '',
+            story: dna.story || workspace?.bio || '',
+            genre: dna.genre || workspace?.genreOrNiche || '',
+            sound: dna.soundDescription || '',
+            audience: dna.audienceDemographics || '',
+            voice: dna.voiceAndLanguage || '',
+            language: dna.voiceAndLanguage || '',
+            visualDirection: dna.visualDirection || '',
+            contentPillars: dna.contentPillars || [],
+            recurringThemes: dna.recurringThemes || [],
+            goals: dna.goals || '',
+            positioning: dna.positioning || '',
+            platforms: dna.platforms || [],
+            preferences: dna.preferences || '',
+            thingsToAvoid: dna.thingsToAvoid || [],
+          });
+        }
+      } catch {
+        // DNA not yet created, use empty state
+      } finally {
+        setDnaLoaded(true);
+      }
+    };
+    loadDNA();
+  }, [workspace?.id]);
 
   const handleSaveDNA = async () => {
     setIsDNASaving(true);
     try {
-      await updateCreativeMemory('artist_dna_core', 'strategy', JSON.stringify(artistDNA));
+      await saveArtistDNA({
+        artistIdentity: artistDNA.identity,
+        story: artistDNA.story,
+        genre: artistDNA.genre,
+        soundDescription: artistDNA.sound,
+        audienceDemographics: artistDNA.audience,
+        voiceAndLanguage: artistDNA.voice,
+        visualDirection: artistDNA.visualDirection,
+        contentPillars: artistDNA.contentPillars,
+        recurringThemes: artistDNA.recurringThemes,
+        goals: artistDNA.goals,
+        positioning: artistDNA.positioning,
+        platforms: artistDNA.platforms,
+        preferences: artistDNA.preferences,
+        thingsToAvoid: artistDNA.thingsToAvoid,
+      });
       onNotify('Artist DNA context saved. Creative Brain updated!', 'success');
     } catch {
       onNotify('Failed to save Artist DNA', 'error');
@@ -219,7 +270,7 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
                 <span>Artist Operating Environment</span>
               </span>
               <span className="text-xs text-zinc-500">•</span>
-              <span className="text-xs font-mono text-zinc-400">{workspace?.name || 'Vanguard Studio'}</span>
+              <span className="text-xs font-mono text-zinc-400">{workspace?.name || 'Artist OS'}</span>
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
@@ -858,122 +909,74 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
             </div>
           </div>
 
-          {/* Sequenced Content Systems */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* System 1: Pre-Release Discovery */}
-            {(contentStageFilter === 'all' || contentStageFilter === 'pre_release') && (
-              <div className="rounded-3xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-purple-400 tracking-wider">Phase 1</span>
-                    <h4 className="text-sm font-bold text-white">Pre-Release Hook Discovery</h4>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                    Days -21 to 0
-                  </span>
+          {/* Content Engine - Real Data from Database */}
+          <div className="space-y-6">
+            {/* Content Generation CTA */}
+            <div className="rounded-3xl border border-purple-500/30 bg-purple-950/20 p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-bold text-white">Content Engine</h4>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    {artistDNA.identity
+                      ? `Generate content based on ${artistDNA.identity}'s DNA, releases, and audience.`
+                      : 'Complete your Artist DNA to generate personalized content.'}
+                  </p>
                 </div>
-
-                <div className="space-y-3 text-xs">
-                  <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/80 space-y-1.5">
-                    <span className="font-bold text-zinc-200">Format: 'Stem Isolation Breakdown'</span>
-                    <p className="text-zinc-400 leading-relaxed">
-                      "I spent 4 days trying to get this bassline to speak. Watch what happens when the 808 hits."
-                    </p>
-                    <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-500 font-mono">
-                      <span>Platform: TikTok / Reels</span>
-                      <span className="text-emerald-400 font-bold">✓ Script Ready</span>
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/80 space-y-1.5">
-                    <span className="font-bold text-zinc-200">Format: 'The Lyric Origin'</span>
-                    <p className="text-zinc-400 leading-relaxed">
-                      "The night I wrote verse 2, everything changed. Audio breakdown over raw studio monitor recording."
-                    </p>
-                    <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-500 font-mono">
-                      <span>Platform: Instagram Carousel</span>
-                      <span className="text-purple-400 font-bold">Pre-Save CTA</span>
-                    </div>
-                  </div>
-                </div>
+                <button
+                  onClick={() => {
+                    if (onNavigateTab) onNavigateTab('creative-brain');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all cursor-pointer shrink-0"
+                >
+                  Open Creative Brain →
+                </button>
               </div>
-            )}
+            </div>
 
-            {/* System 2: Launch Week Conversion */}
-            {(contentStageFilter === 'all' || contentStageFilter === 'launch_window') && (
-              <div className="rounded-3xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-red-400 tracking-wider">Phase 2</span>
-                    <h4 className="text-sm font-bold text-white">Launch Window (Conversion)</h4>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                    Days 0 to +7
-                  </span>
-                </div>
-
-                <div className="space-y-3 text-xs">
-                  <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/80 space-y-1.5">
-                    <span className="font-bold text-zinc-200">Format: 'Official Visualizer Loop'</span>
-                    <p className="text-zinc-400 leading-relaxed">
-                      High-contrast 4K canvas loop synchronized to the main hook. Direct DSP smart-link bio placement.
-                    </p>
-                    <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-500 font-mono">
-                      <span>Platform: Spotify Canvas / YouTube</span>
-                      <span className="text-red-400 font-bold">Release Day</span>
+            {/* Real Content Items from Database */}
+            {contentItems.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {contentItems.slice(0, 12).map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase text-purple-400 tracking-wider">
+                        {item.platform || 'Content'}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                        item.status === 'published' ? 'bg-emerald-500/20 text-emerald-400' :
+                        item.status === 'scheduled' ? 'bg-blue-500/20 text-blue-400' :
+                        'bg-zinc-800 text-zinc-400'
+                      }`}>
+                        {item.status || 'idea'}
+                      </span>
                     </div>
+                    <h5 className="text-sm font-bold text-white line-clamp-2">
+                      {item.title || 'Untitled Content'}
+                    </h5>
+                    {item.hook && (
+                      <p className="text-xs text-zinc-400 line-clamp-2">{item.hook}</p>
+                    )}
+                    {item.scheduledDate && (
+                      <div className="text-[11px] text-zinc-500 font-mono">
+                        Scheduled: {item.scheduledDate}
+                      </div>
+                    )}
                   </div>
-
-                  <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/80 space-y-1.5">
-                    <span className="font-bold text-zinc-200">Format: 'The Producer Reaction'</span>
-                    <p className="text-zinc-400 leading-relaxed">
-                      First-listen playback reactions with collaborators and core discord listeners.
-                    </p>
-                    <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-500 font-mono">
-                      <span>Platform: TikTok / Stories</span>
-                      <span className="text-emerald-400 font-bold">Stream Now</span>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
-            )}
-
-            {/* System 3: Post-Release Sustained Growth */}
-            {(contentStageFilter === 'all' || contentStageFilter === 'post_release') && (
-              <div className="rounded-3xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-blue-400 tracking-wider">Phase 3</span>
-                    <h4 className="text-sm font-bold text-white">6-Week Post-Release Engine</h4>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                    Weeks 2 to 6+
-                  </span>
+            ) : (
+              <div className="rounded-3xl border border-zinc-800 bg-zinc-900/40 p-8 text-center">
+                <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-6 h-6 text-zinc-500" />
                 </div>
-
-                <div className="space-y-3 text-xs">
-                  <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/80 space-y-1.5">
-                    <span className="font-bold text-zinc-200">Week 2: 'Acoustic / Stripped Cut'</span>
-                    <p className="text-zinc-400 leading-relaxed">
-                      Live acoustic piano or guitar version. Gives algorithmic listeners a fresh emotional angle.
-                    </p>
-                    <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-500 font-mono">
-                      <span>Save Velocity Anchor</span>
-                      <span className="text-blue-400 font-bold">Week 2</span>
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/80 space-y-1.5">
-                    <span className="font-bold text-zinc-200">Week 4: 'Editorial Placement Celebration'</span>
-                    <p className="text-zinc-400 leading-relaxed">
-                      "Thank you for 50,000 algorithmic streams. Here is the unreleased demo version."
-                    </p>
-                    <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-500 font-mono">
-                      <span>Retention Driver</span>
-                      <span className="text-emerald-400 font-bold">Week 4</span>
-                    </div>
-                  </div>
-                </div>
+                <h4 className="text-sm font-bold text-white mb-2">No Content Yet</h4>
+                <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                  Content will be generated based on your Artist DNA, releases, and audience.
+                  Complete your Artist DNA and create a release to get started.
+                </p>
               </div>
             )}
           </div>

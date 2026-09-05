@@ -1193,11 +1193,57 @@ export interface WorkspaceGoalRecord {
   updatedAt: string;
 }
 
+export interface ArtistDNARecord {
+  id: string;
+  workspaceId: string;
+  artistIdentity: string;
+  story: string;
+  genre: string;
+  soundDescription: string;
+  audienceDemographics: string;
+  voiceAndLanguage: string;
+  visualDirection: string;
+  contentPillars: string[];
+  recurringThemes: string[];
+  goals: string;
+  positioning: string;
+  platforms: string[];
+  preferences: Record<string, any>;
+  thingsToAvoid: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BrandDNARecord {
+  id: string;
+  workspaceId: string;
+  identity: string;
+  positioning: string;
+  businessCategory: string;
+  audience: string;
+  valueProposition: string;
+  offers: Array<{ id: string; name: string; price: string; type?: string; description?: string }>;
+  voice: string;
+  visualIdentity: string;
+  competitivePositioning: string;
+  contentPillars: string[];
+  growthGoals: string[];
+  businessModel: string;
+  marketingPriorities: string[];
+  platforms: string[];
+  preferences: Record<string, any>;
+  thingsToAvoid: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DatabaseSchema {
   users: UserRecord[];
   sessions: SessionRecord[];
   workspaces: WorkspaceRecord[];
   workspace_members: WorkspaceMemberRecord[];
+  artist_dna: ArtistDNARecord[];
+  brand_dna: BrandDNARecord[];
   brand_cores: BrandCoreRecord[];
   products: ProductServiceRecord[];
   projects: ProjectRecord[];
@@ -2223,6 +2269,94 @@ class Database {
     Object.assign(core, updates, { updatedAt: new Date().toISOString() });
     this.save();
     return core;
+  }
+
+  // --- Artist DNA ---
+  public getArtistDNA(workspaceId: string): ArtistDNARecord | null {
+    return this.data.artist_dna.find((d) => d.workspaceId === workspaceId) || null;
+  }
+
+  public createArtistDNA(workspaceId: string, data: Partial<ArtistDNARecord>): ArtistDNARecord {
+    const now = new Date().toISOString();
+    const dna: ArtistDNARecord = {
+      id: "adna_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      artistIdentity: data.artistIdentity || "",
+      story: data.story || "",
+      genre: data.genre || "",
+      soundDescription: data.soundDescription || "",
+      audienceDemographics: data.audienceDemographics || "",
+      voiceAndLanguage: data.voiceAndLanguage || "",
+      visualDirection: data.visualDirection || "",
+      contentPillars: data.contentPillars || [],
+      recurringThemes: data.recurringThemes || [],
+      goals: data.goals || "",
+      positioning: data.positioning || "",
+      platforms: data.platforms || [],
+      preferences: data.preferences || {},
+      thingsToAvoid: data.thingsToAvoid || [],
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.data.artist_dna.push(dna);
+    this.save();
+    return dna;
+  }
+
+  public updateArtistDNA(workspaceId: string, updates: Partial<ArtistDNARecord>): ArtistDNARecord {
+    let dna = this.getArtistDNA(workspaceId);
+    if (!dna) {
+      dna = this.createArtistDNA(workspaceId, updates);
+    } else {
+      Object.assign(dna, updates, { updatedAt: new Date().toISOString() });
+      this.save();
+    }
+    return dna;
+  }
+
+  // --- Brand DNA ---
+  public getBrandDNA(workspaceId: string): BrandDNARecord | null {
+    return this.data.brand_dna.find((d) => d.workspaceId === workspaceId) || null;
+  }
+
+  public createBrandDNA(workspaceId: string, data: Partial<BrandDNARecord>): BrandDNARecord {
+    const now = new Date().toISOString();
+    const dna: BrandDNARecord = {
+      id: "bdna_" + crypto.randomUUID().substring(0, 8),
+      workspaceId,
+      identity: data.identity || "",
+      positioning: data.positioning || "",
+      businessCategory: data.businessCategory || "",
+      audience: data.audience || "",
+      valueProposition: data.valueProposition || "",
+      offers: data.offers || [],
+      voice: data.voice || "",
+      visualIdentity: data.visualIdentity || "",
+      competitivePositioning: data.competitivePositioning || "",
+      contentPillars: data.contentPillars || [],
+      growthGoals: data.growthGoals || [],
+      businessModel: data.businessModel || "",
+      marketingPriorities: data.marketingPriorities || [],
+      platforms: data.platforms || [],
+      preferences: data.preferences || {},
+      thingsToAvoid: data.thingsToAvoid || [],
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.data.brand_dna.push(dna);
+    this.save();
+    return dna;
+  }
+
+  public updateBrandDNA(workspaceId: string, updates: Partial<BrandDNARecord>): BrandDNARecord {
+    let dna = this.getBrandDNA(workspaceId);
+    if (!dna) {
+      dna = this.createBrandDNA(workspaceId, updates);
+    } else {
+      Object.assign(dna, updates, { updatedAt: new Date().toISOString() });
+      this.save();
+    }
+    return dna;
   }
 
   // --- Products & Services ---

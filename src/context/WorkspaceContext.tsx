@@ -576,6 +576,12 @@ interface WorkspaceContextType {
   saveActiveRelease: (updates: Partial<Release>) => Promise<Release>;
   deleteRelease: (releaseId: string) => Promise<void>;
   
+  // Artist DNA & Brand DNA (Core Context Layers)
+  loadArtistDNA: () => Promise<any>;
+  saveArtistDNA: (data: any) => Promise<any>;
+  loadBrandDNA: () => Promise<any>;
+  saveBrandDNA: (data: any) => Promise<any>;
+
   // Brand Core & Products (Brand/Business OS)
   updateBrandCore: (updates: Partial<BrandCore>) => Promise<BrandCore>;
   saveBrandCore: (updates: Partial<BrandCore>) => Promise<BrandCore>;
@@ -1007,6 +1013,41 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     await fetchWorkspaceData();
   };
 
+  // Artist DNA & Brand DNA
+  const loadArtistDNA = async () => {
+    if (!activeWorkspace) return null;
+    try {
+      const res = await api.artistDNA.get(activeWorkspace.id);
+      return res.artistDNA;
+    } catch {
+      return null;
+    }
+  };
+
+  const saveArtistDNA = async (data: any) => {
+    if (!activeWorkspace) throw new Error("No active workspace");
+    const res = await api.artistDNA.update(activeWorkspace.id, data);
+    await fetchWorkspaceData();
+    return res.artistDNA;
+  };
+
+  const loadBrandDNA = async () => {
+    if (!activeWorkspace) return null;
+    try {
+      const res = await api.brandDNA.get(activeWorkspace.id);
+      return res.brandDNA;
+    } catch {
+      return null;
+    }
+  };
+
+  const saveBrandDNA = async (data: any) => {
+    if (!activeWorkspace) throw new Error("No active workspace");
+    const res = await api.brandDNA.update(activeWorkspace.id, data);
+    await fetchWorkspaceData();
+    return res.brandDNA;
+  };
+
   // Brand Core
   const updateBrandCore = async (updates: Partial<BrandCore>) => {
     if (!activeWorkspace) throw new Error("No active workspace");
@@ -1257,6 +1298,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         updateRelease,
         saveActiveRelease,
         deleteRelease,
+        loadArtistDNA,
+        saveArtistDNA,
+        loadBrandDNA,
+        saveBrandDNA,
         updateBrandCore,
         saveBrandCore: updateBrandCore,
         createProduct,
