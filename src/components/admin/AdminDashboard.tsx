@@ -54,9 +54,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
   const [stats, setStats] = useState<AdminOverviewStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Demo Role Switcher: lets evaluator test Super Admin, Admin, and Support least-privilege behaviors
-  const [effectiveRole, setEffectiveRole] = useState<SystemAdminRole>(
-    user?.systemRole || "super_admin"
+  // System role is derived strictly from the authenticated user's assigned role.
+  // There is no demo-mode role switching — least privilege is enforced.
+  const [effectiveRole] = useState<SystemAdminRole>(
+    user?.systemRole || "user"
   );
 
   const fetchOverviewStats = async () => {
@@ -153,22 +154,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
           </div>
         </div>
 
-        {/* Right Side: Role Badge & Tester Role Switcher */}
+        {/* Right Side: Actual Authority Role Badge (no demo mode role switching) */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-accent/30 p-1.5 rounded-xl border border-border/50 text-xs">
             <span className="text-[11px] text-muted-foreground font-medium pl-1 hidden sm:inline">
               Authority Role:
             </span>
-            <select
-              value={effectiveRole}
-              onChange={(e) => setEffectiveRole(e.target.value as SystemAdminRole)}
-              className="bg-card border border-border/60 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-foreground focus:outline-none focus:border-purple-500"
-              title="Switch role in demo mode to test least-privilege permissions"
-            >
-              <option value="super_admin">Super Admin (Root)</option>
-              <option value="admin">Admin (Operations)</option>
-              <option value="support">Support (Diagnostics)</option>
-            </select>
             {getRoleBadge(effectiveRole)}
           </div>
         </div>

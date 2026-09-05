@@ -419,8 +419,8 @@ export const Header: React.FC<HeaderProps> = ({
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 w-56 bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-2.5 z-50 animate-fade-in space-y-2">
                     <div className="px-2 py-1">
-                      <div className="text-xs font-bold text-white truncate">{user?.fullName || "Keedohub Creator"}</div>
-                      <div className="text-[10px] text-zinc-400 truncate">{user?.email || "creator@keedohub.com"}</div>
+                      <div className="text-xs font-bold text-white truncate">{user?.fullName || "Not signed in"}</div>
+                      <div className="text-[10px] text-zinc-400 truncate">{user?.email || "Not signed in"}</div>
                     </div>
 
                     <div className="pt-2 border-t border-zinc-800 space-y-1">

@@ -48,6 +48,10 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
     return res.status(401).json({ error: "Unauthorized: User not found for session" });
   }
 
+  if (user.status === "suspended") {
+    return res.status(403).json({ error: "Forbidden: Account is suspended" });
+  }
+
   req.user = user;
   req.session = session;
   return next();
@@ -97,7 +101,7 @@ export function requireAdmin(allowedRoles: ('super_admin' | 'admin' | 'support')
       return res.status(403).json({ error: "Forbidden: Account is suspended" });
     }
 
-    const currentRole = req.user.systemRole || (req.user.email === "creator@keedohub.com" ? "super_admin" : "user");
+    const currentRole = req.user.systemRole || "user";
 
     if (currentRole === "user" || !allowedRoles.includes(currentRole as any)) {
       db.createAdminAuditLog({
@@ -130,12 +134,13 @@ export const apiRouter = Router();
 // --- Auth Routes ---
 apiRouter.post("/auth/signup", (req: Request, res: Response) => {
   const { email, password, fullName, identityType, workspaceName, bio, genreOrNiche } = req.body;
-  if (!email || !password || !fullName) {
+    if (!email || !password || !fullName) {
     return res.status(400).json({ error: "Email, password, and full name are required" });
   }
-  if (password.length < 6) {
-    return res.status(400).json({ error: "Password must be at least 6 characters" });
+  if (password.length < 8) {
+    return res.status(400).json({ error: "Password must be at least 8 characters" });
   }
+
 
   try {
     const user = db.createUser(email, password, fullName);
@@ -199,8 +204,12 @@ apiRouter.get("/auth/me", requireAuth, (req: AuthenticatedRequest, res: Response
   const workspaces = db.getWorkspacesForUser(user.id);
   const activeWorkspace = workspaces.find((w) => w.id === user.defaultWorkspaceId) || workspaces[0] || null;
 
+  // Echo the raw bearer token as-is so the client can refresh its copy.
+  const rawHeader = req.headers.authorization || "";
+  const rawToken = rawHeader.startsWith("Bearer ") ? rawHeader.slice(7).trim() : "";
+
   res.json({
-    token: req.session?.token,
+    token: rawToken,
     user: {
       id: user.id,
       email: user.email,
@@ -3617,19 +3626,16 @@ apiRouter.get(
   requireWorkspaceAccess,
   (req: AuthenticatedRequest, res: Response) => {
     const { workspaceId } = req.params;
-    const userId = req.user?.id || "usr_demo_keedohub";
+    const userId = req.user!.id;
     try {
       let member = db.getWorkspaceMember(workspaceId, userId);
-      if (!member && (req.user?.email === "creator@keedohub.com" || userId === "usr_demo_keedohub")) {
-        member = db.getWorkspaceMember(workspaceId, "usr_demo_keedohub");
-      }
       res.json({
         member: member || {
           id: "mem_guest",
           workspaceId,
           userId,
           name: req.user?.fullName || "Collaborator",
-          email: req.user?.email || "guest@keedohub.com",
+          email: req.user!.email || "",
           role: "member",
           permissions: {
             canManageWorkspace: false,
@@ -3663,9 +3669,8 @@ apiRouter.post(
     }
 
     try {
-      const actorRole = db.getWorkspaceMember(workspaceId, req.user?.id || "")?.role;
-      // Allow invite if actor is owner or admin (or default creator)
-      if (actorRole && actorRole !== "owner" && actorRole !== "admin" && req.user?.email !== "creator@keedohub.com") {
+      const actorRole = db.getWorkspaceMember(workspaceId, req.user!.id)?.role;
+      if (actorRole && actorRole !== "owner" && actorRole !== "admin") {
         return res.status(403).json({ error: "Only workspace owners and admins can invite members" });
       }
 
@@ -3683,8 +3688,8 @@ apiRouter.post(
 
       db.logActivity(
         workspaceId,
-        req.user?.id || "usr_demo_keedohub",
-        req.user?.email || "creator@keedohub.com",
+        req.user!.id,
+        req.user!.email,
         "MEMBER_INVITED",
         "member",
         newMember.id,
@@ -3723,8 +3728,8 @@ apiRouter.patch(
 
       db.logActivity(
         workspaceId,
-        req.user?.id || "usr_demo_keedohub",
-        req.user?.email || "creator@keedohub.com",
+        req.user!.id,
+        req.user!.email,
         "MEMBER_UPDATED",
         "member",
         memberId,
@@ -3758,8 +3763,8 @@ apiRouter.delete(
 
       db.logActivity(
         workspaceId,
-        req.user?.id || "usr_demo_keedohub",
-        req.user?.email || "creator@keedohub.com",
+        req.user!.id,
+        req.user!.email,
         "MEMBER_REMOVED",
         "member",
         memberId,
@@ -3784,7 +3789,7 @@ apiRouter.get(
     const { entityType, entityId, parentId } = req.query;
 
     try {
-      const userId = req.user?.id || "usr_demo_keedohub";
+      const userId = req.user!.id;
       const member = db.getWorkspaceMember(workspaceId, userId);
       const canViewInternal = member?.permissions?.canViewInternalNotes ?? (member?.role !== "client" && member?.role !== "collaborator");
 
@@ -3825,7 +3830,7 @@ apiRouter.post(
     }
 
     try {
-      const userId = req.user?.id || "usr_demo_keedohub";
+      const userId = req.user!.id;
       const member = db.getWorkspaceMember(workspaceId, userId);
       const authorRole = member?.role || "owner";
 
@@ -3839,7 +3844,7 @@ apiRouter.post(
         parentId: parentId || undefined,
         authorId: userId,
         authorName: req.user?.fullName || member?.name || "Keedohub Team Member",
-        authorEmail: req.user?.email || member?.email || "creator@keedohub.com",
+        authorEmail: req.user!.email || member?.email || "",
         authorAvatar: member?.avatarUrl || req.user?.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
         authorRole,
         content,
@@ -3854,7 +3859,7 @@ apiRouter.post(
       db.logActivity(
         workspaceId,
         userId,
-        req.user?.email || "creator@keedohub.com",
+        req.user!.email,
         finalIsInternal ? "COMMENT_INTERNAL" : "COMMENT_POSTED",
         entityType,
         entityId,
@@ -3927,7 +3932,7 @@ apiRouter.post(
   requireWorkspaceAccess,
   (req: AuthenticatedRequest, res: Response) => {
     const { workspaceId, commentId } = req.params;
-    const userId = req.user?.id || "usr_demo_keedohub";
+    const userId = req.user!.id;
     try {
       const resolved = db.resolveComment(workspaceId, commentId, userId);
       if (!resolved) {
@@ -3937,7 +3942,7 @@ apiRouter.post(
       db.logActivity(
         workspaceId,
         userId,
-        req.user?.email || "creator@keedohub.com",
+        req.user!.email,
         resolved.resolved ? "COMMENT_RESOLVED" : "COMMENT_REOPENED",
         resolved.entityType,
         resolved.entityId,
@@ -3959,7 +3964,7 @@ apiRouter.post(
   (req: AuthenticatedRequest, res: Response) => {
     const { workspaceId, commentId } = req.params;
     const { emoji } = req.body;
-    const userId = req.user?.id || "usr_demo_keedohub";
+    const userId = req.user!.id;
 
     if (!emoji) {
       return res.status(400).json({ error: "Emoji is required" });
@@ -3988,7 +3993,7 @@ apiRouter.get(
     const { entityType, entityId, status, reviewerId } = req.query;
 
     try {
-      const userId = req.user?.id || "usr_demo_keedohub";
+      const userId = req.user!.id;
       const member = db.getWorkspaceMember(workspaceId, userId);
       const isClientOrCollab = member?.role === "client" || member?.role === "collaborator";
 
@@ -4053,7 +4058,7 @@ apiRouter.post(
     }
 
     try {
-      const userId = req.user?.id || "usr_demo_keedohub";
+      const userId = req.user!.id;
       const member = db.getWorkspaceMember(workspaceId, userId);
 
       const newRequest = db.createApprovalRequest(workspaceId, {
@@ -4065,7 +4070,7 @@ apiRouter.post(
         requestedBy: {
           id: userId,
           name: req.user?.fullName || member?.name || "Workspace Lead",
-          email: req.user?.email || member?.email || "creator@keedohub.com",
+          email: req.user!.email || member?.email || "",
           avatarUrl: member?.avatarUrl || req.user?.avatarUrl,
           role: member?.role || "owner",
         },
@@ -4080,7 +4085,7 @@ apiRouter.post(
         assignedReviewers: assignedReviewers || [
           {
             id: userId,
-            email: req.user?.email || "creator@keedohub.com",
+            email: req.user!.email,
             name: req.user?.fullName || "Lead Artist",
             role: member?.role || "owner",
             status: "pending",
@@ -4092,7 +4097,7 @@ apiRouter.post(
       db.logActivity(
         workspaceId,
         userId,
-        req.user?.email || "creator@keedohub.com",
+        req.user!.email,
         "APPROVAL_REQUESTED",
         entityType,
         entityId,
@@ -4129,7 +4134,7 @@ apiRouter.post(
     }
 
     try {
-      const userId = req.user?.id || "usr_demo_keedohub";
+      const userId = req.user!.id;
       const member = db.getWorkspaceMember(workspaceId, userId);
 
       // Check permission: Creative Brain NEVER approves; users must have canApprove permission
@@ -4141,7 +4146,7 @@ apiRouter.post(
       const result = db.submitApprovalDecision(workspaceId, approvalId, {
         reviewerId: userId,
         reviewerName: req.user?.fullName || member?.name || "Reviewer",
-        reviewerEmail: req.user?.email || member?.email || "creator@keedohub.com",
+        reviewerEmail: req.user!.email || member?.email || "",
         reviewerRole: member?.role || "owner",
         status,
         notes: notes || (status === "approved" ? "Deliverable approved." : "Changes requested."),
@@ -4151,7 +4156,7 @@ apiRouter.post(
       db.logActivity(
         workspaceId,
         userId,
-        req.user?.email || "creator@keedohub.com",
+        req.user!.email,
         status === "approved" ? "APPROVAL_GRANTED" : "APPROVAL_CHANGES_REQUESTED",
         result.request.entityType,
         result.request.entityId,
@@ -4224,7 +4229,7 @@ apiRouter.get(
     const { entityType, entityId } = req.query;
 
     try {
-      const userId = req.user?.id || "usr_demo_keedohub";
+      const userId = req.user!.id;
       const member = db.getWorkspaceMember(workspaceId, userId);
       const isClientOrCollab = member?.role === "client" || member?.role === "collaborator";
 
@@ -4265,7 +4270,7 @@ apiRouter.post(
     }
 
     try {
-      const userId = req.user?.id || "usr_demo_keedohub";
+      const userId = req.user!.id;
       const member = db.getWorkspaceMember(workspaceId, userId);
 
       const revision = db.createRevision(workspaceId, {
@@ -4290,7 +4295,7 @@ apiRouter.post(
       db.logActivity(
         workspaceId,
         userId,
-        req.user?.email || "creator@keedohub.com",
+        req.user!.email,
         "REVISION_CREATED",
         entityType,
         entityId,
@@ -4864,10 +4869,21 @@ apiRouter.post(
         return res.status(400).json({ error: "Subject and message are required" });
       }
 
-      const ws = db.getWorkspaceById(workspaceId || req.user?.defaultWorkspaceId || "ws_demo_artist_os");
+      const targetWorkspaceId = workspaceId || req.user!.defaultWorkspaceId;
+      const ws = targetWorkspaceId ? db.getWorkspaceById(targetWorkspaceId) : undefined;
+
+      // Support tickets must be scoped to a workspace the requester can access.
+      if (targetWorkspaceId && ws) {
+        const accessible = db
+          .getWorkspacesForUser(req.user!.id)
+          .some((w) => w.id === targetWorkspaceId);
+        if (!accessible) {
+          return res.status(403).json({ error: "Forbidden: You do not have access to this workspace" });
+        }
+      }
 
       const ticket = db.createSupportTicket({
-        workspaceId: ws?.id || "ws_demo_artist_os",
+        workspaceId: ws?.id || "",
         workspaceName: ws?.name || "Workspace",
         userId: req.user!.id,
         userEmail: req.user!.email,
@@ -5066,56 +5082,9 @@ apiRouter.get(
   }
 );
 
-// 21. Demo Role Switcher — For Live Evaluator Testing
-apiRouter.post(
-  "/admin/demo-switch-role",
-  requireAuth,
-  (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const { role } = req.body;
-      if (!role || !["super_admin", "admin", "support", "user"].includes(role)) {
-        return res.status(400).json({ error: "Invalid role specified" });
-      }
-
-      const user = db.getUserById(req.user!.id);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      user.systemRole = role;
-      db.save();
-
-      // Audit Log
-      db.createAdminAuditLog({
-        adminUserId: user.id,
-        adminEmail: user.email,
-        adminName: user.fullName,
-        adminRole: role,
-        action: "DEMO_ROLE_SWITCHED",
-        targetType: "security",
-        targetId: user.id,
-        targetName: user.fullName,
-        details: `Evaluator switched active session role to '${role}' to test least-privilege policies.`,
-        ipAddress: req.ip || "127.0.0.1",
-        result: "success",
-      });
-
-      res.json({
-        success: true,
-        message: `Active demo session role switched to ${role}`,
-        user: {
-          id: user.id,
-          email: user.email,
-          fullName: user.fullName,
-          systemRole: user.systemRole,
-        },
-      });
-    } catch (err: any) {
-      console.error("[Demo Switch Role Error]", err);
-      res.status(500).json({ error: "Failed to switch demo role" });
-    }
-  }
-);
+// 21. (Removed) Demo Role Switcher — privilege-escalation backdoor removed
+// for production. Role changes must go through controlled admin endpoints
+// guarded by requireAdmin with full audit logging.
 
 // ==========================================
 // EXTERNAL INTEGRATION FRAMEWORK (PHASE: LAUNCH READINESS)

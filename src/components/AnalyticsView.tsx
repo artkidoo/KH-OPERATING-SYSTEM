@@ -42,7 +42,7 @@ interface AnalyticsViewProps {
 
 export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onNotify, onNavigateTab }) => {
   const { activeWorkspace } = useAuth();
-  const workspaceId = activeWorkspace?.id || "ws_demo_artist_os";
+  const workspaceId = activeWorkspace?.id || "";
 
   const [activeSubTab, setActiveSubTab] = useState<"overview" | "content_format" | "platforms" | "campaigns_releases" | "goals" | "data_log">("overview");
   const [summaryData, setSummaryData] = useState<any>(null);

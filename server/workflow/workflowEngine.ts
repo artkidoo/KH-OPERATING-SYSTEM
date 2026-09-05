@@ -630,7 +630,7 @@ export class WorkflowEngine {
           reason: notes || "Review feedback requested revisions",
           requestedChanges: notes || "Adjust creative composition per sign-off notes",
           status: "OPEN",
-          userId: actorUser?.id || "usr_demo_keedohub",
+          userId: actorUser?.id || "system",
         });
       }
 

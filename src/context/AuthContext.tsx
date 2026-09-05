@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { User, Workspace, IdentityType, OnboardingPayload } from "../types";
-import { api, getStoredToken, setStoredToken } from "../services/api";
+import { api, getStoredToken, setStoredToken, AUTH_EXPIRED_EVENT } from "../services/api";
 
 interface OnboardingModalOptions {
   isNewAccount?: boolean;
@@ -68,20 +68,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setActiveWorkspace(res.activeWorkspace);
       setToken(getStoredToken());
     } catch (err) {
-      // Invalid or expired token: clear token and reset session
-      setStoredToken(null);
-      setUser(null);
-      setWorkspaces([]);
-      setActiveWorkspace(null);
-      setToken(null);
+      // Invalid or expired token: clear token and reset session. A missing or
+      // invalid token always means unauthenticated — never a fallback account.
+      resetAuthState();
     } finally {
       setIsLoading(false);
     }
   };
 
+  const resetAuthState = useCallback(() => {
+    setStoredToken(null);
+    setUser(null);
+    setWorkspaces([]);
+    setActiveWorkspace(null);
+    setToken(null);
+    setIsOnboardingOpen(false);
+    setOnboardingOptions({});
+  }, []);
+
   useEffect(() => {
     initAuth();
-  }, []);
+    // A 401 anywhere in the app (expired/invalid token) must immediately reset
+    // the session to unauthenticated and surface the login screen — never a
+    // substitute account.
+    const handleExpired = () => resetAuthState();
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleExpired);
+  }, [resetAuthState]);
 
   const openOnboarding = (options: OnboardingModalOptions = {}) => {
     setOnboardingOptions(options);
@@ -185,7 +198,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setToken(getStoredToken());
     } catch (err) {
+      // Invalid/expired token: reset to unauthenticated immediately.
       console.error("[Auth] Failed to refresh user:", err);
+      resetAuthState();
     }
   };
 

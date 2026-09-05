@@ -89,6 +89,8 @@ export function setStoredToken(token: string | null) {
   }
 }
 
+export const AUTH_EXPIRED_EVENT = "keedohub:auth-expired";
+
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getStoredToken();
   const headers: Record<string, string> = {
@@ -107,8 +109,15 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   if (!response.ok) {
     if (response.status === 401) {
-      // Clear token if invalid to prevent repeated auth failures
+      // Invalid/expired session: clear the stored token and notify the app so
+      // the UI resets to unauthenticated and shows the login screen. We never
+      // silently substitute a different account.
       setStoredToken(null);
+      try {
+        window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
+      } catch {
+        /* not in a browser context */
+      }
     }
     let errorMsg = `HTTP Error ${response.status}`;
     try {
@@ -1542,17 +1551,6 @@ export const api = {
         success: boolean;
         health: any;
       }>("/api/admin/system/health");
-    },
-
-    demoSwitchRole: async (role: SystemAdminRole) => {
-      return request<{
-        success: boolean;
-        message: string;
-        user: { id: string; email: string; fullName: string; systemRole: SystemAdminRole };
-      }>("/api/admin/demo-switch-role", {
-        method: "POST",
-        body: JSON.stringify({ role }),
-      });
     },
   },
 

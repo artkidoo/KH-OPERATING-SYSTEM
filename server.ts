@@ -4,6 +4,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import { apiRouter } from "./server/routes";
+import { db } from "./server/db";
 
 dotenv.config();
 
@@ -22,7 +23,11 @@ function getGemini(): GoogleGenAI {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = parseInt(process.env.PORT || "3000", 10);
+
+  // Initialize the persistence layer (PostgreSQL in production, JSON dev/test fallback)
+  // before accepting requests. A missing/unreachable production database fails fast.
+  await db.initialize();
 
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ extended: true, limit: "50mb" }));
@@ -587,9 +592,27 @@ Provide an executive mastering health report in JSON:
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`Keedohub Creative OS server running on http://0.0.0.0:${PORT}`);
   });
+
+  // Graceful shutdown: drain pending DB writes before exiting.
+  const shutdown = async (signal: string) => {
+    console.log(`\n[Keedohub] ${signal} received — shutting down gracefully…`);
+    server.close(async () => {
+      try {
+        await db.shutdown();
+      } catch (err) {
+        console.error("[Keedohub] Error during DB shutdown:", err);
+      } finally {
+        process.exit(0);
+      }
+    });
+    // Force-exit if graceful shutdown takes too long.
+    setTimeout(() => process.exit(1), 15000).unref();
+  };
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  process.on("SIGINT", () => void shutdown("SIGINT"));
 }
 
 // Built-in Algorithmic Rollout Generator (Guaranteed zero-failure human-designed templates)
@@ -881,4 +904,12 @@ function generateFallbackAudioCritique(trackName: string, genre: string, lufs: n
   };
 }
 
-startServer();
+startServer().catch((err) => {
+  // A failed production database (or any boot failure) must terminate the
+  // process loudly — the server must never come up without its source of truth.
+  console.error("===============================================================");
+  console.error("[FATAL] Keedohub Creative OS failed to start:", err?.message || err);
+  console.error("If DB_ENGINE=postgres, verify DATABASE_URL points to a reachable database.");
+  console.error("===============================================================");
+  process.exit(1);
+});

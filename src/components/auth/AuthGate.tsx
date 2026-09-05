@@ -1,5 +1,5 @@
 import React from "react";
-import { Lock, Shield, ArrowRight, Disc3, Building2, BookOpen, Compass } from "lucide-react";
+import { Lock, Shield, ArrowRight, BookOpen, Compass } from "lucide-react";
 import { ActiveTab } from "../../types";
 
 interface AuthGateProps {
@@ -57,43 +57,6 @@ export const AuthGate: React.FC<AuthGateProps> = ({
           >
             Create Free Account
           </button>
-        </div>
-
-        {/* Demo Quick Access Credentials */}
-        <div className="p-3 bg-zinc-900/60 border border-zinc-800/80 rounded-xl text-left text-xs space-y-2">
-          <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-400">
-            <span>DEFAULT DEMO ACCOUNTS</span>
-            <span className="font-mono text-[10px] text-zinc-500">password: keedohub2026</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <button
-              onClick={() => onOpenAuth("login", "artist")}
-              className="p-2 rounded-lg bg-red-950/20 hover:bg-red-950/40 border border-red-500/20 text-left transition-colors flex items-center justify-between group cursor-pointer"
-            >
-              <div>
-                <div className="font-bold text-white text-[11px] flex items-center gap-1.5">
-                  <Disc3 className="w-3 h-3 text-red-400" />
-                  <span>Artist OS</span>
-                </div>
-                <div className="text-[10px] text-zinc-400">creator@keedohub.com</div>
-              </div>
-              <span className="text-[10px] text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">Sign in →</span>
-            </button>
-
-            <button
-              onClick={() => onOpenAuth("login", "brand")}
-              className="p-2 rounded-lg bg-purple-950/20 hover:bg-purple-950/40 border border-purple-500/20 text-left transition-colors flex items-center justify-between group cursor-pointer"
-            >
-              <div>
-                <div className="font-bold text-white text-[11px] flex items-center gap-1.5">
-                  <Building2 className="w-3 h-3 text-purple-400" />
-                  <span>Brand OS</span>
-                </div>
-                <div className="text-[10px] text-zinc-400">brand@keedohub.com</div>
-              </div>
-              <span className="text-[10px] text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">Sign in →</span>
-            </button>
-          </div>
         </div>
 
         {/* Public Alternatives */}
