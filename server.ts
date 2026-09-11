@@ -579,10 +579,13 @@ Provide an executive mastering health report in JSON:
 
   // Vite middleware setup
   if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
+  const vite = await createViteServer({
+    // The preview host manages reloads outside the app server. Disabling Vite's
+    // middleware websocket prevents stale HMR clients from reconnecting to a
+    // closed development server after the Express process restarts.
+    server: { middlewareMode: true, hmr: false },
+    appType: "spa",
+  });
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
