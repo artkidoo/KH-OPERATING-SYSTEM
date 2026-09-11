@@ -61,9 +61,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
 
   // System role is derived strictly from the authenticated user's assigned role.
   // There is no demo-mode role switching — least privilege is enforced.
-  const [effectiveRole] = useState<SystemAdminRole>(
-    user?.systemRole || "user"
-  );
+  // Read the role from the current authenticated user on every render. A state
+  // initializer runs before auth hydration and permanently captured "user".
+  const effectiveRole: SystemAdminRole = user?.systemRole || "user";
+  const hasAdminAccess = ["super_admin", "admin", "support"].includes(effectiveRole);
+  const canAccessProduction = ["super_admin", "admin"].includes(effectiveRole);
+
+  if (!hasAdminAccess) {
+    return (
+      <main className="min-h-screen bg-theme-main text-theme-main flex items-center justify-center p-6">
+        <section className="bento-card w-full max-w-lg p-8 text-center">
+          <Lock className="mx-auto mb-4 size-10 text-theme-accent" aria-hidden="true" />
+          <h1 className="text-2xl font-bold">Admin access required</h1>
+          <p className="mt-2 text-sm text-theme-muted">
+            This control center is restricted to authorized Keedohub operations roles.
+          </p>
+          {onBackToApp && (
+            <button onClick={onBackToApp} className="mt-6 rounded-xl bg-theme-accent px-4 py-2 text-sm font-semibold">
+              Return to workspace
+            </button>
+          )}
+        </section>
+      </main>
+    );
+  }
 
   const fetchOverviewStats = async () => {
     setLoading(true);
@@ -180,7 +201,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
             Control Plane Navigation
           </div>
 
-          {navTabs.map((tab) => {
+          {navTabs.filter((tab) => canAccessProduction || tab.id !== "production-jobs").map((tab) => {
             const isActive = activeSubTab === tab.id;
             return (
               <button

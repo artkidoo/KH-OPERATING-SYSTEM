@@ -259,7 +259,7 @@ function MainAppContent() {
             )}
 
         {activeTab === "production-center" && (
-          (user as any)?.systemRole === "admin" || (user as any)?.systemRole === "super_admin" || (user as any)?.systemRole === "support" ? (
+          user && ["admin", "super_admin"].includes(user.systemRole || "user") ? (
             <ProductionCenter onNotify={addNotification} />
           ) : (
             <AuthGate
@@ -396,7 +396,18 @@ function MainAppContent() {
         )}
 
         {activeTab === "admin" && (
-          <AdminDashboard onBackToApp={() => setActiveTab("command-center")} />
+          user && ["admin", "super_admin", "support"].includes(user.systemRole || "user") ? (
+            <AdminDashboard onBackToApp={() => setActiveTab("command-center")} />
+          ) : (
+            <AuthGate
+              areaName="admin control center"
+              onOpenAuth={(mode) => {
+                setAuthModalMode(mode || "login");
+                setIsAuthModalOpen(true);
+              }}
+              onNavigatePublic={setActiveTab}
+            />
+          )
         )}
 
         {activeTab === "integrations" && (
