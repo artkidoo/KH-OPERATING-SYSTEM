@@ -253,18 +253,22 @@ apiRouter.post("/auth/demo", async (req: Request, res: Response) => {
       ? `demo.admin.${Date.now()}@keedohub.demo`
       : `demo.brand.${Date.now()}@keedohub.demo`;
     
-    // Create demo user
-    const demoUser = db.createUser(demoEmail, "demo123", demoName);
-    demoUser.systemRole = isAdmin ? "super_admin" : "user";
-    demoUser.status = "active";
+    // Create demo user. Use the database mutation so the role is persisted before
+    // the session is created; mutating the returned object alone was lost on the
+    // next /auth/me request and made the admin preview fall back to Standard Access.
+    const createdDemoUser = db.createUser(demoEmail, "demo123", demoName);
+    const demoRole = isAdmin ? "super_admin" : "user";
+    db.updateUserSystemRole(createdDemoUser.id, demoRole);
+    db.updateUserStatus(createdDemoUser.id, "active");
+    const persistedDemoUser = db.getUserById(createdDemoUser.id)!;
     
     // Create demo session
-    const session = db.createSession(demoUser.id);
+    const session = db.createSession(persistedDemoUser.id);
     
     // Create demo workspace
     const workspaceName = isArtist ? "Demo Artist Workspace" : "Demo Brand Workspace";
     const demoWorkspace = db.createWorkspace(
-      demoUser.id,
+      persistedDemoUser.id,
       workspaceName,
       isArtist ? "artist" : "brand",
       isArtist 
@@ -275,7 +279,7 @@ apiRouter.post("/auth/demo", async (req: Request, res: Response) => {
     );
     
     // Set as default workspace
-    demoUser.defaultWorkspaceId = demoWorkspace.id;
+    persistedDemoUser.defaultWorkspaceId = demoWorkspace.id;
     
     // Seed demo data
     if (isArtist) {
@@ -325,7 +329,7 @@ apiRouter.post("/auth/demo", async (req: Request, res: Response) => {
       });
       
       db.createCreativeRequest(demoWorkspace.id, {
-        userId: demoUser.id,
+        userId: persistedDemoUser.id,
         serviceId: "cover-art",
         serviceName: "Cover Artwork",
         budget: 50,
@@ -343,9 +347,9 @@ apiRouter.post("/auth/demo", async (req: Request, res: Response) => {
       // Seed active Production Job for Client Review Room demo
       db.createProductionJob(demoWorkspace.id, {
         requestId: "cr_demo_artist",
-        userId: demoUser.id,
-        customerName: demoUser.fullName || "Demo Artist",
-        customerEmail: demoUser.email,
+        userId: persistedDemoUser.id,
+        customerName: persistedDemoUser.fullName || "Demo Artist",
+        customerEmail: persistedDemoUser.email,
         identity: "artist",
         projectId: project.id,
         projectTitle: project.title,
@@ -431,7 +435,7 @@ apiRouter.post("/auth/demo", async (req: Request, res: Response) => {
       });
       
       db.createCreativeRequest(demoWorkspace.id, {
-        userId: demoUser.id,
+        userId: persistedDemoUser.id,
         serviceId: "brand_identity",
         serviceName: "Brand Identity",
         budget: 500,
@@ -449,9 +453,9 @@ apiRouter.post("/auth/demo", async (req: Request, res: Response) => {
       // Seed active Production Job for Client Review Room demo
       db.createProductionJob(demoWorkspace.id, {
         requestId: "cr_demo_brand",
-        userId: demoUser.id,
-        customerName: demoUser.fullName || "Demo Brand Co.",
-        customerEmail: demoUser.email,
+        userId: persistedDemoUser.id,
+        customerName: persistedDemoUser.fullName || "Demo Brand Co.",
+        customerEmail: persistedDemoUser.email,
         identity: "brand",
         projectId: project.id,
         projectTitle: project.title,
@@ -502,11 +506,11 @@ apiRouter.post("/auth/demo", async (req: Request, res: Response) => {
     res.status(201).json({
       token: session.token,
       user: {
-        id: demoUser.id,
-        email: demoUser.email,
-        fullName: demoUser.fullName,
-        defaultWorkspaceId: demoUser.defaultWorkspaceId,
-        systemRole: demoUser.systemRole,
+        id: persistedDemoUser.id,
+        email: persistedDemoUser.email,
+        fullName: persistedDemoUser.fullName,
+        defaultWorkspaceId: persistedDemoUser.defaultWorkspaceId,
+        systemRole: persistedDemoUser.systemRole,
       },
       workspace: demoWorkspace,
       isDemo: true,
