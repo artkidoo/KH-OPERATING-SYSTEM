@@ -240,6 +240,17 @@
       "status": "active",
       "createdAt": "2026-09-11T12:47:40.099Z",
       "defaultWorkspaceId": "ws_0785d88d"
+    },
+    {
+      "id": "usr_e936a36c",
+      "email": "demo.admin.1789131452075@keedohub.demo",
+      "passwordHash": "scrypt$16384$8$1$q7NUXLDARkfgQh0p1RRMMA==$nVZktGGV0fE/Py8WbqQB7XnlBKC2uySwEget7GlsnvVjLVn0HcFC6bqIuvebKlgm2kIXQ+kUftq273Rhbl/X8A==",
+      "fullName": "Platform Lead Admin",
+      "avatarUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=Platform%20Lead%20Admin",
+      "systemRole": "super_admin",
+      "status": "active",
+      "createdAt": "2026-09-11T12:57:32.116Z",
+      "defaultWorkspaceId": "ws_ae486b64"
     }
   ],
   "sessions": [
@@ -347,6 +358,11 @@
       "token": "a477b9e37aea5c10ffda7496578242afc0141d8947b65edcbcac409be9aa8660",
       "userId": "usr_8f7a8225",
       "expiresAt": "2026-10-11T12:47:40.107Z"
+    },
+    {
+      "token": "7ec740bdc9e719b55262b153513c52b3f758fe5f788b360c8e031407fa53807a",
+      "userId": "usr_e936a36c",
+      "expiresAt": "2026-10-11T12:57:32.121Z"
     }
   ],
   "workspaces": [
@@ -685,6 +701,22 @@
       "createdAt": "2026-09-11T12:47:40.113Z",
       "updatedAt": "2026-09-11T12:47:40.113Z",
       "status": "active"
+    },
+    {
+      "id": "ws_ae486b64",
+      "name": "Demo Brand Workspace",
+      "slug": "demo-brand-workspace-ae486b64",
+      "ownerId": "usr_e936a36c",
+      "identityType": "brand",
+      "avatarUrl": "https://api.dicebear.com/7.x/identicon/svg?seed=Demo%20Brand%20Workspace",
+      "bio": "Modern brand streamlining creative production.",
+      "genreOrNiche": "Technology",
+      "settings": {
+        "defaultCurrency": "USD"
+      },
+      "createdAt": "2026-09-11T12:57:32.124Z",
+      "updatedAt": "2026-09-11T12:57:32.124Z",
+      "status": "active"
     }
   ],
   "workspace_members": [
@@ -834,6 +866,13 @@
       "userId": "usr_8f7a8225",
       "role": "owner",
       "joinedAt": "2026-09-11T12:47:40.113Z"
+    },
+    {
+      "id": "mem_b96d8a06",
+      "workspaceId": "ws_ae486b64",
+      "userId": "usr_e936a36c",
+      "role": "owner",
+      "joinedAt": "2026-09-11T12:57:32.124Z"
     }
   ],
   "artist_dna": [],
@@ -953,6 +992,35 @@
       "thingsToAvoid": [],
       "createdAt": "2026-09-11T08:18:58.088Z",
       "updatedAt": "2026-09-11T08:18:58.088Z"
+    },
+    {
+      "id": "bdna_5c46fa71",
+      "workspaceId": "ws_ae486b64",
+      "identity": "Demo Brand Co.",
+      "positioning": "Premium design solutions for forward-thinking companies",
+      "businessCategory": "Technology",
+      "audience": "Young professionals, 25-40",
+      "valueProposition": "Building the future, beautifully.",
+      "offers": [],
+      "voice": "",
+      "visualIdentity": "",
+      "competitivePositioning": "",
+      "contentPillars": [
+        "Design",
+        "Technology",
+        "Innovation"
+      ],
+      "growthGoals": [
+        "Expand into new markets",
+        "Grow client base"
+      ],
+      "businessModel": "",
+      "marketingPriorities": [],
+      "platforms": [],
+      "preferences": {},
+      "thingsToAvoid": [],
+      "createdAt": "2026-09-11T12:57:32.144Z",
+      "updatedAt": "2026-09-11T12:57:32.144Z"
     }
   ],
   "brand_cores": [
@@ -3580,6 +3648,131 @@
       },
       "brandGuidelinesText": "# Demo Artist Workspace Brand Guidelines\n\n- Primary Accent: #EF4444\n- Background: #09090B\n- Typography: Space Grotesk / Plus Jakarta Sans",
       "updatedAt": "2026-09-11T12:47:40.114Z"
+    },
+    {
+      "id": "bc_1adf24ff",
+      "workspaceId": "ws_ae486b64",
+      "brandName": "Demo Brand Workspace",
+      "tagline": "Modern brand streamlining creative production.",
+      "industry": "Technology",
+      "identityType": "brand",
+      "archetype": "Ruler / Architect",
+      "logoAssets": {
+        "primaryLogoUrl": "https://api.dicebear.com/7.x/identicon/svg?seed=Demo%20Brand%20Workspace"
+      },
+      "colorPalette": [
+        {
+          "name": "Brand Accent",
+          "hex": "#EF4444",
+          "role": "Primary Interactive"
+        },
+        {
+          "name": "Secondary Highlight",
+          "hex": "#F59E0B",
+          "role": "Energy & Warmth"
+        },
+        {
+          "name": "Canvas Neutral",
+          "hex": "#09090B",
+          "role": "Background Canvas"
+        },
+        {
+          "name": "Elevated Surface",
+          "hex": "#18181B",
+          "role": "Card Surface"
+        },
+        {
+          "name": "Muted Text",
+          "hex": "#71717A",
+          "role": "Secondary Typography"
+        }
+      ],
+      "typographyPairing": {
+        "heading": "Space Grotesk (Bold 800)",
+        "body": "Plus Jakarta Sans (Medium 500)",
+        "monospace": "JetBrains Mono"
+      },
+      "visualDirection": {
+        "aestheticKeywords": [
+          "High Contrast",
+          "Precision Hierarchy",
+          "Clean Geometry",
+          "Deliberate Spacing"
+        ],
+        "moodSummary": "A clean architectural workspace with clear visual priority and zero visual clutter.",
+        "imageryGuidelines": "High-resolution 3000x3000px assets with crisp focal points and deep negative space.",
+        "dos": [
+          "Keep outer padding ≥ inner padding",
+          "Ensure contrast meets WCAG AA (4.5:1+)",
+          "Maintain tight line-height on headings"
+        ],
+        "donts": [
+          "Never use blurry low-res imagery",
+          "Avoid generic corporate stock cliches"
+        ]
+      },
+      "voiceAndTone": {
+        "traits": [
+          "Direct",
+          "Confident",
+          "High-Impact",
+          "Authentic"
+        ],
+        "doSay": [
+          "Craftsmanship",
+          "Operational momentum",
+          "High fidelity"
+        ],
+        "dontSay": [
+          "Synergy",
+          "Paradigm shift",
+          "Supercharge"
+        ],
+        "vocabulary": [
+          "Architecture",
+          "Precision",
+          "Master Object",
+          "Ecosystem"
+        ],
+        "communicationPrinciples": [
+          "Demonstrate value through authentic execution.",
+          "Keep communications concise, clear, and direct."
+        ]
+      },
+      "audience": {
+        "primaryICP": "Target audience for Demo Brand Workspace in the Technology sector.",
+        "targetSegments": [
+          "Core clients / fans",
+          "Strategic partners",
+          "Community advocates"
+        ],
+        "painPoints": [
+          "Fragmented workflows",
+          "Slow turnarounds",
+          "Low brand distinction"
+        ],
+        "coreDesires": [
+          "Premium quality",
+          "Reliability",
+          "Direct access"
+        ]
+      },
+      "positioning": {
+        "marketCategory": "Brand Operating System",
+        "valueProposition": "Delivering world-class creative output and seamless campaign execution.",
+        "uniqueSellingPoints": [
+          "Campaign as Master Object framework",
+          "7-Pillar Launch Readiness verification",
+          "Keedohub Studio production request integration"
+        ],
+        "competitorDifferentiators": [
+          "Integrated full-stack creative operating environment",
+          "Zero mock data, authentic database persistence"
+        ],
+        "positioningStatement": "For demanding audiences, Demo Brand Workspace delivers focused creative excellence."
+      },
+      "brandGuidelinesText": "# Demo Brand Workspace Brand Guidelines\n\n- Primary Accent: #EF4444\n- Background: #09090B\n- Typography: Space Grotesk / Plus Jakarta Sans",
+      "updatedAt": "2026-09-11T12:57:32.124Z"
     }
   ],
   "products": [
@@ -4254,9 +4447,60 @@
       "status": "active",
       "createdAt": "2026-09-11T12:47:40.114Z",
       "updatedAt": "2026-09-11T12:47:40.114Z"
+    },
+    {
+      "id": "prd_dd6433de",
+      "workspaceId": "ws_ae486b64",
+      "name": "Demo Brand Workspace Flagship Offering",
+      "type": "product",
+      "tagline": "Premier Technology offering",
+      "description": "The core flagship offering for Demo Brand Workspace designed for high market impact.",
+      "category": "Technology",
+      "pricing": {
+        "amount": 49,
+        "currency": "USD",
+        "billingInterval": "one_time",
+        "tierName": "Standard"
+      },
+      "targetAudience": "Primary customer segment for Demo Brand Workspace.",
+      "keyFeatures": [
+        "Master-grade quality",
+        "Instant digital delivery",
+        "Dedicated support"
+      ],
+      "benefits": [
+        "High-impact results",
+        "Time savings",
+        "Distinctive quality"
+      ],
+      "uniqueSellingPoints": [
+        "Engineered on Keedohub Core architecture"
+      ],
+      "status": "active",
+      "createdAt": "2026-09-11T12:57:32.125Z",
+      "updatedAt": "2026-09-11T12:57:32.125Z"
     }
   ],
   "projects": [
+    {
+      "id": "proj_97d887e7",
+      "workspaceId": "ws_ae486b64",
+      "title": "Brand Refresh 2026",
+      "description": "Complete brand identity update",
+      "category": "brand",
+      "status": "in-progress",
+      "priority": "high",
+      "budget": 0,
+      "currency": "USD",
+      "deadline": "2026-12-01",
+      "tags": [
+        "brand",
+        "identity"
+      ],
+      "tasks": [],
+      "createdAt": "2026-09-11T12:57:32.139Z",
+      "updatedAt": "2026-09-11T12:57:32.139Z"
+    },
     {
       "id": "proj_e7163fcb",
       "workspaceId": "ws_0785d88d",
@@ -4660,6 +4904,24 @@
   "folders": [],
   "milestones": [],
   "assets": [
+    {
+      "id": "ast_1e532c0d",
+      "workspaceId": "ws_ae486b64",
+      "name": "Brand Logo",
+      "category": "brand",
+      "url": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800",
+      "size": 500000,
+      "mimeType": "image/png",
+      "tags": [
+        "logo",
+        "brand"
+      ],
+      "metadata": {
+        "approved": true,
+        "favorite": true
+      },
+      "createdAt": "2026-09-11T12:57:32.154Z"
+    },
     {
       "id": "ast_9207e02f",
       "workspaceId": "ws_0785d88d",
@@ -5738,6 +6000,18 @@
       },
       "createdAt": "2026-09-11T08:18:58.091Z",
       "updatedAt": "2026-09-11T08:18:58.091Z"
+    },
+    {
+      "id": "doc_5d8484e7",
+      "workspaceId": "ws_ae486b64",
+      "documentType": "company_profile",
+      "title": "Demo Brand Co. - Company Profile",
+      "status": "draft",
+      "content": {
+        "html": "<p>Welcome to Demo Brand Co.</p>"
+      },
+      "createdAt": "2026-09-11T12:57:32.149Z",
+      "updatedAt": "2026-09-11T12:57:32.149Z"
     }
   ],
   "creative_memories": [
@@ -6769,12 +7043,72 @@
         "Created workspace"
       ],
       "updatedAt": "2026-09-11T12:47:40.114Z"
+    },
+    {
+      "id": "mem_d5e150bf",
+      "workspaceId": "ws_ae486b64",
+      "identitySummary": "Demo Brand Workspace is an active brand operating on Keedohub Creative OS.",
+      "coreNarrative": "Modern brand streamlining creative production.",
+      "toneTraits": [
+        "Authentic",
+        "Impactful",
+        "Bold",
+        "Professional"
+      ],
+      "visualRules": [
+        "High-contrast typography",
+        "Refined visual hierarchy",
+        "Clean asset specifications"
+      ],
+      "audioSignatures": [],
+      "doSay": [
+        "Authentic craftsmanship",
+        "Creative momentum"
+      ],
+      "dontSay": [
+        "Generic clichés"
+      ],
+      "brandColors": [
+        {
+          "name": "Primary Brand Token",
+          "hex": "#EF4444",
+          "role": "Primary Accent"
+        },
+        {
+          "name": "Canvas Neutral",
+          "hex": "#09090B",
+          "role": "Background"
+        },
+        {
+          "name": "Elevated Surface",
+          "hex": "#18181B",
+          "role": "Container"
+        }
+      ],
+      "recentLearnings": [
+        "Initialized new Keedohub workspace"
+      ],
+      "keyMilestones": [
+        "Created workspace"
+      ],
+      "updatedAt": "2026-09-11T12:57:32.124Z"
     }
   ],
   "creative_memory_items": [],
   "memory_candidates": [],
   "memory_block_rules": [],
   "notifications": [
+    {
+      "id": "notif_3c197e31",
+      "workspaceId": "ws_ae486b64",
+      "userId": "usr_e936a36c",
+      "title": "Workspace 'Demo Brand Workspace' Created",
+      "message": "Your BRAND workspace is ready. Access all workstations and persistent storage.",
+      "type": "success",
+      "read": false,
+      "link": "overview",
+      "createdAt": "2026-09-11T12:57:32.125Z"
+    },
     {
       "id": "notif_2203501d",
       "workspaceId": "ws_0785d88d",
@@ -7119,6 +7453,17 @@
   ],
   "activity_logs": [
     {
+      "id": "act_2931e3f9",
+      "workspaceId": "ws_ae486b64",
+      "userId": "usr_e936a36c",
+      "userEmail": "demo.admin.1789131452075@keedohub.demo",
+      "action": "CREATE_WORKSPACE",
+      "entityType": "workspace",
+      "entityId": "ws_ae486b64",
+      "details": "Created workspace: Demo Brand Workspace",
+      "createdAt": "2026-09-11T12:57:32.129Z"
+    },
+    {
       "id": "act_91e0850b",
       "workspaceId": "ws_0785d88d",
       "userId": "usr_8f7a8225",
@@ -7439,6 +7784,24 @@
     }
   ],
   "creative_requests": [
+    {
+      "id": "req_fd2b1b05",
+      "workspaceId": "ws_ae486b64",
+      "userId": "usr_e936a36c",
+      "serviceId": "brand_identity",
+      "serviceName": "Brand Identity",
+      "budget": 500,
+      "currency": "USD",
+      "deadline": "2026-11-01",
+      "briefDetails": "Complete brand identity package",
+      "status": "completed",
+      "title": "Brand Identity Package",
+      "requestType": "brand asset",
+      "lifecycleStatus": "COMPLETED",
+      "membershipEntitlement": "brand_pro",
+      "priority": "high",
+      "createdAt": "2026-09-11T12:57:32.159Z"
+    },
     {
       "id": "req_a4e90583",
       "workspaceId": "ws_0785d88d",
@@ -8504,6 +8867,58 @@
   "feature_flags": [],
   "support_tickets": [],
   "production_jobs": [
+    {
+      "requestId": "cr_demo_brand",
+      "userId": "usr_e936a36c",
+      "customerName": "Platform Lead Admin",
+      "customerEmail": "demo.admin.1789131452075@keedohub.demo",
+      "identity": "brand",
+      "projectId": "proj_97d887e7",
+      "projectTitle": "Brand Refresh 2026",
+      "serviceId": "brand_identity",
+      "serviceName": "Brand Identity System & Vector Suite",
+      "deliverables": [
+        {
+          "id": "del_brand_1789131452164",
+          "jobId": "pjob_e7d72a8b",
+          "title": "Brand Guidelines & Vector Suite",
+          "category": "brand",
+          "format": "PDF / Vector",
+          "specs": "Master vector kit and guidelines",
+          "downloadAllowed": true,
+          "status": "client_review",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "ver_brand_1",
+              "deliverableId": "del_brand_demo",
+              "jobId": "pjob_demo_brand",
+              "versionNumber": 1,
+              "title": "Identity Guide v1",
+              "previewUrl": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200",
+              "fileUrl": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200",
+              "status": "client_review",
+              "notes": "Complete vector logomark, typographic hierarchy and color system.",
+              "uploadedBy": "Brand Studio Lead",
+              "uploadedAt": "2026-09-11T12:57:32.164Z"
+            }
+          ]
+        }
+      ],
+      "assignedStudio": "Brand Identity",
+      "assignedProducer": "Dare Balogun",
+      "priority": "high",
+      "dueDate": "2026-11-15",
+      "status": "CLIENT_REVIEW",
+      "internalNotes": "Vector guidelines generated, contrast ratios WCAG AAA checked.",
+      "clientVisibleNotes": "Brand guidelines v1 is ready for executive review. You may approve or submit specific revision feedback directly.",
+      "revisions": [],
+      "approvals": [],
+      "id": "pjob_e7d72a8b",
+      "workspaceId": "ws_ae486b64",
+      "createdAt": "2026-09-11T12:57:32.165Z",
+      "updatedAt": "2026-09-11T12:57:32.165Z"
+    },
     {
       "requestId": "cr_demo_artist",
       "userId": "usr_8f7a8225",
@@ -13591,6 +14006,189 @@
       "updatedAt": "2026-09-11T12:47:40.141Z",
       "finalDelivery": {
         "deliveredAt": "2026-09-11T12:47:40.141Z",
+        "deliveredBy": "system_admin",
+        "deliveredByName": "Keedohub Studio Production",
+        "note": "Production completed and final assets dispatched to your Project and Library.",
+        "createdAssetIds": []
+      }
+    },
+    {
+      "id": "pjob_req_fd2b1b05",
+      "requestId": "req_fd2b1b05",
+      "workspaceId": "ws_ae486b64",
+      "userId": "usr_e936a36c",
+      "customerName": "Platform Lead Admin",
+      "customerEmail": "demo.admin.1789131452075@keedohub.demo",
+      "identity": "brand",
+      "serviceId": "brand_identity",
+      "serviceName": "Brand Identity",
+      "deliverables": [
+        {
+          "id": "del_c2ad2a0e",
+          "jobId": "pjob_req_fd2b1b05",
+          "title": "Primary, Secondary & Icon Vector Marks",
+          "category": "brand",
+          "format": "SVG / EPS / PNG",
+          "specs": "Full scalable vector logo suite in light, dark & mono",
+          "downloadAllowed": true,
+          "status": "delivered",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "dver_abda69d0",
+              "deliverableId": "del_c2ad2a0e",
+              "jobId": "pjob_req_fd2b1b05",
+              "versionNumber": 1,
+              "title": "Primary, Secondary & Icon Vector Marks (v1)",
+              "previewUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileSize": "14.2 MB",
+              "fileType": "image/png",
+              "notes": "Initial master delivery prepared for client review.",
+              "uploadedBy": "Dare Balogun",
+              "uploadedAt": "2026-09-11T12:57:32.159Z",
+              "status": "delivered",
+              "comments": [
+                {
+                  "id": "comm_691adf21",
+                  "authorId": "usr_studio_lead",
+                  "authorName": "Dare Balogun",
+                  "authorRole": "producer",
+                  "content": "V1 is uploaded and calibrated to the DSP master standards. Looking forward to your thoughts!",
+                  "createdAt": "2026-09-11T12:57:32.159Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "del_ef7b2eeb",
+          "jobId": "pjob_req_fd2b1b05",
+          "title": "Color Palette Tokens & Contrast Matrix",
+          "category": "brand",
+          "format": "JSON / PDF",
+          "specs": "Hex, RGB, CMYK & WCAG AA contrast matrix",
+          "downloadAllowed": true,
+          "status": "delivered",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "dver_e906cd40",
+              "deliverableId": "del_ef7b2eeb",
+              "jobId": "pjob_req_fd2b1b05",
+              "versionNumber": 1,
+              "title": "Color Palette Tokens & Contrast Matrix (v1)",
+              "previewUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileSize": "14.2 MB",
+              "fileType": "image/png",
+              "notes": "Supporting distribution asset bundle.",
+              "uploadedBy": "Dare Balogun",
+              "uploadedAt": "2026-09-11T12:57:32.159Z",
+              "status": "delivered",
+              "comments": [
+                {
+                  "id": "comm_0e604db3",
+                  "authorId": "usr_studio_lead",
+                  "authorName": "Dare Balogun",
+                  "authorRole": "producer",
+                  "content": "V1 is uploaded and calibrated to the DSP master standards. Looking forward to your thoughts!",
+                  "createdAt": "2026-09-11T12:57:32.159Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "del_9192ed56",
+          "jobId": "pjob_req_fd2b1b05",
+          "title": "Typography Pairing Hierarchy System",
+          "category": "document",
+          "format": "PDF / Web Fonts",
+          "specs": "Display, heading and body typeface hierarchy",
+          "downloadAllowed": true,
+          "status": "delivered",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "dver_6e6280ad",
+              "deliverableId": "del_9192ed56",
+              "jobId": "pjob_req_fd2b1b05",
+              "versionNumber": 1,
+              "title": "Typography Pairing Hierarchy System (v1)",
+              "previewUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+              "fileUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+              "fileSize": "14.2 MB",
+              "fileType": "application/pdf",
+              "notes": "Supporting distribution asset bundle.",
+              "uploadedBy": "Dare Balogun",
+              "uploadedAt": "2026-09-11T12:57:32.159Z",
+              "status": "delivered",
+              "comments": [
+                {
+                  "id": "comm_fbbabab8",
+                  "authorId": "usr_studio_lead",
+                  "authorName": "Dare Balogun",
+                  "authorRole": "producer",
+                  "content": "V1 is uploaded and calibrated to the DSP master standards. Looking forward to your thoughts!",
+                  "createdAt": "2026-09-11T12:57:32.159Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "del_2e1326c9",
+          "jobId": "pjob_req_fd2b1b05",
+          "title": "Comprehensive Brand Guidelines Book",
+          "category": "document",
+          "format": "PDF",
+          "specs": "24-page executive brand bible",
+          "downloadAllowed": true,
+          "status": "delivered",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "dver_d40f1063",
+              "deliverableId": "del_2e1326c9",
+              "jobId": "pjob_req_fd2b1b05",
+              "versionNumber": 1,
+              "title": "Comprehensive Brand Guidelines Book (v1)",
+              "previewUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+              "fileUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+              "fileSize": "14.2 MB",
+              "fileType": "application/pdf",
+              "notes": "Supporting distribution asset bundle.",
+              "uploadedBy": "Dare Balogun",
+              "uploadedAt": "2026-09-11T12:57:32.159Z",
+              "status": "delivered",
+              "comments": [
+                {
+                  "id": "comm_0fd3343f",
+                  "authorId": "usr_studio_lead",
+                  "authorName": "Dare Balogun",
+                  "authorRole": "producer",
+                  "content": "V1 is uploaded and calibrated to the DSP master standards. Looking forward to your thoughts!",
+                  "createdAt": "2026-09-11T12:57:32.159Z"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "assignedStudio": "artwork",
+      "assignedProducer": "Dare Balogun",
+      "priority": "high",
+      "dueDate": "2026-11-01",
+      "status": "DELIVERED",
+      "internalNotes": "Internal Studio Check: Initial brief calibrated.",
+      "clientVisibleNotes": "Our creative production team is actively working on your deliverables.",
+      "revisions": [],
+      "approvals": [],
+      "createdAt": "2026-09-11T12:57:32.159Z",
+      "updatedAt": "2026-09-11T12:57:32.165Z",
+      "finalDelivery": {
+        "deliveredAt": "2026-09-11T12:57:32.165Z",
         "deliveredBy": "system_admin",
         "deliveredByName": "Keedohub Studio Production",
         "note": "Production completed and final assets dispatched to your Project and Library.",

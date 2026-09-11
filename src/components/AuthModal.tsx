@@ -8,9 +8,10 @@ interface AuthModalProps {
   onClose: () => void;
   onSuccess?: () => void;
   initialMode?: "login" | "signup";
+  adminContext?: boolean;
 }
 
-export function AuthModal({ isOpen, onClose, onSuccess, initialMode = "login" }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, onSuccess, initialMode = "login", adminContext = false }: AuthModalProps) {
   const { login, demoLogin, signup, isLoading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">(initialMode);
   
@@ -49,7 +50,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = "login" }:
     }
   };
 
-  const handleDemoLogin = async (type: "artist" | "brand") => {
+  const handleDemoLogin = async (type: "artist" | "brand" | "admin") => {
     setError(null);
     try {
       await demoLogin(type);
@@ -79,10 +80,10 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = "login" }:
             </div>
             <div>
               <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-                {mode === "login" ? "Sign In to Keedohub OS" : "Initialize Workspace Account"}
+                {mode === "login" ? (adminContext ? "Sign In to Admin Control Center" : "Sign In to Keedohub OS") : "Initialize Workspace Account"}
               </h3>
               <p className="text-xs text-zinc-400">
-                {mode === "login" ? "Access persistent workspaces & assets" : "One operating system for your creative world"}
+                {mode === "login" ? (adminContext ? "Authorized staff access only" : "Access persistent workspaces & assets") : "One operating system for your creative world"}
               </p>
             </div>
           </div>
@@ -251,6 +252,26 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = "login" }:
             <p className="text-xs text-zinc-400 text-center">Try the product instantly — no account needed</p>
             
             <div className="grid gap-3">
+              {adminContext && (
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin("admin")}
+                  className="group relative flex items-start gap-4 p-4 rounded-xl border border-amber-500/30 bg-amber-950/20 hover:bg-amber-950/30 hover:border-amber-400/60 transition-all cursor-pointer text-left"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 shadow-lg">
+                    <ShieldCheck className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white">Admin Demo</span>
+                      <Sparkles className="w-4 h-4 text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <p className="text-xs text-zinc-400 mt-0.5">Operations, users, workspaces, audit activity and support</p>
+                    <p className="text-[10px] text-amber-500/70 mt-1.5 font-medium">Temporary staff-level preview session</p>
+                  </div>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => handleDemoLogin("artist")}

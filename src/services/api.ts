@@ -193,7 +193,7 @@ export const api = {
 
     // Demo preview mode - creates temporary demo session with sample data
     // For preview/demo purposes only, not for production use
-    demo: async (demoType: "artist" | "brand") => {
+    demo: async (demoType: "artist" | "brand" | "admin") => {
       const res = await request<{
         token: string;
         user: any;
