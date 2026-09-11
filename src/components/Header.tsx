@@ -278,21 +278,6 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
-                id="header-nav-workspace"
-                onClick={() => {
-                  setActiveTab("command-center");
-                }}
-                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  isWorkspaceTab(activeTab)
-                    ? "bg-theme-accent text-white font-bold shadow-sm"
-                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
-                }`}
-              >
-                <HardDrive className="w-3 h-3" />
-                <span>Workspace</span>
-              </button>
-
-              <button
                 id="header-nav-studios"
                 onClick={() => {
                   setActiveTab("studio");
@@ -547,18 +532,6 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             Home
-          </button>
-          <button
-            id="mobile-header-nav-workspace"
-            onClick={() => setActiveTab("command-center")}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all flex items-center gap-1 ${
-              isWorkspaceTab(activeTab)
-                ? "bg-theme-accent text-white shadow-sm font-bold"
-                : "bg-[var(--bento-card)] text-[var(--bento-muted)] border border-[var(--bento-border)] hover:text-[var(--bento-text)]"
-            }`}
-          >
-            <HardDrive className="w-3 h-3" />
-            <span>Workspace</span>
           </button>
           <button
             id="mobile-header-nav-studios"

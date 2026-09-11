@@ -274,9 +274,9 @@ export function WorkspaceShell({
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-2 sm:px-4 py-4 grid gap-4 lg:grid-cols-[220px_1fr_300px]">
+    <div className="workspace-container workspace-shell-grid">
       {/* Left Navigation Sidebar */}
-      <aside className="hidden lg:block rounded-3xl border border-zinc-800 bg-zinc-950/70 p-3 h-fit sticky top-20 shadow-xl">
+      <aside className="workspace-sidebar hidden lg:block">
         <div className="px-2 pt-1 pb-2 flex items-center justify-between border-b border-zinc-800/60 mb-2">
           <p className="text-[10px] font-bold tracking-[0.2em] text-red-400 uppercase">
             {identity === "brand" ? "Brand Workspace" : "Artist Workspace"}
@@ -310,9 +310,9 @@ export function WorkspaceShell({
       </aside>
 
       {/* Main Workspace Stage */}
-      <div className="min-w-0 pb-20 lg:pb-0 space-y-3">
+      <main className="workspace-main min-w-0 pb-20 lg:pb-0">
         {/* Workspace Top Bar & Dynamic Breadcrumbs */}
-        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 backdrop-blur-md shadow-sm">
+        <div className="workspace-toolbar">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             {/* Direct Home shortcut button when nested */}
             {section !== "home" && (
@@ -456,7 +456,7 @@ export function WorkspaceShell({
         <div className="sm:hidden mt-4">
           <SharePanel onNotify={onNotify} />
         </div>
-      </div>
+        </main>
 
       {/* Right Intelligence Sidebar */}
       <aside className="hidden lg:block space-y-4 h-fit sticky top-20">
@@ -465,7 +465,7 @@ export function WorkspaceShell({
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-950/95 border-t border-zinc-800 px-2 py-1.5 flex items-center justify-around backdrop-blur-xl">
+      <nav className="workspace-mobile-nav lg:hidden fixed bottom-0 left-0 right-0 z-40">
         {nav.slice(0, 5).map((n) => {
           const isSelected = section === n.key;
           return (

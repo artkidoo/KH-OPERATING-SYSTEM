@@ -150,7 +150,7 @@ export function LibraryView({
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 space-y-6">
+    <div className="workspace-page space-y-6">
       {/* Library Banner */}
       <div className="rounded-3xl border border-zinc-800 bg-zinc-950/80 p-6 backdrop-blur-md shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -240,7 +240,7 @@ export function LibraryView({
 
       {/* Assets Grid */}
       {filteredAssets.length > 0 ? (
-        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {filteredAssets.map((asset) => {
             const project = projects.find((p) => p.id === asset.projectId);
             const isImage =
