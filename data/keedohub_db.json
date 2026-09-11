@@ -207,6 +207,17 @@
       "status": "active",
       "createdAt": "2026-09-11T08:18:58.067Z",
       "defaultWorkspaceId": "ws_fbd68124"
+    },
+    {
+      "id": "usr_06fa7e9d",
+      "email": "demo.artist.1789129335785@keedohub.demo",
+      "passwordHash": "scrypt$16384$8$1$v+ltKVQ4DRwXI+7ozMYkhg==$3fZgPQfPmfoKQ3sYJHja9QGqDl8q+3/NnpbNQcVI+vwoHaxJBhNrzGYR2PxO1ZKrmLEHHgEge5QDgxnXhDeLYg==",
+      "fullName": "Demo Artist",
+      "avatarUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=Demo%20Artist",
+      "systemRole": "user",
+      "status": "active",
+      "createdAt": "2026-09-11T12:22:15.843Z",
+      "defaultWorkspaceId": "ws_26b702ee"
     }
   ],
   "sessions": [
@@ -594,6 +605,22 @@
       "createdAt": "2026-09-11T08:18:58.077Z",
       "updatedAt": "2026-09-11T08:18:58.077Z",
       "status": "active"
+    },
+    {
+      "id": "ws_26b702ee",
+      "name": "Demo Artist Workspace",
+      "slug": "demo-artist-workspace-26b702ee",
+      "ownerId": "usr_06fa7e9d",
+      "identityType": "artist",
+      "avatarUrl": "https://api.dicebear.com/7.x/identicon/svg?seed=Demo%20Artist%20Workspace",
+      "bio": "Independent artist pushing creative boundaries.",
+      "genreOrNiche": "Afro-Fusion",
+      "settings": {
+        "defaultCurrency": "USD"
+      },
+      "createdAt": "2026-09-11T12:22:15.852Z",
+      "updatedAt": "2026-09-11T12:22:15.852Z",
+      "status": "active"
     }
   ],
   "workspace_members": [
@@ -722,6 +749,13 @@
       "userId": "usr_95b7f06a",
       "role": "owner",
       "joinedAt": "2026-09-11T08:18:58.077Z"
+    },
+    {
+      "id": "mem_d50b5cc3",
+      "workspaceId": "ws_26b702ee",
+      "userId": "usr_06fa7e9d",
+      "role": "owner",
+      "joinedAt": "2026-09-11T12:22:15.852Z"
     }
   ],
   "artist_dna": [],
@@ -3093,6 +3127,131 @@
       },
       "brandGuidelinesText": "# Demo Brand Workspace Brand Guidelines\n\n- Primary Accent: #EF4444\n- Background: #09090B\n- Typography: Space Grotesk / Plus Jakarta Sans",
       "updatedAt": "2026-09-11T08:18:58.077Z"
+    },
+    {
+      "id": "bc_2deeba34",
+      "workspaceId": "ws_26b702ee",
+      "brandName": "Demo Artist Workspace",
+      "tagline": "Independent artist pushing creative boundaries.",
+      "industry": "Afro-Fusion",
+      "identityType": "artist",
+      "archetype": "Creator / Magician",
+      "logoAssets": {
+        "primaryLogoUrl": "https://api.dicebear.com/7.x/identicon/svg?seed=Demo%20Artist%20Workspace"
+      },
+      "colorPalette": [
+        {
+          "name": "Brand Accent",
+          "hex": "#EF4444",
+          "role": "Primary Interactive"
+        },
+        {
+          "name": "Secondary Highlight",
+          "hex": "#F59E0B",
+          "role": "Energy & Warmth"
+        },
+        {
+          "name": "Canvas Neutral",
+          "hex": "#09090B",
+          "role": "Background Canvas"
+        },
+        {
+          "name": "Elevated Surface",
+          "hex": "#18181B",
+          "role": "Card Surface"
+        },
+        {
+          "name": "Muted Text",
+          "hex": "#71717A",
+          "role": "Secondary Typography"
+        }
+      ],
+      "typographyPairing": {
+        "heading": "Space Grotesk (Bold 800)",
+        "body": "Plus Jakarta Sans (Medium 500)",
+        "monospace": "JetBrains Mono"
+      },
+      "visualDirection": {
+        "aestheticKeywords": [
+          "High Contrast",
+          "Precision Hierarchy",
+          "Clean Geometry",
+          "Deliberate Spacing"
+        ],
+        "moodSummary": "A clean architectural workspace with clear visual priority and zero visual clutter.",
+        "imageryGuidelines": "High-resolution 3000x3000px assets with crisp focal points and deep negative space.",
+        "dos": [
+          "Keep outer padding ≥ inner padding",
+          "Ensure contrast meets WCAG AA (4.5:1+)",
+          "Maintain tight line-height on headings"
+        ],
+        "donts": [
+          "Never use blurry low-res imagery",
+          "Avoid generic corporate stock cliches"
+        ]
+      },
+      "voiceAndTone": {
+        "traits": [
+          "Direct",
+          "Confident",
+          "High-Impact",
+          "Authentic"
+        ],
+        "doSay": [
+          "Craftsmanship",
+          "Operational momentum",
+          "High fidelity"
+        ],
+        "dontSay": [
+          "Synergy",
+          "Paradigm shift",
+          "Supercharge"
+        ],
+        "vocabulary": [
+          "Architecture",
+          "Precision",
+          "Master Object",
+          "Ecosystem"
+        ],
+        "communicationPrinciples": [
+          "Demonstrate value through authentic execution.",
+          "Keep communications concise, clear, and direct."
+        ]
+      },
+      "audience": {
+        "primaryICP": "Target audience for Demo Artist Workspace in the Afro-Fusion sector.",
+        "targetSegments": [
+          "Core clients / fans",
+          "Strategic partners",
+          "Community advocates"
+        ],
+        "painPoints": [
+          "Fragmented workflows",
+          "Slow turnarounds",
+          "Low brand distinction"
+        ],
+        "coreDesires": [
+          "Premium quality",
+          "Reliability",
+          "Direct access"
+        ]
+      },
+      "positioning": {
+        "marketCategory": "Artist Operating System",
+        "valueProposition": "Delivering world-class creative output and seamless campaign execution.",
+        "uniqueSellingPoints": [
+          "Campaign as Master Object framework",
+          "7-Pillar Launch Readiness verification",
+          "Keedohub Studio production request integration"
+        ],
+        "competitorDifferentiators": [
+          "Integrated full-stack creative operating environment",
+          "Zero mock data, authentic database persistence"
+        ],
+        "positioningStatement": "For demanding audiences, Demo Artist Workspace delivers focused creative excellence."
+      },
+      "brandGuidelinesText": "# Demo Artist Workspace Brand Guidelines\n\n- Primary Accent: #EF4444\n- Background: #09090B\n- Typography: Space Grotesk / Plus Jakarta Sans",
+      "updatedAt": "2026-09-11T12:22:15.852Z"
     }
   ],
   "products": [
@@ -3671,9 +3830,60 @@
       "status": "active",
       "createdAt": "2026-09-11T08:18:58.077Z",
       "updatedAt": "2026-09-11T08:18:58.077Z"
+    },
+    {
+      "id": "prd_c5cfe9b8",
+      "workspaceId": "ws_26b702ee",
+      "name": "Demo Artist Workspace Flagship Offering",
+      "type": "merch",
+      "tagline": "Premier Afro-Fusion offering",
+      "description": "The core flagship offering for Demo Artist Workspace designed for high market impact.",
+      "category": "Afro-Fusion",
+      "pricing": {
+        "amount": 49,
+        "currency": "USD",
+        "billingInterval": "one_time",
+        "tierName": "Standard"
+      },
+      "targetAudience": "Primary customer segment for Demo Artist Workspace.",
+      "keyFeatures": [
+        "Master-grade quality",
+        "Instant digital delivery",
+        "Dedicated support"
+      ],
+      "benefits": [
+        "High-impact results",
+        "Time savings",
+        "Distinctive quality"
+      ],
+      "uniqueSellingPoints": [
+        "Engineered on Keedohub Core architecture"
+      ],
+      "status": "active",
+      "createdAt": "2026-09-11T12:22:15.852Z",
+      "updatedAt": "2026-09-11T12:22:15.852Z"
     }
   ],
   "projects": [
+    {
+      "id": "proj_acafe227",
+      "workspaceId": "ws_26b702ee",
+      "title": "Summer Album 2026",
+      "description": "New Afrobeats single with full creative package",
+      "category": "music",
+      "status": "in-progress",
+      "priority": "high",
+      "budget": 0,
+      "currency": "USD",
+      "deadline": "2026-09-30",
+      "tags": [
+        "release",
+        "music"
+      ],
+      "tasks": [],
+      "createdAt": "2026-09-11T12:22:15.862Z",
+      "updatedAt": "2026-09-11T12:22:15.862Z"
+    },
     {
       "id": "proj_dd6a762a",
       "workspaceId": "ws_fbd68124",
@@ -4020,6 +4230,41 @@
   "folders": [],
   "milestones": [],
   "assets": [
+    {
+      "id": "ast_7527c7b2",
+      "workspaceId": "ws_26b702ee",
+      "name": "Social Media Kit",
+      "category": "image",
+      "url": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800",
+      "size": 1500000,
+      "mimeType": "image/jpeg",
+      "tags": [
+        "social",
+        "promotion"
+      ],
+      "metadata": {
+        "approved": false
+      },
+      "createdAt": "2026-09-11T12:22:15.881Z"
+    },
+    {
+      "id": "ast_1d2bc4be",
+      "workspaceId": "ws_26b702ee",
+      "name": "Album Cover Art",
+      "category": "cover",
+      "url": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800",
+      "size": 2048000,
+      "mimeType": "image/jpeg",
+      "tags": [
+        "cover",
+        "artwork"
+      ],
+      "metadata": {
+        "approved": true,
+        "favorite": true
+      },
+      "createdAt": "2026-09-11T12:22:15.877Z"
+    },
     {
       "id": "ast_313b1937",
       "workspaceId": "ws_fbd68124",
@@ -4662,6 +4907,21 @@
     }
   ],
   "releases": [
+    {
+      "id": "rel_df10ac31",
+      "workspaceId": "ws_26b702ee",
+      "title": "Midnight in Lagos",
+      "artistName": "Demo Artist",
+      "genre": "Afro-Fusion",
+      "releaseType": "single",
+      "releaseDate": "2026-10-15",
+      "status": "ready",
+      "narrative": "A late-night drive through Lagos streets.",
+      "phases": [],
+      "checklist": [],
+      "createdAt": "2026-09-11T12:22:15.865Z",
+      "updatedAt": "2026-09-11T12:22:15.866Z"
+    },
     {
       "id": "rel_34b2ec38",
       "workspaceId": "ws_619c507c",
@@ -5832,12 +6092,72 @@
         "Created workspace"
       ],
       "updatedAt": "2026-09-11T08:18:58.077Z"
+    },
+    {
+      "id": "mem_21deef99",
+      "workspaceId": "ws_26b702ee",
+      "identitySummary": "Demo Artist Workspace is an active artist operating on Keedohub Creative OS.",
+      "coreNarrative": "Independent artist pushing creative boundaries.",
+      "toneTraits": [
+        "Authentic",
+        "Impactful",
+        "Bold",
+        "Professional"
+      ],
+      "visualRules": [
+        "High-contrast typography",
+        "Refined visual hierarchy",
+        "Clean asset specifications"
+      ],
+      "audioSignatures": [],
+      "doSay": [
+        "Authentic craftsmanship",
+        "Creative momentum"
+      ],
+      "dontSay": [
+        "Generic clichés"
+      ],
+      "brandColors": [
+        {
+          "name": "Primary Brand Token",
+          "hex": "#EF4444",
+          "role": "Primary Accent"
+        },
+        {
+          "name": "Canvas Neutral",
+          "hex": "#09090B",
+          "role": "Background"
+        },
+        {
+          "name": "Elevated Surface",
+          "hex": "#18181B",
+          "role": "Container"
+        }
+      ],
+      "recentLearnings": [
+        "Initialized new Keedohub workspace"
+      ],
+      "keyMilestones": [
+        "Created workspace"
+      ],
+      "updatedAt": "2026-09-11T12:22:15.852Z"
     }
   ],
   "creative_memory_items": [],
   "memory_candidates": [],
   "memory_block_rules": [],
   "notifications": [
+    {
+      "id": "notif_b751f056",
+      "workspaceId": "ws_26b702ee",
+      "userId": "usr_06fa7e9d",
+      "title": "Workspace 'Demo Artist Workspace' Created",
+      "message": "Your ARTIST workspace is ready. Access all workstations and persistent storage.",
+      "type": "success",
+      "read": false,
+      "link": "overview",
+      "createdAt": "2026-09-11T12:22:15.853Z"
+    },
     {
       "id": "notif_a141584e",
       "workspaceId": "ws_fbd68124",
@@ -6149,6 +6469,17 @@
   ],
   "activity_logs": [
     {
+      "id": "act_688626d3",
+      "workspaceId": "ws_26b702ee",
+      "userId": "usr_06fa7e9d",
+      "userEmail": "demo.artist.1789129335785@keedohub.demo",
+      "action": "CREATE_WORKSPACE",
+      "entityType": "workspace",
+      "entityId": "ws_26b702ee",
+      "details": "Created workspace: Demo Artist Workspace",
+      "createdAt": "2026-09-11T12:22:15.856Z"
+    },
+    {
       "id": "act_5cb89c80",
       "workspaceId": "ws_fbd68124",
       "userId": "usr_95b7f06a",
@@ -6436,6 +6767,24 @@
     }
   ],
   "creative_requests": [
+    {
+      "id": "req_0a3c5d29",
+      "workspaceId": "ws_26b702ee",
+      "userId": "usr_06fa7e9d",
+      "serviceId": "cover-art",
+      "serviceName": "Cover Artwork",
+      "budget": 50,
+      "currency": "USD",
+      "deadline": "Flexible",
+      "briefDetails": "Professional cover artwork for single release",
+      "status": "completed",
+      "title": "Album Cover Request",
+      "requestType": "artwork",
+      "lifecycleStatus": "COMPLETED",
+      "membershipEntitlement": "artist_pro",
+      "priority": "medium",
+      "createdAt": "2026-09-11T12:22:15.884Z"
+    },
     {
       "id": "req_1e7e08a1",
       "workspaceId": "ws_fbd68124",
@@ -6918,10 +7267,111 @@
   "comments": [],
   "approval_requests": [],
   "revisions": [],
-  "admin_audit_logs": [],
+  "admin_audit_logs": [
+    {
+      "id": "a-log-0d1fb7d3",
+      "adminUserId": "usr_06fa7e9d",
+      "adminEmail": "demo.artist.1789129335785@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:23:01.546Z"
+    },
+    {
+      "id": "a-log-ffbb9427",
+      "adminUserId": "usr_06fa7e9d",
+      "adminEmail": "demo.artist.1789129335785@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:23:00.428Z"
+    }
+  ],
   "feature_flags": [],
   "support_tickets": [],
   "production_jobs": [
+    {
+      "requestId": "cr_demo_artist",
+      "userId": "usr_06fa7e9d",
+      "customerName": "Demo Artist",
+      "customerEmail": "demo.artist.1789129335785@keedohub.demo",
+      "identity": "artist",
+      "projectId": "proj_acafe227",
+      "projectTitle": "Summer Album 2026",
+      "serviceId": "cover-art",
+      "serviceName": "Master Cover Artwork & Single Packaging",
+      "deliverables": [
+        {
+          "id": "del_artist_1789129335887",
+          "jobId": "pjob_1f6f0805",
+          "title": "Master Cover Artwork 3000x3000",
+          "category": "artwork",
+          "format": "JPG / PNG",
+          "specs": "3000x3000px 300DPI RGB Color",
+          "downloadAllowed": true,
+          "status": "client_review",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "ver_art_1",
+              "deliverableId": "del_artist_demo",
+              "jobId": "pjob_demo_artist",
+              "versionNumber": 1,
+              "title": "Front Sleeve Concept v1",
+              "previewUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200",
+              "fileUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200",
+              "status": "client_review",
+              "notes": "Visual Studio lead initial high-res deliverable for client review.",
+              "uploadedBy": "Visual Studio Lead",
+              "uploadedAt": "2026-09-11T12:22:15.887Z"
+            }
+          ]
+        }
+      ],
+      "assignedStudio": "Visual Art & Artwork",
+      "assignedProducer": "Dare Balogun",
+      "priority": "high",
+      "dueDate": "2026-09-25",
+      "status": "CLIENT_REVIEW",
+      "internalNotes": "Internal QA passed. Composition and color fidelity verified.",
+      "clientVisibleNotes": "Version 1 sleeve concept is now ready for your review. Please inspect lighting, title typography, and let us know if revisions are required.",
+      "revisions": [],
+      "approvals": [],
+      "id": "pjob_1f6f0805",
+      "workspaceId": "ws_26b702ee",
+      "createdAt": "2026-09-11T12:22:15.888Z",
+      "updatedAt": "2026-09-11T12:22:15.888Z"
+    },
     {
       "requestId": "cr_demo_brand",
       "userId": "usr_95b7f06a",
@@ -11304,6 +11754,189 @@
       "updatedAt": "2026-09-11T08:18:58.099Z",
       "finalDelivery": {
         "deliveredAt": "2026-09-11T08:18:58.099Z",
+        "deliveredBy": "system_admin",
+        "deliveredByName": "Keedohub Studio Production",
+        "note": "Production completed and final assets dispatched to your Project and Library.",
+        "createdAssetIds": []
+      }
+    },
+    {
+      "id": "pjob_req_0a3c5d29",
+      "requestId": "req_0a3c5d29",
+      "workspaceId": "ws_26b702ee",
+      "userId": "usr_06fa7e9d",
+      "customerName": "Demo Artist",
+      "customerEmail": "demo.artist.1789129335785@keedohub.demo",
+      "identity": "artist",
+      "serviceId": "cover-art",
+      "serviceName": "Cover Artwork",
+      "deliverables": [
+        {
+          "id": "del_e064d250",
+          "jobId": "pjob_req_0a3c5d29",
+          "title": "3000×3000px 300DPI Master Artwork",
+          "category": "cover",
+          "format": "PNG / JPG",
+          "specs": "3000×3000px RGB 300DPI DSP-compliant",
+          "downloadAllowed": true,
+          "status": "delivered",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "dver_2398fdaf",
+              "deliverableId": "del_e064d250",
+              "jobId": "pjob_req_0a3c5d29",
+              "versionNumber": 1,
+              "title": "3000×3000px 300DPI Master Artwork (v1)",
+              "previewUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileSize": "14.2 MB",
+              "fileType": "image/png",
+              "notes": "Initial master delivery prepared for client review.",
+              "uploadedBy": "Dare Balogun",
+              "uploadedAt": "2026-09-11T12:22:15.884Z",
+              "status": "delivered",
+              "comments": [
+                {
+                  "id": "comm_30dd7bdf",
+                  "authorId": "usr_studio_lead",
+                  "authorName": "Dare Balogun",
+                  "authorRole": "producer",
+                  "content": "V1 is uploaded and calibrated to the DSP master standards. Looking forward to your thoughts!",
+                  "createdAt": "2026-09-11T12:22:15.884Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "del_bbdd20ce",
+          "jobId": "pjob_req_0a3c5d29",
+          "title": "Spotify Canvas 9:16 Video Loop",
+          "category": "video",
+          "format": "MP4",
+          "specs": "1080×1920px 60fps 5-8s seamless loop",
+          "downloadAllowed": true,
+          "status": "delivered",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "dver_49348080",
+              "deliverableId": "del_bbdd20ce",
+              "jobId": "pjob_req_0a3c5d29",
+              "versionNumber": 1,
+              "title": "Spotify Canvas 9:16 Video Loop (v1)",
+              "previewUrl": "https://assets.mixkit.co/videos/preview/mixkit-abstract-flowing-neon-lights-31802-large.mp4",
+              "fileUrl": "https://assets.mixkit.co/videos/preview/mixkit-abstract-flowing-neon-lights-31802-large.mp4",
+              "fileSize": "14.2 MB",
+              "fileType": "video/mp4",
+              "notes": "Supporting distribution asset bundle.",
+              "uploadedBy": "Dare Balogun",
+              "uploadedAt": "2026-09-11T12:22:15.884Z",
+              "status": "delivered",
+              "comments": [
+                {
+                  "id": "comm_ffdb81f0",
+                  "authorId": "usr_studio_lead",
+                  "authorName": "Dare Balogun",
+                  "authorRole": "producer",
+                  "content": "V1 is uploaded and calibrated to the DSP master standards. Looking forward to your thoughts!",
+                  "createdAt": "2026-09-11T12:22:15.884Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "del_942e3dcd",
+          "jobId": "pjob_req_0a3c5d29",
+          "title": "Tracklist Back Cover Layout",
+          "category": "artwork",
+          "format": "PNG / PDF",
+          "specs": "3000×3000px 300DPI",
+          "downloadAllowed": true,
+          "status": "delivered",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "dver_ad786a4b",
+              "deliverableId": "del_942e3dcd",
+              "jobId": "pjob_req_0a3c5d29",
+              "versionNumber": 1,
+              "title": "Tracklist Back Cover Layout (v1)",
+              "previewUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileSize": "14.2 MB",
+              "fileType": "image/png",
+              "notes": "Supporting distribution asset bundle.",
+              "uploadedBy": "Dare Balogun",
+              "uploadedAt": "2026-09-11T12:22:15.884Z",
+              "status": "delivered",
+              "comments": [
+                {
+                  "id": "comm_33b858b6",
+                  "authorId": "usr_studio_lead",
+                  "authorName": "Dare Balogun",
+                  "authorRole": "producer",
+                  "content": "V1 is uploaded and calibrated to the DSP master standards. Looking forward to your thoughts!",
+                  "createdAt": "2026-09-11T12:22:15.884Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "del_f09e09b8",
+          "jobId": "pjob_req_0a3c5d29",
+          "title": "Social Promo Thumbnail Suite",
+          "category": "social",
+          "format": "ZIP",
+          "specs": "1:1, 4:5, 16:9 crops",
+          "downloadAllowed": true,
+          "status": "delivered",
+          "currentVersionNumber": 1,
+          "versions": [
+            {
+              "id": "dver_15f14bea",
+              "deliverableId": "del_f09e09b8",
+              "jobId": "pjob_req_0a3c5d29",
+              "versionNumber": 1,
+              "title": "Social Promo Thumbnail Suite (v1)",
+              "previewUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+              "fileSize": "14.2 MB",
+              "fileType": "image/png",
+              "notes": "Supporting distribution asset bundle.",
+              "uploadedBy": "Dare Balogun",
+              "uploadedAt": "2026-09-11T12:22:15.884Z",
+              "status": "delivered",
+              "comments": [
+                {
+                  "id": "comm_ea5b73bc",
+                  "authorId": "usr_studio_lead",
+                  "authorName": "Dare Balogun",
+                  "authorRole": "producer",
+                  "content": "V1 is uploaded and calibrated to the DSP master standards. Looking forward to your thoughts!",
+                  "createdAt": "2026-09-11T12:22:15.884Z"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "assignedStudio": "artwork",
+      "assignedProducer": "Dare Balogun",
+      "priority": "medium",
+      "dueDate": "Flexible",
+      "status": "DELIVERED",
+      "internalNotes": "Internal Studio Check: Initial brief calibrated.",
+      "clientVisibleNotes": "Our creative production team is actively working on your deliverables.",
+      "revisions": [],
+      "approvals": [],
+      "createdAt": "2026-09-11T12:22:15.884Z",
+      "updatedAt": "2026-09-11T12:22:15.888Z",
+      "finalDelivery": {
+        "deliveredAt": "2026-09-11T12:22:15.888Z",
         "deliveredBy": "system_admin",
         "deliveredByName": "Keedohub Studio Production",
         "note": "Production completed and final assets dispatched to your Project and Library.",
