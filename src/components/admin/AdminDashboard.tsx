@@ -104,18 +104,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
     fetchOverviewStats();
   }, []);
 
-  const navTabs: { id: AdminSubTab; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { id: "overview", label: "Dashboard Pulse", icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: "production-jobs", label: "Production Center", icon: <Factory className="w-4 h-4" />, badge: "LIVE" },
-    { id: "users", label: "User Management", icon: <Users className="w-4 h-4" />, badge: stats ? `${stats.totalUsers}` : undefined },
-    { id: "workspaces", label: "Workspaces & Tenants", icon: <HardDrive className="w-4 h-4" />, badge: stats ? `${stats.totalWorkspaces}` : undefined },
-    { id: "activity", label: "Platform Activity & Audit", icon: <Activity className="w-4 h-4" /> },
-    { id: "support", label: "Support View", icon: <LifeBuoy className="w-4 h-4" />, badge: stats && stats.openSupportTickets > 0 ? `${stats.openSupportTickets}` : undefined },
-    { id: "system-health", label: "System Health", icon: <Cpu className="w-4 h-4" /> },
-    { id: "feature-flags", label: "Feature Flags", icon: <Sliders className="w-4 h-4" /> },
-    { id: "settings", label: "Platform Settings", icon: <Settings className="w-4 h-4" />, badge: "ROOT" },
-    { id: "document-templates", label: "Document Templates", icon: <FileText className="w-4 h-4" /> },
-    { id: "production-config", label: "Production & Plans", icon: <Sparkles className="w-4 h-4" />, badge: "NEW" },
+  const navGroups: { label: string; items: { id: AdminSubTab; label: string; icon: React.ReactNode; badge?: string }[] }[] = [
+    { label: "Overview", items: [{ id: "overview", label: "Overview", icon: <LayoutDashboard className="w-4 h-4" /> }] },
+    { label: "Workspace", items: [
+      { id: "users", label: "Users", icon: <Users className="w-4 h-4" />, badge: stats ? `${stats.totalUsers}` : undefined },
+      { id: "workspaces", label: "Workspaces", icon: <HardDrive className="w-4 h-4" />, badge: stats ? `${stats.totalWorkspaces}` : undefined },
+      { id: "document-templates", label: "Documents & Templates", icon: <FileText className="w-4 h-4" /> },
+    ] },
+    { label: "Creative", items: [
+      { id: "production-jobs", label: "Production Center", icon: <Factory className="w-4 h-4" />, badge: "LIVE" },
+      { id: "production-config", label: "Services, Plans & Usage", icon: <Sparkles className="w-4 h-4" /> },
+    ] },
+    { label: "System", items: [
+      { id: "activity", label: "Logs & Activity", icon: <Activity className="w-4 h-4" /> },
+      { id: "support", label: "Support", icon: <LifeBuoy className="w-4 h-4" />, badge: stats && stats.openSupportTickets > 0 ? `${stats.openSupportTickets}` : undefined },
+      { id: "system-health", label: "System Health", icon: <Cpu className="w-4 h-4" /> },
+      { id: "feature-flags", label: "Feature Flags", icon: <Sliders className="w-4 h-4" /> },
+      { id: "settings", label: "Platform Settings", icon: <Settings className="w-4 h-4" /> },
+    ] },
   ];
 
   const getRoleBadge = (role: SystemAdminRole) => {
@@ -201,34 +207,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
             Control Plane Navigation
           </div>
 
-          {navTabs.filter((tab) => canAccessProduction || tab.id !== "production-jobs").map((tab) => {
-            const isActive = activeSubTab === tab.id;
+          {navGroups.map((group) => {
+            const visibleItems = group.items.filter((item) => canAccessProduction || item.id !== "production-jobs");
+            if (!visibleItems.length) return null;
             return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveSubTab(tab.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  isActive
-                    ? "bg-purple-600 text-white shadow-md shadow-purple-600/20"
-                    : "text-muted-foreground hover:bg-accent/40 hover:text-foreground"
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                </div>
-                {tab.badge && (
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
-                      isActive
-                        ? "bg-white/20 text-white"
-                        : "bg-accent text-muted-foreground"
-                    }`}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
+              <div key={group.label} className="flex flex-col gap-1">
+                <div className="px-3 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-theme-muted">{group.label}</div>
+                {visibleItems.map((tab) => {
+                  const isActive = activeSubTab === tab.id;
+                  return (
+                    <button key={tab.id} onClick={() => setActiveSubTab(tab.id)} aria-current={isActive ? "page" : undefined}
+                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition-colors ${isActive ? "bg-theme-accent text-white shadow-md" : "text-theme-muted hover:bg-theme-elevated hover:text-theme-main"}`}>
+                      <span className="flex items-center gap-2.5">{tab.icon}<span>{tab.label}</span></span>
+                      {tab.badge && <span className={`rounded px-1.5 py-0.5 text-[10px] font-mono font-bold ${isActive ? "bg-white/20 text-white" : "bg-theme-elevated text-theme-muted"}`}>{tab.badge}</span>}
+                    </button>
+                  );
+                })}
+              </div>
             );
           })}
 

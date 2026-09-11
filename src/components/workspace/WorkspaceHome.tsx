@@ -24,7 +24,7 @@ export function WorkspaceHome({ onNav, onOpenProject, onNotify: _onNotify }: {
     : (pending[0]?.title || active[0]?.title || releases[0]?.title || "Start your first release project");
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 space-y-5">
+    <div className="workspace-page space-y-5">
       <div className="rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-red-950/30 p-6">
         <p className="text-[11px] font-bold tracking-[0.2em] text-red-400">
           {isBrand ? "BRAND OPERATING HEADQUARTERS" : "CREATIVE ARTIST HEADQUARTERS"}

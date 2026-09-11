@@ -108,7 +108,7 @@ function MainAppContent() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [studioServiceCategory, setStudioServiceCategory] = useState<StudioServiceCategory | undefined>();
 
-  const { activeWorkspace, user } = useAuth();
+  const { activeWorkspace, user, isLoading: isAuthLoading } = useAuth();
   const { toggleBrain } = useCreativeBrain();
 
   // URL synchronization helper — guarantees ONE WORKSPACE ONLY
@@ -185,6 +185,7 @@ function MainAppContent() {
   };
 
   const isPublicRoute = PUBLIC_TABS.includes(activeTab);
+  const isAdminRoute = activeTab === "admin";
 
   return (
     <div className="min-h-screen bg-[var(--bento-bg)] text-[var(--bento-text)] flex flex-col font-['Plus_Jakarta_Sans'] selection:bg-[var(--accent-color)] selection:text-[var(--accent-text)] transition-colors duration-200 pb-16 sm:pb-0">
@@ -229,8 +230,12 @@ function MainAppContent() {
 
       {/* Main Content Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Private Route Protection: Never auto-login, require authenticated session */}
-        {!user && !isPublicRoute ? (
+        {/* Private Route Protection: wait for persisted session hydration before deciding access. */}
+        {isAuthLoading && !isPublicRoute && !isAdminRoute ? (
+          <div className="bento-card mx-auto flex min-h-48 max-w-xl items-center justify-center p-8 text-center">
+            <p className="text-sm text-theme-muted">Verifying your Keedohub session…</p>
+          </div>
+        ) : !user && !isPublicRoute && !isAdminRoute ? (
           <AuthGate
             areaName={activeTab}
             onOpenAuth={(mode) => {
@@ -396,18 +401,7 @@ function MainAppContent() {
         )}
 
         {activeTab === "admin" && (
-          user && ["admin", "super_admin", "support"].includes(user.systemRole || "user") ? (
-            <AdminDashboard onBackToApp={() => setActiveTab("command-center")} />
-          ) : (
-            <AuthGate
-              areaName="admin control center"
-              onOpenAuth={(mode) => {
-                setAuthModalMode(mode || "login");
-                setIsAuthModalOpen(true);
-              }}
-              onNavigatePublic={setActiveTab}
-            />
-          )
+          <AdminDashboard onBackToApp={() => setActiveTab("command-center")} />
         )}
 
         {activeTab === "integrations" && (
