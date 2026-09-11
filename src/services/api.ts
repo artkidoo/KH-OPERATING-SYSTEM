@@ -1,0 +1,1861 @@
+import {
+  User,
+  Workspace,
+  Project,
+  Asset,
+  Release,
+  Campaign,
+  BrandCore,
+  ProductService,
+  BrandStrategy,
+  ContentItem,
+  CreativeMemory,
+  CreativeMemoryItem,
+  MemoryCandidate,
+  MemoryBlockRule,
+  MemoryRetrievalResult,
+  NotificationItem,
+  ActivityLog,
+  CreativeRequest,
+  IdentityType,
+  Folder,
+  Milestone,
+  TaskItem,
+  AttentionItem,
+  CreativeRecommendation,
+  CreativeBrainRecommendation,
+  BrainActionReceipt,
+  GlobalSearchResult,
+  StudioRequest,
+  StudioQuote,
+  StudioProject,
+  StudioDeliverable,
+  StudioRevision,
+  StudioMessage,
+  StudioBrief,
+  StudioQuoteStatus,
+  StudioRevisionStatus,
+  CommandCenterData,
+  GlobalSearchResultItem,
+  NextActionItem,
+  OnboardingPayload,
+  OnboardingInitializationResult,
+  OnboardingAIInterpretation,
+  DeadlineReminder,
+  WorkflowSummary,
+  TaskStatus,
+  WorkspaceMember,
+  MemberRole,
+  CommentItem,
+  ApprovalRequest,
+  ApprovalDecision,
+  RevisionItem,
+  CollaborationSummary,
+  FeedbackSummaryResult,
+  AdminUserSummary,
+  AdminAuditLogItem,
+  SupportTicket,
+  FeatureFlag,
+  PlatformSettings,
+  AdminOverviewStats,
+  SystemAdminRole,
+  RadarSignal,
+  RadarDigest,
+  RadarStats,
+  IntegrationConnection,
+  IntegrationSyncLog,
+  IntegrationsHealthOverview,
+} from "../types";
+
+const TOKEN_KEY = "keedohub_session_token";
+
+export function getStoredToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredToken(token: string | null) {
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  } catch (e) {
+    console.error("Failed to store token", e);
+  }
+}
+
+export const AUTH_EXPIRED_EVENT = "keedohub:auth-expired";
+
+async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const token = getStoredToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(endpoint, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      // Invalid/expired session: clear the stored token and notify the app so
+      // the UI resets to unauthenticated and shows the login screen. We never
+      // silently substitute a different account.
+      setStoredToken(null);
+      try {
+        window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
+      } catch {
+        /* not in a browser context */
+      }
+    }
+    let errorMsg = `HTTP Error ${response.status}`;
+    try {
+      const errJson = await response.json();
+      if (errJson.error) errorMsg = errJson.error;
+    } catch {
+      // fallback
+    }
+    throw new Error(errorMsg);
+  }
+
+  return response.json();
+}
+
+export const api = {
+  auth: {
+    signup: async (data: {
+      email: string;
+      password: string;
+      fullName: string;
+      identityType?: IdentityType;
+      workspaceName?: string;
+      bio?: string;
+      genreOrNiche?: string;
+    }) => {
+      const res = await request<{
+        token: string;
+        user: User;
+        activeWorkspace: Workspace;
+        workspaces: Workspace[];
+      }>("/api/auth/signup", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      setStoredToken(res.token);
+      return res;
+    },
+
+    login: async (credentials: { email: string; password: string }) => {
+      const res = await request<{
+        token: string;
+        user: User;
+        workspaces: Workspace[];
+        activeWorkspace: Workspace;
+      }>("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify(credentials),
+      });
+      setStoredToken(res.token);
+      return res;
+    },
+
+    me: async () => {
+      const res = await request<{
+        token?: string;
+        user: User;
+        workspaces: Workspace[];
+        activeWorkspace: Workspace;
+      }>("/api/auth/me");
+      if (res.token) {
+        setStoredToken(res.token);
+      }
+      return res;
+    },
+
+    logout: async () => {
+      try {
+        await request("/api/auth/logout", { method: "POST" });
+      } finally {
+        setStoredToken(null);
+      }
+    },
+
+    // Demo preview mode - creates temporary demo session with sample data
+    // For preview/demo purposes only, not for production use
+    demo: async (demoType: "artist" | "brand") => {
+      const res = await request<{
+        token: string;
+        user: any;
+        workspace: any;
+        isDemo: boolean;
+        demoType: string;
+      }>("/api/auth/demo", {
+        method: "POST",
+        body: JSON.stringify({ demoType }),
+      });
+      setStoredToken(res.token);
+      return res;
+    },
+  },
+
+  workspaces: {
+    list: async () => {
+      return request<{ workspaces: Workspace[] }>("/api/workspaces");
+    },
+
+    create: async (data: {
+      name: string;
+      identityType: IdentityType;
+      bio?: string;
+      genreOrNiche?: string;
+      avatarUrl?: string;
+    }) => {
+      return request<{ workspace: Workspace }>("/api/workspaces", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    initializeOnboarding: async (payload: OnboardingPayload) => {
+      return request<OnboardingInitializationResult>("/api/onboarding/initialize", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    },
+
+    interpretOnboardingPrompt: async (prompt: string, currentIdentity?: IdentityType) => {
+      return request<OnboardingAIInterpretation>("/api/onboarding/interpret", {
+        method: "POST",
+        body: JSON.stringify({ prompt, currentIdentity }),
+      });
+    },
+
+    getOverview: async (workspaceId: string) => {
+      return request<{
+        workspace: Workspace;
+        stats: {
+          totalProjects: number;
+          activeProjects: number;
+          pendingTasks: number;
+          totalAssets: number;
+          totalReleases: number;
+          scheduledReleases: number;
+          totalCampaigns: number;
+          totalContentItems: number;
+          upcomingContent: number;
+          totalFolders: number;
+          totalMilestones: number;
+        };
+        latestRelease: Release | null;
+        latestProject: Project | null;
+        latestCampaign: Campaign | null;
+        recentAssets: Asset[];
+        upcomingContent: ContentItem[];
+        creativeMemory: CreativeMemory;
+        unreadNotificationsCount: number;
+        recentActivity: ActivityLog[];
+        attentionItems: AttentionItem[];
+        recommendations: CreativeRecommendation[];
+        milestones: Milestone[];
+        pendingTasks: TaskItem[];
+        folders: Folder[];
+      }>(`/api/workspaces/${workspaceId}/overview`);
+    },
+
+    update: async (workspaceId: string, updates: Partial<Workspace>) => {
+      return request<{ workspace: Workspace }>(`/api/workspaces/${workspaceId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    delete: async (workspaceId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  tasks: {
+    list: async (workspaceId: string) => {
+      return request<{ tasks: TaskItem[] }>(`/api/workspaces/${workspaceId}/tasks`);
+    },
+
+    create: async (workspaceId: string, task: Partial<TaskItem> & { text: string }) => {
+      return request<{ task: TaskItem }>(`/api/workspaces/${workspaceId}/tasks`, {
+        method: "POST",
+        body: JSON.stringify(task),
+      });
+    },
+
+    update: async (workspaceId: string, taskId: string, updates: Partial<TaskItem>) => {
+      return request<{ task: TaskItem }>(`/api/workspaces/${workspaceId}/tasks/${taskId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    delete: async (workspaceId: string, taskId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  folders: {
+    list: async (workspaceId: string) => {
+      return request<{ folders: Folder[] }>(`/api/workspaces/${workspaceId}/folders`);
+    },
+
+    create: async (workspaceId: string, folder: Partial<Folder> & { name: string }) => {
+      return request<{ folder: Folder }>(`/api/workspaces/${workspaceId}/folders`, {
+        method: "POST",
+        body: JSON.stringify(folder),
+      });
+    },
+
+    update: async (workspaceId: string, folderId: string, updates: Partial<Folder>) => {
+      return request<{ folder: Folder }>(`/api/workspaces/${workspaceId}/folders/${folderId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    delete: async (workspaceId: string, folderId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/folders/${folderId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  milestones: {
+    list: async (workspaceId: string, projectId?: string) => {
+      const url = projectId
+        ? `/api/workspaces/${workspaceId}/milestones?projectId=${encodeURIComponent(projectId)}`
+        : `/api/workspaces/${workspaceId}/milestones`;
+      return request<{ milestones: Milestone[] }>(url);
+    },
+
+    create: async (workspaceId: string, milestone: Partial<Milestone> & { title: string; targetDate: string }) => {
+      return request<{ milestone: Milestone }>(`/api/workspaces/${workspaceId}/milestones`, {
+        method: "POST",
+        body: JSON.stringify(milestone),
+      });
+    },
+
+    update: async (workspaceId: string, milestoneId: string, updates: Partial<Milestone>) => {
+      return request<{ milestone: Milestone }>(`/api/workspaces/${workspaceId}/milestones/${milestoneId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    delete: async (workspaceId: string, milestoneId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/milestones/${milestoneId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  search: {
+    query: async (workspaceId: string, q: string) => {
+      return request<{ results: GlobalSearchResult[] }>(`/api/workspaces/${workspaceId}/search?q=${encodeURIComponent(q)}`);
+    },
+  },
+
+  intelligence: {
+    getAttention: async (workspaceId: string) => {
+      return request<{ attention: AttentionItem[] }>(`/api/workspaces/${workspaceId}/attention`);
+    },
+    getRecommendations: async (workspaceId: string) => {
+      return request<{ recommendations: CreativeRecommendation[] }>(`/api/workspaces/${workspaceId}/recommendations`);
+    },
+  },
+
+  projects: {
+    list: async (workspaceId: string) => {
+      return request<{ projects: Project[] }>(`/api/workspaces/${workspaceId}/projects`);
+    },
+
+    create: async (workspaceId: string, project: Partial<Project>) => {
+      return request<{ project: Project }>(`/api/workspaces/${workspaceId}/projects`, {
+        method: "POST",
+        body: JSON.stringify(project),
+      });
+    },
+
+    update: async (workspaceId: string, projectId: string, updates: Partial<Project>) => {
+      return request<{ project: Project }>(`/api/workspaces/${workspaceId}/projects/${projectId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    delete: async (workspaceId: string, projectId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/projects/${projectId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  assets: {
+    list: async (workspaceId: string) => {
+      return request<{ assets: Asset[] }>(`/api/workspaces/${workspaceId}/assets`);
+    },
+
+    create: async (workspaceId: string, asset: Partial<Asset>) => {
+      return request<{ asset: Asset }>(`/api/workspaces/${workspaceId}/assets`, {
+        method: "POST",
+        body: JSON.stringify(asset),
+      });
+    },
+
+    delete: async (workspaceId: string, assetId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/assets/${assetId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  releases: {
+    list: async (workspaceId: string) => {
+      return request<{ releases: Release[] }>(`/api/workspaces/${workspaceId}/releases`);
+    },
+
+    create: async (workspaceId: string, release: Partial<Release>) => {
+      return request<{ release: Release }>(`/api/workspaces/${workspaceId}/releases`, {
+        method: "POST",
+        body: JSON.stringify(release),
+      });
+    },
+
+    update: async (workspaceId: string, releaseId: string, updates: Partial<Release>) => {
+      return request<{ release: Release }>(`/api/workspaces/${workspaceId}/releases/${releaseId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    delete: async (workspaceId: string, releaseId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/releases/${releaseId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  brandCore: {
+    get: async (workspaceId: string) => {
+      return request<{ brandCore: BrandCore }>(`/api/workspaces/${workspaceId}/brand-core`);
+    },
+    update: async (workspaceId: string, updates: Partial<BrandCore>) => {
+      return request<{ brandCore: BrandCore }>(`/api/workspaces/${workspaceId}/brand-core`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+  },
+
+  artistDNA: {
+    get: async (workspaceId: string) => {
+      return request<{ artistDNA: any }>(`/api/workspaces/${workspaceId}/artist-dna`);
+    },
+    update: async (workspaceId: string, updates: any) => {
+      return request<{ artistDNA: any }>(`/api/workspaces/${workspaceId}/artist-dna`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+  },
+
+  brandDNA: {
+    get: async (workspaceId: string) => {
+      return request<{ brandDNA: any }>(`/api/workspaces/${workspaceId}/brand-dna`);
+    },
+    update: async (workspaceId: string, updates: any) => {
+      return request<{ brandDNA: any }>(`/api/workspaces/${workspaceId}/brand-dna`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+  },
+
+  products: {
+    list: async (workspaceId: string) => {
+      return request<{ products: ProductService[] }>(`/api/workspaces/${workspaceId}/products`);
+    },
+    create: async (workspaceId: string, product: Partial<ProductService> & { name: string }) => {
+      return request<{ product: ProductService }>(`/api/workspaces/${workspaceId}/products`, {
+        method: "POST",
+        body: JSON.stringify(product),
+      });
+    },
+    update: async (workspaceId: string, productId: string, updates: Partial<ProductService>) => {
+      return request<{ product: ProductService }>(`/api/workspaces/${workspaceId}/products/${productId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+    delete: async (workspaceId: string, productId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/products/${productId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  campaigns: {
+    list: async (workspaceId: string) => {
+      return request<{ campaigns: Campaign[] }>(`/api/workspaces/${workspaceId}/campaigns`);
+    },
+
+    create: async (workspaceId: string, campaign: Partial<Campaign>) => {
+      return request<{ campaign: Campaign }>(`/api/workspaces/${workspaceId}/campaigns`, {
+        method: "POST",
+        body: JSON.stringify(campaign),
+      });
+    },
+
+    update: async (workspaceId: string, campaignId: string, updates: Partial<Campaign>) => {
+      return request<{ campaign: Campaign }>(`/api/workspaces/${workspaceId}/campaigns/${campaignId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    delete: async (workspaceId: string, campaignId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/campaigns/${campaignId}`, {
+        method: "DELETE",
+      });
+    },
+
+    /** Safe migration: legacy campaign → project. Never destroys source data. */
+    migrateCampaign: async (workspaceId: string, campaignId: string) => {
+      return request<{ project: Project; migratedFrom: string }>(`/api/workspaces/${workspaceId}/campaigns/${encodeURIComponent(campaignId)}/migrate`, {
+        method: "POST",
+      });
+    },
+  },
+
+  businessDocuments: {
+    list: async (workspaceId: string) => {
+      return request<{ documents: any[] }>(`/api/workspaces/${workspaceId}/business-documents`);
+    },
+    get: async (workspaceId: string, documentId: string) => {
+      return request<{ document: any }>(`/api/workspaces/${workspaceId}/business-documents/${documentId}`);
+    },
+    create: async (workspaceId: string, document: any) => {
+      return request<{ document: any }>(`/api/workspaces/${workspaceId}/business-documents`, {
+        method: "POST",
+        body: JSON.stringify(document),
+      });
+    },
+    update: async (workspaceId: string, documentId: string, updates: any) => {
+      return request<{ document: any }>(`/api/workspaces/${workspaceId}/business-documents/${documentId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+    delete: async (workspaceId: string, documentId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/business-documents/${documentId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  contentPillars: {
+    list: async (workspaceId: string) => {
+      return request<{ contentPillars: any[] }>(`/api/workspaces/${workspaceId}/content-pillars`);
+    },
+    create: async (workspaceId: string, pillar: any) => {
+      return request<{ contentPillar: any }>(`/api/workspaces/${workspaceId}/content-pillars`, {
+        method: "POST",
+        body: JSON.stringify(pillar),
+      });
+    },
+    update: async (workspaceId: string, pillarId: string, updates: any) => {
+      return request<{ contentPillar: any }>(`/api/workspaces/${workspaceId}/content-pillars/${pillarId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+    delete: async (workspaceId: string, pillarId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/content-pillars/${pillarId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+
+  contentItems: {
+    list: async (workspaceId: string) => {
+      return request<{ contentItems: ContentItem[] }>(`/api/workspaces/${workspaceId}/content-items`);
+    },
+
+    create: async (workspaceId: string, item: Partial<ContentItem>) => {
+      return request<{ contentItem: ContentItem }>(`/api/workspaces/${workspaceId}/content-items`, {
+        method: "POST",
+        body: JSON.stringify(item),
+      });
+    },
+
+    createBatch: async (workspaceId: string, items: Partial<ContentItem>[]) => {
+      return request<{ contentItems: ContentItem[] }>(`/api/workspaces/${workspaceId}/content-items/batch`, {
+        method: "POST",
+        body: JSON.stringify({ items }),
+      });
+    },
+
+    duplicate: async (workspaceId: string, itemId: string) => {
+      return request<{ contentItem: ContentItem }>(`/api/workspaces/${workspaceId}/content-items/${itemId}/duplicate`, {
+        method: "POST",
+      });
+    },
+
+    update: async (workspaceId: string, itemId: string, updates: Partial<ContentItem>) => {
+      return request<{ contentItem: ContentItem }>(`/api/workspaces/${workspaceId}/content-items/${itemId}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    delete: async (workspaceId: string, itemId: string) => {
+      return request<{ message: string }>(`/api/workspaces/${workspaceId}/content-items/${itemId}`, {
+        method: "DELETE",
+      });
+    },
+
+    getGaps: async (workspaceId: string) => {
+      return request<{
+        gaps: any[];
+        qualityIssues: any[];
+        summary: {
+          totalContent: number;
+          scheduledCount: number;
+          publishedCount: number;
+          gapCount: number;
+          qualityIssueCount: number;
+        };
+      }>(`/api/workspaces/${workspaceId}/content-gaps`);
+    },
+
+    generateOpportunityBatch: async (workspaceId: string, params: {
+      stage?: string;
+      releaseId?: string;
+      campaignId?: string;
+      productId?: string;
+      platform?: string;
+      count?: number;
+      customGoal?: string;
+    }) => {
+      return request<{ suggestions: Partial<ContentItem>[] }>(`/api/workspaces/${workspaceId}/content-items/generate-opportunity-batch`, {
+        method: "POST",
+        body: JSON.stringify(params),
+      });
+    },
+  },
+
+  creativeMemory: {
+    get: async (workspaceId: string) => {
+      return request<{ creativeMemory: CreativeMemory }>(`/api/workspaces/${workspaceId}/creative-memory`);
+    },
+
+    update: async (workspaceId: string, memory: Partial<CreativeMemory>) => {
+      return request<{ creativeMemory: CreativeMemory }>(`/api/workspaces/${workspaceId}/creative-memory`, {
+        method: "PUT",
+        body: JSON.stringify(memory),
+      });
+    },
+
+    // Phase 8: Structured Memory Items CRUD & Actions
+    getItems: async (workspaceId: string, filters?: {
+      category?: string;
+      scope?: string;
+      status?: 'active' | 'archived';
+      entityType?: string;
+      entityId?: string;
+      search?: string;
+    }) => {
+      const params = new URLSearchParams();
+      if (filters?.category) params.append("category", filters.category);
+      if (filters?.scope) params.append("scope", filters.scope);
+      if (filters?.status) params.append("status", filters.status);
+      if (filters?.entityType) params.append("entityType", filters.entityType);
+      if (filters?.entityId) params.append("entityId", filters.entityId);
+      if (filters?.search) params.append("search", filters.search);
+      const queryStr = params.toString() ? `?${params.toString()}` : "";
+      return request<{ items: CreativeMemoryItem[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items${queryStr}`);
+    },
+
+    createItem: async (workspaceId: string, data: Partial<CreativeMemoryItem>) => {
+      return request<{ item: CreativeMemoryItem }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    updateItem: async (workspaceId: string, itemId: string, updates: Partial<CreativeMemoryItem>) => {
+      return request<{ item: CreativeMemoryItem }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items/${encodeURIComponent(itemId)}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    deleteItem: async (workspaceId: string, itemId: string) => {
+      return request<{ success: boolean }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items/${encodeURIComponent(itemId)}`, {
+        method: "DELETE",
+      });
+    },
+
+    supersedeItem: async (workspaceId: string, itemId: string, data: { title?: string; content: string; category?: any; tags?: string[]; reason?: string }) => {
+      return request<{ item: CreativeMemoryItem }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items/${encodeURIComponent(itemId)}/supersede`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    togglePin: async (workspaceId: string, itemId: string, isPinned: boolean) => {
+      return request<{ item: CreativeMemoryItem }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/items/${encodeURIComponent(itemId)}/pin`, {
+        method: "POST",
+        body: JSON.stringify({ isPinned }),
+      });
+    },
+
+    // Phase 8: AI Candidates (User Approval Workflow)
+    getCandidates: async (workspaceId: string) => {
+      return request<{ candidates: MemoryCandidate[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/candidates`);
+    },
+
+    resolveCandidate: async (
+      workspaceId: string,
+      candidateId: string,
+      action: 'approve' | 'reject' | 'edit',
+      editedData?: Partial<CreativeMemoryItem>
+    ) => {
+      return request<{ success: boolean; createdItem?: CreativeMemoryItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/memory/candidates/${encodeURIComponent(candidateId)}/resolve`,
+        {
+          method: "POST",
+          body: JSON.stringify({ action, editedData }),
+        }
+      );
+    },
+
+    // Phase 8: Block Rules & Privacy Guardrails
+    getBlockRules: async (workspaceId: string) => {
+      return request<{ rules: MemoryBlockRule[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/block-rules`);
+    },
+
+    createBlockRule: async (workspaceId: string, data: { pattern: string; ruleType?: string; reason?: string; entityType?: string }) => {
+      return request<{ rule: MemoryBlockRule }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/block-rules`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    deleteBlockRule: async (workspaceId: string, ruleId: string) => {
+      return request<{ success: boolean }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/block-rules/${encodeURIComponent(ruleId)}`, {
+        method: "DELETE",
+      });
+    },
+
+    // Phase 8: Test & Verify Retrieval Engine
+    retrieve: async (workspaceId: string, params: { query?: string; category?: string; scope?: string; entityType?: string; entityId?: string; limit?: number }) => {
+      return request<MemoryRetrievalResult>(`/api/workspaces/${encodeURIComponent(workspaceId)}/memory/retrieve`, {
+        method: "POST",
+        body: JSON.stringify(params),
+      });
+    },
+  },
+
+  notifications: {
+    list: async (workspaceId: string) => {
+      return request<{ notifications: NotificationItem[] }>(`/api/workspaces/${workspaceId}/notifications`);
+    },
+
+    markRead: async (workspaceId: string, notifId: string) => {
+      return request<{ success: boolean }>(`/api/workspaces/${workspaceId}/notifications/${notifId}/read`, {
+        method: "POST",
+      });
+    },
+  },
+
+  activityLogs: {
+    list: async (workspaceId: string) => {
+      return request<{ activityLogs: ActivityLog[] }>(`/api/workspaces/${workspaceId}/activity-logs`);
+    },
+  },
+
+  creativeRequests: {
+    list: async (workspaceId: string) => {
+      return request<{ requests: CreativeRequest[] }>(`/api/workspaces/${workspaceId}/creative-requests`);
+    },
+
+    create: async (workspaceId: string, data: Partial<CreativeRequest>) => {
+      return request<{ request: CreativeRequest }>(`/api/workspaces/${workspaceId}/creative-requests`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    update: async (workspaceId: string, requestId: string, updates: Partial<CreativeRequest>) => {
+      return request<{ request: CreativeRequest }>(`/api/workspaces/${workspaceId}/creative-requests/${encodeURIComponent(requestId)}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    // Phase 3 — customer requests a revision (guarded server-side by plan allowance).
+    requestRevision: async (workspaceId: string, requestId: string, data: { reason: string; instructions?: string }) => {
+      return request<{ revision: any; request: CreativeRequest }>(
+        `/api/workspaces/${workspaceId}/creative-requests/${encodeURIComponent(requestId)}/revision`,
+        { method: "POST", body: JSON.stringify(data) }
+      );
+    },
+  },
+
+  // Phase 3 — Admin Production Center (cross-workspace, admin-only).
+  production: {
+    list: async (filters?: { status?: string; studio?: string; priority?: string; identity?: string; membership?: string; project?: string }) => {
+      const params = new URLSearchParams();
+      if (filters) Object.entries(filters).forEach(([k, v]) => { if (v) params.append(k, v); });
+      const q = params.toString();
+      return request<{ requests: any[] }>(`/api/admin/production/requests${q ? `?${q}` : ""}`);
+    },
+    get: async (requestId: string) => {
+      return request<{ request: any }>(`/api/admin/production/requests/${encodeURIComponent(requestId)}`);
+    },
+    transition: async (requestId: string, to: string) => {
+      return request<{ request: any }>(`/api/admin/production/requests/${encodeURIComponent(requestId)}/transition`, {
+        method: "POST", body: JSON.stringify({ to }),
+      });
+    },
+    assign: async (requestId: string, data: { assignedStudio: string; assignedProducer?: string; assignedAdminId?: string }) => {
+      return request<{ request: any }>(`/api/admin/production/requests/${encodeURIComponent(requestId)}/assign`, {
+        method: "POST", body: JSON.stringify(data),
+      });
+    },
+    notes: async (requestId: string, data: { internalNotes?: string; clientVisibleNotes?: string }) => {
+      return request<{ request: any }>(`/api/admin/production/requests/${encodeURIComponent(requestId)}/notes`, {
+        method: "POST", body: JSON.stringify(data),
+      });
+    },
+    requestRevision: async (requestId: string, data: { reason: string; instructions?: string }) => {
+      return request<{ revision: any; request: any }>(`/api/admin/production/requests/${encodeURIComponent(requestId)}/revisions`, {
+        method: "POST", body: JSON.stringify(data),
+      });
+    },
+    deliver: async (requestId: string, data: { assets: Array<{ name: string; url: string; category?: string; size?: number; mimeType?: string; tags?: string[]; metadata?: Record<string, any> }>; note?: string }) => {
+      return request<{ assets: any[]; request: any }>(`/api/admin/production/requests/${encodeURIComponent(requestId)}/deliver`, {
+        method: "POST", body: JSON.stringify(data),
+      });
+    },
+    usage: async () => {
+      return request<{ usage: any }>(`/api/admin/production/usage`);
+    },
+  },
+
+  // Phase 3 — Admin configurable plans + production (persisted in platform_settings).
+  platform: {
+    getPlanConfig: async () => request<{ planConfigs: any[] }>(`/api/admin/platform/plan-config`),
+    updatePlanConfig: async (planConfigs: any[]) => request<{ planConfigs: any[] }>(`/api/admin/platform/plan-config`, { method: "PUT", body: JSON.stringify({ planConfigs }) }),
+    getProductionConfig: async () => request<{ productionConfig: any }>(`/api/admin/platform/production-config`),
+    updateProductionConfig: async (productionConfig: any) => request<{ productionConfig: any }>(`/api/admin/platform/production-config`, { method: "PUT", body: JSON.stringify({ productionConfig }) }),
+  },
+
+  ai: {
+    creativeBrain: async (
+      workspaceId: string,
+      message: string,
+      conversationHistory?: any[],
+      pinnedContext?: { type: 'release' | 'campaign' | 'project' | 'brand_core' | 'general'; id?: string },
+      directActionRequest?: { toolName: string; args: Record<string, any> }
+    ) => {
+      return request<{
+        response: string;
+        suggestedActions: { label: string; actionTab: string }[];
+        executedActions?: BrainActionReceipt[];
+        contextAnalyzed: any;
+      }>("/api/ai/creative-brain", {
+        method: "POST",
+        body: JSON.stringify({ workspaceId, message, conversationHistory, pinnedContext, directActionRequest }),
+      });
+    },
+
+    executeAction: async (workspaceId: string, toolName: string, args: Record<string, any>) => {
+      return request<{ receipt: BrainActionReceipt }>("/api/ai/creative-brain/action", {
+        method: "POST",
+        body: JSON.stringify({ workspaceId, toolName, args }),
+      });
+    },
+
+    getRecommendations: async (workspaceId: string) => {
+      return request<{ recommendations: CreativeBrainRecommendation[] }>(
+        `/api/ai/creative-brain/recommendations?workspaceId=${encodeURIComponent(workspaceId)}`
+      );
+    },
+
+    getContext: async (workspaceId: string, contextType?: string, contextId?: string) => {
+      let url = `/api/ai/creative-brain/context?workspaceId=${encodeURIComponent(workspaceId)}`;
+      if (contextType) url += `&contextType=${encodeURIComponent(contextType)}`;
+      if (contextId) url += `&contextId=${encodeURIComponent(contextId)}`;
+      return request<{ context: any }>(url);
+    },
+
+    brandStrategy: async (workspaceId: string, prompt?: string, focusArea?: string) => {
+      return request<{ strategy: any }>("/api/ai/brand-strategy", {
+        method: "POST",
+        body: JSON.stringify({ workspaceId, prompt, focusArea }),
+      });
+    },
+
+    /** @deprecated campaign-first AI builder; project-first flows replace it. Kept for legacy reads. */
+    campaignBuilder: async (
+      workspaceId: string,
+      data: {
+        campaignObjective?: string;
+        selectedProductId?: string;
+        targetBudget?: number;
+        platforms?: string[];
+      }
+    ) => {
+      return request<{ plan: any }>("/api/ai/campaign-builder", {
+        method: "POST",
+        body: JSON.stringify({ workspaceId, ...data }),
+      });
+    },
+  },
+
+  studio: {
+    requests: {
+      getAll: async (workspaceId: string) => {
+        return request<{ requests: StudioRequest[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests`);
+      },
+      getById: async (workspaceId: string, requestId: string) => {
+        return request<{ request: StudioRequest }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests/${encodeURIComponent(requestId)}`);
+      },
+      create: async (workspaceId: string, data: Partial<StudioRequest> & { serviceId: string; serviceName: string; title: string; brief: StudioBrief }) => {
+        return request<{ request: StudioRequest; quote?: StudioQuote }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+      update: async (workspaceId: string, requestId: string, updates: Partial<StudioRequest>) => {
+        return request<{ request: StudioRequest }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests/${encodeURIComponent(requestId)}`, {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        });
+      },
+      delete: async (workspaceId: string, requestId: string) => {
+        return request<{ success: boolean }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/requests/${encodeURIComponent(requestId)}`, {
+          method: "DELETE",
+        });
+      },
+    },
+
+    quotes: {
+      getAll: async (workspaceId: string, requestId?: string) => {
+        let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/quotes`;
+        if (requestId) url += `?requestId=${encodeURIComponent(requestId)}`;
+        return request<{ quotes: StudioQuote[] }>(url);
+      },
+      create: async (workspaceId: string, data: Partial<StudioQuote>) => {
+        return request<{ quote: StudioQuote }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/quotes`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+      updateStatus: async (
+        workspaceId: string,
+        quoteId: string,
+        status: StudioQuoteStatus,
+        payload?: { approvedBy?: string; declinedReason?: string; clarificationNotes?: string }
+      ) => {
+        return request<{ quote: StudioQuote; project?: StudioProject }>(
+          `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/quotes/${encodeURIComponent(quoteId)}/status`,
+          {
+            method: "POST",
+            body: JSON.stringify({ status, ...payload }),
+          }
+        );
+      },
+    },
+
+    projects: {
+      getAll: async (workspaceId: string) => {
+        return request<{ projects: StudioProject[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/projects`);
+      },
+      getById: async (workspaceId: string, projectId: string) => {
+        return request<{ project: StudioProject }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/projects/${encodeURIComponent(projectId)}`);
+      },
+      update: async (workspaceId: string, projectId: string, updates: Partial<StudioProject>) => {
+        return request<{ project: StudioProject }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/projects/${encodeURIComponent(projectId)}`, {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        });
+      },
+    },
+
+    deliverables: {
+      getAll: async (workspaceId: string, projectId?: string) => {
+        let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/deliverables`;
+        if (projectId) url += `?projectId=${encodeURIComponent(projectId)}`;
+        return request<{ deliverables: StudioDeliverable[] }>(url);
+      },
+      create: async (workspaceId: string, data: Partial<StudioDeliverable> & { projectId: string; name: string }) => {
+        return request<{ deliverable: StudioDeliverable }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/deliverables`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+      update: async (workspaceId: string, deliverableId: string, updates: Partial<StudioDeliverable>) => {
+        return request<{ deliverable: StudioDeliverable }>(
+          `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/deliverables/${encodeURIComponent(deliverableId)}`,
+          {
+            method: "PUT",
+            body: JSON.stringify(updates),
+          }
+        );
+      },
+      syncToVault: async (workspaceId: string, deliverableId: string) => {
+        return request<{ success: boolean; asset: Asset }>(
+          `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/deliverables/${encodeURIComponent(deliverableId)}/sync-to-vault`,
+          {
+            method: "POST",
+          }
+        );
+      },
+    },
+
+    revisions: {
+      getAll: async (workspaceId: string, projectId?: string, deliverableId?: string) => {
+        let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/revisions`;
+        const params: string[] = [];
+        if (projectId) params.push(`projectId=${encodeURIComponent(projectId)}`);
+        if (deliverableId) params.push(`deliverableId=${encodeURIComponent(deliverableId)}`);
+        if (params.length > 0) url += `?${params.join("&")}`;
+        return request<{ revisions: StudioRevision[] }>(url);
+      },
+      create: async (
+        workspaceId: string,
+        data: { projectId: string; deliverableId: string; deliverableName?: string; version?: string; reason: string; requestedChanges: string }
+      ) => {
+        return request<{ revision: StudioRevision }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/revisions`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+      updateStatus: async (workspaceId: string, revisionId: string, status: StudioRevisionStatus) => {
+        return request<{ revision: StudioRevision }>(
+          `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/revisions/${encodeURIComponent(revisionId)}/status`,
+          {
+            method: "PUT",
+            body: JSON.stringify({ status }),
+          }
+        );
+      },
+    },
+
+    messages: {
+      getAll: async (workspaceId: string, projectId?: string, requestId?: string) => {
+        let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/studio/messages`;
+        const params: string[] = [];
+        if (projectId) params.push(`projectId=${encodeURIComponent(projectId)}`);
+        if (requestId) params.push(`requestId=${encodeURIComponent(requestId)}`);
+        if (params.length > 0) url += `?${params.join("&")}`;
+        return request<{ messages: StudioMessage[] }>(url);
+      },
+      send: async (
+        workspaceId: string,
+        data: { projectId?: string; requestId?: string; content: string; attachments?: any[] }
+      ) => {
+        return request<{ message: StudioMessage }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/messages`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+    },
+
+    aiBriefAssist: async (workspaceId: string, serviceCategory: string, draftBrief: Partial<StudioBrief>) => {
+      return request<{
+        assist: {
+          refinedConcept: string;
+          suggestedVisualDirection: string;
+          suggestedDeliverables: string[];
+          missingElements: string[];
+          clarifyingQuestions: string[];
+          estimatedDays: string;
+          confidenceScore: number;
+        };
+      }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/studio/ai-brief-assist`, {
+        method: "POST",
+        body: JSON.stringify({ serviceCategory, draftBrief }),
+      });
+    },
+  },
+
+  commandCenter: {
+    get: async (workspaceId: string) => {
+      return request<{ data: CommandCenterData }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/command-center`);
+    },
+    search: async (workspaceId: string, query: string) => {
+      return request<{ results: GlobalSearchResultItem[]; query: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/search?q=${encodeURIComponent(query)}`
+      );
+    },
+    getActivityStream: async (workspaceId: string, limit = 30) => {
+      return request<{ activities: ActivityLog[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/activity-stream?limit=${limit}`
+      );
+    },
+  },
+
+  workflow: {
+    getSummary: async (workspaceId: string) => {
+      return request<{ summary: WorkflowSummary }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/summary`
+      );
+    },
+
+    getTasks: async (workspaceId: string, filters?: { status?: string; priority?: string; entityType?: string; assignee?: string; isOverdue?: boolean }) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks`;
+      if (filters) {
+        const params = new URLSearchParams();
+        if (filters.status) params.append("status", filters.status);
+        if (filters.priority) params.append("priority", filters.priority);
+        if (filters.entityType) params.append("entityType", filters.entityType);
+        if (filters.assignee) params.append("assignee", filters.assignee);
+        if (filters.isOverdue) params.append("isOverdue", "true");
+        const q = params.toString();
+        if (q) url += `?${q}`;
+      }
+      return request<{ tasks: TaskItem[] }>(url);
+    },
+
+    createTask: async (workspaceId: string, task: Partial<TaskItem> & { text: string }) => {
+      return request<{ task: TaskItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks`,
+        {
+          method: "POST",
+          body: JSON.stringify(task),
+        }
+      );
+    },
+
+    updateTask: async (workspaceId: string, taskId: string, updates: Partial<TaskItem>) => {
+      return request<{ task: TaskItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks/${encodeURIComponent(taskId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+
+    transitionTask: async (workspaceId: string, taskId: string, status: TaskStatus) => {
+      return request<{ task: TaskItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks/${encodeURIComponent(taskId)}/transition`,
+        {
+          method: "POST",
+          body: JSON.stringify({ status }),
+        }
+      );
+    },
+
+    deleteTask: async (workspaceId: string, taskId: string) => {
+      return request<{ success: boolean }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/tasks/${encodeURIComponent(taskId)}`,
+        {
+          method: "DELETE",
+        }
+      );
+    },
+
+    getNotifications: async (workspaceId: string, filters?: { category?: string; severity?: string; unreadOnly?: boolean; resolved?: boolean }) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications`;
+      if (filters) {
+        const params = new URLSearchParams();
+        if (filters.category) params.append("category", filters.category);
+        if (filters.severity) params.append("severity", filters.severity);
+        if (filters.unreadOnly) params.append("unreadOnly", "true");
+        if (filters.resolved !== undefined) params.append("resolved", String(filters.resolved));
+        const q = params.toString();
+        if (q) url += `?${q}`;
+      }
+      return request<{ notifications: NotificationItem[] }>(url);
+    },
+
+    markNotificationRead: async (workspaceId: string, notifId: string) => {
+      return request<{ success: boolean }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications/${encodeURIComponent(notifId)}/read`,
+        { method: "POST" }
+      );
+    },
+
+    markNotificationResolved: async (workspaceId: string, notifId: string) => {
+      return request<{ success: boolean; notification: NotificationItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications/${encodeURIComponent(notifId)}/resolve`,
+        { method: "POST" }
+      );
+    },
+
+    markAllNotificationsRead: async (workspaceId: string) => {
+      return request<{ success: boolean; count: number }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications/mark-all-read`,
+        { method: "POST" }
+      );
+    },
+
+    dismissAllNotifications: async (workspaceId: string) => {
+      return request<{ success: boolean; count: number }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/notifications/dismiss-all`,
+        { method: "POST" }
+      );
+    },
+
+    getDeadlines: async (workspaceId: string) => {
+      return request<{ reminders: DeadlineReminder[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/deadlines`
+      );
+    },
+
+    getTimeline: async (workspaceId: string, entityType?: string, limit = 50) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/timeline?limit=${limit}`;
+      if (entityType) url += `&entityType=${encodeURIComponent(entityType)}`;
+      return request<{ activities: ActivityLog[] }>(url);
+    },
+
+    actionApproval: async (
+      workspaceId: string,
+      approvalId: string,
+      approvalType: 'studio_quote' | 'studio_deliverable' | 'campaign_sprint',
+      action: 'approve' | 'reject' | 'request_revision',
+      notes?: string
+    ) => {
+      return request<{ result: any }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/workflow/approvals/${encodeURIComponent(approvalId)}/action`,
+        {
+          method: "POST",
+          body: JSON.stringify({ approvalType, action, notes }),
+        }
+      );
+    },
+  },
+
+  // ==========================================
+  // PHASE 15: COLLABORATION, APPROVALS & REVISIONS
+  // ==========================================
+
+  members: {
+    list: async (workspaceId: string) => {
+      return request<{ members: WorkspaceMember[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/members`
+      );
+    },
+
+    invite: async (workspaceId: string, data: {
+      email: string;
+      name: string;
+      role: MemberRole;
+      title?: string;
+      department?: string;
+      permissions?: Partial<WorkspaceMember['permissions']>;
+      accessScope?: Partial<WorkspaceMember['accessScope']>;
+    }) => {
+      return request<{ member: WorkspaceMember }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/members`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    update: async (workspaceId: string, memberId: string, updates: Partial<WorkspaceMember>) => {
+      return request<{ member: WorkspaceMember }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/members/${encodeURIComponent(memberId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+
+    remove: async (workspaceId: string, memberId: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/members/${encodeURIComponent(memberId)}`,
+        { method: "DELETE" }
+      );
+    },
+  },
+
+  comments: {
+    list: async (workspaceId: string, entityType?: string, entityId?: string) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/comments`;
+      const params = new URLSearchParams();
+      if (entityType) params.append("entityType", entityType);
+      if (entityId) params.append("entityId", entityId);
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+      return request<{ comments: CommentItem[] }>(url);
+    },
+
+    create: async (workspaceId: string, data: {
+      entityType: string;
+      entityId: string;
+      entityTitle?: string;
+      content: string;
+      parentId?: string;
+      isInternal?: boolean;
+      attachments?: CommentItem['attachments'];
+      timestampMarker?: string;
+      canvasCoordinate?: { x: number; y: number };
+    }) => {
+      return request<{ comment: CommentItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    update: async (workspaceId: string, commentId: string, content: string) => {
+      return request<{ comment: CommentItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments/${encodeURIComponent(commentId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ content }),
+        }
+      );
+    },
+
+    delete: async (workspaceId: string, commentId: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments/${encodeURIComponent(commentId)}`,
+        { method: "DELETE" }
+      );
+    },
+
+    resolve: async (workspaceId: string, commentId: string, resolved = true) => {
+      return request<{ comment: CommentItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments/${encodeURIComponent(commentId)}/resolve`,
+        {
+          method: "POST",
+          body: JSON.stringify({ resolved }),
+        }
+      );
+    },
+
+    react: async (workspaceId: string, commentId: string, emoji: string) => {
+      return request<{ comment: CommentItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/comments/${encodeURIComponent(commentId)}/react`,
+        {
+          method: "POST",
+          body: JSON.stringify({ emoji }),
+        }
+      );
+    },
+  },
+
+  approvals: {
+    list: async (workspaceId: string, entityType?: string, entityId?: string, status?: string) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/approvals`;
+      const params = new URLSearchParams();
+      if (entityType) params.append("entityType", entityType);
+      if (entityId) params.append("entityId", entityId);
+      if (status) params.append("status", status);
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+      return request<{ approvals: ApprovalRequest[] }>(url);
+    },
+
+    create: async (workspaceId: string, data: {
+      entityType: string;
+      entityId: string;
+      entityTitle?: string;
+      title: string;
+      description?: string;
+      urgency?: 'critical' | 'high' | 'medium' | 'low';
+      dueDate?: string;
+      version?: string;
+      reviewers?: Array<{ email: string; name?: string; role: MemberRole }>;
+    }) => {
+      return request<{ approval: ApprovalRequest }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/approvals`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    submitDecision: async (
+      workspaceId: string,
+      approvalId: string,
+      data: {
+        decision: 'approved' | 'changes_requested' | 'declined';
+        feedback?: string;
+        actionItems?: string[];
+      }
+    ) => {
+      return request<{ approval: ApprovalRequest; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/approvals/${encodeURIComponent(approvalId)}/decision`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    delete: async (workspaceId: string, approvalId: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/approvals/${encodeURIComponent(approvalId)}`,
+        { method: "DELETE" }
+      );
+    },
+  },
+
+  revisions: {
+    list: async (workspaceId: string, entityType?: string, entityId?: string) => {
+      let url = `/api/workspaces/${encodeURIComponent(workspaceId)}/revisions`;
+      const params = new URLSearchParams();
+      if (entityType) params.append("entityType", entityType);
+      if (entityId) params.append("entityId", entityId);
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+      return request<{ revisions: RevisionItem[] }>(url);
+    },
+
+    create: async (workspaceId: string, data: {
+      entityType: string;
+      entityId: string;
+      entityTitle?: string;
+      versionNumber?: number;
+      versionLabel: string;
+      previousVersionLabel?: string;
+      summaryOfChanges: string;
+      assetUrl?: string;
+      assetPreviewUrl?: string;
+      diffSummary?: string;
+      approvalRequestId?: string;
+      status?: 'draft' | 'in_review' | 'approved';
+    }) => {
+      return request<{ revision: RevisionItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/revisions`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    update: async (workspaceId: string, revisionId: string, updates: Partial<RevisionItem>) => {
+      return request<{ revision: RevisionItem }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/revisions/${encodeURIComponent(revisionId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+  },
+
+  collaboration: {
+    getSummary: async (workspaceId: string) => {
+      return request<{ summary: CollaborationSummary }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/collaboration/summary`
+      );
+    },
+
+    summarizeFeedbackWithBrain: async (workspaceId: string, data: {
+      entityType: string;
+      entityId: string;
+      comments?: CommentItem[];
+      entityTitle?: string;
+    }) => {
+      return request<{ summary: FeedbackSummaryResult }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/collaboration/summarize-feedback`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+  },
+
+  admin: {
+    getOverview: async () => {
+      return request<{ success: boolean; stats: AdminOverviewStats }>("/api/admin/overview");
+    },
+
+    getOverviewStats: async () => {
+      return request<{ success: boolean; stats: AdminOverviewStats }>("/api/admin/overview");
+    },
+
+    getUsers: async (params?: { search?: string; systemRole?: string; status?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append("search", params.search);
+      if (params?.systemRole) searchParams.append("systemRole", params.systemRole);
+      if (params?.status) searchParams.append("status", params.status);
+      const query = searchParams.toString();
+      return request<{ success: boolean; users: AdminUserSummary[]; total: number }>(
+        `/api/admin/users${query ? `?${query}` : ""}`
+      );
+    },
+
+    getUser: async (userId: string) => {
+      return request<{ success: boolean; user: AdminUserSummary }>(
+        `/api/admin/users/${encodeURIComponent(userId)}`
+      );
+    },
+
+    updateUserStatus: async (userId: string, status: "active" | "suspended", reason?: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/admin/users/${encodeURIComponent(userId)}/status`,
+        {
+          method: "POST",
+          body: JSON.stringify({ status, reason }),
+        }
+      );
+    },
+
+    updateUserRole: async (userId: string, systemRole: SystemAdminRole) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/admin/users/${encodeURIComponent(userId)}/role`,
+        {
+          method: "POST",
+          body: JSON.stringify({ systemRole }),
+        }
+      );
+    },
+
+    getWorkspaces: async (params?: { search?: string; identityType?: string; status?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append("search", params.search);
+      if (params?.identityType) searchParams.append("identityType", params.identityType);
+      if (params?.status) searchParams.append("status", params.status);
+      const query = searchParams.toString();
+      return request<{ success: boolean; workspaces: any[]; total: number }>(
+        `/api/admin/workspaces${query ? `?${query}` : ""}`
+      );
+    },
+
+    getWorkspace: async (workspaceId: string) => {
+      return request<{ success: boolean; workspace: any }>(
+        `/api/admin/workspaces/${encodeURIComponent(workspaceId)}`
+      );
+    },
+
+    updateWorkspaceStatus: async (
+      workspaceId: string,
+      status: "active" | "archived" | "suspended",
+      reason?: string
+    ) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/admin/workspaces/${encodeURIComponent(workspaceId)}/status`,
+        {
+          method: "POST",
+          body: JSON.stringify({ status, reason }),
+        }
+      );
+    },
+
+    runWorkspaceDiagnostic: async (workspaceId: string) => {
+      return request<{ success: boolean; report: any }>(
+        `/api/admin/workspaces/${encodeURIComponent(workspaceId)}/diagnostic`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    getActivity: async (params?: { workspaceId?: string; limit?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.workspaceId) searchParams.append("workspaceId", params.workspaceId);
+      if (params?.limit) searchParams.append("limit", params.limit.toString());
+      const query = searchParams.toString();
+      return request<{ success: boolean; activityLogs: ActivityLog[]; auditLogs: AdminAuditLogItem[] }>(
+        `/api/admin/activity${query ? `?${query}` : ""}`
+      );
+    },
+
+    getAuditLogs: async (params?: {
+      targetType?: string;
+      action?: string;
+      adminUserId?: string;
+      limit?: number;
+    }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.targetType) searchParams.append("targetType", params.targetType);
+      if (params?.action) searchParams.append("action", params.action);
+      if (params?.adminUserId) searchParams.append("adminUserId", params.adminUserId);
+      if (params?.limit) searchParams.append("limit", params.limit.toString());
+      const query = searchParams.toString();
+      return request<{ success: boolean; logs: AdminAuditLogItem[]; total: number }>(
+        `/api/admin/audit-logs${query ? `?${query}` : ""}`
+      );
+    },
+
+    getSupportTickets: async (params?: { status?: string; priority?: string; category?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.status) searchParams.append("status", params.status);
+      if (params?.priority) searchParams.append("priority", params.priority);
+      if (params?.category) searchParams.append("category", params.category);
+      const query = searchParams.toString();
+      return request<{ success: boolean; tickets: SupportTicket[]; total: number }>(
+        `/api/admin/support/tickets${query ? `?${query}` : ""}`
+      );
+    },
+
+    getSupportTicket: async (ticketId: string) => {
+      return request<{ success: boolean; ticket: SupportTicket }>(
+        `/api/admin/support/tickets/${encodeURIComponent(ticketId)}`
+      );
+    },
+
+    updateSupportTicket: async (ticketId: string, updates: Partial<SupportTicket>) => {
+      return request<{ success: boolean; ticket: SupportTicket }>(
+        `/api/admin/support/tickets/${encodeURIComponent(ticketId)}`,
+        {
+          method: "POST",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+
+    createSupportTicket: async (data: {
+      workspaceId?: string;
+      category: string;
+      priority: string;
+      subject: string;
+      message: string;
+      diagnosticData?: any;
+    }) => {
+      return request<{ success: boolean; ticket: SupportTicket }>(
+        "/api/admin/support/tickets",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    getFeatureFlags: async () => {
+      return request<{ success: boolean; flags: FeatureFlag[] }>("/api/admin/feature-flags");
+    },
+
+    updateFeatureFlag: async (flagId: string, updates: Partial<FeatureFlag>) => {
+      return request<{ success: boolean; flag: FeatureFlag }>(
+        `/api/admin/feature-flags/${encodeURIComponent(flagId)}`,
+        {
+          method: "POST",
+          body: JSON.stringify(updates),
+        }
+      );
+    },
+
+    getSettings: async () => {
+      return request<{ success: boolean; settings: PlatformSettings }>("/api/admin/settings");
+    },
+
+    getPlatformSettings: async () => {
+      return request<{ success: boolean; settings: PlatformSettings }>("/api/admin/settings");
+    },
+
+    updateSettings: async (updates: Partial<PlatformSettings>) => {
+      return request<{ success: boolean; settings: PlatformSettings }>("/api/admin/settings", {
+        method: "POST",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    updatePlatformSettings: async (updates: Partial<PlatformSettings>) => {
+      return request<{ success: boolean; settings: PlatformSettings }>("/api/admin/settings", {
+        method: "POST",
+        body: JSON.stringify(updates),
+      });
+    },
+
+    getSystemHealth: async () => {
+      return request<{
+        success: boolean;
+        health: any;
+      }>("/api/admin/system/health");
+    },
+  },
+
+  radar: {
+    getSignals: async (
+      workspaceId: string,
+      params?: {
+        category?: string;
+        severity?: string;
+        status?: string;
+        entityType?: string;
+        entityId?: string;
+        search?: string;
+        includeArchived?: boolean;
+        autoEvaluate?: boolean;
+      }
+    ) => {
+      const searchParams = new URLSearchParams();
+      if (params?.category) searchParams.set("category", params.category);
+      if (params?.severity) searchParams.set("severity", params.severity);
+      if (params?.status) searchParams.set("status", params.status);
+      if (params?.entityType) searchParams.set("entityType", params.entityType);
+      if (params?.entityId) searchParams.set("entityId", params.entityId);
+      if (params?.search) searchParams.set("search", params.search);
+      if (params?.includeArchived !== undefined) searchParams.set("includeArchived", String(params.includeArchived));
+      if (params?.autoEvaluate !== undefined) searchParams.set("autoEvaluate", String(params.autoEvaluate));
+      const qs = searchParams.toString() ? `?${searchParams.toString()}` : "";
+      return request<{ signals: RadarSignal[] }>(`/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals${qs}`);
+    },
+
+    evaluate: async (workspaceId: string) => {
+      return request<{ signals: RadarSignal[]; digest: RadarDigest; stats: RadarStats }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/evaluate`,
+        { method: "POST" }
+      );
+    },
+
+    getDigest: async (workspaceId: string) => {
+      return request<{ digest: RadarDigest; stats: RadarStats }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/digest`
+      );
+    },
+
+    getStats: async (workspaceId: string) => {
+      return request<{ stats: RadarStats }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/stats`
+      );
+    },
+
+    acknowledgeSignal: async (workspaceId: string, signalId: string) => {
+      return request<{ success: boolean; signal: RadarSignal }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/${encodeURIComponent(signalId)}/acknowledge`,
+        { method: "POST" }
+      );
+    },
+
+    dismissSignal: async (workspaceId: string, signalId: string) => {
+      return request<{ success: boolean; signal: RadarSignal }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/${encodeURIComponent(signalId)}/dismiss`,
+        { method: "POST" }
+      );
+    },
+
+    actionSignal: async (workspaceId: string, signalId: string) => {
+      return request<{ success: boolean; signal: RadarSignal }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/${encodeURIComponent(signalId)}/action`,
+        { method: "POST" }
+      );
+    },
+
+    batchAction: async (workspaceId: string, signalIds: string[], action: "acknowledge" | "dismiss" | "restore") => {
+      return request<{ success: boolean; updatedCount: number }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/batch`,
+        {
+          method: "POST",
+          body: JSON.stringify({ signalIds, action }),
+        }
+      );
+    },
+
+    askBrain: async (workspaceId: string, signalId: string, query?: string) => {
+      return request<{
+        explanation: string;
+        rootCause: string;
+        actionPlan: string[];
+        aiGuidance: string;
+        affectedEntityName: string;
+      }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/radar/signals/${encodeURIComponent(signalId)}/ask-brain`,
+        {
+          method: "POST",
+          body: JSON.stringify({ query }),
+        }
+      );
+    },
+  },
+
+  integrations: {
+    list: async (workspaceId: string) => {
+      return request<{ connections: IntegrationConnection[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations`
+      );
+    },
+
+    connect: async (workspaceId: string, data: Partial<IntegrationConnection> & { providerId: string }) => {
+      return request<{ connection: IntegrationConnection; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/connect`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    disconnect: async (workspaceId: string, connectionId: string) => {
+      return request<{ success: boolean; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/${encodeURIComponent(connectionId)}/disconnect`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    reconnect: async (workspaceId: string, connectionId: string) => {
+      return request<{ connection: IntegrationConnection; message: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/${encodeURIComponent(connectionId)}/reconnect`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    test: async (workspaceId: string, connectionId: string) => {
+      return request<{ healthy: boolean; latencyMs: number; message: string; checkedAt: string }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/${encodeURIComponent(connectionId)}/test`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    sync: async (workspaceId: string, connectionId: string) => {
+      return request<{
+        success: boolean;
+        recordsProcessed: number;
+        targetEntities: string[];
+        durationMs: number;
+        message: string;
+      }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/${encodeURIComponent(connectionId)}/sync`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    getLogs: async (workspaceId: string) => {
+      return request<{ logs: IntegrationSyncLog[] }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/logs`
+      );
+    },
+
+    getHealth: async (workspaceId: string) => {
+      return request<{ health: IntegrationsHealthOverview }>(
+        `/api/workspaces/${encodeURIComponent(workspaceId)}/integrations/health`
+      );
+    },
+  },
+};

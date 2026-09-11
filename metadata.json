@@ -1,0 +1,6 @@
+{
+  "name": "KeedoHub — The Creative Workspace",
+  "description": "The creative agency workspace for artists and brands. Manage projects, releases, brand materials, business documents, and request agency-grade creative work.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
