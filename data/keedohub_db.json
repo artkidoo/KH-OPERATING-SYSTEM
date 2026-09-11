@@ -7623,6 +7623,196 @@
   "revisions": [],
   "admin_audit_logs": [
     {
+      "id": "a-log-c0d35e9f",
+      "adminUserId": "usr_beefe3fd",
+      "adminEmail": "demo.artist.1789129441641@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/support/tickets",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/support/tickets"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:33:55.566Z"
+    },
+    {
+      "id": "a-log-1161f04f",
+      "adminUserId": "usr_beefe3fd",
+      "adminEmail": "demo.artist.1789129441641@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/support/tickets",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/support/tickets"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:33:54.371Z"
+    },
+    {
+      "id": "a-log-62beaa8d",
+      "adminUserId": "usr_beefe3fd",
+      "adminEmail": "demo.artist.1789129441641@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/users",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/users"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:33:51.787Z"
+    },
+    {
+      "id": "a-log-00474ed3",
+      "adminUserId": "usr_beefe3fd",
+      "adminEmail": "demo.artist.1789129441641@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/users",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/users"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:33:50.601Z"
+    },
+    {
+      "id": "a-log-4620f468",
+      "adminUserId": "usr_beefe3fd",
+      "adminEmail": "demo.artist.1789129441641@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/production/jobs",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin"
+        ],
+        "method": "GET",
+        "path": "/admin/production/jobs"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:33:45.028Z"
+    },
+    {
+      "id": "a-log-9bcf75ee",
+      "adminUserId": "usr_beefe3fd",
+      "adminEmail": "demo.artist.1789129441641@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/production/jobs",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin"
+        ],
+        "method": "GET",
+        "path": "/admin/production/jobs"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:33:43.638Z"
+    },
+    {
+      "id": "a-log-697e8442",
+      "adminUserId": "usr_beefe3fd",
+      "adminEmail": "demo.artist.1789129441641@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:33:38.962Z"
+    },
+    {
+      "id": "a-log-94bf871f",
+      "adminUserId": "usr_beefe3fd",
+      "adminEmail": "demo.artist.1789129441641@keedohub.demo",
+      "adminName": "Demo Artist",
+      "adminRole": "user",
+      "action": "UNAUTHORIZED_ADMIN_ATTEMPT",
+      "targetType": "security",
+      "targetId": "/admin/overview",
+      "targetName": "Admin Endpoint",
+      "details": {
+        "attemptedRole": "user",
+        "requiredRoles": [
+          "super_admin",
+          "admin",
+          "support"
+        ],
+        "method": "GET",
+        "path": "/admin/overview"
+      },
+      "ipAddress": "169.254.0.1",
+      "result": "denied",
+      "createdAt": "2026-09-11T12:33:37.873Z"
+    },
+    {
       "id": "a-log-25710c92",
       "adminUserId": "usr_beefe3fd",
       "adminEmail": "demo.artist.1789129441641@keedohub.demo",
