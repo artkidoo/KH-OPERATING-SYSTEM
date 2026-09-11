@@ -45,6 +45,7 @@ import {
   Home
 } from "lucide-react";
 import { isWorkspaceTab, isStudioTab, workspaceNavFor } from "../utils/navigation";
+import { hasAdminAccess } from "../utils/adminAccess";
 
 interface HeaderProps {
   activeTab: ActiveTab;
@@ -419,16 +420,18 @@ export const Header: React.FC<HeaderProps> = ({
                     </div>
 
                     <div className="pt-2 border-t border-zinc-800 space-y-1">
-                      <button
-                        onClick={() => {
-                          setActiveTab("admin");
-                          setIsUserMenuOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 transition-colors cursor-pointer font-semibold"
-                      >
-                        <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Admin Control Center</span>
-                      </button>
+                      {hasAdminAccess(user?.systemRole) && (
+                        <button
+                          onClick={() => {
+                            setActiveTab("admin");
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-[var(--accent-pill-text)] hover:text-[var(--accent-text)] hover:bg-[var(--accent-light)] transition-colors cursor-pointer font-semibold"
+                        >
+                          <ShieldAlert className="w-3.5 h-3.5" />
+                          <span>Admin Control Center</span>
+                        </button>
+                      )}
 
                       <button
                         id="user-menu-integrations-btn"

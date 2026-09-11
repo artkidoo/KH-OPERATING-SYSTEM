@@ -28,6 +28,25 @@
     --bento-subtle: #71717A;
     --bento-scrollbar-track: #09090B;
     --bento-scrollbar-thumb: #27272A;
+
+    /* Compatibility aliases for shared Tailwind components. */
+    --background: var(--bento-bg);
+    --foreground: var(--bento-text);
+    --card: var(--bento-card);
+    --accent: var(--bento-elevated);
+    --border: var(--bento-border);
+    --muted-foreground: var(--bento-muted);
+    --muted: var(--bento-elevated);
+  }
+
+  @theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-accent: var(--accent);
+    --color-border: var(--border);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
   }
 
   /* 4 Curated Keedohub Color Themes */

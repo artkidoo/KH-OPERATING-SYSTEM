@@ -69,6 +69,7 @@ import {
   isWorkspaceTab, 
   isStudioTab 
 } from "./utils/navigation";
+import { hasAdminAccess } from "./utils/adminAccess";
 
 const PUBLIC_TABS: ActiveTab[] = [
   "overview",
@@ -187,7 +188,7 @@ function MainAppContent() {
 
   const isPublicRoute = PUBLIC_TABS.includes(activeTab);
   const isAdminRoute = activeTab === "admin";
-  const isAuthorizedAdmin = !!user && ["super_admin", "admin", "support"].includes(user.systemRole || "user");
+  const isAuthorizedAdmin = hasAdminAccess(user?.systemRole);
 
   React.useEffect(() => {
     if (isAuthLoading || !isAdminRoute) return;
