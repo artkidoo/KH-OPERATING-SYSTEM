@@ -22,7 +22,7 @@ interface AuthContextType {
   closeOnboarding: () => void;
   completeOnboarding: (payload: OnboardingPayload) => Promise<Workspace>;
   login: (credentials: { email: string; password: string }) => Promise<void>;
-  demoLogin: (demoType: "artist" | "brand") => Promise<void>;
+  demoLogin: (demoType: "artist" | "brand" | "admin") => Promise<void>;
   signup: (data: {
     email: string;
     password: string;
@@ -143,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Demo preview mode - creates temporary session with sample data
-  const demoLogin = async (demoType: "artist" | "brand") => {
+  const demoLogin = async (demoType: "artist" | "brand" | "admin") => {
     setIsLoading(true);
     try {
       const res = await api.auth.demo(demoType);

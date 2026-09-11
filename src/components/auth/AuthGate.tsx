@@ -4,12 +4,14 @@ import { ActiveTab } from "../../types";
 
 interface AuthGateProps {
   areaName?: string;
+  adminContext?: boolean;
   onOpenAuth: (mode: "login" | "signup", defaultIdentity?: "artist" | "brand") => void;
   onNavigatePublic: (tab: ActiveTab) => void;
 }
 
 export const AuthGate: React.FC<AuthGateProps> = ({
   areaName = "Private Operating Environment",
+  adminContext = false,
   onOpenAuth,
   onNavigatePublic,
 }) => {
@@ -29,7 +31,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({
         <div className="space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-zinc-800/80 text-zinc-400 border border-zinc-700/60">
             <Shield className="w-3.5 h-3.5 text-amber-400" />
-            <span>Protected Area</span>
+            <span>{adminContext ? "Admin Access Required" : "Protected Area"}</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">

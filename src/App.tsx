@@ -111,6 +111,7 @@ function MainAppContent() {
   const { activeWorkspace, user, isLoading: isAuthLoading } = useAuth();
   const { toggleBrain } = useCreativeBrain();
 
+
   // URL synchronization helper — guarantees ONE WORKSPACE ONLY
   const setActiveTab = (tab: ActiveTab, section?: ShellSection) => {
     let resolvedTab = tab;
@@ -186,6 +187,24 @@ function MainAppContent() {
 
   const isPublicRoute = PUBLIC_TABS.includes(activeTab);
   const isAdminRoute = activeTab === "admin";
+  const isAuthorizedAdmin = !!user && ["super_admin", "admin", "support"].includes(user.systemRole || "user");
+
+  React.useEffect(() => {
+    if (isAuthLoading || !isAdminRoute) return;
+
+    if (!user) {
+      if (window.location.pathname !== "/login") {
+        window.history.replaceState({ tab: "admin", redirect: "/admin" }, "", "/login?redirect=%2Fadmin");
+      }
+      setAuthModalMode("login");
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    if (window.location.pathname === "/login") {
+      window.history.replaceState({ tab: "admin" }, "", "/admin");
+    }
+  }, [isAdminRoute, isAuthLoading, user]);
 
   return (
     <div className="min-h-screen bg-[var(--bento-bg)] text-[var(--bento-text)] flex flex-col font-['Plus_Jakarta_Sans'] selection:bg-[var(--accent-color)] selection:text-[var(--accent-text)] transition-colors duration-200 pb-16 sm:pb-0">
@@ -212,6 +231,7 @@ function MainAppContent() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authModalMode}
+        adminContext={isAdminRoute}
       />
 
       {/* Creative Brain Slide-over Assistant */}
@@ -231,13 +251,14 @@ function MainAppContent() {
       {/* Main Content Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Private Route Protection: wait for persisted session hydration before deciding access. */}
-        {isAuthLoading && !isPublicRoute && !isAdminRoute ? (
+        {isAuthLoading && !isPublicRoute ? (
           <div className="bento-card mx-auto flex min-h-48 max-w-xl items-center justify-center p-8 text-center">
             <p className="text-sm text-theme-muted">Verifying your Keedohub session…</p>
           </div>
-        ) : !user && !isPublicRoute && !isAdminRoute ? (
+        ) : !user && !isPublicRoute ? (
           <AuthGate
-            areaName={activeTab}
+            areaName={isAdminRoute ? "Admin / Operations Control Center" : activeTab}
+            adminContext={isAdminRoute}
             onOpenAuth={(mode) => {
               setAuthModalMode(mode || "login");
               setIsAuthModalOpen(true);
