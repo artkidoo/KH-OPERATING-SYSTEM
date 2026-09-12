@@ -150,7 +150,6 @@ Keedohub turns a release into an operating workspace.
 - 30-day release rollout
 - Cover Studio
 - Lyrics Studio
-- DSP Pitcher
 - Mastering Suite
 - Producer Split Calculator
 - Presave Hub

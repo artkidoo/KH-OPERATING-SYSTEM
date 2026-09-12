@@ -75,10 +75,10 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
   },
   {
     id: "art-2",
-    slug: "dsp-pitching-playbook",
+    slug: "curator-pitching-playbook",
     pillar: "artist",
-    pillarLabel: "DSP Strategy",
-    title: "The Direct-to-Editor DSP Pitch: How to Frame Your Metadata for Algorithmic & Human Placement",
+    pillarLabel: "Curator Strategy",
+    title: "The Direct-to-Editor Curator Pitch: How to Frame Your Metadata for Algorithmic & Human Placement",
     subtitle: "The exact framework Spotify for Artists and Apple Music editorial curators look for in 500-word pitches.",
     readTime: "5 min read",
     publishedAt: "August 2026",
@@ -87,12 +87,12 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
       role: "Editorial & Music Curator",
       avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
     },
-    tags: ["DSP Pitch", "Spotify for Artists", "Metadata", "Music Marketing"],
+    tags: ["Curator Pitch", "Spotify for Artists", "Metadata", "Music Marketing"],
     excerpt: "Editorial curators read hundreds of pitches every day. Generic marketing claims get skipped. Specific sound palettes, cultural hooks, and planned promo budgets get placed.",
     content: [
       "When editors open Spotify for Artists or Apple Music for Artists, they scan for three specific pillars: sonic reference points (who does this sit next to?), cultural context (what subculture or mood does this serve?), and the artist's confirmed marketing commit.",
       "Writing 'this is my best song yet' guarantees your pitch is ignored. Editors want objective sonic anchors: 'combines Nigerian Alté rhythms with UK Garage basslines, tailored for late-night driving and chill electronic playlists.'",
-      "Using the Keedohub DSP Pitch tool, your Artist DNA automatically populates the exact genre micro-tags, instruments, emotional mood curves, and cross-platform campaign strategy directly into your pitch draft."
+      "Using the Keedohub Curator Pitch workflow, your Artist DNA automatically populates the exact genre micro-tags, instruments, emotional mood curves, and cross-platform campaign strategy directly into your pitch draft."
     ],
     takeaways: [
       "Submit your master audio and pitch at least 21 days prior to release date.",
@@ -100,7 +100,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
       "Detail your external traffic commitment: mention planned Reels, TikTok sounds, and direct pre-save ads.",
       "Keep metadata (ISRC, UPC, clean explicit tags, producer credits) pristine and verified."
     ],
-    ctaText: "Draft your DSP Pitch in Artist OS",
+    ctaText: "Draft your Curator Pitch in Artist OS",
     ctaAction: "artist_signup"
   },
   {

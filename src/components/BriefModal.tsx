@@ -20,7 +20,7 @@ export const BriefModal: React.FC<BriefModalProps> = ({ isOpen, onClose, onNotif
   if (!isOpen) return null;
 
   const projectOptions = {
-    artist: ["Music Cover Art & Release Suite", "30-Day Music Rollout & Content Campaign", "EPK, DSP Pitch & Release Readiness"],
+    artist: ["Music Cover Art & Release Suite", "30-Day Music Rollout & Content Campaign", "EPK, Curator Pitch & Release Readiness"],
     brand: ["Full Brand Identity & Vector System", "Brand OS Strategy & Campaign System", "Web Application & Landing Page"],
     other: ["Motion Graphics & Lyric Visualizer", "Web Application & Landing Page", "Custom Creative Direction"],
   };

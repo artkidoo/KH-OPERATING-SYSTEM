@@ -498,7 +498,7 @@ export const ArtistContentBrain: React.FC<ArtistContentBrainProps> = ({ onNotify
                 { id: "blueprint", label: "1. Strategy", icon: Layers, desc: "Algorithm rules" },
                 { id: "schedule", label: "2. 30-Day Plan", icon: Calendar, desc: "Posting calendar" },
                 { id: "promokit", label: "3. Asset Studio", icon: ImageIcon, desc: "Artwork & Cards" },
-                { id: "pitch", label: "4. DSP Pitch", icon: Radio, desc: "Curator editorial" },
+                { id: "pitch", label: "4. Curator Pitch", icon: Radio, desc: "Editorial submission" },
                 { id: "hooks", label: "5. Viral Hooks", icon: Tv, desc: "Sound & Captions" },
                 { id: "checklist", label: "6. Audit Check", icon: CheckSquare, desc: `${completedChecklistCount}/${checklistState.length} done` },
               ].map((step) => {
@@ -797,7 +797,7 @@ export const ArtistContentBrain: React.FC<ArtistContentBrainProps> = ({ onNotify
                 }`}
               >
                 <Radio className="w-4 h-4" />
-                <span>DSP Pitch</span>
+                <span>Curator Pitch</span>
               </button>
 
               <button

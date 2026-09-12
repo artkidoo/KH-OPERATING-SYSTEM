@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useCreativeBrain } from '../../context/CreativeBrainContext';
 import { ProductServiceSystem } from './ProductServiceSystem';
-import { CampaignBuilder } from './CampaignBuilder';
 import { BrandCoreEditor } from './BrandCoreEditor';
 import { ContextualRadarBanner } from '../CreativeRadarDashboard';
 import { IdentityType, ActiveTab } from '../../types';
@@ -122,10 +121,8 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
       <div className="flex items-center gap-2 border-b border-zinc-800 overflow-x-auto pb-1">
         {[
           { id: 'overview', label: 'Brand OS Overview', icon: Building2, count: undefined },
-          ...(!standalone ? [{ id: 'campaigns', label: 'Master Campaign Engine', icon: Rocket, count: activeCampaign ? 'Active' : undefined }] : []),
           { id: 'brand_core', label: 'Brand Profile', icon: Compass, count: 'Identity' },
           { id: 'products', label: 'Products & Services Catalog', icon: Package, count: `${products.length}` },
-          ...(!standalone ? [{ id: 'readiness_radar', label: 'Launch Readiness Radar', icon: ShieldCheck, count: `${readiness?.score ?? 0}%` }] : []),
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -160,17 +157,13 @@ export const BrandBusinessDashboard: React.FC<BrandBusinessDashboardProps> = ({ 
             onNotify={onNotify}
             brandMode={standalone}
             onNavigateTab={(tab) => {
-              if (['campaigns', 'brand_core', 'products', 'readiness_radar'].includes(tab)) {
+              if (['brand_core', 'products'].includes(tab)) {
                 setActiveTab(tab as BrandWorkstationTab);
               } else {
                 onNavigateTab?.(tab);
               }
             }}
           />
-        )}
-
-        {activeTab === 'campaigns' && (
-          <CampaignBuilder onNotify={onNotify} onNavigateTab={onNavigateTab} />
         )}
 
         {activeTab === 'brand_core' && (

@@ -65,7 +65,7 @@ KeedoHub is organized into customer-facing workspaces and an internal production
 
 | Component | Status | Description |
 |---|---|---|
-| **Artist Workspace** | ✅ Active | Music artist tools: Release Builder, Cover Studio (3000px), Lyrics Studio, DSP Pitcher, EPK Builder, Mastering Suite, Presave Hub, Content Engine. |
+| **Artist Workspace** | ✅ Active | Music artist tools: Release Builder, Cover Studio (3000px), Lyrics Studio, EPK Builder, Mastering Suite, Presave Hub, Content Engine. DSP editorial pitching handled via Studio request workflow. |
 | **Brand Workspace** | ✅ Active | Brand/business tools: Brand OS with color systems, typography hierarchy, Business Documents Studio, Content Engine, product/service management. |
 | **Projects** | ✅ Active | Project management with tasks, milestones, budget tracking, and collaboration features. |
 | **Creative Library** | ✅ Active | Asset management with folders, categories, search, favorites, and approved asset marking. |
@@ -103,11 +103,12 @@ KeedoHub is organized into customer-facing workspaces and an internal production
   - Kinetic live visualizer themes (Cyber Crimson, Golden Afro, Neon Midnight, Minimal Noir).
   - Instant LRC timestamped format export and JSON project backup.
 
-### 4. 🎯 DSP Editorial Pitcher & Curator Hub (`DSPPitcher.tsx`)
+### 4. 🎯 DSP Editorial Pitching via Studio
 - **Problem**: Independent artists missing the 14-day editorial pitch window for Spotify for Artists and Apple Music.
 - **Solution**:
-  - Generates algorithmically scored pitch submissions analyzing musical mood, genre tagging, and diaspora narrative.
-  - Targeted curator directory for Afrobeat, Amapiano, Hip-Hop, and Alternative playlists across Spotify, Apple, Audiomack, and Boomplay.
+  - DSP editorial pitching is now handled through KeedoHub Studio request workflow.
+  - Artists submit pitch requests via Studio, where KeedoHub team crafts and submits algorithmically scored pitch submissions analyzing musical mood, genre tagging, and diaspora narrative.
+  - Targeted curator directory for Afrobeat, Amapiano, Hip-Hop, and Alternative playlists across Spotify, Apple, Audiomack, and Boomplay managed by KeedoHub Studio team.
 
 ### 5. 🎚️ Broadcast Audio Mastering & Loudness Inspector (`MasteringSuite.tsx`)
 - **Problem**: Inconsistent loudness levels causing Spotify, Apple Music, and YouTube normalization algorithms to crush song dynamics.

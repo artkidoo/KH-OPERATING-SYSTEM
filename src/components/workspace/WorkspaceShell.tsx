@@ -54,6 +54,7 @@ export type ShellSection =
   | "brand"
   | "business"
   | "documents"
+  | "presentations"
   | "create";
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -71,6 +72,7 @@ const ICONS: Record<string, React.ReactNode> = {
   brand: <Fingerprint className="w-4 h-4" />,
   business: <Briefcase className="w-4 h-4" />,
   documents: <FileText className="w-4 h-4" />,
+  presentations: <Layers className="w-4 h-4" />,
   create: <PlusCircle className="w-4 h-4" />,
 };
 
@@ -210,6 +212,22 @@ export function WorkspaceShell({
       crumbs.push({
         id: "crumb-documents",
         label: "Business & Documents",
+        active: true,
+      });
+      return crumbs;
+    }
+
+    if (section === "presentations") {
+      if (identity === "brand") {
+        crumbs.push({
+          id: "crumb-brand-parent",
+          label: "Brand",
+          onClick: () => navTo("brand"),
+        });
+      }
+      crumbs.push({
+        id: "crumb-presentations",
+        label: "Presentations",
         active: true,
       });
       return crumbs;
@@ -445,6 +463,10 @@ export function WorkspaceShell({
         )}
 
         {(section === "business" || section === "documents") && (
+          <DocumentsHub onNotify={onNotify} />
+        )}
+
+        {section === "presentations" && (
           <DocumentsHub onNotify={onNotify} />
         )}
 

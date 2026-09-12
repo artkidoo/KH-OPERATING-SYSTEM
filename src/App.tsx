@@ -16,7 +16,6 @@ import { LyricsStudio } from "./components/LyricsStudio";
 import { MasteringSuite } from "./components/MasteringSuite";
 import { SplitsCalculator } from "./components/SplitsCalculator";
 import { PresaveHub } from "./components/PresaveHub";
-import { CreativeBrainConsole } from "./components/CreativeBrainConsole";
 import { CreativeMemoryDashboard } from "./components/CreativeMemoryDashboard";
 import { CreativeRadarDashboard } from "./components/CreativeRadarDashboard";
 import { AnalyticsView } from "./components/AnalyticsView";
@@ -140,9 +139,6 @@ function MainAppContent() {
     } else if (tab === "profile") {
       resolvedTab = "command-center";
       targetSection = targetSection || "profile";
-    } else if (tab === "dsp-pitcher" || tab === "artist-brain") {
-      resolvedTab = "command-center";
-      targetSection = "releases";
     } else if (tab === "cover-studio" && !hasAdminAccess(user?.systemRole)) {
       resolvedTab = "command-center";
       targetSection = "releases";
@@ -372,18 +368,6 @@ function MainAppContent() {
           <BusinessDocumentsStudio onNotify={addNotification} />
         )}
 
-        {activeTab === "artist-brain" && (
-          <WorkspaceShell
-            initialSection="releases"
-            onNotify={addNotification}
-            onNavigateTab={setActiveTab}
-          />
-        )}
-
-        {activeTab === "creative-brain" && (
-          <CreativeBrainConsole setActiveTab={setActiveTab} />
-        )}
-
         {activeTab === "creative-memory" && (
           <CreativeMemoryDashboard
             onNotify={addNotification}
@@ -400,14 +384,6 @@ function MainAppContent() {
 
         {activeTab === "lyrics-studio" && (
           <LyricsStudio onNotify={addNotification} />
-        )}
-
-        {activeTab === "dsp-pitcher" && (
-          <WorkspaceShell
-            initialSection="releases"
-            onNotify={addNotification}
-            onNavigateTab={setActiveTab}
-          />
         )}
 
         {activeTab === "mastering-suite" && (

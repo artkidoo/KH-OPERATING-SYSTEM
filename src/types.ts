@@ -10,11 +10,8 @@ export type ActiveTab =
   | 'creative-memory'
   | 'creative-radar'
   | 'workspace-hub'
-  | 'artist-brain'
-  | 'creative-brain'
   | 'cover-studio'
   | 'lyrics-studio'
-  | 'dsp-pitcher'
   | 'mastering-suite'
   | 'splits-calculator'
   | 'presave-hub'
@@ -516,7 +513,6 @@ export interface Release {
   currency?: string;
   phases: RolloutPhase[];
   checklist: { id: string; task: string; category: string; deadline: string; completed: boolean }[];
-  dspPitch?: DSPPitchData | any;
   presaveSlug?: string;
   presaveData?: Partial<PresavePageData>;
   lyrics?: {
@@ -1088,15 +1084,6 @@ export interface RolloutPlan {
   tagline: string;
   diasporaAngle: string;
   phases: RolloutPhase[];
-  dspPitch: {
-    pitchTitle: string;
-    genreTags: string[];
-    moodTags: string[];
-    instruments: string[];
-    editorialNote: string;
-    targetPlaylists?: string[];
-    curatorAngle?: string;
-  };
   pressReleaseExcerpt: string;
   contentHooks: string[];
   hashtags?: string[];
@@ -1279,39 +1266,7 @@ export interface LyricProject {
   glowIntensity: 'subtle' | 'vibrant' | 'hyper';
 }
 
-// 2. DSP Pitcher Types
-export interface DSPPitchData {
-  trackTitle: string;
-  artistName: string;
-  featuredArtists: string;
-  releaseDate: string;
-  primaryGenre: string;
-  subGenres: string[];
-  moods: string[];
-  instruments: string[];
-  language: string;
-  isExplicit: boolean;
-  recordingLocation: string;
-  culturalStory: string;
-  marketingBudgetUSD: number;
-  preSaveCount: number;
-  dspPitchShort: string;
-  pressPitchFull: string;
-  curatorDMEmail: string;
-  pitchScore: number;
-}
-
-export interface PlaylistTarget {
-  id: string;
-  name: string;
-  dsp: 'Spotify' | 'Apple Music' | 'Audiomack' | 'Boomplay';
-  followerCount: string;
-  vibe: string;
-  idealTrackArchetype: string;
-  curatorTip: string;
-}
-
-// 3. Audio Mastering & Loudness Types
+// 2. Audio Mastering & Loudness Types
 export interface MasteringReport {
   integratedLufs: number; // e.g. -14.2
   truePeakDbfs: number; // e.g. -0.8

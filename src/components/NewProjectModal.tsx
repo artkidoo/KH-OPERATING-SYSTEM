@@ -24,7 +24,7 @@ export function NewProjectModal({ isOpen, onClose, onSuccess }: NewProjectModalP
   const [clientName, setClientName] = useState("");
   const [tasks, setTasks] = useState<{ id: string; text: string; completed: boolean }[]>([
     { id: "t1", text: "Create and validate 3000x3000px master artwork in Cover Studio", completed: false },
-    { id: "t2", text: "Submit 5-week Spotify for Artists editorial pitch via DSP Pitcher", completed: false },
+    { id: "t2", text: "Submit editorial pitch to DSP curators via Studio", completed: false },
     { id: "t3", text: "Execute songwriter & producer split sheets", completed: false },
   ]);
   const [newTaskInput, setNewTaskInput] = useState("");

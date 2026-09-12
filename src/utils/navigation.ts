@@ -19,15 +19,15 @@ export const ARTIST_WORKSPACE_NAV: { key: string; label: string; tab: ActiveTab 
 
 export const BRAND_WORKSPACE_NAV: { key: string; label: string; tab: ActiveTab }[] = [
   { key: "home", label: "Home", tab: "command-center" },
-  { key: "brand", label: "Brand", tab: "command-center" },
+  { key: "brand", label: "Brand Profile", tab: "command-center" },
   { key: "creative", label: "Creative", tab: "command-center" },
-  { key: "business", label: "Business", tab: "command-center" },
+  { key: "asset-kits", label: "Brand Kits", tab: "command-center" },
   { key: "documents", label: "Documents", tab: "command-center" },
-  { key: "library", label: "Library", tab: "command-center" },
+  { key: "presentations", label: "Presentations", tab: "command-center" },
   { key: "projects", label: "Projects", tab: "command-center" },
+  { key: "library", label: "Library", tab: "command-center" },
   { key: "requests", label: "Requests", tab: "command-center" },
   { key: "membership", label: "Membership", tab: "command-center" },
-  { key: "profile", label: "Profile", tab: "command-center" },
 ];
 
 export function workspaceNavFor(identityType: string | undefined | null): { key: string; label: string; tab: ActiveTab }[] {
@@ -54,7 +54,6 @@ export const STUDIO_TABS: ActiveTab[] = [
   "lyrics-studio",
   "business-studio",
   "mastering-suite",
-  "dsp-pitcher",
   "splits-calculator",
   "presave-hub",
   "epk-builder",
@@ -156,8 +155,6 @@ export function getTabFromPath(path: string): ActiveTab {
       return "lyrics-studio";
     case "/mastering-suite":
       return "mastering-suite";
-    case "/dsp-pitcher":
-      return "dsp-pitcher";
     case "/splits-calculator":
       return "splits-calculator";
     case "/presave-hub":
@@ -224,8 +221,6 @@ export function getPathFromTab(tab: ActiveTab, section?: string): string {
       return "/lyrics-studio";
     case "mastering-suite":
       return "/mastering-suite";
-    case "dsp-pitcher":
-      return "/dsp-pitcher";
     case "splits-calculator":
       return "/splits-calculator";
     case "presave-hub":

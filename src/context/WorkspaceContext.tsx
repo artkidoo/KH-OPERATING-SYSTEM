@@ -282,14 +282,8 @@ export function computeReleaseReadiness(
     assetList.some((a) => (a.releaseId === release.id || (release.projectId && a.projectId === release.projectId)) && a.category === 'audio')
   );
 
-  // 3. DSP Editorial Pitch check
-  const hasDspPitch = Boolean(
-    release.dspPitch && (
-      (release.dspPitch.dspPitchShort && release.dspPitch.dspPitchShort.length > 10) ||
-      (release.dspPitch.editorialNote && release.dspPitch.editorialNote.length > 10) ||
-      (release.dspPitch.pitchTitle && release.dspPitch.pitchTitle.length > 2)
-    )
-  );
+  // 3. DSP Editorial Pitch check - REMOVED (DSP Pitcher deprecated)
+  const hasDspPitch = false;
 
   // 4. Smart Pre-Save check
   const hasPresave = Boolean(
