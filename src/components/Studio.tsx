@@ -504,7 +504,9 @@ export const Studio: React.FC<StudioProps> = ({
   const { identity, plan } = useMembership();
 
   // Filter & Search states
-  const [selectedDomainFilter, setSelectedDomainFilter] = useState<"all" | "artist" | "brand">("all");
+  // Brand OS rebuild: brand workspaces default to the brand catalogue so
+  // artist-only services (releases, DSP, cover studio) are never suggested.
+  const [selectedDomainFilter, setSelectedDomainFilter] = useState<"all" | "artist" | "brand">(identity === "brand" ? "brand" : "all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Modals & Drawers

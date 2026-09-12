@@ -300,6 +300,7 @@ export const BusinessDocumentsStudio: React.FC<{
       </section>
 
       <section id="business-document-editor" className="bento-card scroll-mt-8 space-y-5 p-4 sm:p-6">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-[11px] text-amber-200">Professionally designed KeedoHub deliverables. KeedoHub controls the design system — you control appropriate content (company address, contact info, client name, prices, dates, invoice numbers, descriptions, service names, payment terms).</div>
         <div className="flex flex-col gap-4 border-b border-[var(--bento-border)] pb-5 lg:flex-row lg:items-center lg:justify-between">
           <button type="button" aria-expanded={isEditorOpen} aria-controls="business-document-editor-content" onClick={() => setIsEditorOpen((open) => !open)} className="min-w-0 text-left cursor-pointer">
             <div className="flex flex-wrap items-center gap-2"><Pencil className="h-4 w-4 text-theme-accent" /><p className="text-[11px] font-black uppercase tracking-[.16em] text-theme-accent">Editor</p><span className="rounded-full bg-[var(--accent-light)] px-2 py-1 text-[10px] font-bold text-theme-accent">{selectedTemplate.styleLabel || "Brand-ready style"}</span><ChevronDown className={`h-4 w-4 text-[var(--bento-muted)] transition-transform ${isEditorOpen ? "rotate-180" : ""}`} /></div>

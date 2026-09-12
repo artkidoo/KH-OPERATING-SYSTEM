@@ -1,3 +1,4 @@
+// Brand home header
 import React from "react";
 import { useWorkspace } from "../../context/WorkspaceContext";
 import { useAuth } from "../../context/AuthContext";
@@ -5,6 +6,7 @@ import { useMembership } from "../../hooks/useMembership";
 import { Rocket, FolderKanban, ImagePlus, Send, FileText, Fingerprint, PlusCircle } from "lucide-react";
 import { ShellSection } from "./WorkspaceShell";
 import { ArtistHome } from "./ArtistHome";
+import { BrandHome } from "../brand/BrandHome";
 
 export function WorkspaceHome({ onNav, onOpenProject, onNotify }: {
   onNav: (t: ShellSection) => void;
@@ -22,6 +24,17 @@ export function WorkspaceHome({ onNav, onOpenProject, onNotify }: {
       <ArtistHome
         onNotify={onNotify}
         onNavigateSection={(sec) => onNav(sec as ShellSection)}
+      />
+    );
+  }
+
+  // Brand OS rebuild Phase 3 §1 — Brand Home is "Your Brand" dashboard.
+  if (identity === "brand") {
+    return (
+      <BrandHome
+        onNotify={onNotify}
+        onNavigateSection={(sec) => onNav(sec as ShellSection)}
+        onOpenProject={onOpenProject}
       />
     );
   }

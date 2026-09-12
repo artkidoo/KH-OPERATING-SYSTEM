@@ -8,10 +8,12 @@ import { WorkspaceHome } from "./WorkspaceHome";
 import { ProjectsView } from "./ProjectsView";
 import { LibraryView } from "./LibraryView";
 import { ReleaseBuilder } from "./ReleaseBuilder";
-import { CreativePackage } from "./CreativePackage";
 import { StudioBoard } from "./StudioBoard";
-import { BrandIdentity } from "./BrandIdentity";
 import { DocumentsHub } from "./DocumentsHub";
+import { BrandProfileView } from "../brand/BrandProfileView";
+import { BrandCreativeView } from "../brand/BrandCreativeView";
+import { BrandKitsView } from "../brand/BrandKitsView";
+import { BrandPresentationsView } from "../brand/BrandPresentationsView";
 import { SharePanel } from "./SharePanel";
 import { RequestsView } from "../RequestsView";
 import { MembershipView } from "../MembershipView";
@@ -52,6 +54,9 @@ export type ShellSection =
   | "membership"
   | "profile"
   | "brand"
+  | "brand-profile"
+  | "brand-kits"
+  | "presentations"
   | "business"
   | "documents"
   | "create";
@@ -69,6 +74,9 @@ const ICONS: Record<string, React.ReactNode> = {
   membership: <Crown className="w-4 h-4" />,
   profile: <User className="w-4 h-4" />,
   brand: <Fingerprint className="w-4 h-4" />,
+  "brand-profile": <Fingerprint className="w-4 h-4" />,
+  "brand-kits": <Package className="w-4 h-4" />,
+  presentations: <Layers className="w-4 h-4" />,
   business: <Briefcase className="w-4 h-4" />,
   documents: <FileText className="w-4 h-4" />,
   create: <PlusCircle className="w-4 h-4" />,
@@ -92,12 +100,41 @@ export function WorkspaceShell({
   const [openProject, setOpenProject] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (initialSection && initialSection !== section) {
-      setSection(initialSection);
-    }
+    if (initialSection && initialSection !== section) setSection(initialSection);
   }, [initialSection]);
 
+  // Brand OS rebuild: brand nav already excludes artist-only sections.
   const nav = workspaceNavFor(identity);
+
+  // Everything in Brand Creative ultimately leads to Request Creative Work.
+  const handleBrandRequest = async (reqType: string, title: string) => {
+    try {
+      const { api } = await import("../../services/api");
+      const wsId = activeWorkspace?.id;
+      if (!wsId) { onNotify("Select a workspace first.", "error"); return; }
+      await api.creativeRequests.create(wsId, {
+        title: `${title} — Brand Request`,
+        requestType: reqType, serviceName: reqType,
+        briefDetails: `Brand OS request for ${title}. Studio should apply Brand DNA automatically.`,
+      } as never);
+      onNotify(`"${title}" sent to KeedoHub Studio.`, "success");
+      setSection("requests");
+      onSectionChange?.("requests");
+    } catch (e: unknown) {
+      onNotify(e instanceof Error ? e.message : "Request failed", "error");
+    }
+  };
+
+  function BrandGuardNotice({ label, onBack }: { label: string; onBack: () => void }) {
+    return (
+      <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-8 text-center space-y-3">
+        <p className="text-[11px] font-bold tracking-[0.2em] text-red-400">BRAND WORKSPACE</p>
+        <h2 className="text-lg font-bold text-white">{label} is an artist-only tool</h2>
+        <p className="text-xs text-zinc-400 max-w-md mx-auto">Brand workspaces stay focused: Brand Profile, Creative, Brand Kits, Documents, Presentations, Projects, Library, Requests.</p>
+        <button onClick={onBack} className="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white cursor-pointer">Back to Brand Home</button>
+      </div>
+    );
+  }
 
   const goProjects = (id?: string) => {
     if (id) setOpenProject(id);
@@ -417,9 +454,25 @@ export function WorkspaceShell({
           />
         )}
 
+        {(section === "brand-profile" || section === "brand") && (
+          <BrandProfileView onNotify={onNotify} onNavigateSection={(s) => navTo(s as ShellSection)} />
+        )}
+
+        {section === "creative" && identity === "brand" && (
+          <BrandCreativeView onNotify={onNotify} onRequest={(reqType, title) => handleBrandRequest(reqType, title)} />
+        )}
+
+        {section === "brand-kits" && (
+          <BrandKitsView onNotify={onNotify} onRequest={(reqType, title) => handleBrandRequest(reqType, title)} />
+        )}
+
+        {section === "presentations" && (
+          <BrandPresentationsView onNotify={onNotify} onRequest={(reqType, title) => handleBrandRequest(reqType, title)} />
+        )}
+
         {(section === "music" || section === "releases") && (
           identity === "brand" ? (
-            <BrandIdentity onNotify={onNotify} />
+            <BrandGuardNotice label="Releases" onBack={() => navTo("home")} />
           ) : (
             <ReleasesView
               onNotify={onNotify}
@@ -429,19 +482,18 @@ export function WorkspaceShell({
           )
         )}
 
-        {(section === "content" || section === "creative" || section === "asset-kits") && (
+        {(section === "content" || section === "asset-kits") && (
           identity === "artist" ? (
             <AssetKitsView
               onNotify={onNotify}
               onNavigateSection={(sec) => navTo(sec as ShellSection)}
             />
           ) : (
-            <CreativePackage onNotify={onNotify} />
+            <BrandGuardNotice label="Artist Asset Kits" onBack={() => navTo("brand-kits")} />
           )
         )}
-
-        {section === "brand" && (
-          <BrandIdentity onNotify={onNotify} />
+        {section === "creative" && identity !== "brand" && (
+          <AssetKitsView onNotify={onNotify} onNavigateSection={(sec) => navTo(sec as ShellSection)} />
         )}
 
         {(section === "business" || section === "documents") && (

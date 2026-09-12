@@ -26,13 +26,17 @@ import {
 } from "lucide-react";
 
 const REQUEST_TYPES = [
-  { id: "single_artwork", label: "Single Artwork", icon: Palette, desc: "3000×3000 master cover & social cuts" },
-  { id: "full_release_package", label: "Full Release Package", icon: Layers, desc: "Artwork + 25 social, DSP & motion assets" },
-  { id: "brand_identity", label: "Brand Identity", icon: Sparkles, desc: "Logos, brand guidelines & typography" },
-  { id: "motion_visualizer", label: "Motion Visualizer", icon: Film, desc: "9:16 vertical loops & YouTube canvas" },
-  { id: "social_content_pack", label: "Social Content Pack", icon: FolderKanban, desc: "10x promotional carousels & stories" },
-  { id: "press_epk", label: "Press / EPK Materials", icon: Newspaper, desc: "Electronic Press Kit & one-sheet PDF" },
-  { id: "custom_request", label: "Custom Request", icon: FileText, desc: "Tailored agency scope & production" },
+  { id: "single_artwork", label: "Single Artwork", icon: Palette, desc: "3000×3000 master cover & social cuts", for: "artist" },
+  { id: "full_release_package", label: "Full Release Package", icon: Layers, desc: "Artwork + 25 social, DSP & motion assets", for: "artist" },
+  { id: "brand_identity", label: "Brand Identity", icon: Sparkles, desc: "Logos, colours, typography, guidelines", for: "both" },
+  { id: "social_content_pack", label: "Social Kit", icon: FolderKanban, desc: "Profile assets, templates, launch graphics", for: "brand" },
+  { id: "business_documents", label: "Business Document Kit", icon: FileText, desc: "Letterhead, invoice, proposal, profile", for: "brand" },
+  { id: "presentation", label: "Presentation", icon: Newspaper, desc: "Company, pitch, investor, sales decks", for: "brand" },
+  { id: "marketing_materials", label: "Marketing Kit", icon: Layers, desc: "Flyers, brochures, promo + product graphics", for: "brand" },
+  { id: "digital_brand", label: "Digital Brand Kit", icon: Palette, desc: "Website direction, UI, motion, email signature", for: "brand" },
+  { id: "motion_visualizer", label: "Motion Visualizer", icon: Film, desc: "9:16 vertical loops & motion graphics", for: "both" },
+  { id: "press_epk", label: "Press / EPK Materials", icon: Newspaper, desc: "Electronic Press Kit & one-sheet PDF", for: "artist" },
+  { id: "custom_request", label: "Custom Request", icon: FileText, desc: "Tailored agency scope & production", for: "both" },
 ];
 
 const TIMELINES = [
@@ -76,7 +80,9 @@ export function RequestsView({
   const [showNewModal, setShowNewModal] = useState(false);
 
   // Form states
-  const [selectedType, setSelectedType] = useState("single_artwork");
+  const [selectedType, setSelectedType] = useState("brand_identity");
+  const visibleTypes = REQUEST_TYPES.filter((t) =>
+    identity === "brand" ? (t as any).for !== "artist" : (t as any).for !== "brand");
   const [selectedProjectId, setSelectedProjectId] = useState(projects[0]?.id || "");
   const [title, setTitle] = useState("");
   const [creativeDirection, setCreativeDirection] = useState("");
@@ -364,7 +370,7 @@ export function RequestsView({
                 1. Select Request Type
               </label>
               <div className="grid gap-2 sm:grid-cols-2">
-                {REQUEST_TYPES.map((rt) => {
+                {visibleTypes.map((rt) => {
                   const active = selectedType === rt.id;
                   const Icon = rt.icon;
                   return (

@@ -112,9 +112,37 @@ function MainAppContent() {
 
 
   // URL synchronization helper — guarantees ONE WORKSPACE ONLY
-  const setActiveTab = (tab: ActiveTab, section?: ShellSection) => {
+  // Second param accepts either a workspace ShellSection or a generic
+  // entity id (e.g. WorkflowHub deep-links). Only valid shell sections
+  // update workspace state / URL; entity ids are ignored for routing.
+  const ALL_SHELL_SECTIONS: ShellSection[] = [
+    "home",
+    "projects",
+    "music",
+    "releases",
+    "content",
+    "creative",
+    "asset-kits",
+    "library",
+    "requests",
+    "membership",
+    "profile",
+    "brand",
+    "brand-profile",
+    "brand-kits",
+    "presentations",
+    "business",
+    "documents",
+    "create",
+  ];
+  const isShellSection = (v: string | undefined): v is ShellSection =>
+    !!v && (ALL_SHELL_SECTIONS as string[]).includes(v);
+
+  const setActiveTab = (tab: ActiveTab, sectionOrEntityId?: ShellSection | string) => {
     let resolvedTab = tab;
-    let targetSection = section;
+    let targetSection: ShellSection | undefined = isShellSection(sectionOrEntityId)
+      ? sectionOrEntityId
+      : undefined;
 
     if (tab === "workspace-hub" || (tab as string) === "workspace") {
       resolvedTab = "command-center";
@@ -124,7 +152,7 @@ function MainAppContent() {
       targetSection = targetSection || "music";
     } else if (tab === "brand-os") {
       resolvedTab = "command-center";
-      targetSection = targetSection || "brand";
+      targetSection = targetSection || "brand-profile";
     } else if (tab === "project-console") {
       resolvedTab = "command-center";
       targetSection = targetSection || "projects";
@@ -281,7 +309,7 @@ function MainAppContent() {
 
             {activeTab === "journal" && (
               <JournalPage
-                onNavigateTab={setActiveTab}
+                onNavigateTab={(tab: string) => setActiveTab(tab as ActiveTab)}
                 onOpenAuth={(mode) => {
                   setAuthModalMode(mode || "signup");
                   setIsAuthModalOpen(true);

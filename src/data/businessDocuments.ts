@@ -3,13 +3,28 @@ export type BusinessDocumentFieldType = "text" | "textarea" | "date" | "number" 
 export type BusinessDocumentType =
   | "company-profile"
   | "proposal"
+  | "sales-proposal"
+  | "capability-statement"
   | "quotation"
   | "invoice"
   | "receipt"
+  | "purchase-order"
+  | "delivery-note"
+  | "service-agreement"
+  | "contract"
   | "business-letter"
   | "letterhead"
   | "email-signature"
-  | "business-card";
+  | "business-card"
+  | "company-presentation"
+  | "pitch-deck"
+  | "product-presentation"
+  | "investor-deck"
+  | "brand-guidelines"
+  | "social-media-kit"
+  | "marketing-kit"
+  | "media-kit"
+  | "press-kit";
 
 export type BusinessDocumentStyle =
   | "editorial"
@@ -42,7 +57,7 @@ export interface BusinessDocumentTemplate {
   id: string;
   name: string;
   description: string;
-  category: "company" | "sales" | "finance" | "communication" | "identity";
+  category: "company" | "sales" | "finance" | "communication" | "identity" | "legal" | "decks" | "brand" | "media";
   documentType?: BusinessDocumentType;
   icon: string;
   style?: BusinessDocumentStyle;
@@ -58,25 +73,55 @@ export interface BusinessDocumentTemplate {
 export const businessDocumentTypeLabels: Record<BusinessDocumentType, string> = {
   "company-profile": "Company Profile",
   proposal: "Proposal",
+  "sales-proposal": "Sales Proposal",
+  "capability-statement": "Capability Statement",
   quotation: "Quotation",
   invoice: "Invoice",
   receipt: "Receipt",
+  "purchase-order": "Purchase Order",
+  "delivery-note": "Delivery Note",
+  "service-agreement": "Service Agreement",
+  contract: "Contract",
   "business-letter": "Business Letter",
   letterhead: "Letterhead",
   "email-signature": "Email Signature",
   "business-card": "Business Card",
+  "company-presentation": "Company Presentation",
+  "pitch-deck": "Pitch Deck",
+  "product-presentation": "Product Presentation",
+  "investor-deck": "Investor Deck",
+  "brand-guidelines": "Brand Guidelines",
+  "social-media-kit": "Social Media Brand Kit",
+  "marketing-kit": "Marketing Kit",
+  "media-kit": "Media Kit",
+  "press-kit": "Press Kit",
 };
 
 export const businessDocumentTypeOrder: BusinessDocumentType[] = [
   "company-profile",
   "proposal",
+  "sales-proposal",
+  "capability-statement",
   "quotation",
   "invoice",
   "receipt",
+  "purchase-order",
+  "delivery-note",
+  "service-agreement",
+  "contract",
   "business-letter",
   "letterhead",
   "business-card",
   "email-signature",
+  "company-presentation",
+  "pitch-deck",
+  "product-presentation",
+  "investor-deck",
+  "brand-guidelines",
+  "social-media-kit",
+  "marketing-kit",
+  "media-kit",
+  "press-kit",
 ];
 
 const sharedBusinessFields: BusinessDocumentField[] = [
@@ -108,7 +153,7 @@ const commercialFields: BusinessDocumentField[] = [
   { key: "notes", label: "Notes", type: "textarea", placeholder: "Additional context or a thank-you note" },
 ];
 
-const fieldSets: Record<BusinessDocumentType, BusinessDocumentField[]> = {
+const fieldSets: Record<string, BusinessDocumentField[]> = {
   "company-profile": [
     ...sharedBusinessFields,
     { key: "overview", label: "Company overview", type: "textarea", placeholder: "What your business does and why it matters." },
@@ -175,7 +220,7 @@ type TemplateVariant = {
   suitedIndustries: string[];
 };
 
-const variants: Record<BusinessDocumentType, TemplateVariant[]> = {
+const variants: Record<string, TemplateVariant[]> = {
   "company-profile": [
     { style: "editorial", layout: "editorial", styleLabel: "Editorial / high-trust", name: "Northstar Profile", description: "A confident narrative profile for partnerships, tenders, and stakeholder decks.", suitedIndustries: ["Consulting", "Professional services", "Technology"] },
     { style: "bold", layout: "bold", styleLabel: "Bold / founder-led", name: "Signal Profile", description: "A high-contrast, story-first profile built to make a young business memorable.", suitedIndustries: ["Startups", "Creative studios", "Consumer brands"] },
@@ -226,29 +271,61 @@ const variants: Record<BusinessDocumentType, TemplateVariant[]> = {
 const categoryByType: Record<BusinessDocumentType, BusinessDocumentTemplate["category"]> = {
   "company-profile": "company",
   proposal: "sales",
+  "sales-proposal": "sales",
+  "capability-statement": "sales",
   quotation: "sales",
   invoice: "finance",
   receipt: "finance",
+  "purchase-order": "finance",
+  "delivery-note": "finance",
+  "service-agreement": "legal",
+  contract: "legal",
   "business-letter": "communication",
   letterhead: "identity",
   "email-signature": "identity",
   "business-card": "identity",
+  "company-presentation": "decks",
+  "pitch-deck": "decks",
+  "product-presentation": "decks",
+  "investor-deck": "decks",
+  "brand-guidelines": "brand",
+  "social-media-kit": "brand",
+  "marketing-kit": "brand",
+  "media-kit": "media",
+  "press-kit": "media",
 };
 
 const iconByType: Record<BusinessDocumentType, string> = {
   "company-profile": "Building2",
   proposal: "Presentation",
+  "sales-proposal": "Presentation",
+  "capability-statement": "FileText",
   quotation: "ReceiptText",
   invoice: "FileSpreadsheet",
   receipt: "BadgeCheck",
+  "purchase-order": "FileText",
+  "delivery-note": "FileText",
+  "service-agreement": "FileText",
+  contract: "FileText",
   "business-letter": "Mail",
   letterhead: "FileText",
   "email-signature": "AtSign",
   "business-card": "Contact",
+  "company-presentation": "Presentation",
+  "pitch-deck": "Presentation",
+  "product-presentation": "Presentation",
+  "investor-deck": "Presentation",
+  "brand-guidelines": "Building2",
+  "social-media-kit": "AtSign",
+  "marketing-kit": "FileText",
+  "media-kit": "Mail",
+  "press-kit": "Mail",
 };
 
-export const defaultBusinessDocumentTemplates: BusinessDocumentTemplate[] = businessDocumentTypeOrder.flatMap((documentType) =>
-  variants[documentType].map((variant, index) => ({
+export const defaultBusinessDocumentTemplates: BusinessDocumentTemplate[] = businessDocumentTypeOrder.flatMap((documentType) => {
+  const fields = (fieldSets as Record<string, BusinessDocumentField[]>)[documentType] || fieldSets["proposal"];
+  const vars = (variants as Record<string, TemplateVariant[]>)[documentType] || variants["proposal"];
+  return vars.map((variant, index) => ({
     id: `${documentType}-${variant.style}`,
     name: variant.name,
     description: variant.description,
@@ -259,13 +336,13 @@ export const defaultBusinessDocumentTemplates: BusinessDocumentTemplate[] = busi
     layout: variant.layout || variant.style,
     styleLabel: variant.styleLabel,
     suitedIndustries: variant.suitedIndustries,
-    fields: fieldSets[documentType],
+    fields,
     enabled: true,
     ...(index === 0 ? { isCustom: false } : {}),
-  })),
-);
+  }));
+});
 
-const templateStorageKey = "keedohub_business_document_templates_v2";
+const templateStorageKey = "keedohub_business_document_templates_v3";
 
 export function getBusinessDocumentTemplates(): BusinessDocumentTemplate[] {
   try {
@@ -296,4 +373,8 @@ export const businessDocumentCategoryLabels: Record<BusinessDocumentTemplate["ca
   finance: "Finance",
   communication: "Communication",
   identity: "Brand identity",
+  legal: "Legal",
+  decks: "Presentations",
+  brand: "Brand kits",
+  media: "Media & press",
 };

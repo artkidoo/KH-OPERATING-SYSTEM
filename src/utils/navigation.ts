@@ -1,7 +1,8 @@
 // ============================================================
-// WORKSPACE NAVIGATION — Phase 1 customer-facing model (Step 3 + Step 10)
-// The customer experiences: MY WORKSPACE / MY PROJECTS / MY CREATIVE
-// WORK / MY LIBRARY / MY REQUESTS. Internal engine names are hidden.
+// WORKSPACE NAVIGATION — Brand OS rebuild (Phase 3)
+// Brand is: "Everything my brand needs to look professional and ready."
+// KeedoHub is the creative partner — not a generic business manager.
+// Brand cannot access artist-only tools (guarded in WorkspaceShell).
 // ============================================================
 
 import { ActiveTab } from "../types";
@@ -17,18 +18,44 @@ export const ARTIST_WORKSPACE_NAV: { key: string; label: string; tab: ActiveTab 
   { key: "membership", label: "Membership", tab: "command-center" },
 ];
 
+// BRAND NAVIGATION — exact spec order:
+// Home / Brand Profile / Creative / Brand Kits / Documents /
+// Presentations / Projects / Library / Requests / Membership
 export const BRAND_WORKSPACE_NAV: { key: string; label: string; tab: ActiveTab }[] = [
   { key: "home", label: "Home", tab: "command-center" },
-  { key: "brand", label: "Brand", tab: "command-center" },
+  { key: "brand-profile", label: "Brand Profile", tab: "command-center" },
   { key: "creative", label: "Creative", tab: "command-center" },
-  { key: "business", label: "Business", tab: "command-center" },
+  { key: "brand-kits", label: "Brand Kits", tab: "command-center" },
   { key: "documents", label: "Documents", tab: "command-center" },
-  { key: "library", label: "Library", tab: "command-center" },
+  { key: "presentations", label: "Presentations", tab: "command-center" },
   { key: "projects", label: "Projects", tab: "command-center" },
+  { key: "library", label: "Library", tab: "command-center" },
   { key: "requests", label: "Requests", tab: "command-center" },
   { key: "membership", label: "Membership", tab: "command-center" },
-  { key: "profile", label: "Profile", tab: "command-center" },
 ];
+
+// Artist-only tools — Brand workspaces must never see these.
+// Acceptance test: Brand cannot access Artist Releases, Artist DNA,
+// DSP Pitcher, Cover Studio, Artist Content Brain, artist-only tools.
+export const ARTIST_ONLY_KEYS = [
+  "releases",
+  "music",
+  "asset-kits",
+  "cover-studio",
+  "lyrics-studio",
+  "dsp-pitcher",
+  "mastering-suite",
+  "splits-calculator",
+  "presave-hub",
+  "artist-brain",
+  "artist-os",
+  "brand_dna_artist",
+];
+
+export function isArtistOnlyKey(key: string | undefined | null): boolean {
+  if (!key) return false;
+  return ARTIST_ONLY_KEYS.includes(key);
+}
 
 export function workspaceNavFor(identityType: string | undefined | null): { key: string; label: string; tab: ActiveTab }[] {
   return identityType === "brand" ? BRAND_WORKSPACE_NAV : ARTIST_WORKSPACE_NAV;
@@ -115,8 +142,12 @@ export function getTabFromPath(path: string): ActiveTab {
     case "/music":
     case "/releases":
     case "/brand":
+    case "/brand-profile":
+    case "/brand-kits":
+    case "/presentations":
     case "/documents":
     case "/business":
+    case "/business-documents":
     case "/content":
     case "/creative":
     case "/create":
@@ -303,9 +334,20 @@ export function getSectionFromPath(path: string): string {
     case "/artist-os":
       return "releases";
     case "/asset-kits":
+      return "asset-kits";
+    case "/brand":
+    case "/brand-profile":
+      return "brand-profile";
+    case "/brand-kits":
+      return "brand-kits";
+    case "/documents":
+    case "/business-documents":
+      return "documents";
+    case "/presentations":
+      return "presentations";
     case "/content":
     case "/creative":
-      return "asset-kits";
+      return "creative";
     case "/create":
       return "create";
     case "/requests":
