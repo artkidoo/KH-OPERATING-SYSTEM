@@ -30,7 +30,6 @@ import {
   BrainCircuit,
   Radio,
   Clock,
-  Zap,
   PlusCircle,
   TrendingUp,
   Package,
@@ -153,19 +152,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       },
     },
     {
-      id: "nav-content-engine",
-      title: "Content Engine",
-      description: "Production calendar, TikTok/Reels hook generator, multi-pillar strategy & batching",
-      icon: <Layers className="w-4 h-4 text-emerald-400" />,
-      action: () => {
-        setActiveTab("content-engine");
-        onClose();
-      },
-    },
-    {
       id: "nav-studio",
-      title: "Keedohub Studio Services",
-      description: "Commission top-tier artwork, motion design, 3D, branding, and review deliverables",
+      title: "Studio Production Engine",
+      description: "Internal creative production pipeline — artwork, motion, branding, EPK & deliverables (admin)",
       icon: <Palette className="w-4 h-4 text-pink-400" />,
       action: () => {
         setActiveTab("studio");
@@ -223,16 +212,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       icon: <Megaphone className="w-4 h-4 text-blue-400" />,
       action: () => {
         setActiveTab("brand-os");
-        onClose();
-      },
-    },
-    {
-      id: "qa-batch-content",
-      title: "Batch Create Social Content Hooks",
-      description: "Generate 10 platform-tailored scripts with viral psychology hooks",
-      icon: <Zap className="w-4 h-4 text-emerald-400" />,
-      action: () => {
-        setActiveTab("content-engine");
         onClose();
       },
     },

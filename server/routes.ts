@@ -1082,7 +1082,7 @@ apiRouter.post("/workspaces/:workspaceId/releases", requireAuth, requireWorkspac
     `New Release Scheduled: ${release.title}`,
     `Artist OS Workspace configured. Target drop date: ${release.releaseDate}`,
     "success",
-    "artist-brain",
+    "command-center",
     req.user!.id
   );
 
@@ -3636,7 +3636,7 @@ apiRouter.get("/ai/creative-brain/recommendations", requireAuth, requireWorkspac
           whatIsMissing: item.label,
           whyItMatters: item.reason || 'Required for standard release readiness',
           recommendedAction: `Resolve in ${item.actionLabel || 'Studio'} before drop day`,
-          actionTab: item.actionTab || 'artist-brain',
+          actionTab: item.actionTab || 'command-center',
           actionLabel: item.actionLabel || 'Open Tool',
           executableTool: item.id === 'req_artwork' ? { toolName: 'create_task', args: { text: `Render 3000x3000px Cover for ${rel.title}`, category: 'Artwork', priority: 'high' } } : undefined,
         });

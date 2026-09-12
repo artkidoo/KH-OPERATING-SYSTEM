@@ -278,20 +278,6 @@ export const Header: React.FC<HeaderProps> = ({
                 Home
               </button>
 
-              <button
-                id="header-nav-studios"
-                onClick={() => {
-                  setActiveTab("studio");
-                }}
-                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  isStudioTab(activeTab)
-                    ? "bg-theme-accent text-white font-bold shadow-sm"
-                    : "text-[var(--bento-muted)] hover:text-[var(--bento-text)] hover:bg-[var(--bento-elevated)]"
-                }`}
-              >
-                <Palette className="w-3 h-3" />
-                <span>Studio Services</span>
-              </button>
 
               <button
                 id="header-nav-journal"

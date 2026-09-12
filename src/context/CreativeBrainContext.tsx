@@ -109,8 +109,8 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
           whatIsMissing: "High-resolution master cover visual",
           whyItMatters: "DSP platforms require strict 3000x3000px uncompressed artwork",
           recommendedAction: "Design in Cover Studio",
-          actionTab: "cover-studio",
-          actionLabel: "Design in Cover Studio",
+          actionTab: "studio",
+          actionLabel: "Request Cover Design",
         });
       } else {
         fallbackRecs.push({

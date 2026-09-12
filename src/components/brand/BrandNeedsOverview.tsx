@@ -60,7 +60,13 @@ export const BrandNeedsOverview: React.FC<BrandNeedsOverviewProps> = ({ onNotify
   };
   const navigateNeed = (need: { actionTab?: ActiveTab; studioServiceCategory?: string }) => {
     if (need.actionTab === "studio" && need.studioServiceCategory) {
-      onNavigateTab?.(need.studioServiceCategory === "business_documents" ? "business-studio" : `studio:${need.studioServiceCategory}`);
+      // Studio DIY tools removed from public navigation — route brand needs
+      // to the Documents hub or Request Centre instead.
+      onNavigateTab?.(
+        need.studioServiceCategory === "business_documents"
+          ? "business-studio" // falls through to documents in nav mapping
+          : "requests"
+      );
       return;
     }
     navigate(need.actionTab);

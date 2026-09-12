@@ -136,7 +136,7 @@ export const brandNeedCategories: BrandNeedCategoryConfig[] = [
       { id: "search-visibility", label: "Search Visibility", description: "Ways for people to find the business when they need it.", actionTab: "brand-os" },
       { id: "advertising", label: "Advertising", description: "A considered way to reach new audiences.", actionTab: "brand-os" },
       { id: "analytics", label: "Analytics", description: "Measurement that informs better decisions.", actionTab: "analytics" },
-      { id: "customer-insights", label: "Customer Insights", description: "Knowledge of who buys and what they need.", actionTab: "creative-brain" },
+      { id: "customer-insights", label: "Customer Insights", description: "Knowledge of who buys and what they need.", actionTab: "brand-os" },
       { id: "growth-strategy", label: "Growth Strategy", description: "A focused plan for the next stage of the business.", actionTab: "brand-os" },
     ],
   },

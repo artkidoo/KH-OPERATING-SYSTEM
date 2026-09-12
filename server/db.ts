@@ -4229,8 +4229,8 @@ class Database {
             description: 'Spotify, Apple Music, and Amazon require 3000x3000px 300DPI square artwork with no borders.',
             level: 'critical',
             category: 'artwork',
-            actionLabel: 'Open Cover Studio',
-            actionTab: 'cover-studio',
+            actionLabel: 'Request Cover Design',
+            actionTab: 'studio',
             entityId: r.id,
           });
         }
@@ -4243,7 +4243,7 @@ class Database {
             level: 'warning',
             category: 'release',
             actionLabel: 'Submit Editorial Pitch',
-            actionTab: 'cover-studio',
+            actionTab: 'studio',
             entityId: r.id,
           });
         }
@@ -4296,8 +4296,8 @@ class Database {
         title: 'Deploy Pre-Save SmartLink with Lead Capture',
         insight: 'Releases with a dedicated pre-save hub gain 4.2x higher Day-1 streams and algorithm placement on Spotify and Apple Music.',
         benefit: 'Capture verified fan emails and auto-trigger DSP saves.',
-        actionLabel: 'Launch Presave Hub',
-        actionTab: 'presave-hub',
+        actionLabel: 'Setup Pre-Save Campaign',
+        actionTab: 'command-center',
         tags: ['Streaming Velocity', 'Fan Capture', 'Spotify'],
       });
 
@@ -4306,8 +4306,8 @@ class Database {
         title: 'Generate 30-Day Multi-Platform Rollout Calendar',
         insight: 'Consistent 3x weekly studio behind-the-scenes snippets before release date increase track retention by 58%.',
         benefit: 'Turn raw studio session voice memos into engaging TikTok hooks and IG Reels.',
-        actionLabel: 'Open Artist Content Brain',
-        actionTab: 'content-brain',
+        actionLabel: 'Open Content Engine',
+        actionTab: 'content-engine',
         tags: ['Content Strategy', 'TikTok', 'Reels'],
       });
 
@@ -4316,8 +4316,8 @@ class Database {
         title: 'Audit Audio Loudness & Dynamic Range',
         insight: 'Streaming platforms normalize tracks to -14 LUFS; master between -9 and -11 LUFS for optimal club punch without harsh limiting.',
         benefit: 'Professional loudness calibration tailored for streaming DSPs.',
-        actionLabel: 'Open Mastering Suite',
-        actionTab: 'mastering-suite',
+        actionLabel: 'Request Audio Mastering',
+        actionTab: 'studio',
         tags: ['Audio Master', 'LUFS Meter', 'Sound Quality'],
       });
     } else {

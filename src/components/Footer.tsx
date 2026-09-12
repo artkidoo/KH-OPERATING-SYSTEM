@@ -123,7 +123,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openBriefModal }) 
               <li>
                 <button
                   id="footer-link-intelligence"
-                  onClick={() => handleNavigate("creative-brain", "/creative-brain")}
+                  onClick={() => handleNavigate("command-center", "/command-center")}
                   className="hover:text-[var(--accent-pill-text)] transition-colors cursor-pointer text-left inline-block"
                 >
                   Intelligence

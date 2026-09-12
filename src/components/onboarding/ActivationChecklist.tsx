@@ -84,8 +84,8 @@ export const ActivationChecklist: React.FC<ActivationChecklistProps> = ({
             label: "Lock Master & Publishing Splits",
             description: "Define producer & co-writer percentages in Splits Calculator",
             completed: false,
-            actionTab: "splits-calculator",
-            actionLabel: "Splits Calculator",
+            actionTab: "command-center",
+            actionLabel: "Request Splits",
             category: "intelligence",
           },
         ];
@@ -125,8 +125,8 @@ export const ActivationChecklist: React.FC<ActivationChecklistProps> = ({
             label: "Schedule Multi-Channel Sprint",
             description: "Distribute proof, campaign clips and social content",
             completed: contentCount >= 3,
-            actionTab: "artist-brain",
-            actionLabel: "Content Calendar",
+            actionTab: "command-center",
+            actionLabel: "Content Hub",
             category: "content",
           },
         ];

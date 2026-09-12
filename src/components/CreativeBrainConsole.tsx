@@ -234,7 +234,7 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
                 <span>Releases ({releases.length})</span>
               </h3>
               <button
-                onClick={() => setActiveTab("artist-brain")}
+                onClick={() => setActiveTab("command-center")}
                 className="text-[11px] text-red-400 hover:underline flex items-center gap-0.5 cursor-pointer"
               >
                 <span>View</span>

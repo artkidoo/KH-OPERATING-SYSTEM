@@ -156,9 +156,9 @@ export class CreativeRadarService {
             },
             recommendedAction: {
               type: "navigate_tab",
-              label: "Open Cover Studio",
-              targetTab: "cover-studio",
-              actionDescription: "Generate or customize 3000x3000px artwork in Cover Studio",
+              label: "Request Cover Design",
+              targetTab: "studio",
+              actionDescription: "Request professional 3000x3000px artwork production",
             },
             status: "new",
           });
@@ -188,9 +188,9 @@ export class CreativeRadarService {
             },
             recommendedAction: {
               type: "navigate_tab",
-              label: "Open Mastering Suite",
-              targetTab: "mastering-suite",
-              actionDescription: "Validate audio loudness, true peak, and attach Master WAV",
+              label: "Request Audio Mastering",
+              targetTab: "studio",
+              actionDescription: "Request professional audio mastering and LUFS calibration",
             },
             status: "new",
           });
@@ -220,8 +220,8 @@ export class CreativeRadarService {
             },
             recommendedAction: {
               type: "navigate_tab",
-              label: "Open Cover Studio",
-              targetTab: "cover-studio",
+              label: "Request Cover Design",
+              targetTab: "studio",
               actionDescription: "Generate AI-assisted editorial curator pitch deck",
             },
             status: "new",
@@ -251,8 +251,8 @@ export class CreativeRadarService {
             },
             recommendedAction: {
               type: "navigate_tab",
-              label: "Launch Pre-Save Hub",
-              targetTab: "presave-hub",
+              label: "Setup Pre-Save Campaign",
+              targetTab: "command-center",
               actionDescription: "Publish branded smart pre-save page",
             },
             status: "new",

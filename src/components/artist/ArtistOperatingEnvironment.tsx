@@ -923,7 +923,7 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
                 </div>
                 <button
                   onClick={() => {
-                    if (onNavigateTab) onNavigateTab('creative-brain');
+                    if (onNavigateTab) onNavigateTab('command-center');
                   }}
                   className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all cursor-pointer shrink-0"
                 >

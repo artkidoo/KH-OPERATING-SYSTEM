@@ -94,7 +94,7 @@ export const ResourcesPage: React.FC<PageProps> = ({ onNavigateTab, openBriefMod
               </p>
             </div>
             <button
-              onClick={() => onNavigateTab("splits-calculator")}
+              onClick={() => onNavigateTab("command-center")}
               className="w-full min-h-10 py-2 px-2 sm:px-3 rounded-xl bg-[var(--bento-input)] hover:bg-[var(--bento-card-hover)] border border-[var(--bento-border)] text-[10px] sm:text-xs font-semibold text-[var(--bento-text)] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-colors"
             >
               <span>Use Split Sheet Calculator</span>
@@ -116,7 +116,7 @@ export const ResourcesPage: React.FC<PageProps> = ({ onNavigateTab, openBriefMod
               </p>
             </div>
             <button
-              onClick={() => onNavigateTab("cover-studio")}
+              onClick={() => onNavigateTab("command-center")}
               className="w-full min-h-10 py-2 px-2 sm:px-3 rounded-xl bg-[var(--bento-input)] hover:bg-[var(--bento-card-hover)] border border-[var(--bento-border)] text-[10px] sm:text-xs font-semibold text-[var(--bento-text)] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-colors"
             >
               <span>Open Cover Studio</span>

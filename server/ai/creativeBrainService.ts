@@ -93,8 +93,8 @@ export function calculateReleaseReadiness(
       weight: 15,
       completed: hasArtwork,
       category: 'artwork',
-      actionTab: 'cover-studio',
-      actionLabel: 'Open Cover Studio',
+      actionTab: 'studio',
+      actionLabel: 'Request Cover Design',
     },
     {
       id: 'req_audio',
@@ -103,8 +103,8 @@ export function calculateReleaseReadiness(
       weight: 20,
       completed: hasAudio,
       category: 'audio',
-      actionTab: 'mastering-suite',
-      actionLabel: 'Open Mastering Suite',
+      actionTab: 'studio',
+      actionLabel: 'Request Audio Mastering',
     },
     {
       id: 'req_studio_production',
@@ -123,8 +123,8 @@ export function calculateReleaseReadiness(
       weight: 15,
       completed: hasPresave,
       category: 'presave-hub',
-      actionTab: 'presave-hub',
-      actionLabel: 'Setup Pre-Save',
+      actionTab: 'command-center',
+      actionLabel: 'Setup Pre-Save Campaign',
     },
     {
       id: 'req_lyrics',
@@ -133,8 +133,8 @@ export function calculateReleaseReadiness(
       weight: 10,
       completed: hasLyrics,
       category: 'lyrics-studio',
-      actionTab: 'lyrics-studio',
-      actionLabel: 'Format Lyrics',
+      actionTab: 'studio',
+      actionLabel: 'Request Lyrics Production',
     },
     {
       id: 'req_splits',
@@ -143,8 +143,8 @@ export function calculateReleaseReadiness(
       weight: 15,
       completed: hasSplits,
       category: 'splits-calculator',
-      actionTab: 'splits-calculator',
-      actionLabel: 'Lock Split Sheet',
+      actionTab: 'command-center',
+      actionLabel: 'Document Splits',
     },
     {
       id: 'req_promo',
@@ -153,8 +153,8 @@ export function calculateReleaseReadiness(
       weight: 10,
       completed: hasPromo,
       category: 'artist-brain',
-      actionTab: 'artist-brain',
-      actionLabel: 'Plan Content Wave',
+      actionTab: 'content-engine',
+      actionLabel: 'Plan Content Pipeline',
     },
   ];
 
@@ -1103,7 +1103,7 @@ export function executeBrainTool(params: ExecuteToolParams): BrainActionReceipt 
           actionSummary: `Scheduled ${platform.toUpperCase()} post: "${title}" for ${scheduledDate}`,
           entityType: 'content_item',
           entityId: contentItem.id,
-          actionTab: 'artist-brain',
+          actionTab: 'content-engine',
           actionLabel: 'Open Content Engine',
           payload: contentItem,
           status: 'executed',
@@ -1485,14 +1485,14 @@ export function generateAlgorithmicBrainResponse(
 
         responseBody += `#### 🎯 Recommended Action Sequence:\n` +
           `1. Resolve high-priority deliverables before Day -7 to guarantee editorial pitch review window.\n` +
-          `2. Secure co-writer/producer digital signatures in the **Splits Calculator**.\n` +
+          `2. Secure co-writer/producer digital signatures in the **Command Center**.\n` +
           `3. Seed audio snippet teasers into the **Content Calendar**.`;
       }
 
       suggestedActions.push(
-        { label: "Open Cover Studio", actionTab: "cover-studio" },
-        { label: "Mastering Suite", actionTab: "mastering-suite" },
-        { label: "Split Calculator", actionTab: "splits-calculator" }
+        { label: "Request Cover Design", actionTab: "studio" },
+        { label: "Request Audio Mastering", actionTab: "studio" },
+        { label: "Document Splits", actionTab: "command-center" }
       );
     }
   }
@@ -1782,7 +1782,7 @@ CORE DIRECTIVES:
           suggestedActions.push(
             { label: "Audit Release Core", actionTab: "artist-os" },
             { label: "Creative Memory Hub", actionTab: "creative-memory" },
-            { label: "Open Cover Studio", actionTab: "cover-studio" }
+            { label: "Request Cover Design", actionTab: "studio" }
           );
         } else {
           suggestedActions.push(

@@ -6,17 +6,8 @@ import { WorkspaceProvider } from "./context/WorkspaceContext";
 import { CreativeBrainProvider, useCreativeBrain } from "./context/CreativeBrainContext";
 import { Header } from "./components/Header";
 import { HeroStudioOS } from "./components/HeroStudioOS";
-import { ContentEngine } from "./components/ContentEngine";
 import { Studio } from "./components/Studio";
-import { CoverStudio } from "./components/CoverStudio";
-import { BusinessDocumentsStudio } from "./components/brand/BusinessDocumentsStudio";
-import { EPKBuilder } from "./components/EPKBuilder";
 import { IntelHub } from "./components/IntelHub";
-import { LyricsStudio } from "./components/LyricsStudio";
-import { MasteringSuite } from "./components/MasteringSuite";
-import { SplitsCalculator } from "./components/SplitsCalculator";
-import { PresaveHub } from "./components/PresaveHub";
-import { CreativeBrainConsole } from "./components/CreativeBrainConsole";
 import { CreativeMemoryDashboard } from "./components/CreativeMemoryDashboard";
 import { CreativeRadarDashboard } from "./components/CreativeRadarDashboard";
 import { AnalyticsView } from "./components/AnalyticsView";
@@ -139,7 +130,7 @@ function MainAppContent() {
   const isShellSection = (v: string | undefined): v is ShellSection =>
     !!v && (ALL_SHELL_SECTIONS as string[]).includes(v);
 
-  const setActiveTab = (tab: ActiveTab, sectionOrEntityId?: ShellSection | string) => {
+  const setActiveTab = (tab: ActiveTab | string, sectionOrEntityId?: ShellSection | string) => {
     let resolvedTab = tab;
     let targetSection: ShellSection | undefined = isShellSection(sectionOrEntityId)
       ? sectionOrEntityId
@@ -180,7 +171,7 @@ function MainAppContent() {
     if (targetSection) {
       setWorkspaceSection(targetSection);
     }
-    setActiveTabState(resolvedTab);
+    setActiveTabState(resolvedTab as ActiveTab);
     if (typeof window !== "undefined") {
       const targetPath = getPathFromTab(resolvedTab, targetSection);
       if (window.location.pathname !== targetPath) {
@@ -381,11 +372,13 @@ function MainAppContent() {
           />
         )}
 
-        {activeTab === "content-engine" && (
-          <ContentEngine />
-        )}
-
-        {activeTab === "studio" && (
+        {/* Studio is the internal production engine. Customer-facing DIY tools
+            (Cover Studio, Lyrics Studio, Mastering Inspector, Splits Calculator,
+            Presave Hub, EPK Builder, Business Documents Studio, Content Engine)
+            have been removed from public navigation. Useful engines are preserved
+            internally and operated through the Studio admin pipeline or the
+            Request Centre. */}
+        {activeTab === "studio" && hasAdminAccess(user?.systemRole) ? (
           <Studio
             onNotify={addNotification}
             onNavigateTab={setActiveTab}
@@ -395,22 +388,12 @@ function MainAppContent() {
             }}
             initialServiceCategory={studioServiceCategory}
           />
-        )}
-
-        {activeTab === "business-studio" && (
-          <BusinessDocumentsStudio onNotify={addNotification} />
-        )}
-
-        {activeTab === "artist-brain" && (
+        ) : activeTab === "studio" && (
           <WorkspaceShell
-            initialSection="releases"
+            initialSection="requests"
             onNotify={addNotification}
             onNavigateTab={setActiveTab}
           />
-        )}
-
-        {activeTab === "creative-brain" && (
-          <CreativeBrainConsole setActiveTab={setActiveTab} />
         )}
 
         {activeTab === "creative-memory" && (
@@ -425,38 +408,6 @@ function MainAppContent() {
             onNotify={addNotification}
             onNavigateTab={setActiveTab}
           />
-        )}
-
-        {activeTab === "lyrics-studio" && (
-          <LyricsStudio onNotify={addNotification} />
-        )}
-
-        {activeTab === "mastering-suite" && (
-          <MasteringSuite onNotify={addNotification} />
-        )}
-
-        {activeTab === "splits-calculator" && (
-          <SplitsCalculator onNotify={addNotification} />
-        )}
-
-        {activeTab === "presave-hub" && (
-          <PresaveHub onNotify={addNotification} />
-        )}
-
-        {activeTab === "cover-studio" && (
-          hasAdminAccess(user?.systemRole) ? (
-            <CoverStudio onNotify={addNotification} />
-          ) : (
-            <WorkspaceShell
-              initialSection="releases"
-              onNotify={addNotification}
-              onNavigateTab={setActiveTab}
-            />
-          )
-        )}
-
-        {activeTab === "epk-builder" && (
-          <EPKBuilder onNotify={addNotification} />
         )}
 
         {activeTab === "intel-hub" && (

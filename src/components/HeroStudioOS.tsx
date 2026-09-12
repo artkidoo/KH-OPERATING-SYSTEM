@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 interface HeroStudioOSProps {
-  setActiveTab: (tab: ActiveTab) => void;
+  setActiveTab: (tab: ActiveTab, section?: string) => void;
   openBriefModal: () => void;
 }
 
@@ -314,7 +314,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
             {/* Module 1: Artist Content Brain */}
             <div
-              onClick={() => setActiveTab("artist-brain")}
+              onClick={() => setActiveTab("command-center", "requests")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-[var(--accent-border)]"
             >
               <div className="space-y-2.5 sm:space-y-3.5">
@@ -341,7 +341,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
             {/* Module 2: Lyric Studio */}
             <div
-              onClick={() => setActiveTab("lyrics-studio")}
+              onClick={() => setActiveTab("command-center", "requests")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-red-500/50"
             >
               <div className="space-y-2.5 sm:space-y-3.5">
@@ -395,7 +395,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
             {/* Module 4: Mastering Suite */}
             <div
-              onClick={() => setActiveTab("mastering-suite")}
+              onClick={() => setActiveTab("command-center", "requests")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-amber-500/50"
             >
               <div className="space-y-2.5 sm:space-y-3.5">
@@ -422,7 +422,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
             {/* Module 5: Splits Calculator */}
             <div
-              onClick={() => setActiveTab("splits-calculator")}
+              onClick={() => setActiveTab("command-center", "requests")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-purple-500/50"
             >
               <div className="space-y-2.5 sm:space-y-3.5">
@@ -449,7 +449,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
             {/* Module 6: Pre-Save Hub */}
             <div
-              onClick={() => setActiveTab("presave-hub")}
+              onClick={() => setActiveTab("command-center", "requests")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-cyan-500/50"
             >
               <div className="space-y-2.5 sm:space-y-3.5">
@@ -476,7 +476,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
             {/* Module 7: Cover Art Studio */}
             <div
-              onClick={() => setActiveTab("cover-studio")}
+              onClick={() => setActiveTab("command-center", "requests")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-amber-500/50"
             >
               <div className="space-y-2.5 sm:space-y-3.5">
@@ -503,7 +503,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
             {/* Module 8: Content Engine */}
             <div
-              onClick={() => setActiveTab("artist-brain")}
+              onClick={() => setActiveTab("command-center", "requests")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-emerald-500/50"
             >
               <div className="space-y-2.5 sm:space-y-3.5">

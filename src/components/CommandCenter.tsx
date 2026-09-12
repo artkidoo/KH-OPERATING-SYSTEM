@@ -49,7 +49,7 @@ import {
 import { ActivationChecklist } from "./onboarding/ActivationChecklist";
 
 interface CommandCenterProps {
-  onNavigateTab: (tab: ActiveTab) => void;
+  onNavigateTab: (tab: ActiveTab, section?: string) => void;
   onOpenBriefModal: () => void;
   onNotify: (text: string, type?: "success" | "info" | "error") => void;
 }
@@ -306,7 +306,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
 
         {/* Content & Studio Pipeline */}
         <div 
-          onClick={() => onNavigateTab("content-engine")}
+          onClick={() => onNavigateTab("command-center", "requests")}
           className="p-4 rounded-2xl bg-[var(--bento-card)] border border-[var(--bento-border)] hover:border-blue-500/40 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">

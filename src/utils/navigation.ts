@@ -35,18 +35,11 @@ export const BRAND_WORKSPACE_NAV: { key: string; label: string; tab: ActiveTab }
 ];
 
 // Artist-only tools — Brand workspaces must never see these.
-// Acceptance test: Brand cannot access Artist Releases, Artist DNA,
-// Cover Studio, Artist Content Brain, artist-only tools.
+// Acceptance test: Brand cannot access Artist Releases, Artist DNA, artist-only tools.
 export const ARTIST_ONLY_KEYS = [
   "releases",
   "music",
   "asset-kits",
-  "cover-studio",
-  "lyrics-studio",
-  "mastering-suite",
-  "splits-calculator",
-  "presave-hub",
-  "artist-brain",
   "artist-os",
   "brand_dna_artist",
 ];
@@ -74,16 +67,13 @@ export const WORKSPACE_TABS: ActiveTab[] = [
   // It is admin-only and accessible via direct URL for admin users.
 ];
 
+// Customer-facing DIY studio tools have been removed from public navigation.
+// Useful engines are preserved internally and operated through the Studio
+// production pipeline (admin) or the Request Centre. Do not re-expose these
+// as customer navigation tabs.
 export const STUDIO_TABS: ActiveTab[] = [
   "studio",
-  "cover-studio",
-  "lyrics-studio",
-  "business-studio",
-  "mastering-suite",
-  "splits-calculator",
-  "presave-hub",
-  "epk-builder",
-  "content-engine",
+  "production-center",
 ];
 
 export function isWorkspaceTab(tab: string | ActiveTab | undefined | null): boolean {
@@ -167,9 +157,8 @@ export function getTabFromPath(path: string): ActiveTab {
     case "/intel-hub":
       return "intel-hub";
     case "/creative-brain":
-      return "creative-brain";
     case "/artist-brain":
-      return "artist-brain";
+      return "command-center";
     case "/creative-memory":
       return "creative-memory";
     case "/creative-radar":
@@ -180,15 +169,11 @@ export function getTabFromPath(path: string): ActiveTab {
     case "/business-studio":
       return "business-studio";
     case "/cover-studio":
-      return "cover-studio";
     case "/lyrics-studio":
-      return "lyrics-studio";
     case "/mastering-suite":
-      return "mastering-suite";
     case "/splits-calculator":
-      return "splits-calculator";
     case "/presave-hub":
-      return "presave-hub";
+      return "studio";
     case "/epk-builder":
       return "epk-builder";
     case "/content-engine":
@@ -205,7 +190,7 @@ export function getTabFromPath(path: string): ActiveTab {
   }
 }
 
-export function getPathFromTab(tab: ActiveTab, section?: string): string {
+export function getPathFromTab(tab: ActiveTab | string, section?: string): string {
   switch (tab) {
     case "overview":
       return "/home";
@@ -281,30 +266,26 @@ export function getPathFromTab(tab: ActiveTab, section?: string): string {
       return "/studio/audio-inspector";
     case "studio-loudness":
       return "/studio/loudness-radar";
+    // Customer-facing DIY studio tools removed from public routing.
+    // Internal engines preserved; accessed via Studio admin or Request Centre.
     case "cover-studio":
-      return "/cover-studio";
     case "lyrics-studio":
-      return "/lyrics-studio";
     case "mastering-suite":
-      return "/mastering-suite";
     case "splits-calculator":
-      return "/splits-calculator";
     case "presave-hub":
-      return "/presave-hub";
     case "business-studio":
-      return "/business-documents";
     case "epk-builder":
-      return "/epk-builder";
     case "content-engine":
-      return "/content-engine";
+      // Preserve URL stability for any existing bookmarks; fall through to
+      // the workspace home so the user lands in the unified workspace.
+      return "/home";
     case "creative-radar":
       return "/creative-radar";
     case "creative-memory":
       return "/creative-memory";
     case "creative-brain":
-      return "/creative-brain";
     case "artist-brain":
-      return "/artist-brain";
+      return "/home";
     case "workflow":
       return "/workflow";
     case "collaboration":
@@ -366,6 +347,8 @@ export function getSectionFromPath(path: string): string {
     case "/asset-kits":
       return "asset-kits";
     case "/brand":
+      // /brand alias consolidated into /brand-profile.
+      return "brand-profile";
     case "/brand-profile":
       return "brand-profile";
     case "/brand-kits":
@@ -376,10 +359,13 @@ export function getSectionFromPath(path: string): string {
     case "/presentations":
       return "presentations";
     case "/content":
+      // Content engine removed from public navigation; route to home.
+      return "home";
     case "/creative":
       return "creative";
     case "/create":
-      return "create";
+      // Create alias consolidated into releases/documents.
+      return "home";
     case "/requests":
       return "requests";
     case "/membership":

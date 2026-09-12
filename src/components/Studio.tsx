@@ -101,7 +101,7 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     diyTool: {
       name: "Cover Studio",
       description: "Design and format compliant cover art and canvas visualizers self-serve using Cover Studio.",
-      actionTab: "cover-studio",
+      actionTab: "studio",
     },
   },
   {
@@ -252,7 +252,7 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     diyTool: {
       name: "Lyrics Studio",
       description: "Create and time your own lyric videos in Lyrics Studio.",
-      actionTab: "lyrics-studio",
+      actionTab: "studio",
     },
   },
   {
