@@ -16,6 +16,9 @@ import { SharePanel } from "./SharePanel";
 import { RequestsView } from "../RequestsView";
 import { MembershipView } from "../MembershipView";
 import { ProfileView } from "../ProfileView";
+import { ReleasesView } from "./ReleasesView";
+import { AssetKitsView } from "./AssetKitsView";
+import { ArtistProfileView } from "./ArtistProfileView";
 import {
   Home,
   FolderKanban,
@@ -31,6 +34,9 @@ import {
   PlusCircle,
   ChevronRight,
   Sparkles,
+  Package,
+  Disc3,
+  Layers,
 } from "lucide-react";
 
 export type ShellSection =
@@ -39,12 +45,13 @@ export type ShellSection =
   | "music"
   | "releases"
   | "content"
+  | "creative"
+  | "asset-kits"
   | "library"
   | "requests"
   | "membership"
   | "profile"
   | "brand"
-  | "creative"
   | "business"
   | "documents"
   | "create";
@@ -52,10 +59,11 @@ export type ShellSection =
 const ICONS: Record<string, React.ReactNode> = {
   home: <Home className="w-4 h-4" />,
   projects: <FolderKanban className="w-4 h-4" />,
-  music: <Music className="w-4 h-4" />,
-  releases: <Music className="w-4 h-4" />,
-  content: <Newspaper className="w-4 h-4" />,
+  music: <Disc3 className="w-4 h-4" />,
+  releases: <Disc3 className="w-4 h-4" />,
+  content: <Package className="w-4 h-4" />,
   creative: <Newspaper className="w-4 h-4" />,
+  "asset-kits": <Package className="w-4 h-4" />,
   library: <LibraryBig className="w-4 h-4" />,
   requests: <Send className="w-4 h-4" />,
   membership: <Crown className="w-4 h-4" />,
@@ -68,7 +76,7 @@ const ICONS: Record<string, React.ReactNode> = {
 
 export function WorkspaceShell({
   onNotify,
-  onNavigateTab: _onNavigateTab,
+  onNavigateTab,
   initialSection = "home",
   onSectionChange,
 }: {
@@ -413,12 +421,23 @@ export function WorkspaceShell({
           identity === "brand" ? (
             <BrandIdentity onNotify={onNotify} />
           ) : (
-            <ReleaseBuilder onDone={goProjects} onNotify={onNotify} />
+            <ReleasesView
+              onNotify={onNotify}
+              onNavigateSection={(sec) => navTo(sec as ShellSection)}
+              onNavigateTab={onNavigateTab}
+            />
           )
         )}
 
-        {(section === "content" || section === "creative") && (
-          <CreativePackage onNotify={onNotify} />
+        {(section === "content" || section === "creative" || section === "asset-kits") && (
+          identity === "artist" ? (
+            <AssetKitsView
+              onNotify={onNotify}
+              onNavigateSection={(sec) => navTo(sec as ShellSection)}
+            />
+          ) : (
+            <CreativePackage onNotify={onNotify} />
+          )
         )}
 
         {section === "brand" && (
@@ -437,7 +456,11 @@ export function WorkspaceShell({
           identity === "brand" ? (
             <DocumentsHub onNotify={onNotify} />
           ) : (
-            <ReleaseBuilder onDone={goProjects} onNotify={onNotify} />
+            <ReleasesView
+              onNotify={onNotify}
+              onNavigateSection={(sec) => navTo(sec as ShellSection)}
+              onNavigateTab={onNavigateTab}
+            />
           )
         )}
 
@@ -450,7 +473,11 @@ export function WorkspaceShell({
         )}
 
         {section === "profile" && (
-          <ProfileView />
+          identity === "artist" ? (
+            <ArtistProfileView onNotify={onNotify} />
+          ) : (
+            <ProfileView />
+          )
         )}
 
         <div className="sm:hidden mt-4">

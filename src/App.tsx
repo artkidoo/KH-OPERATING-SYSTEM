@@ -8,13 +8,11 @@ import { Header } from "./components/Header";
 import { HeroStudioOS } from "./components/HeroStudioOS";
 import { ContentEngine } from "./components/ContentEngine";
 import { Studio } from "./components/Studio";
-import { ArtistContentBrain } from "./components/ArtistContentBrain";
 import { CoverStudio } from "./components/CoverStudio";
 import { BusinessDocumentsStudio } from "./components/brand/BusinessDocumentsStudio";
 import { EPKBuilder } from "./components/EPKBuilder";
 import { IntelHub } from "./components/IntelHub";
 import { LyricsStudio } from "./components/LyricsStudio";
-import { DSPPitcher } from "./components/DSPPitcher";
 import { MasteringSuite } from "./components/MasteringSuite";
 import { SplitsCalculator } from "./components/SplitsCalculator";
 import { PresaveHub } from "./components/PresaveHub";
@@ -142,6 +140,12 @@ function MainAppContent() {
     } else if (tab === "profile") {
       resolvedTab = "command-center";
       targetSection = targetSection || "profile";
+    } else if (tab === "dsp-pitcher" || tab === "artist-brain") {
+      resolvedTab = "command-center";
+      targetSection = "releases";
+    } else if (tab === "cover-studio" && !hasAdminAccess(user?.systemRole)) {
+      resolvedTab = "command-center";
+      targetSection = "releases";
     }
 
     if (targetSection) {
@@ -369,7 +373,11 @@ function MainAppContent() {
         )}
 
         {activeTab === "artist-brain" && (
-          <ArtistContentBrain onNotify={addNotification} />
+          <WorkspaceShell
+            initialSection="releases"
+            onNotify={addNotification}
+            onNavigateTab={setActiveTab}
+          />
         )}
 
         {activeTab === "creative-brain" && (
@@ -395,7 +403,11 @@ function MainAppContent() {
         )}
 
         {activeTab === "dsp-pitcher" && (
-          <DSPPitcher onNotify={addNotification} />
+          <WorkspaceShell
+            initialSection="releases"
+            onNotify={addNotification}
+            onNavigateTab={setActiveTab}
+          />
         )}
 
         {activeTab === "mastering-suite" && (
@@ -411,7 +423,15 @@ function MainAppContent() {
         )}
 
         {activeTab === "cover-studio" && (
-          <CoverStudio onNotify={addNotification} />
+          hasAdminAccess(user?.systemRole) ? (
+            <CoverStudio onNotify={addNotification} />
+          ) : (
+            <WorkspaceShell
+              initialSection="releases"
+              onNotify={addNotification}
+              onNavigateTab={setActiveTab}
+            />
+          )
         )}
 
         {activeTab === "epk-builder" && (

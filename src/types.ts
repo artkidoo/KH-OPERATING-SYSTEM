@@ -547,8 +547,73 @@ export interface Release {
     format?: string;
     validated?: boolean;
   };
+  featuredArtists?: string[];
+  producer?: string;
+  songwriter?: string;
+  songStory?: string;
+  streamingLink?: string;
+  preSaveLink?: string;
+  referenceImages?: string[];
+  creativeNotes?: string;
+  assetKitStatus?: Record<string, "Requested" | "Briefing" | "In Production" | "Review" | "Approved" | "Delivered">;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ArtistDNA {
+  id?: string;
+  workspaceId?: string;
+  // Identity
+  artistName?: string;
+  stageName?: string;
+  bio?: string;
+  genre?: string;
+  subgenre?: string;
+  location?: string;
+  socialLinks?: {
+    instagram?: string;
+    tiktok?: string;
+    twitter?: string;
+    youtube?: string;
+  };
+  website?: string;
+  streamingLinks?: {
+    spotify?: string;
+    appleMusic?: string;
+    audiomack?: string;
+    soundcloud?: string;
+    youtubeMusic?: string;
+  };
+  // Creative Identity
+  story?: string;
+  visualPersonality?: string;
+  preferredColours?: {
+    primary?: string;
+    secondary?: string;
+    accent?: string;
+    canvas?: string;
+  };
+  typographyPreferences?: {
+    heading?: string;
+    body?: string;
+    notes?: string;
+  };
+  visualReferences?: string[];
+  moodReferences?: string[];
+  photography?: string[];
+  logoUrl?: string;
+  designDirection?: string;
+  contentTone?: {
+    traits?: string[];
+    dos?: string[];
+    donts?: string[];
+  };
+  // Release Information
+  preferredReleaseStyle?: string;
+  preferredVisualDirection?: string;
+  recurringCreativePreferences?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProductService {
@@ -1124,6 +1189,9 @@ export interface BrandCore {
     positioningStatement: string;
   };
   // Flattened accessors for compatibility
+  mission?: string;
+  typography?: { heading?: string; body?: string };
+  contentPillars?: string[];
   targetAudience?: string;
   valueProposition?: string;
   positioningStatement?: string;

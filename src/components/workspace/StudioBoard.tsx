@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useWorkspace } from "../../context/WorkspaceContext";
 import { useAuth } from "../../context/AuthContext";
+import { useMembership } from "../../hooks/useMembership";
 import {
   Sparkles,
   MessageSquare,
@@ -31,30 +32,64 @@ export function StudioBoard({
 }) {
   const { assets, projects, releases, creativeRequests } = useWorkspace();
   const { user } = useAuth();
+  const { identity } = useMembership();
 
   const [activeTab, setActiveTab] = useState<"activity" | "notes">("notes");
   const [commentInput, setCommentInput] = useState("");
 
-  const [notes, setNotes] = useState<AgencyNote[]>([
+  const brandNotes: AgencyNote[] = [
     {
-      id: "note-1",
+      id: "note-b1",
+      sender: "Dare Balogun (Brand Design Director)",
+      avatar:
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+      role: "Brand Identity Lead",
+      message:
+        "Brand typography pairings and vector logomark approved for production. Master SVG kit rendered in obsidian & crimson.",
+      timestamp: "Today at 10:45 AM",
+      tag: "Brand Review",
+    },
+    {
+      id: "note-b2",
+      sender: "Amina K. (Marketing & Collateral Lead)",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
+      role: "Marketing Design",
+      message:
+        "Social media content kit, corporate letterhead, and presentation templates staged in Documents Hub. WCAG AAA verified.",
+      timestamp: "Yesterday",
+      tag: "Kits Ready",
+    },
+  ];
+
+  const artistNotes: AgencyNote[] = [
+    {
+      id: "note-a1",
       sender: "Keedo (Creative Director)",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+      avatar:
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
       role: "KeedoHub Lead",
-      message: "Master artwork typography rendered with high-contrast amber foil accents. Color profile calibrated for Spotify & Apple Music.",
+      message:
+        "Master artwork typography rendered with high-contrast amber foil accents. Color profile calibrated for Spotify & Apple Music.",
       timestamp: "Today at 10:45 AM",
       tag: "Design Review",
     },
     {
-      id: "note-2",
+      id: "note-a2",
       sender: "Sarah O. (Production Lead)",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
       role: "Motion Design",
-      message: "Vertical 9:16 motion teasers ready for TikTok & Reels staging. Check the Creative Package tab for downloads.",
+      message:
+        "Vertical 9:16 motion teasers ready for TikTok & Reels staging. Check the Creative Package tab for downloads.",
       timestamp: "Yesterday",
       tag: "Assets Ready",
     },
-  ]);
+  ];
+
+  const [notes, setNotes] = useState<AgencyNote[]>(
+    identity === "brand" ? brandNotes : artistNotes
+  );
 
   const handlePostComment = (e: React.FormEvent) => {
     e.preventDefault();

@@ -4,8 +4,9 @@ import { useAuth } from "../../context/AuthContext";
 import { useMembership } from "../../hooks/useMembership";
 import { Rocket, FolderKanban, ImagePlus, Send, FileText, Fingerprint, PlusCircle } from "lucide-react";
 import { ShellSection } from "./WorkspaceShell";
+import { ArtistHome } from "./ArtistHome";
 
-export function WorkspaceHome({ onNav, onOpenProject, onNotify: _onNotify }: {
+export function WorkspaceHome({ onNav, onOpenProject, onNotify }: {
   onNav: (t: ShellSection) => void;
   onOpenProject: (id: string) => void;
   onNotify: (m: string, t?: "success" | "info" | "error") => void;
@@ -14,6 +15,17 @@ export function WorkspaceHome({ onNav, onOpenProject, onNotify: _onNotify }: {
   const { workspace, projects, assets, releases, creativeRequests, businessDocuments } = useWorkspace();
   const { plan, tier, identity } = useMembership();
   const ws = workspace || activeWorkspace;
+
+  // Phase 2: If this is an artist workspace, render the dedicated Artist Home control room
+  if (identity === "artist") {
+    return (
+      <ArtistHome
+        onNotify={onNotify}
+        onNavigateSection={(sec) => onNav(sec as ShellSection)}
+      />
+    );
+  }
+
   const active = projects.filter((p) => p.status !== "completed").slice(0, 4);
   const pending = creativeRequests.filter((r) => !["DELIVERED", "COMPLETED", "CANCELLED"].includes((r.lifecycleStatus as string) || "SUBMITTED")).slice(0, 4);
   const usedMB = Math.max(0.2, assets.reduce((n, a) => n + (a.size || 0), 0) / 1048576);

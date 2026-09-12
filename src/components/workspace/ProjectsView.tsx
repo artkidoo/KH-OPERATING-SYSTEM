@@ -203,7 +203,9 @@ export function ProjectsView({
               </h1>
               <p className="mt-1 text-sm text-zinc-400 max-w-2xl">
                 {openProject.description ||
-                  "Primary container for all release information, creative assets, deliverables, and agency requests."}
+                  (identity === "brand"
+                    ? "Primary container for brand identity deliverables, marketing assets, and studio requests."
+                    : "Primary container for all release information, creative assets, deliverables, and agency requests.")}
               </p>
             </div>
 
@@ -217,9 +219,17 @@ export function ProjectsView({
                 <p className="text-lg font-bold text-white">{projectRequests.length}</p>
               </div>
               <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 py-2.5 text-center min-w-[90px]">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase">Release</p>
+                <p className="text-[10px] font-bold text-zinc-500 uppercase">
+                  {identity === "brand" ? "Brand Kit" : "Release"}
+                </p>
                 <p className="text-xs font-bold text-emerald-400 mt-1">
-                  {projectRelease ? "Connected" : "Not Linked"}
+                  {identity === "brand"
+                    ? projectAssets.length > 0
+                      ? "Ready"
+                      : "In Design"
+                    : projectRelease
+                    ? "Connected"
+                    : "Not Linked"}
                 </p>
               </div>
             </div>

@@ -69,6 +69,37 @@ export function BrandIdentity({
   );
   const [busy, setBusy] = useState(false);
 
+  // Sync state when brandCore updates asynchronously
+  React.useEffect(() => {
+    if (brandCore) {
+      if (brandCore.tagline) setTagline(brandCore.tagline);
+      if ((brandCore as any).mission) setMission((brandCore as any).mission);
+      if (brandCore.logoAssets?.primaryLogoUrl) setPrimaryLogo(brandCore.logoAssets.primaryLogoUrl);
+      if ((brandCore.logoAssets as any)?.secondaryLogoUrl)
+        setSecondaryLogo((brandCore.logoAssets as any).secondaryLogoUrl);
+      if (brandCore.colorPalette && brandCore.colorPalette.length >= 4) {
+        setPrimaryHex(brandCore.colorPalette[0]?.hex || "#EF4444");
+        setSecondaryHex(brandCore.colorPalette[1]?.hex || "#09090B");
+        setAccentHex(brandCore.colorPalette[2]?.hex || "#F59E0B");
+        setNeutralHex(brandCore.colorPalette[3]?.hex || "#F4F4F5");
+      }
+      if (brandCore.typography?.heading) setFontHeading(brandCore.typography.heading);
+      else if (brandCore.typographyPairing?.heading) setFontHeading(brandCore.typographyPairing.heading);
+
+      if (brandCore.typography?.body) setFontBody(brandCore.typography.body);
+      else if (brandCore.typographyPairing?.body) setFontBody(brandCore.typographyPairing.body);
+
+      if (brandCore.voiceAndTone?.traits?.length)
+        setToneVoice(brandCore.voiceAndTone.traits.join(", "));
+
+      const dosList = (brandCore as any).voiceAndTone?.dos || brandCore.visualDirection?.dos || brandCore.voiceAndTone?.doSay;
+      if (dosList && dosList.length) setDos(dosList.join("\n"));
+
+      const dontsList = (brandCore as any).voiceAndTone?.donts || brandCore.visualDirection?.donts || brandCore.voiceAndTone?.dontSay;
+      if (dontsList && dontsList.length) setDonts(dontsList.join("\n"));
+    }
+  }, [brandCore]);
+
   const handleSave = async () => {
     setBusy(true);
     try {

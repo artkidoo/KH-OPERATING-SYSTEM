@@ -35,9 +35,10 @@ export function DocumentsHub({
     createBusinessDocument,
     updateBusinessDocument,
     deleteBusinessDocument,
+    brandCore,
   } = useWorkspace();
 
-  const [selectedType, setSelectedType] = useState<DocType>("quote");
+  const [selectedType, setSelectedType] = useState<DocType>("proposal");
   const [selectedProjectId, setSelectedProjectId] = useState<string>(projects[0]?.id || "");
   const [openDocId, setOpenDocId] = useState<string | null>(
     businessDocuments[0]?.id || null
@@ -51,12 +52,120 @@ export function DocumentsHub({
 
   const openDoc = businessDocuments.find((d: any) => d.id === openDocId) || null;
 
+  // Auto-fill template form with Brand Core / Workspace settings if available
+  const getPreloadedForm = (type: DocType): Record<string, string> => {
+    const brandName = brandCore?.brandName || "Brand Co.";
+    const tagline = brandCore?.tagline || "High Impact Design & Creative Operating System";
+    const paletteStr =
+      brandCore?.colorPalette?.map((p) => `${p.name} (${p.hex})`).join(", ") ||
+      "#EF4444 (Primary), #09090B (Obsidian Canvas), #F4F4F5 (Chalk)";
+    const typographyStr = `${brandCore?.typography?.heading || brandCore?.typographyPairing?.heading || "Space Grotesk (Bold)"} + ${
+      brandCore?.typography?.body || brandCore?.typographyPairing?.body || "Plus Jakarta Sans"
+    }`;
+
+    switch (type) {
+      case "proposal":
+        return {
+          fromName: "KeedoHub Creative Studio",
+          clientName: brandName,
+          subject: `${brandName} — Master Brand Identity & Creative Systems`,
+          amount: "$4,500 USD",
+          validUntil: "30 Days from issue",
+          deliverables:
+            "1. Brand Identity System (Master Vectors, Typography System, Color Rules)\n2. Social Media Launch Kit (1:1 Posts, 9:16 Stories, 4:5 Carousels)\n3. Corporate Stationery (Executive Letterhead, Invoice, Business Cards)\n4. Master Pitch Deck & Presentation Architecture",
+          details: `Phase 1: Brand DNA Discovery & Vector Calibration for ${brandName}\nPhase 2: Typographic System & Palette Finalization\nPhase 3: Turnkey Rollout of Social Packs, Letterhead & Pitch Deck`,
+        };
+      case "letterhead":
+        return {
+          fromName: brandName,
+          tagline: tagline,
+          recipient: "Executive Partners / Client Stakeholders",
+          subject: "Corporate Notice & Strategic Collaboration",
+          date: new Date().toLocaleDateString(),
+          signatory: "Managing Director",
+          details: `We are pleased to share our latest corporate update. All creative and business documentation for ${brandName} is certified and produced through the KeedoHub Creative Operating System.`,
+        };
+      case "presentation":
+        return {
+          fromName: brandName,
+          clientName: "Investors, Partners & Board",
+          subject: `${brandName} — Strategic Growth & Brand Presentation`,
+          details: `Slide 1: Executive Vision & Mission (${tagline})\nSlide 2: Industry Problem & Cultural Void\nSlide 3: Our Core Value Proposition\nSlide 4: Product & Service Architecture\nSlide 5: Visual Ecosystem & Brand Authority\nSlide 6: Phased Roadmap & Commercial Objectives`,
+        };
+      case "social_kit":
+        return {
+          fromName: brandName,
+          subject: `${brandName} — Social Media Launch Pack`,
+          contentPillars:
+            brandCore?.contentPillars?.join(", ") ||
+            "Craft, Operational Precision, Creative Leadership, Innovation",
+          palette: paletteStr,
+          details: `1. 1:1 Feed Posts (1080x1080): 3x weekly brand value breakdowns\n2. 9:16 Stories & Reels (1080x1920): Daily interactive touchpoints\n3. 4:5 Portrait Carousels (1080x1350): Deep-dive editorial slides\n4. YouTube / Web Banners: High-resolution header assets\n5. Typographic Pairings: ${typographyStr}`,
+        };
+      case "guidelines":
+        return {
+          fromName: brandName,
+          subject: tagline,
+          palette: paletteStr,
+          typography: typographyStr,
+          details: `Maintain generous padding (min 24px). Maintain high contrast. Logo clearspace at least 1.5x mark height. Never distort proportions.`,
+        };
+      case "invoice":
+        return {
+          fromName: "KeedoHub Creative Group",
+          clientName: brandName,
+          subject: `INV-${new Date().getFullYear()}-001`,
+          amount: "$2,400.00",
+          paymentDetails: "Stripe Invoice / ACH Wire Transfer: routing verified.",
+          details: `Complete Brand Identity System, Social Media Content Kit, and Executive Stationery Suite for ${brandName}.`,
+        };
+      default:
+        return {};
+    }
+  };
+
+  // Sync open doc form when openDocId changes
+  React.useEffect(() => {
+    if (openDoc) {
+      setForm(openDoc.content || {});
+      setDocStatus((openDoc.status as DocStatus) || "draft");
+      setExternalUrl(openDoc.content?.externalUrl || "");
+    }
+  }, [openDocId]);
+
+  // When selectedType changes, auto-fill form with defaults if empty
+  const handleTypeChange = (type: DocType) => {
+    setSelectedType(type);
+    const prefill = getPreloadedForm(type);
+    setForm(prefill);
+  };
+
   // Filtered list
   const filteredDocs = businessDocuments.filter((d: any) => {
     if (activeCategoryFilter === "All") return true;
     const tpl = templateFor(d.documentType);
     return tpl.category === activeCategoryFilter;
   });
+
+  const handleGenerateBrandStarterKit = async () => {
+    const types: DocType[] = ["proposal", "letterhead", "presentation", "social_kit", "invoice"];
+    try {
+      for (const t of types) {
+        const tpl = templateFor(t);
+        const prefill = getPreloadedForm(t);
+        await createBusinessDocument({
+          documentType: t,
+          title: `${tpl.label} — ${brandCore?.brandName || "Brand Co."}`,
+          status: "active",
+          projectId: selectedProjectId || undefined,
+          content: prefill,
+        } as never);
+      }
+      onNotify("Generated full Brand Kit documents suite (Proposal, Letterhead, Deck, Social Kit, Invoice).", "success");
+    } catch (e: unknown) {
+      onNotify("Error generating brand starter pack", "error");
+    }
+  };
 
   const handleCreate = async () => {
     try {
@@ -193,13 +302,22 @@ export function DocumentsHub({
               New Document Generator
             </h3>
 
-            <div>
-              <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+            <div className="flex items-center justify-between">
+              <label className="block text-[11px] font-semibold text-zinc-300">
                 Document Template
               </label>
+              <button
+                type="button"
+                onClick={() => setForm(getPreloadedForm(selectedType))}
+                className="text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+              >
+                ✨ Auto-fill from Brand DNA
+              </button>
+            </div>
+            <div>
               <select
                 value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value as DocType)}
+                onChange={(e) => handleTypeChange(e.target.value as DocType)}
                 className="w-full rounded-xl bg-zinc-900 border border-zinc-700/80 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-red-500 cursor-pointer"
               >
                 {DOC_TEMPLATES.map((t) => (
@@ -280,9 +398,19 @@ export function DocumentsHub({
 
           {/* Directory of Saved Documents */}
           <div className="rounded-3xl border border-zinc-800 bg-zinc-950/80 p-5 space-y-3">
-            <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-              Workspace Documents ({filteredDocs.length})
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                Workspace Documents ({filteredDocs.length})
+              </h3>
+              <button
+                type="button"
+                onClick={handleGenerateBrandStarterKit}
+                className="text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+                title="Auto-create Proposal, Letterhead, Pitch Deck, Social Kit, Invoice"
+              >
+                + Full Suite
+              </button>
+            </div>
             <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
               {filteredDocs.map((doc: any) => {
                 const isActive = doc.id === openDocId;

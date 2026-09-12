@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useWorkspace } from "../../context/WorkspaceContext";
+import { useMembership } from "../../hooks/useMembership";
 import {
   Upload,
   Search,
@@ -39,6 +40,7 @@ export function LibraryView({
   onNotify: (m: string, t?: "success" | "info" | "error") => void;
 }) {
   const { assets, projects, saveAsset, updateAsset } = useWorkspace();
+  const { identity } = useMembership();
   const [activeTab, setActiveTab] = useState<ViewTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -208,12 +210,25 @@ export function LibraryView({
             className="w-full sm:w-auto rounded-xl bg-zinc-900 border border-zinc-700/80 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-red-500 cursor-pointer"
           >
             <option value="all">All File Types</option>
-            <option value="artwork">Artwork & Covers</option>
-            <option value="photo">Photography</option>
-            <option value="social">Social Graphics</option>
-            <option value="motion">Motion & Video</option>
-            <option value="audio">Audio & Masters</option>
-            <option value="document">Documents & EPK</option>
+            {identity === "brand" ? (
+              <>
+                <option value="artwork">Logos & Vectors</option>
+                <option value="social">Social Graphics & Kits</option>
+                <option value="presentation">Presentations & Decks</option>
+                <option value="motion">Motion & Video</option>
+                <option value="photo">Brand Photography</option>
+                <option value="document">Corporate Documents</option>
+              </>
+            ) : (
+              <>
+                <option value="artwork">Artwork & Covers</option>
+                <option value="photo">Photography</option>
+                <option value="social">Social Graphics</option>
+                <option value="motion">Motion & Video</option>
+                <option value="audio">Audio & Masters</option>
+                <option value="document">Documents & EPK</option>
+              </>
+            )}
           </select>
         </div>
 

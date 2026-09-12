@@ -4,6 +4,10 @@ export type DocType =
   | "invoice"
   | "brief"
   | "deck"
+  | "presentation"
+  | "proposal"
+  | "letterhead"
+  | "social_kit"
   | "guidelines"
   | "contract"
   | "schedule"
@@ -27,6 +31,130 @@ export interface DocTemplate {
 }
 
 export const DOC_TEMPLATES: DocTemplate[] = [
+  {
+    type: "proposal",
+    label: "Brand Creative Proposal",
+    category: "Creative",
+    fields: [
+      { key: "fromName", label: "Agency / Studio (KeedoHub)" },
+      { key: "clientName", label: "Brand / Client Organization" },
+      { key: "subject", label: "Proposal Title / Objective" },
+      { key: "amount", label: "Investment / Budget (e.g. $4,500 / ₦3,800,000)" },
+      { key: "validUntil", label: "Valid Until Date" },
+      {
+        key: "deliverables",
+        label: "Deliverables & Kits",
+        multiline: true,
+        placeholder: "1. Brand Identity System (Master Vectors, Typographic Palette, Usage Rules)\n2. Social Media Launch Kit (1:1 Posts, 9:16 Stories, 4:5 Carousels)\n3. Corporate Stationery (Executive Letterhead, Invoice Template, Business Cards)\n4. Master Pitch Deck & Google Presentation Template",
+      },
+      {
+        key: "details",
+        label: "Strategic Objectives, Scope & Phased Roadmap",
+        multiline: true,
+        placeholder: "Phase 1: Brand DNA Calibration & Discovery\nPhase 2: Master Visual Direction & Vector Architecture\nPhase 3: Turnkey Collateral, Social Packs & Presentation Rollout",
+      },
+    ],
+    body: (d) =>
+      `KEEDOHUB CREATIVE PRODUCTION AGENCY\nBRAND CREATIVE PROPOSAL: ${d.subject || "Brand Identity & Creative Systems"}\n` +
+      `Prepared By: ${d.fromName || "KeedoHub Studio"}\n` +
+      `Prepared For: ${d.clientName || "Brand Client"}\n` +
+      `Valid Until: ${d.validUntil || "30 days from issuance"}\n` +
+      `Total Project Investment: ${d.amount || "TBD"}\n\n` +
+      `==================================================\n` +
+      `EXECUTIVE SUMMARY & STRATEGIC VISION:\n` +
+      `${d.details || "Deliver world-class brand positioning and turnkey creative kits to empower market leadership."}\n\n` +
+      `==================================================\n` +
+      `SCOPE OF DELIVERABLES:\n` +
+      `${d.deliverables || "Master Brand Assets, Social Content Kit, Presentation Deck, Corporate Stationery."}\n\n` +
+      `==================================================\n` +
+      `PRODUCTION TERMS:\n` +
+      `Turnkey deliverables engineered and managed via KeedoHub Studio. 50% milestone on commencement, 50% on final vector bundle sign-off.`,
+  },
+  {
+    type: "letterhead",
+    label: "Brand Executive Letterhead",
+    category: "Creative",
+    fields: [
+      { key: "fromName", label: "Company / Brand Name" },
+      { key: "tagline", label: "Tagline / Official Address / Reg Info" },
+      { key: "recipient", label: "Addressee / Recipient" },
+      { key: "subject", label: "Letter Subject / Reference" },
+      { key: "date", label: "Date of Letter" },
+      {
+        key: "details",
+        label: "Letter Body / Official Statement",
+        multiline: true,
+        placeholder: "Enter formal communication, executive update, or partner correspondence here...",
+      },
+      { key: "signatory", label: "Signatory Name & Title" },
+    ],
+    body: (d) =>
+      `======================================================================\n` +
+      `                       ${(d.fromName || "BRAND NAME").toUpperCase()}\n` +
+      `              ${d.tagline || "High Impact Design & Creative Operating System"}\n` +
+      `======================================================================\n\n` +
+      `Date: ${d.date || new Date().toLocaleDateString()}\n` +
+      `Reference: ${d.subject || "Official Correspondence"}\n\n` +
+      `To: ${d.recipient || "Whom It May Concern"}\n\n` +
+      `${d.details || "Please accept this official correspondence on behalf of the company."}\n\n` +
+      `Sincerely,\n\n\n` +
+      `___________________________________\n` +
+      `${d.signatory || "Executive Director / Managing Partner"}\n` +
+      `${d.fromName || "Brand Co."}`,
+  },
+  {
+    type: "presentation",
+    label: "Google Presentation / Pitch Deck",
+    category: "Creative",
+    fields: [
+      { key: "fromName", label: "Brand / Company Presenting" },
+      { key: "clientName", label: "Target Audience / Investor / Partner" },
+      { key: "subject", label: "Deck Title (e.g. Master Pitch Deck 2026)" },
+      {
+        key: "details",
+        label: "Slide Outline & Narrative Deck Architecture",
+        multiline: true,
+        placeholder: "Slide 1: Title & Vision\nSlide 2: Market Problem & Cultural Friction\nSlide 3: Our Solution & Value Proposition\nSlide 4: Product & Service Architecture\nSlide 5: Traction, Audience & Case Studies\nSlide 6: Visual Identity & Brand Ecosystem\nSlide 7: Roadmap, Financials & The Ask",
+      },
+    ],
+    body: (d) =>
+      `PRESENTATION & PITCH DECK MASTER OUTLINE\n` +
+      `Deck Title: ${d.subject || "Executive Presentation Deck"}\n` +
+      `Company: ${d.fromName || "Brand Company"}\n` +
+      `Presented To: ${d.clientName || "Key Stakeholders & Partners"}\n` +
+      `Engineered via KeedoHub Agency Operating System\n\n` +
+      `==================================================\n` +
+      `SLIDE BY SLIDE NARRATIVE ARCHITECTURE:\n` +
+      `${d.details || "1. Cover & Brand Purpose\n2. The Core Problem\n3. Solution & Proposition\n4. Business Architecture\n5. Visual Differentiation\n6. The Commercial Ask"}\n\n` +
+      `Google Slides / Keynote Export: Copy and import into your presentation workspace.`,
+  },
+  {
+    type: "social_kit",
+    label: "Social Media Kit & Content Spec",
+    category: "Creative",
+    fields: [
+      { key: "fromName", label: "Brand Name" },
+      { key: "subject", label: "Social Campaign / Kit Name" },
+      { key: "contentPillars", label: "Core Content Pillars (e.g. Craft, Innovation, Culture)" },
+      { key: "palette", label: "Primary Palette & Color Tokens" },
+      {
+        key: "details",
+        label: "Asset Dimensions, Cadence & Template Specs",
+        multiline: true,
+        placeholder: "1. Feed Posts (1:1 1080x1080 - 3x weekly)\n2. Vertical Stories (9:16 1080x1920 - Daily updates)\n3. Carousel Slides (4:5 1080x1350 - In-depth teardowns)\n4. YouTube / Banner Headers (16:9 2560x1440)\n5. Caption Typography & Hashtag Architecture",
+      },
+    ],
+    body: (d) =>
+      `KEEDOHUB STUDIO — SOCIAL MEDIA DESIGN KIT SPECIFICATION\n` +
+      `Brand: ${d.fromName || "Brand Name"}\n` +
+      `Campaign: ${d.subject || "Master Brand Rollout"}\n` +
+      `Content Pillars: ${d.contentPillars || "Design, Innovation, Customer Value, Culture"}\n` +
+      `Color Calibration: ${d.palette || "Obsidian (#09090B), Brand Primary, Chalk White"}\n\n` +
+      `==================================================\n` +
+      `CHANNEL SPECIFICATIONS & ASSET CADENCE:\n` +
+      `${d.details || "1:1 Feed Assets, 9:16 Vertical Motion, 4:5 Editorial Carousels."}\n\n` +
+      `All assets engineered with WCAG AAA contrast and high-retention typographic hierarchy.`,
+  },
   {
     type: "quote",
     label: "Quote / Estimate",

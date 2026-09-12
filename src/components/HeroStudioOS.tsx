@@ -15,7 +15,8 @@ import {
   Globe2,
   Palette,
   Rocket,
-  Radio
+  Radio,
+  Package,
 } from "lucide-react";
 
 interface HeroStudioOSProps {
@@ -365,29 +366,29 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
               </div>
             </div>
 
-            {/* Module 3: DSP Pitcher */}
+            {/* Module 3: Release Asset Kits */}
             <div
-              onClick={() => setActiveTab("dsp-pitcher")}
+              onClick={() => setActiveTab("command-center")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm hover:border-emerald-500/50"
             >
               <div className="space-y-2.5 sm:space-y-3.5">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Cpu className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Package className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
                   <span className="text-[8px] sm:text-[9px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
-                    SPOTIFY EDITORIAL
+                    STUDIO DELIVERABLES
                   </span>
                   <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-emerald-400 transition-colors mt-0.5">
-                    DSP Pitch Engine
+                    Release Asset Kits
                   </h3>
                   <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
-                    Auto-generate 50-word editorial pitch notes, curator emails, and scorecards.
+                    Master artwork, Spotify canvases, social motion packages, and press kits designed for your rollout.
                   </p>
                 </div>
               </div>
               <div className="pt-3 sm:pt-4 flex items-center justify-between text-[10px] sm:text-xs font-mono text-emerald-400 font-bold">
-                <span>Pitch</span>
+                <span>View Kits</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>

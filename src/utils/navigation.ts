@@ -8,14 +8,13 @@ import { ActiveTab } from "../types";
 
 export const ARTIST_WORKSPACE_NAV: { key: string; label: string; tab: ActiveTab }[] = [
   { key: "home", label: "Home", tab: "command-center" },
-  { key: "music", label: "Music", tab: "command-center" },
-  { key: "content", label: "Content", tab: "command-center" },
-  { key: "library", label: "Library", tab: "command-center" },
+  { key: "profile", label: "Profile", tab: "command-center" },
+  { key: "releases", label: "Releases", tab: "command-center" },
+  { key: "asset-kits", label: "Asset Kits", tab: "command-center" },
   { key: "projects", label: "Projects", tab: "command-center" },
-  { key: "create", label: "Create", tab: "command-center" },
+  { key: "library", label: "Library", tab: "command-center" },
   { key: "requests", label: "Requests", tab: "command-center" },
   { key: "membership", label: "Membership", tab: "command-center" },
-  { key: "profile", label: "Profile", tab: "command-center" },
 ];
 
 export const BRAND_WORKSPACE_NAV: { key: string; label: string; tab: ActiveTab }[] = [
@@ -26,7 +25,6 @@ export const BRAND_WORKSPACE_NAV: { key: string; label: string; tab: ActiveTab }
   { key: "documents", label: "Documents", tab: "command-center" },
   { key: "library", label: "Library", tab: "command-center" },
   { key: "projects", label: "Projects", tab: "command-center" },
-  { key: "create", label: "Create", tab: "command-center" },
   { key: "requests", label: "Requests", tab: "command-center" },
   { key: "membership", label: "Membership", tab: "command-center" },
   { key: "profile", label: "Profile", tab: "command-center" },
@@ -46,8 +44,6 @@ export const WORKSPACE_TABS: ActiveTab[] = [
   "analytics",
   "intel-hub",
   "creative-memory",
-  "artist-brain",
-  "creative-brain",
   // NOTE: "production-center" is intentionally NOT in customer navigation.
   // It is admin-only and accessible via direct URL for admin users.
 ];
@@ -189,7 +185,8 @@ export function getPathFromTab(tab: ActiveTab, section?: string): string {
     case "command-center": {
       if (section === "projects") return "/projects";
       if (section === "library") return "/library";
-      if (section === "music" || section === "releases") return "/music";
+      if (section === "music" || section === "releases") return "/releases";
+      if (section === "asset-kits" || section === "content" || section === "creative") return "/asset-kits";
       if (section === "brand") return "/brand";
       if (section === "documents" || section === "business") return "/documents";
       if (section === "content" || section === "creative") return "/content";
@@ -301,20 +298,14 @@ export function getSectionFromPath(path: string): string {
     case "/library":
     case "/resource-vault":
       return "library";
-    case "/artist-os":
-    case "/music":
     case "/releases":
-      return "music";
-    case "/brand-os":
-    case "/brand":
-      return "brand";
-    case "/documents":
-    case "/business":
-    case "/business-documents":
-      return "documents";
+    case "/music":
+    case "/artist-os":
+      return "releases";
+    case "/asset-kits":
     case "/content":
     case "/creative":
-      return "content";
+      return "asset-kits";
     case "/create":
       return "create";
     case "/requests":

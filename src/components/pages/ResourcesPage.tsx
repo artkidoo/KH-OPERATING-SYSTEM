@@ -175,17 +175,17 @@ export const ResourcesPage: React.FC<PageProps> = ({ onNavigateTab, openBriefMod
                 <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">
-                DSP Editorial Pitch Formulas
+                Studio Release Asset Kits & Standards
               </h3>
               <p className="text-[11px] sm:text-xs text-[var(--bento-muted)] leading-relaxed">
-                Proven pitch sentence structures that playlist curators at Spotify, Apple Music, and Amazon Music read when selecting editorial highlights.
+                Master specifications for 3000x3000px artwork, Spotify 9:16 vertical video canvases, animated backdrops, and social kits produced by KeedoHub Studio.
               </p>
             </div>
             <button
-              onClick={() => onNavigateTab("dsp-pitcher")}
+              onClick={() => onNavigateTab("command-center")}
               className="w-full min-h-10 py-2 px-2 sm:px-3 rounded-xl bg-[var(--bento-input)] hover:bg-[var(--bento-card-hover)] border border-[var(--bento-border)] text-[10px] sm:text-xs font-semibold text-[var(--bento-text)] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-colors"
             >
-              <span>Test Pitch Generator</span>
+              <span>Explore Asset Kits</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
