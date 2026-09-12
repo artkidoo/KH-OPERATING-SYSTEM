@@ -145,7 +145,7 @@ export const INTEL_ARTICLES: IntelArticle[] = [
     date: "Aug 2026",
     author: "Ojo Abdulkareem (Keedohub)",
     summary: "Why 85% of indie songs die on launch day and the precise 3-phase visual cadence required to force algorithmic momentum on Spotify, Apple Music & TikTok.",
-    tags: ["Music Rollout", "DSP Pitching", "TikTok Virality", "EPK"],
+    tags: ["Music Rollout", "Studio Production", "TikTok Virality", "EPK"],
     content: [
       "Most independent artists make a catastrophic error: they pour 95% of their budget and emotional energy into recording and mixing, leaving $0 and zero planned content assets for the promotional push.",
       "In the modern attention economy, the music is only 50% of the product. The visual universe, the lore, the short-form soundbites, and the pre-release tension building are what actually trigger Spotify's Discover Weekly and TikTok's FYP algorithms.",

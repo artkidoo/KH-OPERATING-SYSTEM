@@ -225,14 +225,11 @@ export const ArtistContentBrain: React.FC<ArtistContentBrainProps> = ({ onNotify
         ],
       },
     ],
-    dspPitch: {
-      pitchTitle: `Zack Khalifa — "Midnight in Victoria Island" (Afro-Fusion Release)`,
-      genreTags: ["Afrobeats", "Alté", "Contemporary R&B", "Global Sounds"],
-      moodTags: ["Energetic", "Late Night", "Confident", "Feel-Good"],
-      instruments: ["Log Drum / Amapiano Shakers", "Electric Guitar Licks", "Analog Bass", "Vocal Harmonies"],
-      editorialNote: `"Midnight in Victoria Island" is an infectious, club-ready release blending dynamic percussion with anthemic vocal hooks. Ideal for flagship playlists like African Heat, New Music Friday, and Global Waves.`,
-      targetPlaylists: ["African Heat (Spotify)", "Afro-Pop Hits (Apple Music)", "Afrobeats Fresh (Audiomack)", "New Music Daily", "Global Groove"],
-      curatorAngle: "A distinctive sonic bridge combining rhythmic African percussion with sleek international melodic hooks.",
+    studioProduction: {
+      serviceRequest: "Cover Artwork + Motion + Social Content + EPK",
+      briefSummary: "Complete release creative package for \"Midnight in Victoria Island\" including DSP-compliant cover art, social media assets, and press kit visuals.",
+      targetDeliverables: ["Cover Artwork", "Social Content", "EPK", "Motion Visuals"],
+      status: "pending",
     },
     pressReleaseExcerpt: `FOR IMMEDIATE RELEASE: Multi-talented artist Zack Khalifa has officially unveiled their latest masterpiece, "Midnight in Victoria Island". Crafted with high-grade sonic engineering and backed by the Keedohub Creative Operating System, the record delivers an unmatched blend of rhythm, emotion, and global appeal. Now available on all major streaming services worldwide.`,
     contentHooks: [
@@ -498,7 +495,7 @@ export const ArtistContentBrain: React.FC<ArtistContentBrainProps> = ({ onNotify
                 { id: "blueprint", label: "1. Strategy", icon: Layers, desc: "Algorithm rules" },
                 { id: "schedule", label: "2. 30-Day Plan", icon: Calendar, desc: "Posting calendar" },
                 { id: "promokit", label: "3. Asset Studio", icon: ImageIcon, desc: "Artwork & Cards" },
-                { id: "pitch", label: "4. DSP Pitch", icon: Radio, desc: "Curator editorial" },
+                { id: "pitch", label: "4. Studio Production", icon: Layers, desc: "KeedoHub Studio" },
                 { id: "hooks", label: "5. Viral Hooks", icon: Tv, desc: "Sound & Captions" },
                 { id: "checklist", label: "6. Audit Check", icon: CheckSquare, desc: `${completedChecklistCount}/${checklistState.length} done` },
               ].map((step) => {
@@ -797,7 +794,7 @@ export const ArtistContentBrain: React.FC<ArtistContentBrainProps> = ({ onNotify
                 }`}
               >
                 <Radio className="w-4 h-4" />
-                <span>DSP Pitch</span>
+                <span>Studio Production</span>
               </button>
 
               <button
@@ -1077,53 +1074,45 @@ export const ArtistContentBrain: React.FC<ArtistContentBrainProps> = ({ onNotify
                   </div>
 
                   <button
-                    onClick={() => copyText(rolloutPlan.dspPitch.editorialNote, "dsp-pitch")}
+                    onClick={() => copyText(rolloutPlan.studioProduction.briefSummary, "studio-production")}
                     className="min-h-[44px] min-w-[44px] px-4 py-2.5 rounded-xl bg-[var(--bento-input)] hover:bg-[var(--bento-elevated)] border border-[var(--bento-border)] hover:border-emerald-400/50 text-xs font-mono text-[var(--bento-text)] flex items-center justify-center gap-2 cursor-pointer transition-colors"
                   >
-                    {copiedId === "dsp-pitch" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedId === "dsp-pitch" ? "Copied" : "Copy Pitch"}</span>
+                    {copiedId === "studio-production" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedId === "studio-production" ? "Copied" : "Copy Brief"}</span>
                   </button>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[var(--bento-input)] border border-[var(--bento-border)] text-xs sm:text-sm text-[var(--bento-text)] leading-relaxed">
-                  {rolloutPlan.dspPitch.editorialNote}
+                  {rolloutPlan.studioProduction.serviceRequest}
                 </div>
 
-                {/* Target Playlists */}
-                {rolloutPlan.dspPitch.targetPlaylists && (
+                {/* Target Deliverables */}
+                {rolloutPlan.studioProduction.targetDeliverables && (
                   <div className="space-y-2 pt-1">
-                    <span className="text-[11px] font-mono text-[var(--bento-muted)] uppercase font-bold">Target Flagship Playlists:</span>
+                    <span className="text-[11px] font-mono text-[var(--bento-muted)] uppercase font-bold">Target Deliverables:</span>
                     <div className="flex flex-wrap gap-1.5">
-                      {rolloutPlan.dspPitch.targetPlaylists.map((pl, pIdx) => (
-                        <span key={pIdx} className="px-3 py-1.5 rounded-xl bg-[var(--bento-input)] border border-[var(--bento-border)] text-[11px] font-mono text-emerald-400 font-medium">
-                          🎵 {pl}
+                      {rolloutPlan.studioProduction.targetDeliverables.map((del, pIdx) => (
+                        <span key={pIdx} className="px-3 py-1.5 rounded-xl bg-[var(--bento-input)] border border-[var(--bento-border)] text-[11px] font-mono text-amber-400 font-medium">
+                          📦 {del}
                         </span>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Genre and Mood Tags */}
+                {/* Release Info Summary */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
                   <div className="p-3 rounded-xl bg-[var(--bento-input)] border border-[var(--bento-border)] space-y-1.5">
-                    <span className="text-[10px] font-mono text-[#F97316] font-bold uppercase">Genre & Subgenre Tags:</span>
-                    <div className="flex flex-wrap gap-1">
-                      {rolloutPlan.dspPitch.genreTags.map((g, idx) => (
-                        <span key={idx} className="px-2 py-0.5 rounded bg-[var(--bento-card)] text-[10px] font-mono text-[var(--bento-text)] border border-[var(--bento-border)]">
-                          #{g}
-                        </span>
-                      ))}
+                    <span className="text-[10px] font-mono text-[#F97316] font-bold uppercase">Service Request:</span>
+                    <div className="text-[var(--bento-text)] font-medium">
+                      {rolloutPlan.studioProduction.serviceRequest}
                     </div>
                   </div>
 
                   <div className="p-3 rounded-xl bg-[var(--bento-input)] border border-[var(--bento-border)] space-y-1.5">
-                    <span className="text-[10px] font-mono text-amber-400 font-bold uppercase">Mood & Instruments:</span>
-                    <div className="flex flex-wrap gap-1">
-                      {rolloutPlan.dspPitch.moodTags.map((m, idx) => (
-                        <span key={idx} className="px-2 py-0.5 rounded bg-[var(--bento-card)] text-[10px] font-mono text-[var(--bento-text)] border border-[var(--bento-border)]">
-                          {m}
-                        </span>
-                      ))}
+                    <span className="text-[10px] font-mono text-amber-400 font-bold uppercase">Status:</span>
+                    <div className="text-[var(--bento-text)] font-medium">
+                      {rolloutPlan.studioProduction.status === "pending" ? "⏳ Pending Review" : "✅ Ready"}
                     </div>
                   </div>
                 </div>

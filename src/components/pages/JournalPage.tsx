@@ -92,7 +92,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
     content: [
       "When editors open Spotify for Artists or Apple Music for Artists, they scan for three specific pillars: sonic reference points (who does this sit next to?), cultural context (what subculture or mood does this serve?), and the artist's confirmed marketing commit.",
       "Writing 'this is my best song yet' guarantees your pitch is ignored. Editors want objective sonic anchors: 'combines Nigerian Alté rhythms with UK Garage basslines, tailored for late-night driving and chill electronic playlists.'",
-      "Using the Keedohub DSP Pitch tool, your Artist DNA automatically populates the exact genre micro-tags, instruments, emotional mood curves, and cross-platform campaign strategy directly into your pitch draft."
+      "With Keedohub Studio, your Artist DNA and brand context inform every creative decision. Our production team ensures your metadata, genre tags, and pitch materials are professionally prepared for editorial consideration."
     ],
     takeaways: [
       "Submit your master audio and pitch at least 21 days prior to release date.",

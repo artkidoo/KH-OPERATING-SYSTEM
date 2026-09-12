@@ -51,7 +51,6 @@ import {
 import { CoverStudio } from '../CoverStudio';
 import { MasteringSuite } from '../MasteringSuite';
 import { LyricsStudio } from '../LyricsStudio';
-import { DSPPitcher } from '../DSPPitcher';
 import { SplitsCalculator } from '../SplitsCalculator';
 import { PresaveHub } from '../PresaveHub';
 import { EPKBuilder } from '../EPKBuilder';
@@ -104,7 +103,7 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
     | 'identity'
     | 'master'
     | 'artwork'
-    | 'dsp_pitch'
+    | 'studio'
     | 'presave'
     | 'lyrics'
     | 'splits'
@@ -691,23 +690,23 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
                   </div>
                 </div>
 
-                {/* 4. DSP Pitch */}
+                {/* 4. Studio Production */}
                 <div
-                  onClick={() => setActiveReleaseCapability('dsp_pitch')}
+                  onClick={() => setActiveReleaseCapability('studio')}
                   className="p-5 rounded-3xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 transition-all cursor-pointer space-y-3 group"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="p-2.5 rounded-xl bg-zinc-800 text-emerald-400 group-hover:scale-110 transition-transform">
-                      <Radio className="w-5 h-5" />
+                    <span className="p-2.5 rounded-xl bg-zinc-800 text-amber-400 group-hover:scale-110 transition-transform">
+                      <Layers className="w-5 h-5" />
                     </span>
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Placement</span>
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Production</span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">
-                      DSP Pitch Engine
+                    <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
+                      KeedoHub Studio
                     </h4>
                     <p className="text-xs text-zinc-400 mt-1">
-                      Direct-to-editor pitches tailored for Spotify for Artists & Apple Music playlists.
+                      Request professional production: artwork, visuals, motion, EPK & marketing assets.
                     </p>
                   </div>
                 </div>
@@ -833,7 +832,7 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
                         onClick={() => {
                           if (req.id === 'req_master') setActiveReleaseCapability('master');
                           else if (req.id === 'req_cover') setActiveReleaseCapability('artwork');
-                          else if (req.id === 'req_dsp_pitch') setActiveReleaseCapability('dsp_pitch');
+                          else if (req.id === 'req_studio_production') setActiveReleaseCapability('studio');
                           else if (req.id === 'req_splits') setActiveReleaseCapability('splits');
                           else if (req.id === 'req_presave') setActiveReleaseCapability('presave');
                           else setActiveReleaseCapability('identity');
@@ -1133,7 +1132,7 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
                   {activeReleaseCapability === 'identity' && 'Release Identity & Metadata'}
                   {activeReleaseCapability === 'master' && 'Master Audio & Sound Laboratory'}
                   {activeReleaseCapability === 'artwork' && 'Artwork & Cover Studio'}
-                  {activeReleaseCapability === 'dsp_pitch' && 'DSP Editorial Pitcher'}
+                  {activeReleaseCapability === 'studio' && 'KeedoHub Studio Production'}
                   {activeReleaseCapability === 'presave' && 'Pre-Save Campaign Hub'}
                   {activeReleaseCapability === 'lyrics' && 'Lyrics Studio'}
                   {activeReleaseCapability === 'splits' && 'Splits & Royalty Terms'}
@@ -1203,10 +1202,6 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
 
             {activeReleaseCapability === 'artwork' && (
               <CoverStudio onNotify={onNotify} />
-            )}
-
-            {activeReleaseCapability === 'dsp_pitch' && (
-              <DSPPitcher onNotify={onNotify} />
             )}
 
             {activeReleaseCapability === 'presave' && (

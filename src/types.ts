@@ -14,7 +14,6 @@ export type ActiveTab =
   | 'creative-brain'
   | 'cover-studio'
   | 'lyrics-studio'
-  | 'dsp-pitcher'
   | 'mastering-suite'
   | 'splits-calculator'
   | 'presave-hub'
@@ -29,6 +28,24 @@ export type ActiveTab =
   | 'membership'
   | 'profile'
   | 'production-center'
+  | 'studio-admin'
+  | 'studio-production'
+  | 'studio-audio-qa'
+  | 'studio-brand'
+  | 'studio-artist'
+  | 'studio-music'
+  | 'studio-motion'
+  | 'studio-documents'
+  | 'studio-presentations'
+  | 'studio-visuals'
+  | 'studio-delivery'
+  | 'studio-queue'
+  | 'studio-brief'
+  | 'studio-files'
+  | 'studio-review'
+  | 'studio-approval'
+  | 'studio-inspector'
+  | 'studio-loudness'
   | 'about'
   | 'vision'
   | 'story'
@@ -509,16 +526,20 @@ export interface Release {
   isrc?: string;
   narrative?: string;
   notes?: string;
-  dspPitchStatus?: string;
   platforms?: string[];
   type?: string;
   marketingBudget?: number;
   currency?: string;
   phases: RolloutPhase[];
   checklist: { id: string; task: string; category: string; deadline: string; completed: boolean }[];
-  dspPitch?: DSPPitchData | any;
   presaveSlug?: string;
   presaveData?: Partial<PresavePageData>;
+  studioProduction?: {
+    serviceRequest: string;
+    briefSummary: string;
+    targetDeliverables: string[];
+    status: string;
+  };
   lyrics?: {
     fullText?: string;
     lines?: LyricLine[];
@@ -1088,14 +1109,11 @@ export interface RolloutPlan {
   tagline: string;
   diasporaAngle: string;
   phases: RolloutPhase[];
-  dspPitch: {
-    pitchTitle: string;
-    genreTags: string[];
-    moodTags: string[];
-    instruments: string[];
-    editorialNote: string;
-    targetPlaylists?: string[];
-    curatorAngle?: string;
+  studioProduction?: {
+    serviceRequest: string;
+    briefSummary: string;
+    targetDeliverables: string[];
+    status: string;
   };
   pressReleaseExcerpt: string;
   contentHooks: string[];
@@ -1277,38 +1295,6 @@ export interface LyricProject {
   fontStyle: 'space-grotesk' | 'cinematic-serif' | 'mono-terminal' | 'bold-impact';
   showWaveform: boolean;
   glowIntensity: 'subtle' | 'vibrant' | 'hyper';
-}
-
-// 2. DSP Pitcher Types
-export interface DSPPitchData {
-  trackTitle: string;
-  artistName: string;
-  featuredArtists: string;
-  releaseDate: string;
-  primaryGenre: string;
-  subGenres: string[];
-  moods: string[];
-  instruments: string[];
-  language: string;
-  isExplicit: boolean;
-  recordingLocation: string;
-  culturalStory: string;
-  marketingBudgetUSD: number;
-  preSaveCount: number;
-  dspPitchShort: string;
-  pressPitchFull: string;
-  curatorDMEmail: string;
-  pitchScore: number;
-}
-
-export interface PlaylistTarget {
-  id: string;
-  name: string;
-  dsp: 'Spotify' | 'Apple Music' | 'Audiomack' | 'Boomplay';
-  followerCount: string;
-  vibe: string;
-  idealTrackArchetype: string;
-  curatorTip: string;
 }
 
 // 3. Audio Mastering & Loudness Types

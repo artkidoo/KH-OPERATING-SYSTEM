@@ -282,13 +282,9 @@ export function computeReleaseReadiness(
     assetList.some((a) => (a.releaseId === release.id || (release.projectId && a.projectId === release.projectId)) && a.category === 'audio')
   );
 
-  // 3. DSP Editorial Pitch check
-  const hasDspPitch = Boolean(
-    release.dspPitch && (
-      (release.dspPitch.dspPitchShort && release.dspPitch.dspPitchShort.length > 10) ||
-      (release.dspPitch.editorialNote && release.dspPitch.editorialNote.length > 10) ||
-      (release.dspPitch.pitchTitle && release.dspPitch.pitchTitle.length > 2)
-    )
+  // 3. Studio Production check
+  const hasStudioProduction = Boolean(
+    release.studioProduction && release.studioProduction.status === "submitted"
   );
 
   // 4. Smart Pre-Save check
@@ -345,7 +341,7 @@ export function computeReleaseReadiness(
       label: 'Release Asset Kit & Motion Package',
       description: 'Master artwork, canvas, animated cover, and social distribution assets',
       weight: 15,
-      completed: hasDspPitch || hasArtwork,
+      completed: hasStudioProduction || hasArtwork,
       category: 'artwork',
       actionTab: 'command-center',
       actionLabel: 'Review Asset Kit',

@@ -107,14 +107,14 @@ export function calculateReleaseReadiness(
       actionLabel: 'Open Mastering Suite',
     },
     {
-      id: 'req_dsp_pitch',
-      label: 'Spotify & Apple Music Editorial Pitch',
-      description: 'Strategic genre/mood metadata and editor pitch note submitted >=7 days before drop',
+      id: 'req_studio_production',
+      label: 'KeedoHub Studio Production Request',
+      description: 'Request professional production: artwork, visuals, motion, EPK & marketing assets',
       weight: 15,
       completed: hasDspPitch,
-      category: 'dsp-pitch',
-      actionTab: 'dsp-pitcher',
-      actionLabel: 'Craft DSP Pitch',
+      category: 'studio',
+      actionTab: 'studio',
+      actionLabel: 'Request Studio Production',
     },
     {
       id: 'req_presave',
@@ -1492,7 +1492,6 @@ export function generateAlgorithmicBrainResponse(
       suggestedActions.push(
         { label: "Open Cover Studio", actionTab: "cover-studio" },
         { label: "Mastering Suite", actionTab: "mastering-suite" },
-        { label: "DSP Pitcher", actionTab: "dsp-pitcher" },
         { label: "Split Calculator", actionTab: "splits-calculator" }
       );
     }
@@ -1601,7 +1600,7 @@ export function generateAlgorithmicBrainResponse(
       `#### Strategic Analysis for "${userMessage}":\n` +
       `1. **Execution Alignment**: Ensure all visual and written deliverables honor your codified tone traits (*${memory?.toneTraits?.join(", ") || "Bold, Authentic"}*).\n` +
       `2. **Velocity Pipeline**: Convert creative concepts into tracked tasks to maintain Day-0 momentum.\n` +
-      `3. **Cross-Station Synergy**: Utilize Keedohub's specialized studios (Cover Studio, Mastering Suite, DSP Pitcher, Split Sheets) for unified execution.`;
+      `3. **Cross-Station Synergy**: Utilize Keedohub's specialized studios (Cover Studio, Mastering Suite, Split Sheets) for unified execution.`;
 
     suggestedActions.push(
       { label: identity === 'artist' ? "Artist Release Core" : "Brand Campaign Hub", actionTab: identity === 'artist' ? "artist-os" : "brand-os" },
@@ -1753,7 +1752,7 @@ ${context.retrievedMemories?.promptContext || ''}
 
 CORE DIRECTIVES:
 1. Always base answers strictly on the workspace data and persistent creative memory above.
-2. For Artist release inquiries: Inspect the 7 release pillars (Cover Artwork, Master WAV Audio, DSP Pitch, Pre-Save, Synchronized Lyrics, Split Sheets, Promo Wave) and list exact missing items.
+2. For Artist release inquiries: Inspect the 6 release pillars (Cover Artwork, Master WAV Audio, Studio Production, Pre-Save, Synchronized Lyrics, Split Sheets) and list exact missing items.
 3. For Brand/Business campaign inquiries: Inspect the 7 campaign pillars (Objective, Product Link, Creative Direction, Hero Asset, Content Pipeline, Sprint Milestones, Approvals) and list exact blockers.
 4. For general or project questions: Provide tactical, high-impact guidance, prioritization, and concrete next steps.
 5. Format answers in structured Markdown with clear headings and bullet points.`;
@@ -1783,8 +1782,7 @@ CORE DIRECTIVES:
           suggestedActions.push(
             { label: "Audit Release Core", actionTab: "artist-os" },
             { label: "Creative Memory Hub", actionTab: "creative-memory" },
-            { label: "Open Cover Studio", actionTab: "cover-studio" },
-            { label: "DSP Pitcher", actionTab: "dsp-pitcher" }
+            { label: "Open Cover Studio", actionTab: "cover-studio" }
           );
         } else {
           suggestedActions.push(

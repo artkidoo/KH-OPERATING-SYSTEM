@@ -141,7 +141,7 @@ export const DocumentationPage: React.FC<PageProps> = ({ onNavigateTab, openBrie
                 <p className="text-[var(--bento-muted)] mt-0.5">100% locked publishing and master recording split percentages.</p>
               </div>
               <div className="p-3 rounded-xl bg-[var(--bento-bg)] border border-[var(--bento-border)]">
-                <strong className="text-red-400">Pillar 5: DSP Pitch Letter</strong>
+                <strong className="text-red-400">Pillar 5: Studio Production Request</strong>
                 <p className="text-[var(--bento-muted)] mt-0.5">Optimal 65-word Spotify for Artists submission with promo proof.</p>
               </div>
               <div className="p-3 rounded-xl bg-[var(--bento-bg)] border border-[var(--bento-border)]">

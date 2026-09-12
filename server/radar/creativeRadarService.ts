@@ -220,8 +220,8 @@ export class CreativeRadarService {
             },
             recommendedAction: {
               type: "navigate_tab",
-              label: "Open DSP Pitcher",
-              targetTab: "dsp-pitcher",
+              label: "Open Cover Studio",
+              targetTab: "cover-studio",
               actionDescription: "Generate AI-assisted editorial curator pitch deck",
             },
             status: "new",

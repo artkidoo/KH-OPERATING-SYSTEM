@@ -23,6 +23,7 @@ import { AnalyticsView } from "./components/AnalyticsView";
 import { WorkflowHub } from "./components/WorkflowHub";
 import { CollaborationHub } from "./components/collaboration/CollaborationHub";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
+import { StudioAdmin } from "./components/workspace/StudioAdmin";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
@@ -168,7 +169,7 @@ function MainAppContent() {
     } else if (tab === "profile") {
       resolvedTab = "command-center";
       targetSection = targetSection || "profile";
-    } else if (tab === "dsp-pitcher" || tab === "artist-brain") {
+    } else if (tab === "artist-brain") {
       resolvedTab = "command-center";
       targetSection = "releases";
     } else if (tab === "cover-studio" && !hasAdminAccess(user?.systemRole)) {
@@ -430,14 +431,6 @@ function MainAppContent() {
           <LyricsStudio onNotify={addNotification} />
         )}
 
-        {activeTab === "dsp-pitcher" && (
-          <WorkspaceShell
-            initialSection="releases"
-            onNotify={addNotification}
-            onNavigateTab={setActiveTab}
-          />
-        )}
-
         {activeTab === "mastering-suite" && (
           <MasteringSuite onNotify={addNotification} />
         )}
@@ -472,6 +465,10 @@ function MainAppContent() {
 
         {activeTab === "admin" && (
           <AdminDashboard onBackToApp={() => setActiveTab("command-center")} />
+        )}
+
+        {activeTab === "studio-admin" && hasAdminAccess(user?.systemRole) && (
+          <StudioAdmin onNotify={addNotification} />
         )}
 
         {activeTab === "integrations" && (

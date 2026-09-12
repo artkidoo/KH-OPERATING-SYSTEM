@@ -2043,7 +2043,7 @@ class Database {
           category: "artwork",
         });
         this.createTask(workspaceId, {
-          text: `Draft DSP Pitch editorial rationale for "${release.title}"`,
+          text: `Prepare KeedoHub Studio production request for "${release.title}"`,
           priority: "medium",
           category: "dsp-pitch",
         });
@@ -4242,8 +4242,8 @@ class Database {
             description: 'Submit an editorial pitch at least 14 days before drop date to qualify for New Music Friday & algorithmic playlists.',
             level: 'warning',
             category: 'release',
-            actionLabel: 'Generate DSP Pitch',
-            actionTab: 'dsp-pitcher',
+            actionLabel: 'Submit Editorial Pitch',
+            actionTab: 'cover-studio',
             entityId: r.id,
           });
         }

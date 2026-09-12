@@ -36,14 +36,13 @@ export const BRAND_WORKSPACE_NAV: { key: string; label: string; tab: ActiveTab }
 
 // Artist-only tools — Brand workspaces must never see these.
 // Acceptance test: Brand cannot access Artist Releases, Artist DNA,
-// DSP Pitcher, Cover Studio, Artist Content Brain, artist-only tools.
+// Cover Studio, Artist Content Brain, artist-only tools.
 export const ARTIST_ONLY_KEYS = [
   "releases",
   "music",
   "asset-kits",
   "cover-studio",
   "lyrics-studio",
-  "dsp-pitcher",
   "mastering-suite",
   "splits-calculator",
   "presave-hub",
@@ -81,7 +80,6 @@ export const STUDIO_TABS: ActiveTab[] = [
   "lyrics-studio",
   "business-studio",
   "mastering-suite",
-  "dsp-pitcher",
   "splits-calculator",
   "presave-hub",
   "epk-builder",
@@ -187,8 +185,6 @@ export function getTabFromPath(path: string): ActiveTab {
       return "lyrics-studio";
     case "/mastering-suite":
       return "mastering-suite";
-    case "/dsp-pitcher":
-      return "dsp-pitcher";
     case "/splits-calculator":
       return "splits-calculator";
     case "/presave-hub":
@@ -249,14 +245,48 @@ export function getPathFromTab(tab: ActiveTab, section?: string): string {
       return "/production-center";
     case "studio":
       return "/studios";
+    case "studio-admin":
+      return "/studio/admin";
+    case "studio-production":
+      return "/studio/production";
+    case "studio-audio-qa":
+      return "/studio/audio-qa";
+    case "studio-brand":
+      return "/studio/brand";
+    case "studio-artist":
+      return "/studio/artist";
+    case "studio-music":
+      return "/studio/music";
+    case "studio-motion":
+      return "/studio/motion";
+    case "studio-documents":
+      return "/studio/documents";
+    case "studio-presentations":
+      return "/studio/presentations";
+    case "studio-visuals":
+      return "/studio/visuals";
+    case "studio-delivery":
+      return "/studio/delivery";
+    case "studio-queue":
+      return "/studio/queue";
+    case "studio-brief":
+      return "/studio/brief";
+    case "studio-files":
+      return "/studio/files";
+    case "studio-review":
+      return "/studio/review";
+    case "studio-approval":
+      return "/studio/approval";
+    case "studio-inspector":
+      return "/studio/audio-inspector";
+    case "studio-loudness":
+      return "/studio/loudness-radar";
     case "cover-studio":
       return "/cover-studio";
     case "lyrics-studio":
       return "/lyrics-studio";
     case "mastering-suite":
       return "/mastering-suite";
-    case "dsp-pitcher":
-      return "/dsp-pitcher";
     case "splits-calculator":
       return "/splits-calculator";
     case "presave-hub":

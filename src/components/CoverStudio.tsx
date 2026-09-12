@@ -206,7 +206,6 @@ COLOR PALETTE TOKENS:
           upc: `859${Math.floor(100000000 + Math.random() * 900000000)}`,
           isrc: `US-KDH-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
           platforms: ["Spotify", "Apple Music", "Audiomack", "YouTube Music", "Boomplay", "Tidal", "Amazon Music"],
-          dspPitchStatus: "drafted",
           notes: `Production: ${state.subtitle}. Theme preset: ${state.themePreset}. Stored from Cover Studio Workstation.`
         });
       }

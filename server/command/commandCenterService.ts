@@ -148,7 +148,6 @@ export class CommandCenterService {
       const requirements = [
         { id: "artwork", label: "3000x3000px Cover Artwork", completed: hasArtwork, weight: 20, actionTab: "cover-studio", actionLabel: "Open Cover Studio", category: "artwork" },
         { id: "audio", label: "Master WAV Audio & LUFS Calibration", completed: hasAudio, weight: 20, actionTab: "mastering-suite", actionLabel: "Audit in Mastering Suite", category: "audio" },
-        { id: "dsp-pitch", label: "DSP Editorial Pitch Letter", completed: hasDspPitch, weight: 20, actionTab: "dsp-pitcher", actionLabel: "Write DSP Pitch", category: "dsp-pitch" },
         { id: "presave", label: "Smart Pre-Save Campaign Hub", completed: hasPresave, weight: 10, actionTab: "presave-hub", actionLabel: "Configure Pre-Save", category: "presave" },
         { id: "lyrics", label: "Synced .LRC 9:16 Lyrics", completed: hasLyrics, weight: 10, actionTab: "lyrics-studio", actionLabel: "Sync in Lyric Studio", category: "lyrics" },
         { id: "splits", label: "100% Executed Royalty Splits", completed: hasSplits, weight: 10, actionTab: "splits-calculator", actionLabel: "Calculate Splits", category: "splits" },

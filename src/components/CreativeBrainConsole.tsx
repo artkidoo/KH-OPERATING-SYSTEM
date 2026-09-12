@@ -120,7 +120,7 @@ export function CreativeBrainConsole({ setActiveTab }: CreativeBrainConsoleProps
       ? [
           { label: "Audit Release Blockers", prompt: "What am I missing before my release? Audit all 7 readiness pillars." },
           { label: "Generate TikTok Hooks", prompt: "Generate 3 high-impact TikTok sound memo concepts for my upcoming single." },
-          { label: "DSP Pitch Letter", prompt: "Write an editorial pitch note for Spotify and Apple Music curators focusing on my sonic mood." },
+          { label: "Studio Production Request", prompt: "Request professional production from KeedoHub Studio for artwork, visuals, motion, or EPK." },
           { label: "Split Sheet Check", prompt: "What splits and metadata do I need to register before drop day?" },
         ]
       : workspace?.identityType === "brand" || workspace?.identityType === "business"
