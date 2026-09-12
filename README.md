@@ -1,162 +1,460 @@
-# KEEDOHUB — Creative Workspace & Agency Platform
+# KEEDOHUB — Creative Production Platform
+
 > **System Architect: Ojo Abdulkareem — Keedohub Studio (Lagos, Nigeria)**  
-> *The creative headquarters where customers manage, create, request, approve, store, share and reuse all their creative work.*
+> *Where artists and brands come to get their creative work done.*
 
 ---
 
-## 🏛️ 00 — The Core Thesis: Your Creative Headquarters, Powered by KeedoHub
+## What is KeedoHub?
 
-**KeedoHub is a creative agency platform where customer workspaces connect to internal production capabilities.**
+**KeedoHub is a creative production platform for artists and customers.**
 
-Customers see a simple workspace.
+KeedoHub is **not** a campaign-management platform.
+KeedoHub is **not** a DIY design-tool platform.
+KeedoHub is **not** trying to make every customer become their own designer.
 
-KeedoHub internally operates a powerful production system.
+KeedoHub is the **creative partner and production engine**.
 
-```
-KEEDOHUB — Creative Workspace & Agency Platform
-│
-├── Artist Workspace
-│   ├── Projects
-│   ├── Creative Library
-│   ├── Release Builder
-│   ├── Cover Studio
-│   ├── Lyrics Studio
-│   ├── EPK Builder
-│   └── Music Tools
-│
-├── Brand Workspace
-│   ├── Projects
-│   ├── Creative Library
-│   ├── Brand Identity
-│   ├── Business Documents
-│   ├── Content Engine
-│   └── Document Templates
-│
-├── Creative Requests
-│   ├── Submit Requests
-│   ├── Track Progress
-│   └── Request Revisions
-│
-├── Creative Memory
-│   ├── Identity & Visual Style
-│   ├── Approved Assets
-│   ├── Favorites
-│   └── Project History
-│
-├── Membership
-│   ├── Artist Free / Pro
-│   ├── Brand Free / Pro
-│   └── Entitlements
-│
-└── Admin Production Center (Admin Only)
-    ├── Request Queue
-    ├── Studio Routing
-    ├── Production Workflow
-    ├── Quality Control
-    ├── Revisions
-    └── Deliveries
+### The Core Promise
+
+> You bring your identity, information, ideas and creative needs. KeedoHub creates the professional creative work you need.
+
+### The Platform Combines
+
+```text
+Customer Workspace
++
+Creative Requests
++
+Projects
++
+KeedoHub Studio
++
+Asset Library
 ```
 
 ---
 
-## 🧭 01 — KeedoHub Architecture
+## Product Architecture
 
-KeedoHub is organized into customer-facing workspaces and an internal production system:
+```text
+                         KEEDOHUB
+                            │
+             ┌──────────────┴──────────────┐
+             │                             │
+         WORKSPACE                       STUDIO
+        CUSTOMER SIDE                 PRODUCTION SIDE
+             │                             │
+       ┌─────┴─────┐                 ┌────┴────┐
+       │           │                 │         │
+    ARTIST       BRAND            CREATIVE   AUDIO
+    EXPERIENCE   EXPERIENCE       PRODUCTION   QA
+       │           │
+       │           │
+   Artist Profile  Brand Profile
+   Releases        Creative
+   Asset Kits      Brand Kits
+   Projects        Documents
+   Requests        Presentations
+   Library         Projects
+                   Requests
+                   Library
+```
 
-| Component | Status | Description |
+---
+
+## Core Operating Model
+
+The entire product follows:
+
+```text
+CUSTOMER
+   ↓
+PROFILE / CREATIVE DNA
+   ↓
+CREATIVE REQUEST
+   ↓
+PROJECT
+   ↓
+KEEDOHUB STUDIO
+   ↓
+PRODUCTION
+   ↓
+REVIEW
+   ↓
+APPROVAL
+   ↓
+DELIVERY
+   ↓
+LIBRARY
+```
+
+---
+
+## One Workspace Architecture
+
+KeedoHub has **ONE Workspace** architecture.
+
+```text
+                    KEEDOHUB WORKSPACE
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+           ARTIST                     BRAND
+        EXPERIENCE                  EXPERIENCE
+              │                         │
+       Artist Profile             Brand Profile
+       Releases                   Creative
+       Asset Kits                 Brand Kits
+       Projects                   Documents
+       Requests                   Presentations
+       Library                    Projects
+                                  Requests
+                                  Library
+```
+
+Both use the same global WorkspaceShell and design system. The active workspace determines the experience.
+
+**Workspace isolation** exists at: routing, UI, state, API, queries, data access, projects, requests, assets, documents, releases, and library.
+
+---
+
+## Artist Experience
+
+The Artist Workspace exists to help artists get everything they need around their music releases.
+
+**The artist should NOT have to become a designer.** KeedoHub creates the creative work.
+
+### Artist Profile
+
+The source of truth for the artist's identity:
+
+- **Identity**: Artist name, stage name, bio, genre, location, social links
+- **Artist DNA**: Story, visual personality, colors, typography, photography direction, mood references
+
+### Artist Releases
+
+The primary release workflow:
+
+```text
+Artist → New Release → Release Information → Creative Requests → Asset Kit → Studio Production → Review → Delivery
+```
+
+### Artist Asset Kits
+
+Every release can have a complete creative asset kit produced by KeedoHub:
+
+- Cover Artwork
+- Animated Cover
+- Spotify Canvas
+- Lyric Visuals
+- Release Announcement
+- Social Assets (Instagram, TikTok, YouTube)
+- Press One-Sheet / EPK
+- Motion Package
+
+### Artist "Good to Go" State
+
+```text
+Artist Profile ✓
+Artist Identity ✓
+Release Created ✓
+Cover Requested ✓
+Release Asset Kit ✓
+Motion ✓
+Lyrics Visuals ✓
+Social Assets ✓
+EPK ✓
+Library ✓
+```
+
+---
+
+## Brand Experience
+
+The Brand Workspace exists to make a brand feel: *"I am good to go with KeedoHub."*
+
+### Brand Profile / Brand DNA
+
+The Brand Profile becomes the source of truth for everything KeedoHub creates:
+
+- **Business Identity**: Company name, description, industry, founder info
+- **Visual Identity**: Logo, colors, typography, photography/motion style
+- **Brand Voice**: Tone, mission, vision, values, audience
+- **Business Info**: Details needed for branded business materials
+
+### Brand Creative Services
+
+Major categories:
+
+| Category | Services |
+|---|---|
+| **Brand Identity** | Logo, Brand Identity, Brand Guidelines |
+| **Social** | Social Media Kit, Templates, Graphics |
+| **Marketing** | Promotional Graphics, Product Graphics |
+| **Motion** | Motion Graphics, Logo Animation |
+| **Digital** | Website Design, App Design, UI/UX |
+| **Presentation** | Company Presentation, Pitch Deck, Investor Deck |
+| **Print** | Letterhead, Business Cards, Brochures |
+
+### Brand Kits
+
+- Brand Identity Kit
+- Social Media Kit
+- Business Document Kit
+- Presentation Kit
+- Marketing Kit
+- Digital Brand Kit
+
+### Brand Business Documents
+
+KeedoHub designs professional branded documents:
+
+- Company Profile, Letterhead, Email Signature
+- Invoice, Receipt, Quotation, Proposal
+- Service Agreement, Contract, Purchase Order
+- Sales Proposal, Capability Statement, Pitch Deck
+- Brand Guidelines, Media Kit, Press Kit
+
+### Brand "Good to Go" State
+
+```text
+Brand Profile ✓
+Brand Identity ✓
+Social Media Kit ✓
+Business Documents ✓
+Presentation ✓
+Marketing Assets ✓
+Digital Assets ✓
+Brand Library ✓
+```
+
+---
+
+## Creative Requests
+
+Requests are the simple front door into KeedoHub production.
+
+Customer submits:
+
+```text
+What do I need?
+What is it for?
+What information do you need?
+References
+Deadline
+Notes
+```
+
+### Request Statuses
+
+```text
+Submitted → Briefing → In Production → Review → Changes Requested → Approved → Delivered
+```
+
+---
+
+## Projects
+
+Projects are the execution containers. Every meaningful creative request becomes a project.
+
+### Project Lifecycle
+
+```text
+Request → Project → Brief → Production → Review → Approval → Delivery
+```
+
+---
+
+## Library
+
+The customer's permanent creative archive.
+
+**Artist Library**: Releases, Cover Artwork, Motion, Social, EPK, Other Assets
+
+**Brand Library**: Brand Identity, Social Kits, Documents, Presentations, Marketing, Motion
+
+Library is **workspace-scoped** — Artist assets never appear in Brand Library and vice versa.
+
+---
+
+## KeedoHub Studio
+
+### Studio is the Engine
+
+The Workspace is where customers manage their needs. Studio is where KeedoHub produces the work.
+
+```text
+WORKSPACE                STUDIO
+Customer control room    KeedoHub production engine
+```
+
+### Studio Control Center
+
+```text
+STUDIO CONTROL CENTER
+
+Incoming → Briefing → In Production → Review → Ready → Delivered
+```
+
+### Internal Production Engines
+
+Useful production technology exists inside Studio:
+
+- Cover Renderer
+- Lyrics Renderer
+- Motion Generator
+- Document Generator
+- Presentation Generator
+- Brand Kit Generator
+- Asset Packager
+- Audio QA
+
+These are **production engines**, not separate customer-facing operating systems.
+
+---
+
+## What KeedoHub is NOT
+
+KeedoHub is **not**:
+
+- A campaign management platform
+- A generic project management platform
+- A Canva clone
+- A generic Word/Office replacement
+- A DIY cover-art generator
+- A DSP pitching platform
+- A generic CRM or accounting platform
+- A collection of disconnected AI tools
+
+KeedoHub is:
+
+> A creative production platform where customers manage their creative needs and KeedoHub produces the work.
+
+---
+
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| **Framework** | React 19 + TypeScript + Vite 6 |
+| **Server** | Express.js API proxy |
+| **Styling** | Tailwind CSS v4 with dynamic CSS variable theming |
+| **Icons** | Lucide React |
+| **Motion** | Motion (`motion/react`) |
+| **Audio** | Web Audio API (Analysers, BiquadFilters, GainNodes) |
+| **PDF** | `jspdf` vector document builder |
+| **AI** | `@google/genai` Gemini (server-side) |
+| **Database** | PostgreSQL/Supabase (planned persistence) |
+
+---
+
+## Project Structure
+
+```text
+KH-OPERATING-SYSTEM/
+├── src/
+│   ├── components/
+│   │   ├── workspace/        # WorkspaceShell, WorkspaceHome, ProjectsView, LibraryView
+│   │   ├── artist/           # ArtistOperatingEnvironment
+│   │   ├── brand/            # BrandOperatingEnvironment, BrandProfileView
+│   │   ├── admin/            # AdminDashboard
+│   │   ├── Studio.tsx        # KeedoHub Studio services
+│   │   ├── RequestsView.tsx  # Creative Requests
+│   │   └── ...               # Other workspace components
+│   ├── context/              # AuthContext, WorkspaceContext, CreativeBrainContext
+│   ├── domain/               # Core domain models (workspace, projects, releases)
+│   ├── services/             # API service layer
+│   ├── utils/                # Navigation, admin access
+│   └── types.ts              # ActiveTab, domain types
+├── server/
+│   ├── routes.ts             # Express API routes
+│   ├── db/                   # Data models, persistence, Supabase schema
+│   ├── ai/                   # Creative brain service
+│   ├── radar/                # Creative radar service
+│   ├── workflow/             # Workflow engine
+│   └── command/              # Command center service
+└── package.json
+```
+
+---
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm or pnpm
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/artkidoo/KH-OPERATING-SYSTEM.git
+cd KH-OPERATING-SYSTEM
+
+# Install dependencies
+npm install
+
+# Start development server (Express API + Vite frontend)
+npm run dev
+```
+
+### Build
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm run start
+```
+
+### Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server with API proxy |
+| `npm run build` | Build production bundle |
+| `npm run start` | Start production server |
+| `npm run lint` | Run TypeScript type checking |
+
+---
+
+## Roadmap Philosophy
+
+The architecture supports KeedoHub operating as a creative service business:
+
+```text
+Customer → Request → Creative Service → Project → Studio → Designer/Production → Review → Delivery
+```
+
+Future development priorities:
+
+1. **Persistent Workspaces** — Cloud-based workspace and asset storage
+2. **Multi-User Collaboration** — Role-based access (Owner, Producer, Manager, Designer)
+3. **Production Workflows** — Enhanced studio production pipelines
+4. **Billing Integration** — Service billing and payment tracking
+
+---
+
+## Legacy Concepts
+
+The following concepts are **deprecated** and being phased out of the architecture:
+
+| Legacy Concept | Status | Replacement |
 |---|---|---|
-| **Artist Workspace** | ✅ Active | Music artist tools: Release Builder, Cover Studio (3000px), Lyrics Studio, EPK Builder, Mastering Suite, Presave Hub, Content Engine. |
-| **Brand Workspace** | ✅ Active | Brand/business tools: Brand OS with color systems, typography hierarchy, Business Documents Studio, Content Engine, product/service management. |
-| **Projects** | ✅ Active | Project management with tasks, milestones, budget tracking, and collaboration features. |
-| **Creative Library** | ✅ Active | Asset management with folders, categories, search, favorites, and approved asset marking. |
-| **Creative Requests** | ✅ Active | Request creation, tracking, revision system with membership-based limits, delivery tracking. |
-| **Creative Memory** | ✅ Active | Learns from workspace activity: identity, colors, typography, voice, approved assets, favorites, project history, common requests. |
-| **Smart Search** | ✅ Active | Structured search across projects, assets, documents, releases, requests, and favorites with metadata awareness. |
-| **Membership** | ✅ Active | Artist Free/Pro, Brand Free/Pro with configurable entitlements. Team/Agency/Label/Enterprise ready. |
-| **Admin Production Center** | ✅ Active | Admin-only: Request queue, studio routing (9 studios), production workflow (11 stages), revisions, deliveries, QC. |
-| **Usage & Credits** | ✅ Active | Track generation, export, storage, premium tool, and production request usage against plan limits. |
-| **Command Palette** | ✅ Active | Global `⌘ K` / `Ctrl K` Quick Search and command launcher. |
-| **Multi-Theme Palette** | ✅ Active | 4 curated studio aesthetics + Dark/Light modes. |
+| Campaign OS / Campaign Builder | Deprecated | Creative Projects |
+| Programmed Brain / Artist Content Brain | Deprecated | Internal production intelligence |
+| DSP Pitcher / Curator Strategy | Deprecated | Not part of current architecture |
+| Customer-facing Cover Studio | Deprecated | Studio production (request-based) |
+| Customer-facing Lyrics Studio | Deprecated | Studio production (request-based) |
+| Customer-facing Mastering Inspector | Deprecated | Internal Audio QA in Studio |
+
+These components may still exist in the codebase but are **not part of the current product architecture**.
 
 ---
 
-## 🚀 02 — Workstations & Problem-Solving Capabilities
+## License
 
-### 1. 🎵 Music Artist Content Brain & 30-Day Rollout (`ArtistContentBrain.tsx`)
-- **Problem**: 85% of music releases lose momentum within 48 hours because artists lack structured promotional calendars and DSP curator assets.
-- **Solution**:
-  - Automatically synthesizes a 30-day, multi-phase content rollout calendar spanning Instagram, TikTok, YouTube, and X.
-  - Generates viral video prompts with exact on-screen hooks and caption copy.
-  - Pre-formats 50-word editorial pitch statements for DSP curators.
-
-### 2. 🎨 Cover Studio — 3000 × 3000px 300DPI (`CoverStudio.tsx`)
-- **Problem**: Distribution rejections due to non-compliant dimensions, blurred typography, or missing spec sheets.
-- **Solution**:
-  - Live 1:1 square canvas editor with real-time typography styling and texture overlays (vinyl dust, grain, plastic wrap).
-  - 3D Mockup Visualizers: Spinning Vinyl Record, CD Jewel Case, Urban Street Billboard, and Phone Lockscreen player.
-  - Instant export of print-ready cover artwork and master technical specification sheets.
-
-### 3. 📝 Live Lyrics Studio & Kinetic Synchronizer (`LyricsStudio.tsx`)
-- **Problem**: Substandard lyric videos and lack of timed karaoke data for social snippet rollouts.
-- **Solution**:
-  - Interactive millisecond-accurate lyric timing editor with section tags (Verse, Chorus, Hook).
-  - Kinetic live visualizer themes (Cyber Crimson, Golden Afro, Neon Midnight, Minimal Noir).
-  - Instant LRC timestamped format export and JSON project backup.
-
-### 4. 🎚️ Broadcast Audio Mastering & Loudness Inspector (`MasteringSuite.tsx`)
-- **Problem**: Inconsistent loudness levels causing Spotify, Apple Music, and YouTube normalization algorithms to crush song dynamics.
-- **Solution**:
-  - Real-time client-side Web Audio API analyzer measuring Integrated LUFS, True Peak dBFS, Dynamic Range (DR), and Stereo Width.
-  - Platform-specific compatibility verdicts (e.g. Spotify -14 LUFS, Apple Music -16 LUFS, Club DJ -8 LUFS).
-
-### 6. 📜 Producer Split Sheet & Legal Vault (`SplitsCalculator.tsx` & `ResourceVault.tsx`)
-- **Problem**: Lost publishing royalties and copyright disputes caused by informal verbal agreements between producers and songwriters.
-- **Solution**:
-  - Visual 100% Master & Publishing ownership split calculator with IPI, PRO affiliation (BMI, ASCAP, PRS, SAMRO, MCSN), and payout wallet fields.
-  - Instant digital contract generation with downloadable signed legal agreements.
-
-### 7. 🔗 Pre-Save Page & Smart Link Hub (`PresaveHub.tsx`)
-- **Problem**: Fragmented fan traffic across different streaming services on release day.
-- **Solution**:
-  - Live preview smart link hub routing fans to Spotify, Apple Music, Audiomack, Boomplay, Deezer, Tidal, and YouTube.
-  - Integrated email & phone lead capture for SMS drop announcements.
-
-### 8. 📄 EPK Dossier & Vector PDF Engine (`EPKBuilder.tsx` & `EPKExportModal.tsx`)
-- **Problem**: Cluttered, unreadable PDF press kits that get discarded by booking agents and festival curators.
-- **Solution**:
-  - Comprehensive electronic press kit compiler with verified streaming numbers, discography playback, media acclaim, and contact info.
-  - High-resolution, multi-page vector PDF generation with configurable Midnight Onyx and Editorial Ivory themes.
-
----
-
-## 🎨 03 — Design Tokens & Visual Hierarchy
-
-| Token | Dark Mode (`dark`) | Light Mode (`light`) | Role |
-|---|---|---|---|
-| **Canvas Background** | `#09090B` (Obsidian) | `#F4F4F5` (Off-white) | Base workspace canvas |
-| **Bento Surface** | `#121215` (Card) | `#FFFFFF` (Pure white) | Elevated workstation modules |
-| **Bento Border** | `#27272A` | `#E4E4E7` | Precision geometric card dividers |
-| **Accent Primary** | `#EF4444` / Theme Hex | `#DC2626` / Theme Hex | Primary actions, status badges, glows |
-| **Heading Font** | `Space Grotesk` | `Space Grotesk` | High-impact architectural titles |
-| **Body Font** | `Plus Jakarta Sans` | `Plus Jakarta Sans` | Modern readability & clean UI hierarchy |
-| **Code / Data Font** | `JetBrains Mono` | `JetBrains Mono` | Technical metadata, pricing, timestamps |
-
----
-
-## 🛣️ 04 — Blueprint Roadmap to V1 / Production Next Steps
-
-1. **Phase 1: Persistent Workspaces & Cloud Storage** — Integrate Supabase / Firestore for cloud asset persistence in the Creative Vault.
-2. **Phase 2: Multi-User Workspace Collaboration** — Role-based access control (Owner, Producer, Manager, Designer) with asset review commenting.
-3. **Phase 3: Automated Publishing Webhooks** — Webhook integrations to push approved pre-save links and release notifications directly to social channels.
-4. **Phase 4: Internal Studio Command** — Team-facing administration queue for human-in-the-loop creative assignments.
-
----
-
-## ⚡ 05 — Technology Stack
-
-- **Framework**: React 19 + TypeScript + Vite 6 + Express.js API proxy.
-- **Styling & Layout**: Tailwind CSS v4 with dynamic CSS variable theming (`[data-theme]` & `.dark`).
-- **Icons & Motion**: Lucide React + Motion (`motion/react`).
-- **Audio & Media**: Web Audio API (Analysers, BiquadFilters, GainNodes) + HTML5 Canvas.
-- **PDF Compilation**: `jspdf` vector document builder.
-- **AI Acceleration**: `@google/genai` Gemini 3.7 server-side integration with deterministic offline algorithmic fallbacks.
+KeedoHub — Creative Production Platform

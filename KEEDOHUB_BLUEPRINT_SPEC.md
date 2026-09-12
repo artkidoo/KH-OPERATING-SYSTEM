@@ -1,922 +1,1240 @@
-# KEEDOHUB CREATIVE OPERATING SYSTEM
+# KEEDOHUB — Technical & Product Blueprint Specification
 
-> **From creative idea to execution, launch, content, promotion and professional production — one operating system.**
->
-> Keedohub is being built as a **Creative Operating System**, not a conventional agency website and not a generic AI chatbot.
-
----
-
-## 🧠 What Is Keedohub?
-
-Keedohub is a software platform for people who create, launch and grow creative work.
-
-It is designed for:
-
-- 🎵 Music Artists
-- 🎥 Creators
-- 🏷️ Brands
-- 🏢 Businesses
-- 🚀 Startups
-
-The central idea is simple:
-
-> **Keedohub helps people operate their creative world.**
-
-A user should eventually be able to come to Keedohub to:
-
-- define their creative identity
-- create and manage projects
-- organize assets
-- plan releases and campaigns
-- build content
-- use specialized creative tools
-- get contextual AI assistance
-- maintain creative memory
-- request professional creative services
-- collaborate with people
-- review and approve work
-- manage deliveries and billing
-
-The platform combines **software, AI intelligence and human creative production** into one ecosystem.
+> **System Architect: Ojo Abdulkareem — Keedohub Studio (Lagos, Nigeria)**  
+> *Authoritative technical specification for the KeedoHub creative production platform.*
 
 ---
 
-# 🏗️ Product Philosophy
+## Table of Contents
 
-Keedohub is moving from the traditional agency model:
-
-```text
-"Hire Keedohub to make something."
-```
-
-toward a larger product model:
-
-```text
-                 KEEDOHUB
-                    │
-        ┌───────────┴───────────┐
-        │                       │
-   CREATIVE OS             STUDIO SERVICES
-        │                       │
-   Tools + AI             Human Production
-   Projects               Design
-   Content                Branding
-   Assets                 Motion
-   Releases               Web / UI
-   Campaigns              Content
-   Memory                 Creative Direction
-        │                       │
-        └───────────┬───────────┘
-                    │
-              CREATIVE OUTCOME
-```
-
-AI helps users think, plan, organize and create.
-
-Keedohub Studio provides professional human production when the user needs a higher level of creative execution.
+1. [Product Vision](#1-product-vision)
+2. [Architecture Principles](#2-architecture-principles)
+3. [Workspace Architecture](#3-workspace-architecture)
+4. [Identity & Security](#4-identity--security)
+5. [User Roles](#5-user-roles)
+6. [Artist Domain Model](#6-artist-domain-model)
+7. [Brand Domain Model](#7-brand-domain-model)
+8. [Profile / DNA Model](#8-profile--dna-model)
+9. [Release Model](#9-release-model)
+10. [Asset Kit Model](#10-asset-kit-model)
+11. [Creative Request Model](#11-creative-request-model)
+12. [Project Lifecycle](#12-project-lifecycle)
+13. [Studio Architecture](#13-studio-architecture)
+14. [Admin Workflow](#14-admin-workflow)
+15. [Documents Architecture](#15-documents-architecture)
+16. [Presentation Architecture](#16-presentation-architecture)
+17. [Library Architecture](#17-library-architecture)
+18. [Asset Lifecycle](#18-asset-lifecycle)
+19. [Review / Approval Lifecycle](#19-review--approval-lifecycle)
+20. [Workspace-Scoping Rules](#20-workspace-scoping-rules)
+21. [Route Architecture](#21-route-architecture)
+22. [State Architecture](#22-state-architecture)
+23. [API / Data Rules](#23-api--data-rules)
+24. [Security Boundaries](#24-security-boundaries)
+25. [Design System Rules](#25-design-system-rules)
+26. [Internal Production Engines](#26-internal-production-engines)
+27. [Audio QA](#27-audio-qa)
+28. [Legacy / Deprecation Rules](#28-legacy--deprecation-rules)
+29. [Future Extensibility](#29-future-extensibility)
+30. [Acceptance Criteria](#30-acceptance-criteria)
+31. [Definition of Done](#31-definition-of-done)
 
 ---
 
-# 📊 Current Product State
+## 1. Product Vision
 
-The repository already contains a substantial **Creative OS workstation layer**. It should be preserved and connected to a proper persistent platform foundation rather than rebuilt from scratch.
+### What is KeedoHub?
 
-### Existing workstation layer
+KeedoHub is a creative production platform where customers manage their creative needs and KeedoHub produces the work.
 
-| Area | Current State |
+### Core Promise
+
+> You bring your identity, information, ideas and creative needs. KeedoHub creates the professional creative work you need.
+
+### Who KeedoHub Serves
+
+- **Music Artists** who need professional creative work around their releases
+- **Brands** who need professional creative production for their business
+
+### What KeedoHub Is NOT
+
+| Not This | Why |
 |---|---|
-| Creative workstations | 🟢 Built |
-| Artist tools | 🟢 Strong prototype layer |
-| Brand / Creator tools | 🟢 Built |
-| Command Palette | 🟢 Built |
-| Visual design system | 🟢 Built |
-| Content planning concepts | 🟢 Built |
-| Release workflows | 🟢 Built |
-| Project / brief concepts | 🟢 Built |
-| Persistent authentication | 🔴 Next foundation |
-| Persistent workspaces | 🔴 Next foundation |
-| PostgreSQL / Supabase data layer | 🔴 Next foundation |
-| Cloud asset storage | 🔴 Next foundation |
-| Workspace permissions | 🔴 Next foundation |
-| Creative Memory | 🔴 Next intelligence layer |
-| Contextual Creative Brain | 🟡 Partially implemented |
-| Studio production operations | 🟡 Foundation needed |
-| Billing | 🔴 Future production layer |
-| Admin OS | 🔴 Future production layer |
-| Creative Radar | 🔴 Future intelligence layer |
-
-**Important:** the existing UI workstations are not being discarded. The next stage connects them to persistent users, workspaces, projects, assets and intelligence.
+| Campaign management platform | Campaigns are deliverables, not the core model |
+| DIY design-tool platform | KeedoHub produces work, customers don't design |
+| Canva clone | Professional production, not self-service design |
+| Generic Word replacement | Branded documents, not generic editing |
+| DSP pitching platform | Not part of current architecture |
+| Generic CRM / ERP | Creative production, not business management |
 
 ---
 
-# ⚙️ Current Creative OS Engines
+## 2. Architecture Principles
 
-The current product blueprint contains these major engines:
+### Principle 1: One Workspace
 
-| Engine | State | Purpose |
-|---|---|---|
-| **01. Creative Engine** | 🟢 Workstation layer | Core creative production tools |
-| **02. Content Engine** | 🟢 Prototype layer | Release and short-form content planning |
-| **03. Release Engine** | 🟢 Prototype layer | Release readiness, metadata and promotional workflows |
-| **04. Campaign Engine** | 🟢 Prototype layer | Campaign and launch planning |
-| **05. Brand Engine** | 🟢 Workstation layer | Brand identity systems |
-| **06. Asset / EPK Engine** | 🟢 Workstation layer | EPK and creative asset production |
-| **07. Project Engine** | 🟢 Workstation layer | Creative briefs and project concepts |
-| **08. Service Engine** | 🟢 Catalog layer | Keedohub professional creative services |
-| **09. Resource & Intel Hub** | 🟢 Workstation layer | Guides, playbooks and creative intelligence |
-| **10. Tool Engine** | 🟢 Workstation layer | Specialized creative utilities |
-| **11. Readiness & Health** | 🟢 Prototype layer | Release and project readiness checks |
-| **12. Identity Model** | 🟢 UI layer | Artist, Brand, Creator and Startup entry modes |
-| **13. Command Palette** | 🟢 Built | Global command/search interface |
-| **14. Multi-Theme Palette** | 🟢 Built | Keedohub visual themes and dark/light modes |
+There is exactly ONE Workspace architecture. Artist and Brand are experiences within it, not separate applications.
 
-The status above deliberately distinguishes **implemented workstation functionality** from **production-grade persistence and multi-user infrastructure**.
+### Principle 2: Studio is the Engine
+
+The Workspace is the customer's control room. Studio is KeedoHub's production engine. They are conceptually and architecturally distinct.
+
+### Principle 3: Request → Project → Production → Delivery
+
+This is the canonical lifecycle. Everything flows through this pipeline.
+
+### Principle 4: Workspace Isolation
+
+Data must be isolated at every layer: routing, UI, state, API, queries, data access.
+
+### Principle 5: Identity-Driven Production
+
+Artist DNA and Brand Profile inform all creative production. The more KeedoHub knows, the better the output.
+
+### Principle 6: Simple Customer Experience
+
+Customers should understand:
+- What do I have?
+- What do I need?
+- What is KeedoHub making?
+- What is in production?
+- What needs my approval?
+- What has been delivered?
 
 ---
 
-# 🎵 Artist OS
+## 3. Workspace Architecture
 
-Artist OS is one of Keedohub's flagship product experiences.
-
-The goal is to solve a common problem:
-
-> An artist can record and release music but often has no structured creative system for everything that needs to happen before, during and after the release.
-
-Keedohub turns a release into an operating workspace.
-
-### Current artist capabilities
-
-- Music Artist Content Brain
-- 30-day release rollout
-- Cover Studio
-- Lyrics Studio
-- Mastering Suite
-- Producer Split Calculator
-- Presave Hub
-- EPK Builder
-- Resource / intelligence tools
-- Release readiness concepts
-
-### Future Artist OS architecture
+### Canonical Structure
 
 ```text
-ARTIST
-  │
-  ├── Identity
-  ├── Releases
-  │    ├── Metadata
-  │    ├── Artwork
-  │    ├── Lyrics
-  │    ├── Master
-  │    ├── EPK
-  │    └── Promotional Assets
-  │
-  ├── Content
-  ├── Campaigns
-  ├── Projects
-  ├── Assets
-  ├── Calendar
-  └── Creative Brain
+                    KEEDOHUB WORKSPACE
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+           ARTIST                     BRAND
+        EXPERIENCE                  EXPERIENCE
 ```
 
-The long-term goal is for an artist to return to Keedohub weeks or months later and have the entire creative history still available.
+### Shared Components
 
----
+Both experiences share:
 
-# 🎨 Current Workstations
+| Component | Implementation |
+|---|---|
+| WorkspaceShell | `src/components/workspace/WorkspaceShell.tsx` |
+| Design System | Global CSS variables, Tailwind config |
+| Navigation | Tab-based routing with identity-aware sections |
+| Cards/Buttons | Shared UI component library |
+| Status Components | Request status, project status, etc. |
+| Modal Patterns | BriefModal, ApprovalModal, etc. |
 
-## 1. Music Artist Content Brain
+### Artist-Only Sections
 
-**Problem:** releases often lose momentum because artists lack structured promotional systems.
-
-Current capabilities include:
-
-- multi-phase release rollout
-- pre-release planning
-- drop-day planning
-- post-release planning
-- short-form hooks
-- captions
-- content concepts
-- DSP editorial pitch concepts
-
-The future version will connect every generated item to the user's persistent release, content calendar and assets.
-
----
-
-## 2. Cover Studio
-
-A creative workstation for music artwork.
-
-Current capabilities include:
-
-- 1:1 cover canvas
-- typography controls
-- visual texture effects
-- vinyl / CD / billboard / phone mockups
-- export concepts
-- technical artwork requirements
-
-The future version will save cover projects and assets directly to the user's workspace.
-
----
-
-## 3. Lyrics Studio
-
-Current capabilities include:
-
-- lyric timing
-- section tagging
-- kinetic visual concepts
-- LRC export
-- project backup
-
-Future versions will connect lyrics projects to releases and content campaigns.
-
----
-
-## 4. Mastering Suite
-
-Current capabilities include:
-
-- editorial pitch generation
-- genre and mood analysis concepts
-- curator discovery concepts
-- platform-specific release preparation
-
-Future versions will connect pitches to persistent releases and release timelines.
-
----
-
-## 5. Mastering Suite
-
-Current capabilities include Web Audio-based analysis concepts for:
-
-- Integrated LUFS
-- True Peak
-- Dynamic Range
-- Stereo Width
-- platform-oriented loudness checks
-
----
-
-## 6. Producer Split & Legal Vault
-
-Current capabilities include:
-
-- ownership split calculations
-- publishing/master concepts
-- IPI fields
-- PRO affiliation fields
-- contract generation concepts
-- legal/resource vault
-
-Future versions will connect agreements and participants to persistent projects and releases.
-
----
-
-## 7. Presave Hub
-
-Current capabilities include:
-
-- smart-link concepts
-- streaming destination routing
-- release landing page concepts
-- fan lead capture concepts
-
----
-
-## 8. EPK Builder
-
-Current capabilities include:
-
-- electronic press kit compilation
-- artist information
-- discography
-- media information
-- streaming information
-- PDF generation
-
----
-
-# 🏷️ Brand OS
-
-Keedohub is not only for artists.
-
-Brands and businesses need an operating system for their creative work too.
-
-Brand OS is designed around:
-
-- brand identity
-- colors
-- typography
-- voice and tone
-- positioning
-- audience
-- products / services
-- campaigns
-- content
-- assets
-- creative projects
-
-The long-term structure is:
-
-```text
-BRAND
-  │
-  ├── Brand Core
-  ├── Products
-  ├── Campaigns
-  ├── Content
-  ├── Assets
-  ├── Projects
-  └── Creative Memory
-```
-
----
-
-# 🎥 Creator OS
-
-Creator OS extends Keedohub to:
-
-- content creators
-- personal brands
-- influencers
-- YouTubers
-- digital creators
-
-The system should eventually connect creator identity, content, assets, campaigns, projects and AI recommendations in the same workspace architecture.
-
----
-
-# 🚀 Startup / Business OS
-
-Keedohub also supports startup and business workflows.
-
-Potential use cases include:
-
-- startup identity
-- brand development
-- product launches
-- marketing campaigns
-- websites
-- UI/UX
-- pitch materials
-- content
-- launch assets
-- creative projects
-
-These are not separate applications. They are specialized experiences built on top of the same Keedohub Core.
-
----
-
-# 🧠 Creative Brain
-
-The existing project contains AI-assisted creative functionality, including the Artist Content Brain.
-
-The next major evolution is the **Keedohub Creative Brain**.
-
-It should not be treated as a generic chat window.
-
-The Creative Brain will eventually understand:
-
-```text
-USER
-  ↓
-WORKSPACE
-  ↓
-IDENTITY
-  ↓
-PROJECTS
-  ↓
-RELEASES / CAMPAIGNS
-  ↓
-ASSETS
-  ↓
-CONTENT
-  ↓
-CREATIVE MEMORY
-  ↓
-AI CONTEXT
-```
-
-This allows the system to provide contextual assistance such as:
-
-> "Your release is 65% ready. These three creative assets are still missing."
-
-or:
-
-> "This campaign needs a launch-day visual and two short-form content pieces."
-
-The AI should be able to turn recommendations into real Keedohub actions rather than only producing text.
-
----
-
-# 🧠 Creative Memory
-
-Creative Memory is a planned intelligence layer for persistent context.
-
-It will eventually remember structured information such as:
-
-- artist identity
-- brand identity
-- creative preferences
-- tone
-- audience
-- previous projects
-- releases
-- campaigns
-- creative decisions
-- recurring goals
-
-The first implementation should use reliable structured database records. The architecture should remain ready for semantic/vector memory later.
-
----
-
-# 📁 The Keedohub Core
-
-The major architectural shift now underway is moving from isolated UI workstations to a persistent Creative OS.
-
-The target model is:
-
-```text
-USER
-  ↓
-WORKSPACE
-  ↓
-IDENTITY
-  ↓
-PROJECTS
-  ↓
-ASSETS
-  ↓
-CONTENT
-  ↓
-RELEASES / CAMPAIGNS
-  ↓
-CREATIVE MEMORY
-  ↓
-CREATIVE BRAIN
-  ↓
-KEEDOHUB STUDIO
-```
-
-Every major workstation should eventually operate on this shared data model.
-
----
-
-# 🗂️ Persistent Workspace Architecture
-
-The next foundation introduces real persistent entities such as:
-
-- Users
-- Workspaces
-- Workspace Members
-- Profiles
-- Artist Profiles
-- Brand Profiles
-- Business Profiles
-- Startup Profiles
-- Projects
-- Tasks
-- Milestones
-- Assets
-- Folders
 - Releases
-- Release Assets
-- Campaigns
-- Campaign Assets
-- Content Items
-- Content Calendar
-- Creative Requests
-- Service Catalog
-- Notifications
-- Activity Logs
-- AI Conversations
-- Creative Memory
+- Asset Kits
+- Music
+- Artist Profile
 
-The exact schema will evolve as implementation progresses.
+### Brand-Only Sections
 
-The guiding principle is:
-
-> **The UI should be driven by real user/workspace data rather than isolated local state.**
-
----
-
-# 🔐 Authentication & Workspace
-
-A real Keedohub account exists because Keedohub becomes the user's persistent creative environment.
-
-Onboarding should ask:
-
-> **What are you building?**
-
-Possible identities:
-
-- Music Artist
-- Creator
-- Brand
+- Brand Profile
+- Brand Kits
+- Documents
+- Presentations
 - Business
-- Startup
 
-The answer personalizes the workspace while keeping everyone on the same Keedohub Core.
-
-Production requirements include:
-
-- secure authentication
-- workspace isolation
-- role-based permissions
-- server-side authorization
-- persistent profiles
-- cloud storage
-- secure asset access
-
----
-
-# 🧩 Keedohub Studio
-
-Keedohub's professional creative services remain a major part of the platform.
-
-The product model is:
-
-```text
-AI / TOOLS
-    ↓
-USER DISCOVERS A NEED
-    ↓
-CREATIVE RECOMMENDATION
-    ↓
-REQUEST KEEDOHUB STUDIO
-    ↓
-BRIEF
-    ↓
-QUOTE / APPROVAL
-    ↓
-PRODUCTION
-    ↓
-REVIEW
-    ↓
-REVISION
-    ↓
-APPROVAL
-    ↓
-DELIVERY
-```
-
-Core services include concepts around:
-
-- Cover Art
-- Brand Identity
-- Motion Graphics
-- Web / UI
-- Social Media Design
-- Print Design
-- Mastering
-- Release Kits
-- Content Production
-
-The goal is to make professional production available **inside the operating system**, rather than sending users to a generic contact form.
-
----
-
-# ⌘ Command Center
-
-Keedohub includes a global command interface using:
-
-```text
-CMD / CTRL + K
-```
-
-The command system is intended to become an operating-system layer rather than simple navigation.
-
-Future actions include:
-
-- Create Project
-- Create Release
-- Create Campaign
-- Generate Content
-- Upload Asset
-- Ask Creative Brain
-- Find Project
-- Search Assets
-- Open Calendar
-- Request Keedohub Studio
-- Create Task
-
----
-
-# 📡 Creative Radar
-
-Creative Radar is a planned proactive intelligence system.
-
-For artists it may surface:
-
-- content opportunities
-- release opportunities
-- relevant trends
-- promotional ideas
-
-For brands and businesses it may surface:
-
-- seasonal opportunities
-- campaign opportunities
-- industry conversations
-- content opportunities
-
-Recommendations should always explain why they are relevant and provide an actionable next step.
-
----
-
-# 🎨 Design System
-
-Keedohub's visual identity is intentionally preserved while the product moves away from an agency-website appearance.
-
-### Design direction
-
-- Premium
-- Creative
-- Modern
-- Dark
-- Editorial
-- Technical
-- Sophisticated
-- Minimal
-- High-information density
-- Professional
-
-### Current core tokens
-
-| Token | Dark | Light | Role |
-|---|---|---|---|
-| Canvas | `#09090B` | `#F4F4F5` | Workspace background |
-| Surface | `#121215` | `#FFFFFF` | Elevated UI |
-| Border | `#27272A` | `#E4E4E7` | UI dividers |
-| Primary | `#EF4444` / theme | `#DC2626` / theme | Primary actions |
-| Heading | Space Grotesk | Space Grotesk | Interface hierarchy |
-| Body | Plus Jakarta Sans | Plus Jakarta Sans | UI readability |
-| Data | JetBrains Mono | JetBrains Mono | Technical information |
-
-The interface should avoid generic SaaS styling, excessive gradients, excessive glassmorphism and unnecessary decoration.
-
----
-
-# 🛣️ Roadmap
-
-## Phase 1 — Foundation
-
-**Current priority.**
-
-- Authentication
-- User accounts
-- Onboarding
-- Persistent workspaces
-- Artist / Creator / Brand / Business / Startup identities
-- PostgreSQL / Supabase data layer
-- Workspace isolation
-- Roles and permissions
-- Cloud storage
-- Real routing
-- Server-side authorization
-
-## Phase 2 — Persistent Creative Workspace
+### Shared Sections
 
 - Projects
-- Tasks
-- Milestones
-- Assets
-- Folders
-- Comments
-- Activity
-- Notifications
-- Search
+- Requests
+- Library
+- Membership
+- Profile
 
-## Phase 3 — Artist OS
+---
 
-- Persistent artist identity
-- Releases
-- Release assets
-- Release readiness
-- Content calendar
-- Release campaigns
-- Artist creative history
+## 4. Identity & Security
 
-## Phase 4 — Brand / Business / Creator OS
-
-- Brand Core
-- Products / services
-- Campaigns
-- Content
-- Launch workspaces
-- Business projects
-- Creator workflows
-
-## Phase 5 — Creative Brain
-
-- Workspace-aware AI
-- Contextual recommendations
-- Missing-asset detection
-- Project intelligence
-- Actionable AI workflows
-
-## Phase 6 — Content Engine
-
-- Persistent content items
-- Content calendar
-- Platform-specific content
-- Campaign-linked content
-- Release-linked content
-- AI-assisted content production
-
-## Phase 7 — Keedohub Studio
-
-- Service catalog
-- Briefs
-- Creative requests
-- Quotes
-- Production workflow
-- Assignments
-- Reviews
-- Revisions
-- Approvals
-- Delivery
-
-## Phase 8 — Creative Memory
-
-- Persistent structured creative context
-- User preferences
-- Identity memory
-- Project history
-- Release history
-- Campaign history
-- Architecture for semantic memory
-
-## Phase 9 — Command Center
-
-- Global search
-- Action execution
-- Entity creation
-- AI actions
-- Workspace commands
-
-## Phase 10 — Creative Radar
-
-- Contextual opportunities
-- Trend intelligence
-- Campaign opportunities
-- Release opportunities
-- Actionable recommendations
-
-## Phase 11 — Business System
-
-- Quotes
-- Invoices
-- Payment status
-- Service orders
-- Billing history
-- Subscription-ready architecture
-
-## Phase 12 — Admin OS
-
-- User management
-- Workspace management
-- Service queue
-- Creative production operations
-- Billing operations
-- Platform activity
-- AI usage
-- Audit logs
-
-## Phase 13 — Product Polish
-
-- UX audit
-- Accessibility
-- Mobile optimization
-- Performance
-- Error states
-- Loading states
-- Empty states
-- Interaction polish
-- Security review
-
-## Phase 14 — Production Audit
-
-End-to-end verification of:
+### Authentication Flow
 
 ```text
-Artist → Release → Content → Project → Studio
-
-Brand → Campaign → Content → Creative Project
-
-Business → Project → Assets → Studio
-
-User → Creative Brain → Recommendation → Action
+Authentication
+      ↓
+Active Workspace
+      ↓
+Workspace ID
+      ↓
+Workspace Type (artist | brand)
+      ↓
+Artist Experience OR Brand Experience
 ```
 
-The final standard is not a beautiful demo.
+### Workspace Type
 
-It is a reliable, secure and scalable Creative Operating System.
+```typescript
+type WorkspaceIdentity = 'artist' | 'brand';
+```
 
----
+### Isolation Layers
 
-# 🧪 Product Principles
+Workspace isolation MUST exist at:
 
-Every new feature must answer:
+1. **Routing** — Workspace-scoped routes
+2. **UI** — Identity-aware component rendering
+3. **State** — Workspace-scoped context providers
+4. **API** — Workspace-scoped API endpoints
+5. **Queries** — Workspace-filtered data queries
+6. **Data Access** — Workspace ownership enforcement
+7. **Projects** — Workspace-scoped projects
+8. **Requests** — Workspace-scoped requests
+9. **Assets** — Workspace-scoped assets
+10. **Documents** — Workspace-scoped documents
+11. **Releases** — Artist workspace-scoped
+12. **Library** — Workspace-scoped archive
 
-1. What problem does this solve?
-2. Why would the user return to it?
-3. What happens after the user uses it?
-4. Does it connect to the rest of Keedohub?
-5. Can the Creative Brain make it more useful?
-6. Can Keedohub Studio provide human help when appropriate?
+### Administrative Access
 
-Do not build features merely because they look impressive.
-
----
-
-# 🛠️ Technology Direction
-
-The current application is built around:
-
-- **React 19**
-- **TypeScript**
-- **Vite 6**
-- **Express.js**
-- **Tailwind CSS v4**
-- **Lucide React**
-- **Motion**
-- **Web Audio API**
-- **HTML5 Canvas**
-- **jsPDF**
-- **Google GenAI**
-
-The production architecture is evolving toward a persistent backend and cloud data layer, with Supabase/PostgreSQL as the planned foundation for authentication, database and storage.
-
-Technology decisions should favor maintainability, security and scalability rather than adding complexity for its own sake.
+Administrative users may operate across customer workspaces but must never mix customer data in customer-facing views.
 
 ---
 
-# 🔒 Production Standards
+## 5. User Roles
 
-Keedohub is intended to become real production software.
+| Role | Access | Description |
+|---|---|---|
+| **Customer** | Own workspace only | Artist or brand user |
+| **Team Member** | Assigned workspaces | Collaborator with permissions |
+| **Admin** | All workspaces | Production management |
+| **Super Admin** | Full system | Platform administration |
 
-The platform must eventually provide:
+### Workspace Roles
 
-- secure authentication
-- workspace isolation
-- role-based permissions
-- server-side validation
-- secure file access
-- protected API routes
-- secure AI API handling
-- environment-based secrets
-- audit logging
-- robust error handling
-- responsive UX
-- accessibility
-- performance optimization
-
-No fake authentication.
-
-No exposed API keys.
-
-No mock backend presented as production functionality.
-
-No cross-workspace data access.
+| Role | Permissions |
+|---|---|
+| Owner | Full control, billing |
+| Admin | Manage team, content |
+| Editor | Create, edit content |
+| Viewer | Read-only access |
+| Contributor | Create, limited edit |
 
 ---
 
-# 🚀 Development Rule
+## 6. Artist Domain Model
 
-The existing Creative OS workstations are valuable and should be **integrated, not discarded**.
+### Artist Profile
 
-When implementing a new phase:
+The source of truth for the artist's identity.
 
-> **Inspect what already works. Preserve it. Connect it to the new architecture. Improve it where necessary. Do not rebuild working functionality without a reason.**
+```typescript
+interface ArtistProfile {
+  identity: {
+    artistName: string;
+    stageName: string;
+    bio: string;
+    genre: string;
+    subgenre: string;
+    location: string;
+    website: string;
+    socialLinks: Record<string, string>;
+    streamingLinks: Record<string, string>;
+  };
+  dna: {
+    story: string;
+    visualPersonality: string;
+    colors: string[];
+    typography: string[];
+    photographyDirection: string;
+    moodReferences: string[];
+    logo: string;
+    creativePreferences: Record<string, any>;
+    contentTone: string;
+  };
+}
+```
 
-The objective is to transform the current workstation prototype into a persistent, intelligent and scalable platform.
+### Artist Releases
+
+```typescript
+interface Release {
+  id: string;
+  workspaceId: string;
+  title: string;
+  releaseType: 'single' | 'ep' | 'album' | 'mixtape';
+  releaseDate: string;
+  genre: string;
+  featuredArtists: string[];
+  producer: string;
+  songwriter: string;
+  lyrics: string;
+  songStory: string;
+  streamingLinks: Record<string, string>;
+  presaveLinks: Record<string, string>;
+  referenceMaterial: string[];
+  creativeNotes: string;
+  status: ReleaseStage;
+}
+```
+
+### Release Workflow
+
+```text
+Artist
+  ↓
+New Release
+  ↓
+Release Information
+  ↓
+Creative Requests
+  ↓
+Asset Kit
+  ↓
+Studio Production
+  ↓
+Review
+  ↓
+Delivery
+```
 
 ---
 
-# 🌍 The Long-Term Vision
+## 7. Brand Domain Model
 
-Keedohub should become the place where a creative person or organization can say:
+### Brand Profile / Brand DNA
 
-> **"This is where my creative world lives."**
+The source of truth for the brand's identity.
 
-An artist should be able to record a song and immediately know what needs to happen next.
+```typescript
+interface BrandProfile {
+  business: {
+    companyName: string;
+    description: string;
+    industry: string;
+    location: string;
+    website: string;
+    email: string;
+    phone: string;
+    socialAccounts: Record<string, string>;
+    founderInfo: string;
+  };
+  visualIdentity: {
+    logo: string;
+    logoVariants: string[];
+    primaryColor: string;
+    secondaryColors: string[];
+    accentColors: string[];
+    typography: string[];
+    photographyStyle: string;
+    illustrationStyle: string;
+    iconStyle: string;
+    motionStyle: string;
+    visualReferences: string[];
+  };
+  voice: {
+    tone: string;
+    writingStyle: string;
+    tagline: string;
+    mission: string;
+    vision: string;
+    values: string[];
+    audience: string;
+    preferredTerminology: string[];
+    wordsToAvoid: string[];
+  };
+}
+```
 
-A brand should be able to launch a product and operate the entire creative campaign from one workspace.
+### Brand Production DNA Flow
 
-A creator should be able to turn an idea into a structured content system.
-
-A business should be able to manage its creative projects and assets without losing context.
-
-And whenever professional execution is needed, Keedohub Studio should be available from inside the same system.
+```text
+Brand Profile
+      ↓
+Brand DNA
+      ↓
+Creative Request
+      ↓
+KeedoHub Studio
+      ↓
+Brand-consistent Production
+```
 
 ---
 
-# KEEDOHUB
+## 8. Profile / DNA Model
 
-### **The Creative Operating System for Artists, Creators, Brands & Businesses.**
+### Artist DNA Entity
 
-**Idea → Plan → Create → Launch → Promote → Grow.**
+Stored in `artist_dna` table / `ArtistDNAEntity` interface.
+
+| Field | Type | Purpose |
+|---|---|---|
+| artistIdentity | text | Core identity statement |
+| story | text | Artist narrative |
+| genre | text | Primary genre |
+| soundDescription | text | Sonic characteristics |
+| audienceDemographics | text | Target audience |
+| voiceAndLanguage | text | Communication style |
+| visualDirection | text | Visual aesthetic |
+| contentPillars | jsonb | Content themes |
+| recurringThemes | jsonb | Recurring motifs |
+| goals | text | Career objectives |
+| positioning | text | Market positioning |
+| platforms | jsonb | Active platforms |
+| preferences | jsonb | Creative preferences |
+| thingsToAvoid | jsonb | Negative preferences |
+
+### Brand DNA Entity
+
+Stored in `brand_dna` table / `BrandDNAEntity` interface.
+
+| Field | Type | Purpose |
+|---|---|---|
+| identity | text | Brand identity statement |
+| positioning | text | Market positioning |
+| businessCategory | text | Industry category |
+| audience | text | Target audience |
+| valueProposition | text | Core value |
+| offers | jsonb | Products/services |
+| voice | text | Brand voice |
+| visualIdentity | text | Visual direction |
+| competitivePositioning | text | Competitive stance |
+| contentPillars | jsonb | Content themes |
+| growthGoals | jsonb | Growth objectives |
+| businessModel | text | Business model |
+
+---
+
+## 9. Release Model
+
+### Release Entity
+
+```typescript
+interface ReleaseEntity {
+  id: string;
+  workspaceId: string;
+  title: string;
+  releaseType: 'single' | 'ep' | 'album';
+  releaseDate: string;
+  genre: string;
+  stage: ReleaseStage;
+  status: string;
+  // Metadata
+  artistName: string;
+  featuredArtists: string[];
+  producer: string;
+  songwriter: string;
+  // Content
+  lyrics: string;
+  songStory: string;
+  // Links
+  streamingLinks: Record<string, string>;
+  presaveSlug: string;
+  // Production state
+  coverUrl: string;
+  audioUrl: string;
+  epkData: Record<string, any>;
+}
+```
+
+### Release Stages
+
+```text
+Idea → Production → Preparation → Launch → Post-Release
+```
+
+---
+
+## 10. Asset Kit Model
+
+### Asset Kit Types
+
+| Kit | Contents |
+|---|---|
+| **Cover Artwork** | 3000x3000px master, variants |
+| **Motion Package** | Animated cover, Spotify Canvas |
+| **Lyric Visuals** | Lyric video, lyric cards |
+| **Social Assets** | Instagram, TikTok, YouTube formats |
+| **Press Kit** | EPK, press photos, bio |
+| **Release Announcement** | Countdown, announcement graphics |
+
+### Asset Kit States
+
+```text
+Not Started → In Progress → Review → Approved → Delivered
+```
+
+### Asset Entity
+
+```typescript
+interface AssetEntity {
+  id: string;
+  workspaceId: string;
+  projectId?: string;
+  releaseId?: string;
+  requestId?: string;
+  category: AssetCategory;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  status: AssetStatus;
+  version: number;
+  metadata: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+---
+
+## 11. Creative Request Model
+
+### Request Entity
+
+```typescript
+interface CreativeRequest {
+  id: string;
+  workspaceId: string;
+  projectId?: string;
+  title: string;
+  description: string;
+  category: RequestCategory;
+  serviceType: string;
+  status: RequestStatus;
+  priority: Priority;
+  brief: CreativeBrief;
+  references: string[];
+  deadline?: string;
+  assignedTo?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### Request Statuses
+
+```text
+Submitted → Briefing → In Production → Review → Changes Requested → Approved → Delivered
+```
+
+### Request Categories
+
+**Artist:**
+- Cover Artwork
+- Lyric Video
+- Motion Graphics
+- EPK
+- Social Assets
+- Press Kit
+
+**Brand:**
+- Brand Identity
+- Social Media Kit
+- Business Documents
+- Presentation
+- Marketing Materials
+- Web Design
+
+---
+
+## 12. Project Lifecycle
+
+### Project Entity
+
+```typescript
+interface ProjectEntity {
+  id: string;
+  workspaceId: string;
+  title: string;
+  description: string;
+  status: ProjectStatus;
+  priority: Priority;
+  sections: string[];
+  requestId?: string;
+  budget?: number;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### Project Lifecycle
+
+```text
+Request
+  ↓
+Project Created
+  ↓
+Brief Finalized
+  ↓
+Production Started
+  ↓
+Internal Review
+  ↓
+Customer Review
+  ↓
+Changes (if needed)
+  ↓
+Approval
+  ↓
+Delivery
+  ↓
+Library Archive
+```
+
+### Project Statuses
+
+```text
+Planning → In Progress → Review → Completed
+```
+
+---
+
+## 13. Studio Architecture
+
+### Studio Concept
+
+Studio is KeedoHub's production engine. It is NOT customer-facing.
+
+```text
+WORKSPACE                STUDIO
+Customer control room    KeedoHub production engine
+```
+
+### Studio Control Center
+
+Admin production management interface:
+
+```text
+STUDIO CONTROL CENTER
+
+Incoming Requests
+      ↓
+Briefing Review
+      ↓
+Assignment
+      ↓
+In Production
+      ↓
+Internal QC
+      ↓
+Customer Review
+      ↓
+Revisions
+      ↓
+Ready for Delivery
+      ↓
+Delivered
+```
+
+### Studio Data Model
+
+```typescript
+interface StudioProduction {
+  id: string;
+  requestId: string;
+  projectId: string;
+  workspaceId: string;
+  customerType: 'artist' | 'brand';
+  serviceType: string;
+  status: ProductionStatus;
+  brief: CreativeBrief;
+  assignedTo?: string;
+  tasks: ProductionTask[];
+  files: ProductionFile[];
+  versions: ProductionVersion[];
+  comments: Comment[];
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### Internal Production Engines
+
+| Engine | Purpose | Customer-Facing? |
+|---|---|---|
+| Cover Renderer | Generate cover artwork | No |
+| Lyrics Renderer | Create lyric visuals | No |
+| Motion Generator | Produce motion graphics | No |
+| Document Generator | Create branded documents | No |
+| Presentation Generator | Design presentations | No |
+| Brand Kit Generator | Compile brand kits | No |
+| Asset Packager | Package final assets | No |
+| Audio QA | Quality control audio | No |
+
+---
+
+## 14. Admin Workflow
+
+### Admin Capabilities
+
+Admin users can:
+- Manage customers
+- Inspect workspaces
+- Review requests
+- Manage projects
+- Assign production
+- Manage files
+- Manage versions
+- Review work
+- Approve work
+- Deliver assets
+- Operate internal production engines
+- Perform audio QA
+- Manage production workflows
+
+### Admin Dashboard Sections
+
+| Section | Purpose |
+|---|---|
+| Overview | Platform analytics, metrics |
+| Workspaces | Customer workspace management |
+| Requests | Request queue, assignment |
+| Production | Active productions, QC |
+| Users | User management |
+| Settings | Platform configuration |
+| System | Health, feature flags |
+
+---
+
+## 15. Documents Architecture
+
+### Document Types
+
+**Business Documents:**
+- Company Profile
+- Letterhead
+- Email Signature
+- Invoice
+- Receipt
+- Quotation
+- Proposal
+- Service Agreement
+- Contract
+- Purchase Order
+- Delivery Note
+
+**Sales Documents:**
+- Sales Proposal
+- Capability Statement
+- Pitch Deck
+- Company Presentation
+- Product Presentation
+- Investor Deck
+
+**Brand Documents:**
+- Brand Guidelines
+- Social Media Brand Kit
+- Marketing Kit
+- Media Kit
+- Press Kit
+
+### Document Editing Model
+
+```text
+Customer controls:          KeedoHub controls:
+─────────────────          ──────────────────
+Company address            Professional design
+Contact information        Layout system
+Client name                Typography
+Prices                     Color system
+Dates                      Visual style
+Invoice number             Brand consistency
+Descriptions
+Service names
+Payment terms
+```
+
+---
+
+## 16. Presentation Architecture
+
+### Presentation Workflow
+
+```text
+Brand Profile
+      ↓
+Presentation Request
+      ↓
+KeedoHub Studio
+      ↓
+Presentation Design
+      ↓
+Editable Presentation
+      ↓
+Review
+      ↓
+Approval
+      ↓
+Delivery
+```
+
+### Presentation Types
+
+- Company Presentation
+- Pitch Deck
+- Investor Deck
+- Sales Deck
+- Product Presentation
+
+---
+
+## 17. Library Architecture
+
+### Library Model
+
+```text
+Library
+├── Releases (Artist)
+├── Cover Artwork
+├── Motion
+├── Social Assets
+├── EPK
+├── Brand Identity
+├── Social Kits
+├── Documents
+├── Presentations
+├── Marketing
+└── Other Assets
+```
+
+### Workspace Scoping
+
+- Artist Library: Only artist workspace assets
+- Brand Library: Only brand workspace assets
+- No cross-workspace visibility
+
+### Library Entity
+
+```typescript
+interface LibraryItem {
+  id: string;
+  workspaceId: string;
+  assetId: string;
+  category: string;
+  title: string;
+  description?: string;
+  tags: string[];
+  favorite: boolean;
+  createdAt: string;
+}
+```
+
+---
+
+## 18. Asset Lifecycle
+
+### Asset States
+
+```text
+Requested → In Production → Review → Revisions → Approved → Delivered → Archived
+```
+
+### Asset Entity
+
+```typescript
+interface AssetEntity {
+  id: string;
+  workspaceId: string;
+  projectId?: string;
+  releaseId?: string;
+  requestId?: string;
+  category: AssetCategory;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  status: AssetStatus;
+  version: number;
+  metadata: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### Asset Categories
+
+```typescript
+type AssetCategory =
+  | 'cover_artwork'
+  | 'animated_cover'
+  | 'spotify_canvas'
+  | 'lyric_visual'
+  | 'lyric_card'
+  | 'social_asset'
+  | 'press_photo'
+  | 'epk'
+  | 'motion'
+  | 'brand_identity'
+  | 'document'
+  | 'presentation'
+  | 'marketing'
+  | 'other';
+```
+
+---
+
+## 19. Review / Approval Lifecycle
+
+### Review States
+
+```text
+Pending Review → In Review → Changes Requested → Revised → Approved → Delivered
+```
+
+### Review Entity
+
+```typescript
+interface ReviewEntity {
+  id: string;
+  assetId: string;
+  projectId: string;
+  workspaceId: string;
+  reviewerId: string;
+  status: ReviewStatus;
+  comments: Comment[];
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+---
+
+## 20. Workspace-Scoping Rules
+
+### Rules
+
+1. Every data query MUST include workspace_id filter
+2. Every API endpoint MUST validate workspace access
+3. Every UI component MUST respect workspace context
+4. Admin cross-workspace access MUST use separate admin interfaces
+5. No customer-facing view may show data from another workspace
+
+### Implementation
+
+```typescript
+// Example: Workspace-scoped API call
+async function getReleases(workspaceId: string): Promise<Release[]> {
+  return await db.query(
+    'SELECT * FROM releases WHERE workspace_id = $1 ORDER BY created_at DESC',
+    [workspaceId]
+  );
+}
+```
+
+---
+
+## 21. Route Architecture
+
+### Public Routes
+
+| Route | Component |
+|---|---|
+| `/` | HeroStudioOS |
+| `/about` | AboutPage |
+| `/vision` | VisionPage |
+| `/contact` | ContactPage |
+| `/faq` | FAQPage |
+| `/help` | HelpCenterPage |
+| `/docs` | DocumentationPage |
+| `/resources` | ResourcesPage |
+| `/login` | AuthModal |
+| `/signup` | AuthModal |
+
+### Workspace Routes
+
+| Route | Section |
+|---|---|
+| `/workspace` | WorkspaceHome |
+| `/workspace/projects` | ProjectsView |
+| `/workspace/music` | ReleaseBuilder |
+| `/workspace/releases` | ReleasesView |
+| `/workspace/library` | LibraryView |
+| `/workspace/requests` | RequestsView |
+| `/workspace/membership` | MembershipView |
+| `/workspace/profile` | ProfileView |
+
+### Studio Routes
+
+| Route | Component |
+|---|---|
+| `/studio` | Studio |
+| `/studio/services` | StudioBoard |
+
+---
+
+## 22. State Architecture
+
+### Context Providers
+
+| Provider | Purpose |
+|---|---|
+| `AuthContext` | Authentication, user session |
+| `WorkspaceContext` | Active workspace, identity |
+| `ThemeContext` | Theme, color scheme |
+| `CreativeBrainContext` | AI intelligence, recommendations |
+
+### State Flow
+
+```text
+User Action
+      ↓
+Context Update
+      ↓
+Component Re-render
+      ↓
+API Sync (if needed)
+      ↓
+Persistence (if needed)
+```
+
+---
+
+## 23. API / Data Rules
+
+### RESTful Endpoints
+
+| Method | Pattern | Description |
+|---|---|---|
+| GET | `/api/workspaces/:id` | Get workspace |
+| GET | `/api/workspaces/:id/releases` | List releases |
+| POST | `/api/workspaces/:id/releases` | Create release |
+| GET | `/api/workspaces/:id/projects` | List projects |
+| POST | `/api/workspaces/:id/projects` | Create project |
+| GET | `/api/workspaces/:id/requests` | List requests |
+| POST | `/api/workspaces/:id/requests` | Create request |
+| GET | `/api/workspaces/:id/library` | List library items |
+
+### Data Access Rules
+
+1. All queries MUST filter by workspace_id
+2. All mutations MUST validate workspace ownership
+3. All responses MUST NOT include cross-workspace data
+4. Admin endpoints MUST use separate authentication
+
+---
+
+## 24. Security Boundaries
+
+### Security Layers
+
+```text
+┌─────────────────────────────────────────┐
+│           Presentation Layer            │
+│  (Route guards, component visibility)   │
+├─────────────────────────────────────────┤
+│            Application Layer            │
+│  (Context providers, state management)  │
+├─────────────────────────────────────────┤
+│              API Layer                  │
+│  (Endpoint validation, authentication)  │
+├─────────────────────────────────────────┤
+│           Data Access Layer             │
+│  (Workspace-scoped queries, RLS)        │
+├─────────────────────────────────────────┤
+│            Database Layer               │
+│  (Row-level security, constraints)      │
+└─────────────────────────────────────────┘
+```
+
+### Security Requirements
+
+- No fake authentication
+- No exposed API keys
+- No mock backend as production
+- No cross-workspace data access
+- Server-side validation on all mutations
+- Environment-based secrets
+- Audit logging for sensitive operations
+
+---
+
+## 25. Design System Rules
+
+### Shared Design Tokens
+
+| Token | Dark Mode | Light Mode | Role |
+|---|---|---|---|
+| `--canvas-bg` | `#09090B` | `#F4F4F5` | Base workspace canvas |
+| `--bento-card` | `#121215` | `#FFFFFF` | Elevated modules |
+| `--bento-border` | `#27272A` | `#E4E4E7` | Card dividers |
+| `--accent-primary` | Theme-based | Theme-based | Primary actions |
+
+### Typography
+
+| Role | Font |
+|---|---|
+| Headings | Space Grotesk |
+| Body | Plus Jakarta Sans |
+| Code/Data | JetBrains Mono |
+
+### Rules
+
+1. Artist and Brand share the same design system
+2. Differences are in identity, content, navigation, data, and services
+3. NOT completely different applications
+4. Consistent component library across both experiences
+
+---
+
+## 26. Internal Production Engines
+
+### Production Engine Types
+
+| Engine | Input | Output |
+|---|---|---|
+| Cover Renderer | Brief, references, DNA | Cover artwork files |
+| Lyrics Renderer | Lyrics, timing, style | Lyric video/visuals |
+| Motion Generator | Assets, brief | Motion graphics |
+| Document Generator | Content, brand DNA | Branded documents |
+| Presentation Generator | Content, brand DNA | Presentation deck |
+| Brand Kit Generator | Brand DNA | Complete brand kit |
+| Asset Packager | Final assets | Downloadable package |
+| Audio QA | Audio file | QC report |
+
+### Rules
+
+1. Engines are internal to Studio
+2. NOT customer-facing tools
+3. May be used by admin for production
+4. Results delivered through review/approval flow
+
+---
+
+## 27. Audio QA
+
+### Audio QA Location
+
+```text
+Studio
+  ↓
+Music Production
+  ↓
+Audio QA
+```
+
+### Audio QA Checks
+
+| Check | Description |
+|---|---|
+| File format | WAV, AIFF, FLAC verification |
+| Sample rate | 44.1kHz, 48kHz validation |
+| Bit depth | 16-bit, 24-bit verification |
+| Integrated loudness | LUFS measurement |
+| True peak | dBTP measurement |
+| Clipping | Distortion detection |
+| Duration | Track length verification |
+| Waveform | Visual analysis |
+
+### Customer-Facing Output
+
+```text
+Master Audio
+✓ Approved by KeedoHub Studio
+```
+
+---
+
+## 28. Legacy / Deprecation Rules
+
+### Deprecated Concepts
+
+| Concept | Status | Action |
+|---|---|---|
+| Campaign OS | Deprecated | Use Creative Projects |
+| Campaign Builder | Deprecated | Use Project workflow |
+| Programmed Brain | Deprecated | Internal production intelligence |
+| Artist Content Brain | Deprecated | Internal production intelligence |
+| DSP Pitcher | Deprecated | Not part of architecture |
+| Curator Strategy | Deprecated | Not part of architecture |
+| Customer-facing Cover Studio | Deprecated | Studio production (request-based) |
+| Customer-facing Lyrics Studio | Deprecated | Studio production (request-based) |
+| Customer-facing Mastering Suite | Deprecated | Internal Audio QA |
+| Pre-save Hub | Deprecated | Part of release workflow |
+| Splits Calculator | Deprecated | Part of release workflow |
+
+### Deprecation Rules
+
+1. Legacy code may remain in repository
+2. Must NOT be documented as current architecture
+3. Must NOT be exposed to customers
+4. May be removed in future refactoring
+
+---
+
+## 29. Future Extensibility
+
+### Extension Points
+
+| Extension | Description |
+|---|---|
+| New Service Types | Add creative services to Studio |
+| New Asset Categories | Extend asset taxonomy |
+| New Document Types | Add document templates |
+| New Production Engines | Add internal production tools |
+| Integration APIs | Connect external services |
+| Team Collaboration | Multi-user workspace features |
+| Billing Integration | Service billing and payments |
+
+### Extension Rules
+
+1. All extensions must follow the Request → Project → Production → Delivery model
+2. All extensions must respect workspace isolation
+3. New production engines must be internal to Studio
+4. Customer experience must remain simple
+
+---
+
+## 30. Acceptance Criteria
+
+### Mandatory Requirements
+
+| Area | Requirement | Status |
+|---|---|---|
+| Workspace | ONE canonical Workspace | ✅ |
+| Identity | Artist and Brand are isolated | ✅ |
+| Artist | Profile, Releases, Asset Kits, Requests, Projects, Library | ✅ |
+| Brand | Brand Profile, Creative, Brand Kits, Documents, Presentations | ✅ |
+| Studio | Central production engine | ✅ |
+| Projects | Request → Project → Production → Delivery | ✅ |
+| Library | Workspace-scoped asset archive | ✅ |
+| Admin | Cross-workspace production access | ✅ |
+| Legacy | No campaign-first architecture | ✅ |
+| Legacy | No DSP Pitcher | ✅ |
+| Legacy | No Programmed Brain | ✅ |
+| Legacy | No customer-facing DIY Cover Studio | ✅ |
+
+---
+
+## 31. Definition of Done
+
+### Feature Complete When
+
+- [ ] Implements Request → Project → Production → Delivery flow
+- [ ] Respects workspace isolation at all layers
+- [ ] Uses shared design system components
+- [ ] No legacy terminology in customer-facing UI
+- [ ] No DIY tools presented as customer features
+- [ ] Studio production engines are internal only
+- [ ] Customer experience remains simple
+- [ ] Documentation reflects actual implementation
+
+### Quality Standards
+
+- TypeScript compilation passes
+- No console errors in production
+- Responsive design (mobile, tablet, desktop)
+- Accessibility considerations
+- Performance budgets met
+- Security review passed
+
+---
+
+## Document History
+
+| Version | Date | Changes |
+|---|---|---|
+| 2.0 | 2026-09-12 | Complete rewrite for new product architecture |
+| 1.0 | Previous | Legacy architecture (superseded) |
