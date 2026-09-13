@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -384,7 +384,7 @@ export const IntegrationsHub: React.FC<IntegrationsHubProps> = ({
             <Activity size={15} className="text-blue-400 shrink-0 mt-0.5" />
             <div>
               <span className="text-zinc-200 font-medium block">Data Sync Pipeline</span>
-              <span className="text-zinc-500">Service → Integration → Keedohub → Analytics/Releases/Content/Campaigns.</span>
+              <span className="text-zinc-500">Service â†’ Integration â†’ Keedohub â†’ Analytics/Releases/Content/Projects.</span>
             </div>
           </div>
           <div className="flex items-start gap-2.5">

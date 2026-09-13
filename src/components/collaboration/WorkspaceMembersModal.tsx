@@ -22,7 +22,6 @@ import {
   MemberAccessScope,
   Project,
   Release,
-  Campaign,
 } from "../../types";
 import { api } from "../../services/api";
 
@@ -126,7 +125,6 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [releases, setReleases] = useState<Release[]>([]);
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showInviteForm, setShowInviteForm] = useState(false);
@@ -142,7 +140,6 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
   const [accessScopeType, setAccessScopeType] = useState<"all" | "restricted">("all");
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [selectedReleaseIds, setSelectedReleaseIds] = useState<string[]>([]);
-  const [selectedCampaignIds, setSelectedCampaignIds] = useState<string[]>([]);
   const [customPermissions, setCustomPermissions] = useState<MemberPermissions>(
     DEFAULT_PERMISSIONS["client"]
   );
@@ -152,17 +149,15 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
     try {
       setIsLoading(true);
       setError(null);
-      const [membersRes, projRes, relRes, campRes] = await Promise.all([
+      const [membersRes, projRes, relRes] = await Promise.all([
         api.members.list(workspaceId),
         api.projects.list(workspaceId).catch(() => ({ projects: [] })),
         api.releases.list(workspaceId).catch(() => ({ releases: [] })),
-        api.campaigns.list(workspaceId).catch(() => ({ campaigns: [] })),
       ]);
 
       setMembers(membersRes.members || []);
       setProjects(projRes.projects || []);
       setReleases(relRes.releases || []);
-      setCampaigns(campRes.campaigns || []);
     } catch (err: any) {
       console.error("Failed to load workspace members", err);
       setError(err.message || "Failed to load team roster");
@@ -200,7 +195,6 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
         allEntities: accessScopeType === "all",
         projectIds: accessScopeType === "restricted" ? selectedProjectIds : undefined,
         releaseIds: accessScopeType === "restricted" ? selectedReleaseIds : undefined,
-        campaignIds: accessScopeType === "restricted" ? selectedCampaignIds : undefined,
       };
 
       const res = await api.members.invite(workspaceId, {
@@ -221,7 +215,6 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
       setInviteDepartment("");
       setSelectedProjectIds([]);
       setSelectedReleaseIds([]);
-      setSelectedCampaignIds([]);
     } catch (err: any) {
       console.error("Failed to invite member", err);
       setError(err.message || "Failed to send member invitation");
@@ -250,12 +243,6 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
   const handleToggleRelease = (id: string) => {
     setSelectedReleaseIds((prev) =>
       prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
-    );
-  };
-
-  const handleToggleCampaign = (id: string) => {
-    setSelectedCampaignIds((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
     );
   };
 
@@ -458,31 +445,6 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
                             }`}
                           >
                             🎵 {r.title}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Select Campaigns */}
-                  {campaigns.length > 0 && (
-                    <div>
-                      <span className="text-[11px] font-semibold text-zinc-400 block mb-1.5">
-                        Allowed Campaigns:
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {campaigns.map((c) => (
-                          <button
-                            key={c.id}
-                            type="button"
-                            onClick={() => handleToggleCampaign(c.id)}
-                            className={`px-2 py-1 rounded text-xs border transition-colors ${
-                              selectedCampaignIds.includes(c.id)
-                                ? "bg-red-500/20 border-red-500 text-red-300 font-medium"
-                                : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:bg-zinc-900"
-                            }`}
-                          >
-                            📢 {c.name}
                           </button>
                         ))}
                       </div>

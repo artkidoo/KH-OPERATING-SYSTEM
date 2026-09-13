@@ -4,7 +4,6 @@ import {
   Project,
   Asset,
   Release,
-  Campaign,
   ContentItem,
   ContentPillar,
   ContentGapRecommendation,
@@ -25,226 +24,9 @@ import {
   ReleaseStage,
   BrandCore,
   ProductService,
-  CampaignReadinessSummary,
-  CampaignRequirement,
 } from "../types";
 import { api } from "../services/api";
 import { useAuth } from "./AuthContext";
-
-export function computeCampaignReadiness(
-  campaign: Campaign | null,
-  brandCore: BrandCore | null = null,
-  productsList: ProductService[] = [],
-  contentList: ContentItem[] = [],
-  assetList: Asset[] = [],
-  _taskList: TaskItem[] = []
-): CampaignReadinessSummary {
-  if (!campaign) {
-    return {
-      score: 0,
-      stage: 'Planning',
-      stageColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
-      requirements: [],
-      completedCount: 0,
-      totalCount: 7,
-      missingItems: [],
-      daysUntilLaunch: null,
-      formattedDays: 'No campaign selected',
-    };
-  }
-
-  // 1. Objective & Measurable KPI Targets
-  const hasObjective = Boolean(
-    (campaign.objective && campaign.objective.length > 8) ||
-    (campaign.goal && campaign.goal.length > 8) ||
-    (campaign.goals && ((campaign.goals.targetImpressions || 0) > 0 || (campaign.goals.targetRevenue || 0) > 0 || (campaign.goals.targetLeadsOrSales || 0) > 0))
-  );
-
-  // 2. Product / Service Linked & Positioned
-  const linkedProduct = productsList.find((p) => p.id === campaign.productId);
-  const hasProduct = Boolean(
-    campaign.productId ||
-    linkedProduct ||
-    productsList.length > 0
-  );
-
-  // 3. Creative Direction & Theme Codified
-  const hasCreativeDirection = Boolean(
-    (campaign.creativeDirection && (
-      (campaign.creativeDirection.themeName && campaign.creativeDirection.themeName.length > 3) ||
-      (campaign.creativeDirection.coreMessage && campaign.creativeDirection.coreMessage.length > 5) ||
-      (campaign.creativeDirection.visualStyle && campaign.creativeDirection.visualStyle.length > 3)
-    )) ||
-    (brandCore?.visualDirection?.aestheticKeywords && brandCore.visualDirection.aestheticKeywords.length > 0)
-  );
-
-  // 4. Hero Visual Assets & Mockups Attached
-  const hasHeroAsset = Boolean(
-    campaign.heroAssetUrl ||
-    campaign.heroAssetId ||
-    assetList.some((a) => a.campaignId === campaign.id || a.category === 'image' || a.category === 'cover' || a.category === 'brand') ||
-    linkedProduct?.heroImageUrl
-  );
-
-  // 5. Multi-Channel Content Pipeline
-  const linkedContent = contentList.filter((c) => c.campaignId === campaign.id);
-  const hasContentPipeline = linkedContent.length >= 2 || (campaign.sprintDays && campaign.sprintDays.length >= 2);
-
-  // 6. Sprint Milestones & Timeline Scheduled
-  const hasMilestones = Boolean(
-    (campaign.milestones && campaign.milestones.length >= 2) ||
-    (campaign.sprintDays && campaign.sprintDays.length >= 2)
-  );
-
-  // 7. Executive Operational Approvals
-  const approvals = campaign.approvals || { creativeApproved: false, budgetApproved: false, launchApproved: false };
-  const hasApprovals = Boolean(approvals.creativeApproved && (approvals.budgetApproved || (campaign.budget || 0) <= 0));
-
-  const requirements: CampaignRequirement[] = [
-    {
-      id: 'req_objective',
-      label: 'Campaign Objective & KPI Targets',
-      description: 'Clear primary goal, target metrics, and measurable KPIs defined',
-      weight: 15,
-      completed: hasObjective,
-      category: 'brand-core',
-      actionTab: 'command-center',
-      actionLabel: 'Define in Workspace',
-      detail: hasObjective ? 'KPI targets locked' : 'Objective required',
-    },
-    {
-      id: 'req_product',
-      label: 'Product / Service Linked',
-      description: 'Flagship product or service attached with active pricing',
-      weight: 15,
-      completed: hasProduct,
-      category: 'product',
-      actionTab: 'command-center',
-      actionLabel: 'Link in Workspace',
-      detail: linkedProduct ? linkedProduct.name : hasProduct ? 'Catalog item attached' : 'No product linked',
-    },
-    {
-      id: 'req_creative_dir',
-      label: 'Creative Direction & Hook',
-      description: 'Core aesthetic theme, visual hook, and campaign narrative codified',
-      weight: 15,
-      completed: hasCreativeDirection,
-      category: 'creative-direction',
-      actionTab: 'command-center',
-      actionLabel: 'Set Creative Direction',
-      detail: hasCreativeDirection ? 'Direction formulated' : 'Theme unassigned',
-    },
-    {
-      id: 'req_hero_assets',
-      label: 'Hero Visual Assets & Vault Mockups',
-      description: 'High-resolution campaign banner, 3D render, or visual hero in Vault',
-      weight: 15,
-      completed: hasHeroAsset,
-      category: 'hero-asset',
-      actionTab: 'command-center',
-      actionLabel: 'Select in Library',
-      detail: hasHeroAsset ? 'Hero visual active' : 'Asset required',
-    },
-    {
-      id: 'req_content_pipeline',
-      label: 'Multi-Channel Content Pipeline',
-      description: 'At least 2-3 scheduled campaign posts across social channels',
-      weight: 15,
-      completed: hasContentPipeline,
-      category: 'content-pipeline',
-      actionTab: 'command-center',
-      actionLabel: 'Plan in Workspace',
-      detail: hasContentPipeline ? `${linkedContent.length} posts scheduled` : 'Pipeline empty',
-    },
-    {
-      id: 'req_sprint_timeline',
-      label: 'Sprint Timeline & Milestones',
-      description: 'Calibrated sprint phases, deliverables, and deadline schedule',
-      weight: 10,
-      completed: hasMilestones,
-      category: 'sprint-tasks',
-      actionTab: 'command-center',
-      actionLabel: 'Schedule in Workspace',
-      detail: hasMilestones ? 'Sprint roadmap active' : 'Timeline required',
-    },
-    {
-      id: 'req_approvals',
-      label: 'Operational Approvals',
-      description: 'Creative and budget approvals verified by workspace operator',
-      weight: 15,
-      completed: hasApprovals,
-      category: 'approvals',
-      actionTab: 'command-center',
-      actionLabel: 'Review in Workspace',
-      detail: approvals.launchApproved ? 'Launch authorized' : approvals.creativeApproved ? 'Creative approved' : 'Pending approvals',
-    },
-  ];
-
-  const totalScore = requirements.reduce((sum, req) => sum + (req.completed ? req.weight : 0), 0);
-  const completedCount = requirements.filter((r) => r.completed).length;
-
-  let daysUntilLaunch: number | null = null;
-  let formattedDays = 'Date unset';
-  if (campaign.startDate) {
-    const target = new Date(campaign.startDate).getTime();
-    const now = Date.now();
-    const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
-    daysUntilLaunch = diff;
-    if (diff > 0) {
-      formattedDays = `T-${diff} Days to Launch`;
-    } else if (diff === 0) {
-      formattedDays = 'Launch Day (T-0)';
-    } else {
-      formattedDays = `Live (T+${Math.abs(diff)} Days)`;
-    }
-  }
-
-  let stage: 'Planning' | 'Preparing' | 'Ready' | 'Launching' | 'Active' | 'Completed' = 'Planning';
-  let stageColor = 'text-amber-400 bg-amber-500/10 border-amber-500/30';
-
-  if (campaign.status === 'completed') {
-    stage = 'Completed';
-    stageColor = 'text-purple-400 bg-purple-500/10 border-purple-500/30';
-  } else if (campaign.status === 'active' || (daysUntilLaunch !== null && daysUntilLaunch <= 0)) {
-    stage = 'Active';
-    stageColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
-  } else if (totalScore >= 85 && (daysUntilLaunch !== null && daysUntilLaunch <= 7)) {
-    stage = 'Launching';
-    stageColor = 'text-rose-400 bg-rose-500/10 border-rose-500/30';
-  } else if (totalScore >= 85) {
-    stage = 'Ready';
-    stageColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
-  } else if (totalScore >= 40) {
-    stage = 'Preparing';
-    stageColor = 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30';
-  } else {
-    stage = 'Planning';
-    stageColor = 'text-amber-400 bg-amber-500/10 border-amber-500/30';
-  }
-
-  const missingItems = requirements
-    .filter((r) => !r.completed)
-    .map((r) => ({
-      id: r.id,
-      label: r.label,
-      actionTab: r.actionTab,
-      actionLabel: r.actionLabel,
-      reason: r.description,
-      priority: (r.weight >= 15 ? 'critical' : 'high') as 'critical' | 'high',
-    }));
-
-  return {
-    score: totalScore,
-    stage,
-    stageColor,
-    requirements,
-    completedCount,
-    totalCount: requirements.length,
-    missingItems,
-    daysUntilLaunch,
-    formattedDays,
-  };
-}
 
 export function computeReleaseReadiness(
   release: Release | null,
@@ -480,7 +262,6 @@ interface WorkspaceOverview {
   };
   latestRelease: Release | null;
   latestProject: Project | null;
-  latestCampaign: Campaign | null;
   brandCore?: BrandCore;
   products?: ProductService[];
   recentAssets: Asset[];
@@ -510,12 +291,6 @@ interface WorkspaceContextType {
   // Brand & Business Master Objects
   brandCore: BrandCore | null;
   products: ProductService[];
-  campaigns: Campaign[];
-  activeCampaignId: string | null;
-  activeCampaign: Campaign | null;
-  setActiveCampaignId: (id: string | null) => void;
-  calculateCampaignReadiness: (campaign?: Campaign | null) => CampaignReadinessSummary;
-  campaignReadiness: CampaignReadinessSummary;
 
   contentItems: ContentItem[];
   folders: Folder[];
@@ -593,12 +368,6 @@ interface WorkspaceContextType {
   updateBusinessDocument: (documentId: string, updates: any) => Promise<any>;
   deleteBusinessDocument: (documentId: string) => Promise<void>;
 
-  // Campaigns (Brand/Business OS Master Object)
-  createCampaign: (campaign: Partial<Campaign>) => Promise<Campaign>;
-  updateCampaign: (campaignId: string, updates: Partial<Campaign>) => Promise<Campaign>;
-  saveActiveCampaign: (updates: Partial<Campaign>) => Promise<Campaign>;
-  deleteCampaign: (campaignId: string) => Promise<void>;
-
   // Content Items & Pillars (Phase 6 Content Operating System)
   contentPillars: ContentPillar[];
   contentGaps: ContentGapRecommendation[];
@@ -612,7 +381,7 @@ interface WorkspaceContextType {
   updateContentItem: (itemId: string, updates: Partial<ContentItem>) => Promise<ContentItem>;
   deleteContentItem: (itemId: string) => Promise<void>;
   fetchContentGaps: () => Promise<{ gaps: ContentGapRecommendation[]; qualityIssues: ContentQualityIssue[] }>;
-  generateOpportunityBatch: (params: { stage?: string; releaseId?: string; campaignId?: string; productId?: string; platform?: string; count?: number; customGoal?: string }) => Promise<Partial<ContentItem>[]>;
+  generateOpportunityBatch: (params: { stage?: string; releaseId?: string; productId?: string; platform?: string; count?: number; customGoal?: string }) => Promise<Partial<ContentItem>[]>;
   
   // Creative Memory
   updateCreativeMemory: (memory: Partial<CreativeMemory>) => Promise<CreativeMemory>;
@@ -645,14 +414,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const [brandCore, setBrandCore] = useState<BrandCore | null>(null);
   const [products, setProducts] = useState<ProductService[]>([]);
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [activeCampaignId, setActiveCampaignIdState] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem("keedohub_active_campaign_id") || null;
-    } catch {
-      return null;
-    }
-  });
 
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
   const [contentPillars, setContentPillars] = useState<ContentPillar[]>([]);
@@ -685,19 +446,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const setActiveCampaignId = useCallback((id: string | null) => {
-    setActiveCampaignIdState(id);
-    try {
-      if (id) {
-        localStorage.setItem("keedohub_active_campaign_id", id);
-      } else {
-        localStorage.removeItem("keedohub_active_campaign_id");
-      }
-    } catch {
-      // storage unavailable
-    }
-  }, []);
-
   // Compute active release with auto-fallback to first release if none or invalid
   const activeRelease = useMemo(() => {
     if (!releases || releases.length === 0) return null;
@@ -708,47 +456,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     return releases[0] || null;
   }, [releases, activeReleaseId]);
 
-  // Compute active campaign with auto-fallback to first campaign if none or invalid
-  const activeCampaign = useMemo(() => {
-    if (!campaigns || campaigns.length === 0) return null;
-    if (activeCampaignId) {
-      const match = campaigns.find((c) => c.id === activeCampaignId);
-      if (match) return match;
-    }
-    return campaigns[0] || null;
-  }, [campaigns, activeCampaignId]);
-
-  // Keep activeReleaseId in sync if initial load had no selection
-  useEffect(() => {
-    if (releases.length > 0 && (!activeReleaseId || !releases.some((r) => r.id === activeReleaseId))) {
-      setActiveReleaseIdState(releases[0].id);
-    }
-  }, [releases, activeReleaseId]);
-
-  // Keep activeCampaignId in sync if initial load had no selection
-  useEffect(() => {
-    if (campaigns.length > 0 && (!activeCampaignId || !campaigns.some((c) => c.id === activeCampaignId))) {
-      setActiveCampaignIdState(campaigns[0].id);
-    }
-  }, [campaigns, activeCampaignId]);
-
   const calculateReleaseReadiness = useCallback((rel?: Release | null) => {
     const targetRelease = rel !== undefined ? rel : activeRelease;
     return computeReleaseReadiness(targetRelease, contentItems, assets, tasks);
   }, [activeRelease, contentItems, assets, tasks]);
 
-  const calculateCampaignReadiness = useCallback((camp?: Campaign | null) => {
-    const targetCampaign = camp !== undefined ? camp : activeCampaign;
-    return computeCampaignReadiness(targetCampaign, brandCore, products, contentItems, assets, tasks);
-  }, [activeCampaign, brandCore, products, contentItems, assets, tasks]);
-
   const releaseReadiness = useMemo(() => {
     return calculateReleaseReadiness(activeRelease);
   }, [calculateReleaseReadiness, activeRelease]);
-
-  const campaignReadiness = useMemo(() => {
-    return calculateCampaignReadiness(activeCampaign);
-  }, [calculateCampaignReadiness, activeCampaign]);
 
   const fetchWorkspaceData = useCallback(async () => {
     if (!activeWorkspace) return;
@@ -759,7 +474,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         projectsRes,
         assetsRes,
         releasesRes,
-        campaignsRes,
         brandCoreRes,
         productsRes,
         contentRes,
@@ -778,7 +492,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         api.projects.list(activeWorkspace.id).catch(() => ({ projects: [] })),
         api.assets.list(activeWorkspace.id).catch(() => ({ assets: [] })),
         api.releases.list(activeWorkspace.id).catch(() => ({ releases: [] })),
-        api.campaigns.list(activeWorkspace.id).catch(() => ({ campaigns: [] })),
         api.brandCore.get(activeWorkspace.id).catch(() => ({ brandCore: null })),
         api.products.list(activeWorkspace.id).catch(() => ({ products: [] })),
         api.contentItems.list(activeWorkspace.id).catch(() => ({ contentItems: [] })),
@@ -802,7 +515,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setProjects(projectsRes.projects || []);
       setAssets(assetsRes.assets || []);
       setReleases(releasesRes.releases || []);
-      setCampaigns(campaignsRes.campaigns || []);
       if (brandCoreRes.brandCore) setBrandCore(brandCoreRes.brandCore);
       setProducts(productsRes.products || []);
       setContentItems(contentRes.contentItems || []);
@@ -1123,59 +835,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     await fetchWorkspaceData();
   };
 
-  // Campaigns (legacy — reads work, writes are deprecated)
-  // Campaign creation/update/delete return 410 from the server.
-  // These functions are kept for read-only access and graceful degradation.
-  const createCampaign = async (campaign: Partial<Campaign>) => {
-    if (!activeWorkspace) throw new Error("No active workspace");
-    try {
-      const res = await api.campaigns.create(activeWorkspace.id, campaign);
-      setCampaigns((prev) => [res.campaign, ...prev]);
-      if (res.campaign?.id) {
-        setActiveCampaignId(res.campaign.id);
-      }
-      await fetchWorkspaceData();
-      return res.campaign;
-    } catch (err: any) {
-      console.warn('Campaign creation is deprecated:', err.message);
-      return null;
-    }
-  };
-
-  const updateCampaign = async (campaignId: string, updates: Partial<Campaign>) => {
-    if (!activeWorkspace) throw new Error("No active workspace");
-    try {
-      const res = await api.campaigns.update(activeWorkspace.id, campaignId, updates);
-      setCampaigns((prev) => prev.map((c) => (c.id === campaignId ? res.campaign : c)));
-      await fetchWorkspaceData();
-      return res.campaign;
-    } catch (err: any) {
-      console.warn('Campaign update is deprecated:', err.message);
-      return null;
-    }
-  };
-
-  const saveActiveCampaign = async (updates: Partial<Campaign>) => {
-    if (!activeWorkspace) throw new Error("No active workspace");
-    if (!activeCampaign) throw new Error("No active campaign selected");
-    return updateCampaign(activeCampaign.id, updates);
-  };
-
-  const deleteCampaign = async (campaignId: string) => {
-    if (!activeWorkspace) return;
-    try {
-      await api.campaigns.delete(activeWorkspace.id, campaignId);
-      setCampaigns((prev) => prev.filter((c) => c.id !== campaignId));
-      if (activeCampaignId === campaignId) {
-        const remaining = campaigns.filter((c) => c.id !== campaignId);
-        setActiveCampaignId(remaining.length > 0 ? remaining[0].id : null);
-      }
-      await fetchWorkspaceData();
-    } catch (err: any) {
-      console.warn('Campaign delete is deprecated:', err.message);
-    }
-  };
-
   // Content Pillars & Items
   const createContentPillar = async (pillar: Partial<ContentPillar> & { name: string }) => {
     if (!activeWorkspace) throw new Error("No active workspace");
@@ -1302,12 +961,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         releaseReadiness,
         brandCore,
         products,
-        campaigns,
-        activeCampaignId,
-        activeCampaign,
-        setActiveCampaignId,
-        calculateCampaignReadiness,
-        campaignReadiness,
         contentItems,
         contentPillars,
         contentGaps,
@@ -1371,10 +1024,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         createBusinessDocument,
         updateBusinessDocument,
         deleteBusinessDocument,
-        createCampaign,
-        updateCampaign,
-        saveActiveCampaign,
-        deleteCampaign,
         createContentItem,
         updateContentItem,
         deleteContentItem,

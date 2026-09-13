@@ -47,12 +47,10 @@ import {
   AttentionItem
 } from '../../types';
 
-// Contextual tool integrations (embedded directly within release workflows)
-import { CoverStudio } from '../CoverStudio';
-import { MasteringSuite } from '../MasteringSuite';
-import { LyricsStudio } from '../LyricsStudio';
-import { SplitsCalculator } from '../SplitsCalculator';
-import { PresaveHub } from '../PresaveHub';
+// NOTE: DIY creative tools (Cover Studio, Mastering Suite, Lyrics Studio,
+// Splits Calculator, Presave Hub) have been removed from the Artist workspace.
+// Artists now REQUEST creative work from KeedoHub Studio instead of designing it themselves.
+// These tools are preserved as internal Studio engines for admin/production use only.
 import { EPKBuilder } from '../EPKBuilder';
 
 export type ArtistEnvTab = 'overview' | 'releases' | 'content' | 'artist_dna';
@@ -98,15 +96,11 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
   });
 
   // Active Contextual Release Capability Modal/Drawer
+  // NOTE: DIY tools removed - only 'identity', 'studio', 'epk', 'checklist' remain
   const [activeReleaseCapability, setActiveReleaseCapability] = useState<
     | null
     | 'identity'
-    | 'master'
-    | 'artwork'
     | 'studio'
-    | 'presave'
-    | 'lyrics'
-    | 'splits'
     | 'epk'
     | 'checklist'
   >(null);
@@ -648,44 +642,50 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
                   </div>
                 </div>
 
-                {/* 2. Master Audio & Mastering Suite */}
+                {/* 2. Request Mastering from Studio */}
                 <div
-                  onClick={() => setActiveReleaseCapability('master')}
+                  onClick={() => {
+                    setActiveReleaseCapability(null);
+                    if (onNavigateTab) onNavigateTab('studio');
+                  }}
                   className="p-5 rounded-3xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 transition-all cursor-pointer space-y-3 group"
                 >
                   <div className="flex items-center justify-between">
                     <span className="p-2.5 rounded-xl bg-zinc-800 text-purple-400 group-hover:scale-110 transition-transform">
                       <Volume2 className="w-5 h-5" />
                     </span>
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Audio Lab</span>
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Studio</span>
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors">
-                      Master Audio & Suite
+                      Request Audio Mastering
                     </h4>
                     <p className="text-xs text-zinc-400 mt-1">
-                      Lossless 24-bit audio stems, loudness LUFS monitoring, and spectrum analysis.
+                      Professional mastering by KeedoHub Studio. DSP-compliant loudness, true peak validation.
                     </p>
                   </div>
                 </div>
 
-                {/* 3. Artwork & Cover Studio */}
+                {/* 3. Request Cover Artwork from Studio */}
                 <div
-                  onClick={() => setActiveReleaseCapability('artwork')}
+                  onClick={() => {
+                    setActiveReleaseCapability(null);
+                    if (onNavigateTab) onNavigateTab('studio');
+                  }}
                   className="p-5 rounded-3xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 transition-all cursor-pointer space-y-3 group"
                 >
                   <div className="flex items-center justify-between">
                     <span className="p-2.5 rounded-xl bg-zinc-800 text-pink-400 group-hover:scale-110 transition-transform">
                       <Disc3 className="w-5 h-5" />
                     </span>
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Visuals</span>
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Studio</span>
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-white group-hover:text-pink-400 transition-colors">
-                      Artwork & Cover Studio
+                      Request Cover Artwork
                     </h4>
                     <p className="text-xs text-zinc-400 mt-1">
-                      3000x3000px high-resolution cover art generator formatted for DSP compliance.
+                      Professional cover art designed by KeedoHub Studio. DSP-compliant 3000x3000px.
                     </p>
                   </div>
                 </div>
@@ -711,65 +711,74 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
                   </div>
                 </div>
 
-                {/* 5. Pre-Save */}
+                {/* 5. Request Pre-Save Push from Studio */}
                 <div
-                  onClick={() => setActiveReleaseCapability('presave')}
+                  onClick={() => {
+                    setActiveReleaseCapability(null);
+                    if (onNavigateTab) onNavigateTab('studio');
+                  }}
                   className="p-5 rounded-3xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 transition-all cursor-pointer space-y-3 group"
                 >
                   <div className="flex items-center justify-between">
                     <span className="p-2.5 rounded-xl bg-zinc-800 text-cyan-400 group-hover:scale-110 transition-transform">
                       <Share2 className="w-5 h-5" />
                     </span>
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Conversion</span>
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Studio</span>
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">
-                      Pre-Save Campaign Hub
+                      Request Pre-Save Push
                     </h4>
                     <p className="text-xs text-zinc-400 mt-1">
-                      Multi-platform smart landing links, countdown triggers, and early listener capture.
+                      Multi-platform pre-save push managed by KeedoHub Studio.
                     </p>
                   </div>
                 </div>
 
-                {/* 6. Lyrics Studio */}
+                {/* 6. Request Lyric Visuals from Studio */}
                 <div
-                  onClick={() => setActiveReleaseCapability('lyrics')}
+                  onClick={() => {
+                    setActiveReleaseCapability(null);
+                    if (onNavigateTab) onNavigateTab('studio');
+                  }}
                   className="p-5 rounded-3xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 transition-all cursor-pointer space-y-3 group"
                 >
                   <div className="flex items-center justify-between">
                     <span className="p-2.5 rounded-xl bg-zinc-800 text-amber-400 group-hover:scale-110 transition-transform">
                       <FileMusic className="w-5 h-5" />
                     </span>
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Writing</span>
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Studio</span>
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
-                      Lyrics Studio
+                      Request Lyric Visuals
                     </h4>
                     <p className="text-xs text-zinc-400 mt-1">
-                      Synced line-by-line lyric timestamping for Musixmatch, Genius, and Apple Music.
+                      Lyric videos and visuals created by KeedoHub Studio.
                     </p>
                   </div>
                 </div>
 
-                {/* 7. Splits & Royalties */}
+                {/* 7. Request Split Sheet from Studio */}
                 <div
-                  onClick={() => setActiveReleaseCapability('splits')}
+                  onClick={() => {
+                    setActiveReleaseCapability(null);
+                    if (onNavigateTab) onNavigateTab('studio');
+                  }}
                   className="p-5 rounded-3xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-700 transition-all cursor-pointer space-y-3 group"
                 >
                   <div className="flex items-center justify-between">
                     <span className="p-2.5 rounded-xl bg-zinc-800 text-emerald-400 group-hover:scale-110 transition-transform">
                       <DollarSign className="w-5 h-5" />
                     </span>
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Legal</span>
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Studio</span>
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">
-                      Splits & Royalties
+                      Request Split Sheet
                     </h4>
                     <p className="text-xs text-zinc-400 mt-1">
-                      Collaborator percentage split agreements, publishing shares, and exportable term sheets.
+                      Royalty splits and collaboration agreements managed by KeedoHub Studio.
                     </p>
                   </div>
                 </div>
@@ -830,12 +839,10 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
 
                       <button
                         onClick={() => {
-                          if (req.id === 'req_master') setActiveReleaseCapability('master');
-                          else if (req.id === 'req_cover') setActiveReleaseCapability('artwork');
-                          else if (req.id === 'req_studio_production') setActiveReleaseCapability('studio');
-                          else if (req.id === 'req_splits') setActiveReleaseCapability('splits');
-                          else if (req.id === 'req_presave') setActiveReleaseCapability('presave');
-                          else setActiveReleaseCapability('identity');
+                          // Navigate to Studio to request creative work
+                          if (onNavigateTab) {
+                            onNavigateTab('studio');
+                          }
                         }}
                         className="text-[11px] font-bold text-zinc-400 hover:text-red-400 shrink-0 cursor-pointer"
                       >
@@ -1130,13 +1137,9 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
                 </span>
                 <h3 className="text-xl font-black text-white">
                   {activeReleaseCapability === 'identity' && 'Release Identity & Metadata'}
-                  {activeReleaseCapability === 'master' && 'Master Audio & Sound Laboratory'}
-                  {activeReleaseCapability === 'artwork' && 'Artwork & Cover Studio'}
                   {activeReleaseCapability === 'studio' && 'KeedoHub Studio Production'}
-                  {activeReleaseCapability === 'presave' && 'Pre-Save Campaign Hub'}
-                  {activeReleaseCapability === 'lyrics' && 'Lyrics Studio'}
-                  {activeReleaseCapability === 'splits' && 'Splits & Royalty Terms'}
                   {activeReleaseCapability === 'epk' && 'Electronic Press Kit (EPK)'}
+                  {activeReleaseCapability === 'checklist' && 'Release Checklist'}
                 </h3>
               </div>
 
@@ -1148,7 +1151,7 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
               </button>
             </div>
 
-            {/* Embedded Capabilities */}
+            {/* Embedded Capabilities - DIY tools removed, replaced with Studio requests */}
             {activeReleaseCapability === 'identity' && (
               <div className="space-y-4 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1196,28 +1199,37 @@ export const ArtistOperatingEnvironment: React.FC<ArtistOperatingEnvironmentProp
               </div>
             )}
 
-            {activeReleaseCapability === 'master' && (
-              <MasteringSuite onNotify={onNotify} />
-            )}
-
-            {activeReleaseCapability === 'artwork' && (
-              <CoverStudio onNotify={onNotify} />
-            )}
-
-            {activeReleaseCapability === 'presave' && (
-              <PresaveHub onNotify={onNotify} />
-            )}
-
-            {activeReleaseCapability === 'lyrics' && (
-              <LyricsStudio onNotify={onNotify} />
-            )}
-
-            {activeReleaseCapability === 'splits' && (
-              <SplitsCalculator onNotify={onNotify} />
+            {activeReleaseCapability === 'studio' && (
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 text-center">
+                <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-4">
+                  <Layers className="w-6 h-6 text-amber-400" />
+                </div>
+                <h4 className="text-sm font-bold text-white mb-2">KeedoHub Studio Production</h4>
+                <p className="text-xs text-zinc-400 max-w-md mx-auto mb-4">
+                  Request professional production services including artwork, visuals, motion, EPK, and marketing assets.
+                </p>
+                <button
+                  onClick={() => {
+                    setActiveReleaseCapability(null);
+                    if (onNavigateTab) onNavigateTab('studio');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold cursor-pointer transition-colors"
+                >
+                  Open Studio →
+                </button>
+              </div>
             )}
 
             {activeReleaseCapability === 'epk' && (
               <EPKBuilder onNotify={onNotify} />
+            )}
+
+            {activeReleaseCapability === 'checklist' && (
+              <div className="space-y-4">
+                <p className="text-xs text-zinc-400">
+                  Track your release progress through the production pipeline.
+                </p>
+              </div>
             )}
           </div>
         </div>

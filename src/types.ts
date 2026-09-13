@@ -72,14 +72,10 @@ export interface OnboardingPayload {
     releaseDate?: string;
     format?: string;
   };
-  upcomingCampaign?: {
-    title?: string;
-    targetDate?: string;
-    goal?: string;
-  };
   currentProject?: {
     title?: string;
     description?: string;
+    targetDate?: string;
   };
   mainOffer?: string;
   saveAsMemory?: boolean;
@@ -175,6 +171,11 @@ export interface ReleaseReadinessSummary {
   daysUntilRelease: number | null;
   formattedDays: string;
 }
+
+/**
+ * @deprecated Campaign functionality has been replaced by Projects.
+ * Kept for legacy data compatibility only. Do not use in new code.
+ */
 export interface CampaignRequirement {
   id: string;
   label: string;
@@ -187,6 +188,10 @@ export interface CampaignRequirement {
   detail?: string;
 }
 
+/**
+ * @deprecated Campaign functionality has been replaced by Projects.
+ * Kept for legacy data compatibility only. Do not use in new code.
+ */
 export interface CampaignReadinessSummary {
   score: number;
   stage: 'Planning' | 'Preparing' | 'Ready' | 'Launching' | 'Active' | 'Completed';

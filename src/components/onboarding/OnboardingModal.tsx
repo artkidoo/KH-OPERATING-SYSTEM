@@ -39,20 +39,20 @@ const IDENTITY_OPTIONS: IdentityCardConfig[] = [
   {
     type: "artist",
     title: "Artist & Musician",
-    subtitle: "Music releases, cover art, DSP pitching, and fanbase growth",
+    subtitle: "Music releases, cover art, and studio-produced asset kits",
     icon: Music,
     accentColor: "from-red-500/20 to-orange-500/20 border-red-500/30 text-red-400",
-    badge: "Artist OS",
-    features: ["Release Readiness Engine", "DSP Editorial Pitcher", "Cover & Mastering Suites"],
+    badge: "Artist Workspace",
+    features: ["Release Asset Kits by KeedoHub Studio", "Cover Art & Mastering Production", "Social Content & Motion"],
   },
   {
     type: "brand",
     title: "Brand & Business",
-    subtitle: "Brand identity, collection drops, campaign sprints, and conversion engines",
+    subtitle: "Brand identity, brand kits, business documents, and presentations",
     icon: Building2,
     accentColor: "from-blue-500/20 to-indigo-500/20 border-blue-500/30 text-blue-400",
-    badge: "Brand OS",
-    features: ["Brand Core & Archetypes", "Campaign Sprint Tracker", "Multi-channel Content & Product Engine"],
+    badge: "Brand Workspace",
+    features: ["Brand Identity & Kit Production", "Business Documents & Presentations", "Multi-channel Content & Motion"],
   },
 ];
 
@@ -81,12 +81,9 @@ export const OnboardingModal: React.FC = () => {
   const [releaseFormat, setReleaseFormat] = useState("Single");
   const [releaseDate, setReleaseDate] = useState("");
 
-  const [campaignTitle, setCampaignTitle] = useState("");
-  const [campaignGoal, setCampaignGoal] = useState("");
-  const [campaignTargetDate, setCampaignTargetDate] = useState("");
-
   const [projectTitle, setProjectTitle] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
+  const [projectTargetDate, setProjectTargetDate] = useState("");
 
   const [mainOffer, setMainOffer] = useState("");
 
@@ -149,9 +146,9 @@ export const OnboardingModal: React.FC = () => {
           if (data.suggestedMilestone.format) setReleaseFormat(data.suggestedMilestone.format);
           if (data.suggestedMilestone.targetDate) setReleaseDate(data.suggestedMilestone.targetDate);
         } else if (data.identityType === "brand" && data.suggestedMilestone.title) {
-          setCampaignTitle(data.suggestedMilestone.title);
-          if (data.suggestedMilestone.goal) setCampaignGoal(data.suggestedMilestone.goal);
-          if (data.suggestedMilestone.targetDate) setCampaignTargetDate(data.suggestedMilestone.targetDate);
+          setProjectTitle(data.suggestedMilestone.title);
+          if (data.suggestedMilestone.goal) setProjectDescription(data.suggestedMilestone.goal);
+          if (data.suggestedMilestone.targetDate) setProjectTargetDate(data.suggestedMilestone.targetDate);
         }
       }
 
@@ -193,11 +190,11 @@ export const OnboardingModal: React.FC = () => {
         format: releaseFormat,
         releaseDate: releaseDate || undefined,
       };
-    } else if (selectedIdentity === "brand" && campaignTitle.trim()) {
-      payload.upcomingCampaign = {
-        title: campaignTitle.trim(),
-        goal: campaignGoal.trim(),
-        targetDate: campaignTargetDate || undefined,
+    } else if (selectedIdentity === "brand" && projectTitle.trim()) {
+      payload.currentProject = {
+        title: projectTitle.trim(),
+        description: projectDescription.trim() || undefined,
+        targetDate: projectTargetDate || undefined,
       };
     }
 
@@ -588,40 +585,40 @@ export const OnboardingModal: React.FC = () => {
               {selectedIdentity === "brand" && (
                 <div className="space-y-3.5 p-4 rounded-xl bg-zinc-950 border border-zinc-800">
                   <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase tracking-wider">
-                    <Building2 className="h-4 w-4" /> Next Marketing Campaign / Drop
+                    <Building2 className="h-4 w-4" /> Next Brand Project
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[11px] text-zinc-400">Campaign Title</label>
+                    <label className="text-[11px] text-zinc-400">Project Title</label>
                     <input
                       type="text"
-                      id="input-campaign-title"
-                      value={campaignTitle}
-                      onChange={(e) => setCampaignTitle(e.target.value)}
-                      placeholder="e.g. Summer Capsule Drop, Rebrand Sprint"
+                      id="input-project-title"
+                      value={projectTitle}
+                      onChange={(e) => setProjectTitle(e.target.value)}
+                      placeholder="e.g. Brand Identity System, Summer Capsule Launch"
                       className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] text-zinc-400">Campaign Objective</label>
+                      <label className="text-[11px] text-zinc-400">Project Description</label>
                       <input
                         type="text"
-                        id="input-campaign-goal"
-                        value={campaignGoal}
-                        onChange={(e) => setCampaignGoal(e.target.value)}
-                        placeholder="e.g. Acquire 500 new customers"
+                        id="input-project-desc"
+                        value={projectDescription}
+                        onChange={(e) => setProjectDescription(e.target.value)}
+                        placeholder="e.g. Launch brand identity with new social kit"
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-blue-500"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] text-zinc-400">Target Launch Date</label>
+                      <label className="text-[11px] text-zinc-400">Target Date</label>
                       <input
                         type="date"
-                        id="input-campaign-date"
-                        value={campaignTargetDate}
-                        onChange={(e) => setCampaignTargetDate(e.target.value)}
+                        id="input-project-date"
+                        value={projectTargetDate}
+                        onChange={(e) => setProjectTargetDate(e.target.value)}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-blue-500"
                       />
                     </div>
@@ -669,10 +666,10 @@ export const OnboardingModal: React.FC = () => {
                     <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
                     <div>
                       <div className="text-xs font-medium text-zinc-200">
-                        {selectedIdentity === "artist" ? "Release Readiness Matrix" : "Master Sprint Blueprint"}
+                        {selectedIdentity === "artist" ? "Release Readiness Matrix" : "Master Project Blueprint"}
                       </div>
                       <div className="text-[10px] text-zinc-400">
-                        {releaseTitle || campaignTitle || projectTitle || mainOffer || "Actionable starter workflow"}
+                        {releaseTitle || projectTitle || mainOffer || "Actionable starter workflow"}
                       </div>
                     </div>
                   </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { ActiveTab, StudioServiceCategory } from "./types";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -6,15 +6,6 @@ import { WorkspaceProvider } from "./context/WorkspaceContext";
 import { CreativeBrainProvider, useCreativeBrain } from "./context/CreativeBrainContext";
 import { Header } from "./components/Header";
 import { HeroStudioOS } from "./components/HeroStudioOS";
-import { Studio } from "./components/Studio";
-import { IntelHub } from "./components/IntelHub";
-import { CreativeMemoryDashboard } from "./components/CreativeMemoryDashboard";
-import { CreativeRadarDashboard } from "./components/CreativeRadarDashboard";
-import { AnalyticsView } from "./components/AnalyticsView";
-import { WorkflowHub } from "./components/WorkflowHub";
-import { CollaborationHub } from "./components/collaboration/CollaborationHub";
-import { AdminDashboard } from "./components/admin/AdminDashboard";
-import { StudioAdmin } from "./components/workspace/StudioAdmin";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
@@ -35,11 +26,9 @@ import { SecurityPage } from "./components/pages/SecurityPage";
 import { ForumPage } from "./components/pages/ForumPage";
 import { TrendingPage } from "./components/pages/TrendingPage";
 import { JournalPage } from "./components/pages/JournalPage";
-import { IntegrationsHub } from "./components/integrations/IntegrationsHub";
-import { ProductionCenter } from "./components/ProductionCenter";
-import { WorkspaceShell, ShellSection } from "./components/workspace/WorkspaceShell";
 import { AuthGate } from "./components/auth/AuthGate";
 import { AuthModal } from "./components/AuthModal";
+import type { ShellSection } from "./components/workspace/WorkspaceShell";
 import { 
   Search, 
   BrainCircuit,
@@ -60,6 +49,50 @@ import {
   isStudioTab 
 } from "./utils/navigation";
 import { hasAdminAccess } from "./utils/adminAccess";
+
+// Code-split heavy workspace/admin views so the initial bundle stays small.
+const WorkspaceShell = lazy(() =>
+  import("./components/workspace/WorkspaceShell").then((m) => ({ default: m.WorkspaceShell }))
+);
+const Studio = lazy(() =>
+  import("./components/Studio").then((m) => ({ default: m.Studio }))
+);
+const IntelHub = lazy(() =>
+  import("./components/IntelHub").then((m) => ({ default: m.IntelHub }))
+);
+const CreativeMemoryDashboard = lazy(() =>
+  import("./components/CreativeMemoryDashboard").then((m) => ({ default: m.CreativeMemoryDashboard }))
+);
+const CreativeRadarDashboard = lazy(() =>
+  import("./components/CreativeRadarDashboard").then((m) => ({ default: m.CreativeRadarDashboard }))
+);
+const AnalyticsView = lazy(() =>
+  import("./components/AnalyticsView").then((m) => ({ default: m.AnalyticsView }))
+);
+const WorkflowHub = lazy(() =>
+  import("./components/WorkflowHub").then((m) => ({ default: m.WorkflowHub }))
+);
+const CollaborationHub = lazy(() =>
+  import("./components/collaboration/CollaborationHub").then((m) => ({ default: m.CollaborationHub }))
+);
+const AdminDashboard = lazy(() =>
+  import("./components/admin/AdminDashboard").then((m) => ({ default: m.AdminDashboard }))
+);
+const StudioAdmin = lazy(() =>
+  import("./components/workspace/StudioAdmin").then((m) => ({ default: m.StudioAdmin }))
+);
+const IntegrationsHub = lazy(() =>
+  import("./components/integrations/IntegrationsHub").then((m) => ({ default: m.IntegrationsHub }))
+);
+const ProductionCenter = lazy(() =>
+  import("./components/ProductionCenter").then((m) => ({ default: m.ProductionCenter }))
+);
+
+const LazyFallback = (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="text-sm text-zinc-500 animate-pulse">Loading KeedoHub…</div>
+  </div>
+);
 
 const PUBLIC_TABS: ActiveTab[] = [
   "overview",
@@ -291,7 +324,8 @@ function MainAppContent() {
             onNavigatePublic={setActiveTab}
           />
         ) : (
-          <>
+          <Suspense fallback={LazyFallback}>
+            <>
             {activeTab === "overview" && (
               <HeroStudioOS
                 setActiveTab={setActiveTab}
@@ -477,7 +511,8 @@ function MainAppContent() {
         {activeTab === "trending" && (
           <TrendingPage onNavigateTab={setActiveTab} openBriefModal={() => setIsBriefOpen(true)} />
         )}
-          </>
+            </>
+          </Suspense>
         )}
       </main>
 

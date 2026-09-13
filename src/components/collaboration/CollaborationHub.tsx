@@ -157,7 +157,7 @@ export const CollaborationHub: React.FC<CollaborationHubProps> = ({
             Collaboration Hub
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl">
-            Streamline client reviews, threaded feedback, revision diffs, and multi-party sign-offs across Studio, Releases, Projects, and Campaigns.
+            Streamline client reviews, threaded feedback, revision diffs, and multi-party sign-offs across Studio, Releases, and Projects.
           </p>
         </div>
 
@@ -499,7 +499,7 @@ export const CollaborationHub: React.FC<CollaborationHubProps> = ({
               <MessageSquare className="w-10 h-10 text-zinc-600 mx-auto" />
               <h3 className="text-base font-bold text-zinc-300">No Feedback Comments Found</h3>
               <p className="text-xs text-zinc-500 max-w-md mx-auto">
-                Discussion comments attached to deliverables, releases, campaigns, or tasks will stream here.
+                Discussion comments attached to deliverables, releases, projects, or tasks will stream here.
               </p>
             </div>
           ) : (
@@ -573,7 +573,7 @@ export const CollaborationHub: React.FC<CollaborationHubProps> = ({
               <History className="w-10 h-10 text-zinc-600 mx-auto" />
               <h3 className="text-base font-bold text-zinc-300">No Revisions Logged Yet</h3>
               <p className="text-xs text-zinc-500 max-w-md mx-auto">
-                Track creative revisions across artwork, master files, campaigns, and brief deliverables.
+                Track creative revisions across artwork, master files, projects, and brief deliverables.
               </p>
             </div>
           ) : (

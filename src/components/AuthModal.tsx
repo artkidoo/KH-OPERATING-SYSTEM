@@ -62,8 +62,8 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = "login", a
   };
 
   const identities: { id: IdentityType; label: string; icon: any; desc: string }[] = [
-    { id: "artist", label: "Music Artist OS", icon: Music, desc: "Release rollouts, Cover Studio, Mastering Suite & Studio Production" },
-    { id: "brand", label: "Brand OS", icon: Building2, desc: "Design systems, marketing campaigns, content engines" },
+    { id: "artist", label: "Music Artist", icon: Music, desc: "Release asset kits, cover art, mastering & Studio production" },
+    { id: "brand", label: "Brand & Business", icon: Building2, desc: "Brand identity, business documents & creative infrastructure" },
   ];
 
   return (

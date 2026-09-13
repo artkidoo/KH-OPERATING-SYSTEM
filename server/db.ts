@@ -1913,14 +1913,10 @@ class Database {
         releaseDate?: string;
         format?: string;
       };
-      upcomingCampaign?: {
-        title?: string;
-        targetDate?: string;
-        goal?: string;
-      };
       currentProject?: {
         title?: string;
         description?: string;
+        targetDate?: string;
       };
       mainOffer?: string;
       saveAsMemory?: boolean;
@@ -2038,14 +2034,14 @@ class Database {
           category: "audio",
         });
         this.createTask(workspaceId, {
-          text: `Generate 3000x3000px single artwork in Cover Studio`,
+          text: `Request 3000x3000px master cover artwork from KeedoHub Studio`,
           priority: "high",
-          category: "artwork",
+          category: "studio-request",
         });
         this.createTask(workspaceId, {
           text: `Prepare KeedoHub Studio production request for "${release.title}"`,
           priority: "medium",
-          category: "dsp-pitch",
+          category: "studio-request",
         });
       }
     } else {
@@ -2078,22 +2074,26 @@ class Database {
         }
       }
 
-      if (data.upcomingCampaign?.title) {
-        const targetDate = data.upcomingCampaign.targetDate || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split("T")[0];
-        this.createCampaign(workspaceId, {
-          title: data.upcomingCampaign.title,
-          goal: data.upcomingCampaign.goal || data.primaryGoal || "Brand awareness and initial conversion sprint",
-          objective: "product_launch",
+      if (data.currentProject?.title) {
+        const targetDate =
+          data.currentProject.targetDate ||
+          new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split("T")[0];
+        this.createProject(workspaceId, {
+          title: data.currentProject.title,
+          description:
+            data.currentProject.description ||
+            data.primaryGoal ||
+            "Brand creative project managed by KeedoHub.",
+          category: "Brand Creative",
           status: "planning",
-          startDate: new Date().toISOString().split("T")[0],
-          endDate: targetDate,
-          platforms: ["Instagram", "TikTok", "LinkedIn"],
-          budget: 5000,
+          priority: "medium",
+          budget: 0,
           currency: "USD",
-          targetAudience: data.targetAudience || "Core target market",
-          sprintDays: [],
+          deadline: targetDate,
+          tags: [data.identityType, "onboarding"],
+          tasks: [],
         });
-        initialCounts.campaigns++;
+        initialCounts.projects++;
       }
     }
 

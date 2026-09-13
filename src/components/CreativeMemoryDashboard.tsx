@@ -60,7 +60,7 @@ export function CreativeMemoryDashboard({
   onNotify,
   onNavigateTab,
 }: CreativeMemoryDashboardProps) {
-  const { workspace, releases, campaigns, projects } = useWorkspace();
+  const { workspace, releases, projects } = useWorkspace();
   const { user } = useAuth();
 
   // Primary navigation tabs inside Memory Dashboard
@@ -577,7 +577,7 @@ export function CreativeMemoryDashboard({
               </span>
             </h1>
             <p className="text-sm text-zinc-400 max-w-2xl leading-relaxed">
-              Keedohub Creative Memory empowers your Creative Brain with structured, evolving, user-approved intelligence across releases, campaigns, sound decisions, and studio projects.
+              Keedohub Creative Memory empowers your Creative Brain with structured, evolving, user-approved intelligence across releases, projects, sound decisions, and studio production.
             </p>
           </div>
 
@@ -768,15 +768,6 @@ export function CreativeMemoryDashboard({
                         </option>
                       ))}
                     </optgroup>
-                    {campaigns.length > 0 && (
-                      <optgroup label="Campaigns">
-                        {campaigns.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.title}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
                     {projects.length > 0 && (
                       <optgroup label="Projects">
                         {projects.map((p) => (
@@ -821,7 +812,6 @@ export function CreativeMemoryDashboard({
                 { id: "all", label: "All Scopes" },
                 { id: "workspace", label: "Workspace" },
                 { id: "release", label: "Release" },
-                { id: "campaign", label: "Campaign" },
                 { id: "project", label: "Project" },
                 { id: "studio_project", label: "Studio" },
               ].map((sc) => (
@@ -1216,7 +1206,6 @@ export function CreativeMemoryDashboard({
                     <option value="">All Scopes</option>
                     <option value="workspace">Workspace</option>
                     <option value="release">Release</option>
-                    <option value="campaign">Campaign</option>
                     <option value="project">Project</option>
                   </select>
                 </div>
@@ -1377,7 +1366,6 @@ export function CreativeMemoryDashboard({
                     <option value="workspace">Workspace (Global)</option>
                     <option value="identity">Identity Specific</option>
                     <option value="release">Release Specific</option>
-                    <option value="campaign">Campaign Specific</option>
                     <option value="project">Project Specific</option>
                     <option value="content">Content Specific</option>
                     <option value="studio_project">Studio Project Specific</option>
@@ -1386,7 +1374,7 @@ export function CreativeMemoryDashboard({
               </div>
 
               {/* Linked Entity Selection */}
-              {(formData.scope === "release" || formData.scope === "campaign" || formData.scope === "project") && (
+              {(formData.scope === "release" || formData.scope === "project") && (
                 <div>
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">
                     Link to Specific {(formData.scope || "entity").charAt(0).toUpperCase() + (formData.scope || "").slice(1)}
@@ -1398,8 +1386,6 @@ export function CreativeMemoryDashboard({
                       let name = "";
                       if (formData.scope === "release") {
                         name = releases.find((r) => r.id === id)?.title || "";
-                      } else if (formData.scope === "campaign") {
-                        name = campaigns.find((c) => c.id === id)?.title || "";
                       } else if (formData.scope === "project") {
                         name = projects.find((p) => p.id === id)?.title || "";
                       }
@@ -1417,12 +1403,6 @@ export function CreativeMemoryDashboard({
                       releases.map((r) => (
                         <option key={r.id} value={r.id}>
                           {r.title} ({r.artistName})
-                        </option>
-                      ))}
-                    {formData.scope === "campaign" &&
-                      campaigns.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.title}
                         </option>
                       ))}
                     {formData.scope === "project" &&
@@ -1711,7 +1691,6 @@ export function CreativeMemoryDashboard({
                     <option value="workspace">Workspace</option>
                     <option value="identity">Identity</option>
                     <option value="release">Release</option>
-                    <option value="campaign">Campaign</option>
                     <option value="project">Project</option>
                   </select>
                 </div>

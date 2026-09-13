@@ -1236,7 +1236,7 @@ export const api = {
     actionApproval: async (
       workspaceId: string,
       approvalId: string,
-      approvalType: 'studio_quote' | 'studio_deliverable' | 'campaign_sprint',
+      approvalType: 'studio_quote' | 'studio_deliverable' | 'project_sprint',
       action: 'approve' | 'reject' | 'request_revision',
       notes?: string
     ) => {

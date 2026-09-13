@@ -34,7 +34,7 @@ import { useCreativeBrain } from '../../context/CreativeBrainContext';
 import { ProductServiceSystem } from './ProductServiceSystem';
 import { BusinessDocumentsStudio } from './BusinessDocumentsStudio';
 import { BrandCoreEditor } from './BrandCoreEditor';
-import { TaskItem, AttentionItem, Campaign, ContentItem, Project } from '../../types';
+import { TaskItem, AttentionItem, ContentItem, Project } from '../../types';
 
 export type BrandEnvTab = 'overview' | 'growth' | 'operations' | 'content' | 'brand_dna';
 
@@ -50,14 +50,11 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
   const {
     workspace,
     brandCore,
-    activeCampaign,
-    campaigns,
     products,
     contentItems,
     tasks,
     projects,
     attentionItems,
-    calculateCampaignReadiness,
     updateCreativeMemory,
     loadBrandDNA,
     saveBrandDNA,
@@ -68,8 +65,8 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
   // Primary 5-Tab Navigation
   const [activeTab, setActiveTab] = useState<BrandEnvTab>('overview');
 
-  // Growth View Sub-sections: 'campaigns' | 'offers' | 'initiatives'
-  const [growthSubSection, setGrowthSubSection] = useState<'campaigns' | 'offers' | 'strategy'>('campaigns');
+  // Growth View Sub-sections: 'offers' | 'strategy' (campaigns removed)
+  const [growthSubSection, setGrowthSubSection] = useState<'offers' | 'strategy'>('offers');
 
   // Operations View Sub-sections: 'catalog' | 'documents' | 'invoices' | 'projects'
   const [operationsSubSection, setOperationsSubSection] = useState<'catalog' | 'documents' | 'invoices' | 'projects'>('catalog');
@@ -88,10 +85,6 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
   const realAttentionItems = useMemo(() => {
     return attentionItems.slice(0, 4);
   }, [attentionItems]);
-
-  const campaignReadiness = useMemo(() => {
-    return calculateCampaignReadiness(activeCampaign);
-  }, [calculateCampaignReadiness, activeCampaign]);
 
   // Brand DNA State (persisted to brand_dna database table)
   const [brandDNA, setBrandDNA] = useState({
@@ -206,7 +199,7 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
 
             <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
               {activeTab === 'overview' && 'Real operational objectives, next actions, active projects, and business items requiring attention.'}
-              {activeTab === 'growth' && 'Campaigns, core offers, audience strategy, and contextual launch planning in one place.'}
+              {activeTab === 'growth' && 'Core offers, audience strategy, and contextual launch planning in one place.'}
               {activeTab === 'operations' && 'Products & services, proposals, quotations, contracts, invoices, and operational tasks.'}
               {activeTab === 'content' && 'Strategic brand storytelling systems, thought leadership pillars, and scheduled releases.'}
               {activeTab === 'brand_dna' && 'The central memory layer feeding Creative Brain for strategy, marketing, copy, and documents.'}
@@ -249,11 +242,6 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
           >
             <TrendingUp className="w-4 h-4" />
             <span>2. Growth</span>
-            {campaigns.length > 0 && (
-              <span className="px-1.5 py-0.5 rounded-md text-[10px] bg-black/40 text-white font-mono">
-                {campaigns.length}
-              </span>
-            )}
           </button>
 
           <button
@@ -325,8 +313,8 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
                 <p className="text-xl font-black text-white mt-0.5">{products.length || brandDNA.offers.length}</p>
               </div>
               <div>
-                <span className="text-[11px] text-zinc-500 font-semibold">Campaign Readiness</span>
-                <p className="text-xl font-black text-blue-400 mt-0.5">{campaignReadiness.score}%</p>
+                <span className="text-[11px] text-zinc-500 font-semibold">Content Items</span>
+                <p className="text-xl font-black text-white mt-0.5">{contentItems.length}</p>
               </div>
             </div>
           </div>
@@ -443,24 +431,13 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
       )}
 
       {/* ========================================================================= */}
-      {/* 2. GROWTH (Campaigns, Offers, Launch Planning, Audience Strategy) */}
+      {/* 2. GROWTH (Offers, Launch Planning, Audience Strategy) */}
       {/* ========================================================================= */}
       {activeTab === 'growth' && (
         <div className="space-y-6">
           {/* Sub-section Navigation */}
           <div className="flex items-center justify-between gap-4 border-b border-zinc-800 pb-4">
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setGrowthSubSection('campaigns')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  growthSubSection === 'campaigns'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-zinc-900 text-zinc-400 hover:text-white'
-                }`}
-              >
-                Campaigns & Launch
-              </button>
-
               <button
                 onClick={() => setGrowthSubSection('offers')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -483,21 +460,9 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
                 Audience Strategy
               </button>
             </div>
-
-            {/* Contextual Readiness Pill (embedded, not a separate dashboard) */}
-            <div className="flex items-center gap-2 text-xs font-bold">
-              <span className="text-zinc-400">Campaign Readiness:</span>
-              <span className={`px-2.5 py-0.5 rounded-full border ${campaignReadiness.stageColor}`}>
-                {campaignReadiness.score}% ({campaignReadiness.stage})
-              </span>
-            </div>
           </div>
 
           {/* Sub-section Contents */}
-          {growthSubSection === 'campaigns' && (
-            <CampaignMigrationNotice campaigns={campaigns} onNotify={onNotify} />
-          )}
-
           {growthSubSection === 'offers' && (
             <div className="space-y-6">
               <div className="p-6 rounded-3xl border border-zinc-800 bg-zinc-900/40 space-y-4">
@@ -853,93 +818,3 @@ export const BrandOperatingEnvironment: React.FC<BrandOperatingEnvironmentProps>
     </div>
   );
 };
-
-/** Shows migration info when user navigates to Campaigns section.
- *  Campaign creation is deprecated — use Projects instead. */
-function CampaignMigrationNotice({ campaigns, onNotify }: { campaigns: Campaign[]; onNotify: (msg: string, type?: 'success' | 'info' | 'error') => void }) {
-  const handleMigrateAll = async () => {
-    onNotify(`${campaigns.length} legacy campaigns available for migration. Create Projects instead.`, 'info');
-  };
-
-  return (
-    <div className="mx-auto max-w-3xl space-y-4">
-      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6">
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
-            <Move className="w-5 h-5 text-amber-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-white">Campaigns Migrated to Projects</h3>
-            <p className="mt-1 text-sm text-zinc-400">
-              Campaign creation has been deprecated. Your existing campaigns can be migrated to Projects.
-            </p>
-            {campaigns.length > 0 && (
-              <p className="mt-2 text-xs text-amber-400">
-                {campaigns.length} legacy campaign{campaigns.length !== 1 ? 's' : ''} found
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <button
-          onClick={() => onNotify('Navigate to Projects to create new work.', 'info')}
-          className="flex items-center justify-between rounded-xl bg-zinc-800 hover:bg-zinc-700 p-4 text-left cursor-pointer transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center">
-              <FolderKanban className="w-4 h-4 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-white">Create a Project</p>
-              <p className="text-[11px] text-zinc-400">The new way to organize work</p>
-            </div>
-          </div>
-          <ArrowRight className="w-4 h-4 text-zinc-500" />
-        </button>
-
-        {campaigns.length > 0 && (
-          <button
-            onClick={handleMigrateAll}
-            className="flex items-center justify-between rounded-xl bg-zinc-800 hover:bg-zinc-700 p-4 text-left cursor-pointer transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-600/20 flex items-center justify-center">
-                <Move className="w-4 h-4 text-amber-400" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-white">Migrate Legacy Campaigns</p>
-                <p className="text-[11px] text-zinc-400">{campaigns.length} campaigns available</p>
-              </div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-zinc-500" />
-          </button>
-        )}
-      </div>
-
-      {campaigns.length > 0 && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-          <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Legacy Campaigns</p>
-          <div className="space-y-2">
-            {campaigns.slice(0, 5).map((c) => (
-              <div key={c.id} className="flex items-center justify-between text-xs">
-                <span className="font-mono text-zinc-300">{c.title}</span>
-                <span className={`px-2 py-0.5 rounded-full ${
-                  c.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' :
-                  c.status === 'completed' ? 'bg-blue-500/20 text-blue-400' :
-                  'bg-zinc-700 text-zinc-400'
-                }`}>
-                  {c.status}
-                </span>
-              </div>
-            ))}
-            {campaigns.length > 5 && (
-              <p className="text-[11px] text-zinc-500 pl-2">+{campaigns.length - 5} more campaigns</p>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}

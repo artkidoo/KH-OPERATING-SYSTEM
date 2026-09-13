@@ -488,10 +488,10 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
                     STUDIO
                   </span>
                   <h3 className="font-['Space_Grotesk'] text-xs sm:text-base font-bold text-[var(--bento-text)] group-hover:text-amber-500 transition-colors mt-0.5">
-                    Music Cover Studio
+                    Cover Artwork Production
                   </h3>
                   <p className="text-[10px] sm:text-xs text-[var(--bento-muted)] mt-1 line-clamp-2 sm:line-clamp-none leading-relaxed">
-                    Interactive 3000x3000px canvas with vinyl spin simulation and parental badges.
+                    KeedoHub Studio delivers 3000x3000px release-ready cover artwork with vinyl spin simulation.
                   </p>
                 </div>
               </div>

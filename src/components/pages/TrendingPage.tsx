@@ -74,13 +74,13 @@ export const TrendingPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModa
             High-contrast metallic textures paired with clean monospace typography for album covers and tour posters.
           </p>
           <div className="pt-2 border-t border-[var(--bento-border)] text-xs font-mono text-[var(--bento-muted)]">
-            Studio Tool: Keedohub Cover Studio
+            KeedoHub Studio: Cover Artwork
           </div>
         </div>
 
         <div className="bento-card p-3.5 sm:p-5 rounded-2xl border border-[var(--bento-border)] space-y-2.5 sm:space-y-3 transition-all hover:border-purple-500/40">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase text-purple-400 font-bold">Campaign Hook</span>
+            <span className="text-[10px] font-mono uppercase text-purple-400 font-bold">Marketing Hook</span>
             <span className="text-xs font-mono text-emerald-400 font-bold">+240% MoM</span>
           </div>
           <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">

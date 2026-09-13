@@ -67,12 +67,6 @@ export interface StudioServiceDef {
   deliverables: string[];
   specs: string[];
   icon: React.ReactNode;
-  diyTool: {
-    name: string;
-    description: string;
-    actionTab?: ActiveTab;
-    actionSection?: ShellSection;
-  };
 }
 
 const STUDIO_SERVICES: StudioServiceDef[] = [
@@ -98,11 +92,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["3000×3000px RGB & CMYK", "Apple Digital Masters Compliant", "Spotify Canvas (3-8s loop)"],
     icon: <Disc3 className="w-5 h-5 text-red-400" />,
-    diyTool: {
-      name: "Cover Studio",
-      description: "Design and format compliant cover art and canvas visualizers self-serve using Cover Studio.",
-      actionTab: "studio",
-    },
   },
   {
     id: "artist_release_asset_kit",
@@ -124,11 +113,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["All DSP Platform Specs", "Social Media Optimized Cuts", "Print-Ready PDFs"],
     icon: <Package className="w-5 h-5 text-red-400" />,
-    diyTool: {
-      name: "Release Builder",
-      description: "Build and manage your release assets in Workspace Releases.",
-      actionSection: "releases",
-    },
   },
   {
     id: "artist_music_visuals",
@@ -149,11 +133,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["ProRes 422 & H.264 MP4", "24/60fps High Frame Rate", "Alpha Channel Transparent Elements"],
     icon: <Video className="w-5 h-5 text-purple-400" />,
-    diyTool: {
-      name: "Studio Visualizer Suite",
-      description: "Build short-form audio teasers and sound hooks with KeedoHub Content Engine.",
-      actionSection: "content",
-    },
   },
   {
     id: "artist_social_content",
@@ -174,11 +153,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["1080×1350px 4:5 Carousels", "1080×1920px 9:16 Stories", "Figma / PNG Package"],
     icon: <Layout className="w-5 h-5 text-amber-400" />,
-    diyTool: {
-      name: "Content Engine",
-      description: "Draft, auto-generate, and organize release posts with KeedoHub Content Engine.",
-      actionTab: "content-engine",
-    },
   },
   {
     id: "artist_epk",
@@ -199,11 +173,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["Vector Interactive PDF", "Clickable DSP & Social Links", "Letter & A4 Print Bleeds"],
     icon: <FileText className="w-5 h-5 text-blue-400" />,
-    diyTool: {
-      name: "EPK Builder",
-      description: "Generate and customize an industry-standard Electronic Press Kit in EPK Builder.",
-      actionTab: "epk-builder",
-    },
   },
   {
     id: "artist_motion",
@@ -224,11 +193,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["4K ProRes & H.264", "Transparent WebM Available", "Lottie Web Formats"],
     icon: <Film className="w-5 h-5 text-purple-400" />,
-    diyTool: {
-      name: "Content Engine",
-      description: "Create motion content snippets in KeedoHub Content Engine.",
-      actionSection: "content",
-    },
   },
   {
     id: "artist_lyric_visuals",
@@ -249,11 +213,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["Millisecond-accurate Timing", "Multiple Visual Themes", "LRC & JSON Export"],
     icon: <FileText className="w-5 h-5 text-purple-400" />,
-    diyTool: {
-      name: "Lyrics Studio",
-      description: "Create and time your own lyric videos in Lyrics Studio.",
-      actionTab: "studio",
-    },
   },
   {
     id: "artist_epk",
@@ -274,11 +233,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["Print-Ready PDF", "Web-Optimized Version", "Social Media Links"],
     icon: <Award className="w-5 h-5 text-red-400" />,
-    diyTool: {
-      name: "EPK Builder",
-      description: "Build your own EPK with EPK Builder.",
-      actionTab: "epk-builder",
-    },
   },
   {
     id: "artist_brand_kit",
@@ -300,11 +254,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["Vector Source Files (AI/SVG)", "Brand Token JSON", "Print & Digital Guidelines"],
     icon: <Palette className="w-5 h-5 text-red-400" />,
-    diyTool: {
-      name: "Artist DNA",
-      description: "Define your artist brand identity in Artist DNA Context Layer.",
-      actionTab: "command-center",
-    },
   },
   {
     id: "artist_social_content",
@@ -325,11 +274,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["Instagram/TikTok/YouTube Optimized", "Editable Source Files", "Brand-Consistent Design"],
     icon: <Share2 className="w-5 h-5 text-red-400" />,
-    diyTool: {
-      name: "Content Engine",
-      description: "Generate social content pillars in Content Engine.",
-      actionSection: "content",
-    },
   },
 
   // ==========================================
@@ -355,11 +299,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["AI/SVG/PDF Source Files", "Color Token JSON", "Print & Digital Guidelines"],
     icon: <Palette className="w-5 h-5 text-cyan-400" />,
-    diyTool: {
-      name: "Brand OS",
-      description: "Define your brand identity in Brand OS.",
-      actionSection: "brand",
-    },
   },
   {
     id: "brand_social_media_kit",
@@ -380,11 +319,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["Figma Components", "1080×1350px Carousel Slides", "1080×1920px Stories"],
     icon: <Share2 className="w-5 h-5 text-cyan-400" />,
-    diyTool: {
-      name: "Content Engine",
-      description: "Generate structured brand content pillars and scheduled items in Content Engine.",
-      actionTab: "content-engine",
-    },
   },
   {
     id: "brand_presentations",
@@ -405,11 +339,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["16:9 Widescreen PDF & Figma", "Keynote / PowerPoint Formats", "Vector Diagram Assets"],
     icon: <TrendingUp className="w-5 h-5 text-blue-400" />,
-    diyTool: {
-      name: "Business & Documents",
-      description: "Draft proposals and company presentations directly inside Workspace Documents.",
-      actionSection: "documents",
-    },
   },
   {
     id: "brand_website_app_design",
@@ -431,11 +360,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["Figma Design Files", "Responsive Breakpoints", "Auto-Layout Components"],
     icon: <Layers className="w-5 h-5 text-indigo-400" />,
-    diyTool: {
-      name: "Resource Vault",
-      description: "Store and organize your design assets in Resource Vault.",
-      actionSection: "library",
-    },
   },
   {
     id: "brand_business_documents",
@@ -456,11 +380,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["Print-Ready CMYK PDF", "A4 & US Letter Dielines", "Responsive HTML Signature"],
     icon: <FileText className="w-5 h-5 text-emerald-400" />,
-    diyTool: {
-      name: "Business Documents Studio",
-      description: "Create and export branded invoices, proposals, and letterheads in Business Documents Studio.",
-      actionTab: "business-studio",
-    },
   },
   {
     id: "brand_product_graphics",
@@ -481,11 +400,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["4K High-Res Renders", "CMYK Print Vector Dielines", "Transparent PNG Cutouts"],
     icon: <Box className="w-5 h-5 text-indigo-400" />,
-    diyTool: {
-      name: "Resource Vault",
-      description: "Archive and inspect product imagery and mockups in your Workspace Resource Vault.",
-      actionSection: "library",
-    },
   },
   {
     id: "brand_motion_design",
@@ -506,11 +420,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["4K 60fps ProRes & H.264", "Transparent WebM / Alpha MOV", "Lottie Web Animations"],
     icon: <Film className="w-5 h-5 text-rose-400" />,
-    diyTool: {
-      name: "Visualizer & Motion",
-      description: "Explore motion clips and creative assets in KeedoHub Studio.",
-      actionSection: "content",
-    },
   },
   {
     id: "brand_complete_system",
@@ -532,11 +441,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["All Source Files (AI, SVG, PDF, Figma)", "Brand Token JSON Matrix", "Master Archive Zip"],
     icon: <Layers className="w-5 h-5 text-amber-500" />,
-    diyTool: {
-      name: "Brand Operating Environment",
-      description: "Manage your entire brand architecture, pillars, and guidelines inside ONE Workspace.",
-      actionSection: "brand",
-    },
   },
   {
     id: "brand_marketing_materials",
@@ -557,11 +461,6 @@ const STUDIO_SERVICES: StudioServiceDef[] = [
     ],
     specs: ["CMYK 300DPI Print Bleed Vectors", "PDF/X-1a Compliant", "Packaging Cutout Dielines"],
     icon: <Printer className="w-5 h-5 text-zinc-300" />,
-    diyTool: {
-      name: "Business Documents Studio",
-      description: "Format and export marketing flyers and document templates in Business Documents Studio.",
-      actionTab: "business-studio",
-    },
   },
 ];
 
@@ -582,8 +481,8 @@ export const Studio: React.FC<StudioProps> = ({
   const { identity, plan } = useMembership();
 
   // Filter & Search states
-  // Brand OS rebuild: brand workspaces default to the brand catalogue so
-  // artist-only services (releases, DSP, cover studio) are never suggested.
+  // Brand workspace rebuild: brand workspaces default to the brand catalogue so
+  // artist-only services (releases, cover art, mastering) are never suggested.
   const [selectedDomainFilter, setSelectedDomainFilter] = useState<"all" | "artist" | "brand">(identity === "brand" ? "brand" : "all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -1302,45 +1201,14 @@ export const Studio: React.FC<StudioProps> = ({
             </div>
 
             {/* ======================================================== */}
-            {/* TWO PATHS: DIY vs DONE-FOR-YOU */}
+            {/* DONE-FOR-YOU PRODUCTION */}
             {/* ======================================================== */}
             <div className="pt-4 border-t border-zinc-800 space-y-3">
               <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block text-center">
-                CHOOSE YOUR EXECUTION PATH
+                KEEDOHUB STUDIO PRODUCTION
               </span>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Option A: DIY Tool */}
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 space-y-2 flex flex-col justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-zinc-300 font-bold text-xs">
-                      <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
-                      <span>DIY — Self-Serve Studio</span>
-                    </div>
-                    <p className="text-[11px] text-zinc-400 leading-relaxed">
-                      {viewServiceModal.diyTool.description}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      const tool = viewServiceModal.diyTool;
-                      setViewServiceModal(null);
-                      if (tool.actionSection && onNavigateWorkspaceSection) {
-                        onNavigateWorkspaceSection(tool.actionSection);
-                      } else if (tool.actionTab && onNavigateTab) {
-                        onNavigateTab(tool.actionTab);
-                      } else {
-                        onNavigateTab?.("command-center");
-                      }
-                    }}
-                    className="w-full py-2.5 rounded-xl border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    <span>Launch {viewServiceModal.diyTool.name}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Option B: DONE FOR YOU */}
+              <div className="grid grid-cols-1 gap-4">
                 <div className="rounded-2xl border border-red-500/40 bg-red-950/20 p-4 space-y-2 flex flex-col justify-between">
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">

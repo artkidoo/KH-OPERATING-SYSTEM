@@ -69,7 +69,7 @@ export const SecurityPage: React.FC<PageProps> = ({ onNavigateTab }) => {
             Zero Unauthorized Model Training
           </h3>
           <p className="text-xs sm:text-sm text-[var(--bento-muted)] leading-relaxed">
-            Your proprietary stems, lyrics, concept audio, and campaign strategy are strictly guarded. Keedohub guarantees that your private creative IP is never used to train public generative foundation models.
+            Your proprietary stems, lyrics, concept audio, and creative strategy are strictly guarded. Keedohub guarantees that your private creative IP is never used to train public generative foundation models.
           </p>
         </div>
       </div>

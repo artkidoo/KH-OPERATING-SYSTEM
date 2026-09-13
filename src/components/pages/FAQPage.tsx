@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+﻿import React, { useState, useMemo } from "react";
 import { ActiveTab } from "../../types";
 import { 
   HelpCircle, 
@@ -35,7 +35,7 @@ const FAQ_DATA: FAQItem[] = [
     id: "faq-2",
     category: "workspace",
     question: "What is the difference between a Workspace and an OS?",
-    answer: "A Workspace is your private environment holding your specific songs, campaigns, contracts, and team members. Artist OS and Brand OS are the operating systems powering that workspace depending on whether you are managing musical releases or brand campaigns."
+    answer: "A Workspace is your private environment holding your specific songs, brand kits, contracts, and team members. The Artist and Brand Workspace experiences power that workspace depending on whether you are managing musical releases or brand creative projects."
   },
   {
     id: "faq-3",
@@ -46,14 +46,14 @@ const FAQ_DATA: FAQItem[] = [
   {
     id: "faq-4",
     category: "artist",
-    question: "How does the Cover Studio ensure DSP compliance?",
-    answer: "The Cover Studio renders assets strictly at 3000x3000px resolution in sRGB color profile, meeting Apple Music, Spotify, TIDAL, and Audiomack ingestion requirements without lossy compression or pixel distortion."
+    question: "How does KeedoHub Studio ensure DSP-compliant cover art?",
+    answer: "KeedoHub Studio delivers cover artwork strictly at 3000x3000px resolution in sRGB color profile, meeting Apple Music, Spotify, TIDAL, and Audiomack ingestion requirements without lossy compression or pixel distortion."
   },
   {
     id: "faq-5",
     category: "brand",
-    question: "What does Brand OS provide for businesses?",
-    answer: "Brand OS structures your visual brand tokens (color palettes, font pairings, marks), launches 30-day marketing sprint campaigns, tracks product catalogs, and prepares multi-platform social media calendars with high-retention hooks."
+    question: "What does the Brand Workspace provide for businesses?",
+    answer: "The Brand Workspace structures your visual brand tokens (color palettes, font pairings, marks), manages brand kits and business documents, tracks product catalogs, and prepares multi-platform social media kits with high-retention hooks."
   },
   {
     id: "faq-6",
@@ -65,7 +65,7 @@ const FAQ_DATA: FAQItem[] = [
     id: "faq-7",
     category: "workspace",
     question: "What is the Creative Brain and how does it work?",
-    answer: "The Creative Brain is an autonomous reasoning engine embedded in Keedohub. It continuously audits your workspace, identifying missing release assets or marketing gaps, and can execute tools on your behalf—such as generating 30-day release playbooks, diagnosing LUFS mastering anomalies, or creating action tasks."
+    answer: "The Creative Brain is an autonomous reasoning engine embedded in Keedohub. It continuously audits your workspace, identifying missing release assets or marketing gaps, and can execute tools on your behalfâ€”such as generating 30-day release playbooks, diagnosing LUFS mastering anomalies, or creating action tasks."
   },
   {
     id: "faq-8",

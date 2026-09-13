@@ -24,11 +24,10 @@ import {
 
 interface ProductServiceSystemProps {
   onNotify: (msg: string, type?: 'success' | 'info' | 'error') => void;
-  onLinkToCampaign?: (productId: string) => void;
 }
 
-export const ProductServiceSystem: React.FC<ProductServiceSystemProps> = ({ onNotify, onLinkToCampaign }) => {
-  const { products, createProduct, updateProduct, deleteProduct, activeCampaign, saveActiveCampaign, assets } = useWorkspace();
+export const ProductServiceSystem: React.FC<ProductServiceSystemProps> = ({ onNotify }) => {
+  const { products, createProduct, updateProduct, deleteProduct, assets } = useWorkspace();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
@@ -132,23 +131,6 @@ export const ProductServiceSystem: React.FC<ProductServiceSystemProps> = ({ onNo
     }
   };
 
-  const handleAttachToActiveCampaign = async (prod: ProductService) => {
-    if (!activeCampaign) {
-      onNotify('No active campaign selected. Please open Campaign Builder first.', 'info');
-      return;
-    }
-    try {
-      await saveActiveCampaign({
-        productId: prod.id,
-        productName: prod.name,
-      });
-      onNotify(`Linked "${prod.name}" to Campaign "${activeCampaign.title}"!`, 'success');
-      if (onLinkToCampaign) onLinkToCampaign(prod.id);
-    } catch (err: any) {
-      onNotify('Failed to link product to campaign', 'error');
-    }
-  };
-
   const addFeature = () => {
     if (!featureInput.trim()) return;
     setFormData({
@@ -218,7 +200,7 @@ export const ProductServiceSystem: React.FC<ProductServiceSystemProps> = ({ onNo
             </span>
           </div>
           <p className="text-sm text-zinc-400 mt-1">
-            Central repository of products, services, SaaS tiers, and offers powering your master campaigns.
+            Central repository of products, services, SaaS tiers, and offers powering your brand catalog.
           </p>
         </div>
 
@@ -245,9 +227,9 @@ export const ProductServiceSystem: React.FC<ProductServiceSystemProps> = ({ onNo
           <div className="text-xl font-bold text-zinc-100 mt-1">${avgPrice} <span className="text-xs text-zinc-500 font-normal">USD</span></div>
         </div>
         <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-3.5">
-          <div className="text-xs text-zinc-400 font-medium">Linked to Active Campaign</div>
-          <div className="text-xl font-bold text-red-400 mt-1">
-            {activeCampaign?.productId ? (products.find((p) => p.id === activeCampaign.productId)?.name || 'Linked') : 'None Linked'}
+          <div className="text-xs text-zinc-400 font-medium">Featured Tier</div>
+          <div className="text-xl font-bold text-zinc-100 mt-1">
+            {products.find((p) => p.pricing?.tierName)?.pricing?.tierName || 'None'}
           </div>
         </div>
         <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-3.5">
@@ -294,7 +276,7 @@ export const ProductServiceSystem: React.FC<ProductServiceSystemProps> = ({ onNo
           <p className="text-sm text-zinc-500 max-w-md mx-auto mt-1 mb-4">
             {searchTerm || filterType !== 'all'
               ? 'No products or services match your search filter criteria.'
-              : 'Add your first product, service, subscription, or digital offering to power your campaigns.'}
+                : 'Add your first product, service, subscription, or digital offering to power your brand catalog.'}
           </p>
           <button
             onClick={handleOpenCreate}
@@ -307,14 +289,11 @@ export const ProductServiceSystem: React.FC<ProductServiceSystemProps> = ({ onNo
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredProducts.map((prod) => {
-            const isAttachedToActive = activeCampaign?.productId === prod.id;
             return (
               <div
                 key={prod.id}
                 id={`product-card-${prod.id}`}
-                className={`relative group bg-zinc-900/70 border rounded-2xl p-5 flex flex-col justify-between transition-all duration-200 hover:border-zinc-700 ${
-                  isAttachedToActive ? 'border-red-500/60 bg-red-950/10 shadow-lg shadow-red-950/20' : 'border-zinc-800/80'
-                }`}
+                className="relative group bg-zinc-900/70 border border-zinc-800/80 rounded-2xl p-5 flex flex-col justify-between transition-all duration-200 hover:border-zinc-700"
               >
                 <div>
                   {/* Card Header & Badge */}
@@ -325,13 +304,6 @@ export const ProductServiceSystem: React.FC<ProductServiceSystemProps> = ({ onNo
                       </span>
                       <span className="text-xs text-zinc-400 font-medium">{prod.category}</span>
                     </div>
-
-                    {isAttachedToActive && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
-                        <Zap className="w-3 h-3" />
-                        Campaign Linked
-                      </span>
-                    )}
                   </div>
 
                   {/* Title & Tagline */}
@@ -421,18 +393,6 @@ export const ProductServiceSystem: React.FC<ProductServiceSystemProps> = ({ onNo
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
-
-                  <button
-                    onClick={() => handleAttachToActiveCampaign(prod)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                      isAttachedToActive
-                        ? 'bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-700'
-                        : 'bg-red-600/90 hover:bg-red-500 text-white shadow-sm shadow-red-600/20'
-                    }`}
-                  >
-                    <Zap className="w-3 h-3" />
-                    {isAttachedToActive ? 'Re-link' : 'Link to Campaign'}
-                  </button>
                 </div>
               </div>
             );

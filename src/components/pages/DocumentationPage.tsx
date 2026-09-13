@@ -101,7 +101,7 @@ export const DocumentationPage: React.FC<PageProps> = ({ onNavigateTab, openBrie
               1. Workspace Core & Environments
             </h2>
             <p className="text-xs sm:text-sm text-[var(--bento-muted)] leading-relaxed">
-              Keedohub isolates data into sovereign workspaces. Each workspace holds persistent releases, marketing campaigns, collaborative tasks, activity logs, and brand assets.
+              Keedohub isolates data into sovereign workspaces. Each workspace holds persistent releases, brand kits, collaborative tasks, activity logs, and brand assets.
             </p>
             <div className="p-4 rounded-xl bg-[var(--bento-bg)] border border-[var(--bento-border)] font-mono text-xs text-zinc-300 space-y-1">
               <div className="text-zinc-500">// Workspace Identity Schema</div>

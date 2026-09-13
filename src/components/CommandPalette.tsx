@@ -124,7 +124,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     {
       id: "nav-artist-os",
       title: "Music & Releases",
-      description: "Release rollout pipeline, DSP editorial pitch, cover studio, stems mastering & splits",
+      description: "Release pipeline, asset kits, cover art, stems mastering & splits",
       icon: <Disc3 className="w-4 h-4 text-red-400" />,
       action: () => {
         setActiveTab("command-center", "music");

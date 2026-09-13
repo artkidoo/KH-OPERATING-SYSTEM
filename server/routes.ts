@@ -533,13 +533,12 @@ apiRouter.post("/onboarding/initialize", requireAuth, (req: AuthenticatedRequest
     primaryGoal, 
     targetAudience, 
     positioning, 
-    platforms, 
-    upcomingRelease, 
-    upcomingCampaign, 
-    currentProject, 
-    mainOffer, 
-    saveAsMemory, 
-    rawDescription 
+    platforms,
+    upcomingRelease,
+    currentProject,
+    mainOffer,
+    saveAsMemory,
+    rawDescription
   } = req.body;
 
   if (!identityType || !name) {
@@ -568,7 +567,6 @@ apiRouter.post("/onboarding/initialize", requireAuth, (req: AuthenticatedRequest
       positioning,
       platforms,
       upcomingRelease,
-      upcomingCampaign,
       currentProject,
       mainOffer,
       saveAsMemory,
@@ -1206,68 +1204,26 @@ apiRouter.delete("/workspaces/:workspaceId/products/:productId", requireAuth, re
 });
 
 // --- Campaigns Routes ---
+// Phase 1: legacy campaign READS remain for legacy data compatibility.
+// Campaign writes are DEPRECATED (410 + migration hint) — new work belongs in Projects.
 apiRouter.get("/workspaces/:workspaceId/campaigns", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
   const campaigns = db.getCampaigns(req.params.workspaceId);
   res.json({ campaigns });
 });
 
-// Phase 1: legacy campaign reads remain. Writes moved below (410 + migrate).
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const __legacyCampaignCreateRoute = "/workspaces/:workspaceId/campaigns__legacy_write_disabled__";
-apiRouter.post(__legacyCampaignCreateRoute, requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
-  const { title, goal, objective, productId, targetAudience, creativeDirection, heroAssetId, heroAssetUrl, startDate, endDate, status, platforms, sprintDays, milestones, approvals, goals, budget, currency } = req.body;
-  if (!title) {
-    return res.status(400).json({ error: "Campaign title is required" });
-  }
-
-  const campaign = db.createCampaign(req.params.workspaceId, {
-    title,
-    goal: goal || objective || "",
-    objective: objective || goal || "",
-    productId: productId || undefined,
-    targetAudience: targetAudience || "",
-    creativeDirection: creativeDirection || { themeName: "Editorial & High-Impact", visualStyle: "Modern & Bold", coreMessage: "", heroHeadline: "", subHeadline: "", keyHashtags: [] },
-    heroAssetId: heroAssetId || undefined,
-    heroAssetUrl: heroAssetUrl || undefined,
-    startDate: startDate || new Date().toISOString().split("T")[0],
-    endDate: endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-    status: status || "planning",
-    platforms: platforms || ["Instagram", "TikTok", "LinkedIn"],
-    sprintDays: sprintDays || [],
-    milestones: milestones || [],
-    approvals: approvals || { creativeApproved: false, budgetApproved: false, launchApproved: false },
-    goals: goals || { targetImpressions: 50000, targetLeadsOrSales: 100, targetRevenue: 2500, actualImpressions: 0, actualLeadsOrSales: 0, actualRevenue: 0 },
-    budget: Number(budget) || 0,
-    currency: currency || "USD",
-  });
-
-  db.logActivity(
-    req.params.workspaceId,
-    req.user!.id,
-    req.user!.email,
-    "CREATE_CAMPAIGN",
-    "campaign",
-    campaign.id,
-    `Created campaign: ${title}`
-  );
-
-  res.status(201).json({ campaign });
+apiRouter.post("/workspaces/:workspaceId/campaigns", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  void req;
+  return res.status(410).json({ error: "Campaign creation is deprecated. Create a Project instead; legacy campaigns migrate via /api/workspaces/:workspaceId/campaigns/:campaignId/migrate." });
 });
 
-const __legacyCampaignUpdateRoute = "/workspaces/:workspaceId/campaigns__legacy_write_disabled__/:campaignId";
-apiRouter.put(__legacyCampaignUpdateRoute, requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const updated = db.updateCampaign(req.params.campaignId, req.params.workspaceId, req.body);
-    res.json({ campaign: updated });
-  } catch (err: any) {
-    res.status(400).json({ error: err.message || "Failed to update campaign" });
-  }
+apiRouter.put("/workspaces/:workspaceId/campaigns/:campaignId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
+  void req;
+  return res.status(410).json({ error: "Campaign editing is deprecated. Migrate this campaign to a Project first." });
 });
 
 apiRouter.delete("/workspaces/:workspaceId/campaigns/:campaignId", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {
-  const success = db.deleteCampaign(req.params.campaignId, req.params.workspaceId);
-  if (!success) return res.status(404).json({ error: "Campaign not found" });
-  res.json({ message: "Campaign deleted successfully" });
+  void req;
+  return res.status(410).json({ error: "Campaign deletion is deprecated. Legacy campaign data is never destroyed — migrate to a Project via /api/workspaces/:workspaceId/campaigns/:campaignId/migrate." });
 });
 
 // --- Content Pillars Routes ---
@@ -3079,14 +3035,8 @@ apiRouter.put("/admin/platform/production-config", requireAuth, requireAdmin(["s
 });
 
 
-// Phase 1: campaign writes deprecated — reads remain, new work belongs in Projects.
-apiRouter.post("/workspaces/:workspaceId/campaigns", requireAuth, requireWorkspaceAccess, (_req: AuthenticatedRequest, res: Response) => {
-  return res.status(410).json({ error: "Campaign creation is deprecated. Create a Project instead; legacy campaigns migrate via /api/workspaces/:workspaceId/campaigns/:campaignId/migrate." });
-});
-
-apiRouter.put("/workspaces/:workspaceId/campaigns/:campaignId", requireAuth, requireWorkspaceAccess, (_req: AuthenticatedRequest, res: Response) => {
-  return res.status(410).json({ error: "Campaign editing is deprecated. Migrate this campaign to a Project first." });
-});
+// Phase 1: campaign writes are deprecated — canonical 410 handlers are registered
+// with the campaigns routes above. Legacy campaigns migrate to Projects below.
 
 // Phase 1: safe campaign → project migration (never destroys source data).
 apiRouter.post("/workspaces/:workspaceId/campaigns/:campaignId/migrate", requireAuth, requireWorkspaceAccess, (req: AuthenticatedRequest, res: Response) => {

@@ -568,11 +568,11 @@ export class WorkflowEngine {
   }
 
   /**
-   * One-click approval resolution for Studio Quotes, Deliverables, and Campaign Sprints.
+   * One-click approval resolution for Studio Quotes, Deliverables, and Project Sprints.
    */
   public static handleApprovalAction(
     workspaceId: string,
-    approvalType: 'studio_quote' | 'studio_deliverable' | 'campaign_sprint',
+    approvalType: 'studio_quote' | 'studio_deliverable' | 'project_sprint',
     entityId: string,
     action: 'approve' | 'reject' | 'request_revision',
     notes?: string,
@@ -648,24 +648,13 @@ export class WorkflowEngine {
       return { success: true, entityType: 'studio_deliverable', entityId, status: newStatus };
     }
 
-    if (approvalType === 'campaign_sprint') {
-      const campaign = db.getCampaignById(workspaceId, entityId);
-      if (!campaign) throw new Error("Campaign not found");
+    if (approvalType === 'project_sprint') {
+      const project = db.getProjectById(entityId);
 
-      const approvals = campaign.approvals || {
-        creativeApproved: false,
-        budgetApproved: false,
-        launchApproved: false,
-      };
-
-      if (action === 'approve') {
-        approvals.creativeApproved = true;
-        approvals.budgetApproved = true;
-        approvals.launchApproved = true;
-        approvals.launchApprovedBy = actorUser?.email || "Workspace Lead";
-        approvals.signoffNotes = notes || "Approved for active deployment";
-        db.updateCampaign(entityId, workspaceId, { approvals, status: 'active' });
-      }
+      // Project sprint sign-off is a task-level approval; there is no dedicated
+      // approvals record on the project. Validate the project exists, then
+      // auto-resolve any matching approval notifications.
+      if (!project) throw new Error("Project not found");
 
       // Auto-resolve notifications
       const notifs = db.getNotifications(workspaceId);
@@ -678,7 +667,7 @@ export class WorkflowEngine {
       }
       db.save();
 
-      return { success: true, entityType: 'campaign_sprint', entityId, status: 'approved' };
+      return { success: true, entityType: 'project_sprint', entityId, status: 'approved' };
     }
 
     throw new Error("Unsupported approval type");

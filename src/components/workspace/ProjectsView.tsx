@@ -445,7 +445,7 @@ export function ProjectsView({
           </span>
           <h1 className="text-2xl font-bold text-white tracking-tight">Creative Projects</h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Every release, brand identity, campaign asset, and agency request lives inside a project.
+            Every release, brand identity, creative asset, and agency request lives inside a project.
           </p>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { ActiveTab } from "../../types";
 import {
   ArrowRight,
@@ -46,8 +46,8 @@ export const ContactPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal
         <div className="relative grid gap-8 p-6 sm:p-10 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16 lg:p-14">
           <div className="max-w-3xl space-y-5">
             <div className="bento-pill w-fit"><MessageSquare className="h-3.5 w-3.5" /><span>Studio dispatch / 04</span></div>
-            <h1 className="font-['Space_Grotesk'] text-4xl font-extrabold leading-[1.04] tracking-tight text-[var(--bento-text)] sm:text-5xl lg:text-6xl">Let’s make the next move <span className="text-theme-accent">intentional.</span></h1>
-            <p className="max-w-2xl text-base leading-relaxed text-[var(--bento-muted)] sm:text-lg">Tell us where you are headed. We’ll help you find the clearest path from idea to ready-to-ship.</p>
+            <h1 className="font-['Space_Grotesk'] text-4xl font-extrabold leading-[1.04] tracking-tight text-[var(--bento-text)] sm:text-5xl lg:text-6xl">Letâ€™s make the next move <span className="text-theme-accent">intentional.</span></h1>
+            <p className="max-w-2xl text-base leading-relaxed text-[var(--bento-muted)] sm:text-lg">Tell us where you are headed. Weâ€™ll help you find the clearest path from idea to ready-to-ship.</p>
           </div>
           <div className="flex items-center gap-3 border-t border-[var(--bento-border)] pt-5 text-xs text-[var(--bento-muted)] lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
             <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,.12)]" />
@@ -68,7 +68,7 @@ export const ContactPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-emerald-300 animate-fade-in">
               <CheckCircle2 className="mb-4 h-7 w-7" />
               <h3 className="font-['Space_Grotesk'] text-xl font-bold">Dispatch received.</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--bento-muted)]">A Keedohub creative producer has been assigned and will reply to your email within 12–24 business hours.</p>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--bento-muted)]">A Keedohub creative producer has been assigned and will reply to your email within 12â€“24 business hours.</p>
               <button onClick={() => setIsSubmitted(false)} className="mt-5 text-xs font-bold underline underline-offset-4 hover:text-[var(--bento-text)] cursor-pointer">Send another message</button>
             </div>
           ) : (
@@ -87,15 +87,15 @@ export const ContactPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--bento-text)]">Inquiry topic</span>
                 <select value={subject} onChange={(e) => setSubject(e.target.value)} className="w-full rounded-xl border border-[var(--bento-border)] bg-[var(--bento-input)] px-4 py-3 text-sm text-[var(--bento-text)] focus:border-[var(--accent-color)] focus:outline-none">
                   <option value="Artist Workspace Setup">Artist Workspace Setup & Rollout Guidance</option>
-                  <option value="Brand OS Deployment">Brand OS Deployment & Corporate Licensing</option>
-                  <option value="Cover Studio Commission">Bespoke 3000x3000px Cover Commission</option>
+                  <option value="Brand Workspace Setup">Brand Workspace Setup & Corporate Licensing</option>
+                  <option value="Cover Artwork Commission">Bespoke 3000x3000px Cover Commission</option>
                   <option value="Partnership & Press">Label Partnership / Press / Agency Sync</option>
                   <option value="Technical Support">Technical Support / Account Inquiries</option>
                 </select>
               </label>
               <label className="block space-y-2">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--bento-text)]">Message details</span>
-                <textarea required rows={6} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Describe your upcoming release, campaign goals, or questions..." className="w-full resize-none rounded-xl border border-[var(--bento-border)] bg-[var(--bento-input)] px-4 py-3 text-sm leading-relaxed text-[var(--bento-text)] transition-colors placeholder:text-[var(--bento-subtle)] focus:border-[var(--accent-color)] focus:outline-none" />
+                <textarea required rows={6} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Describe your upcoming release, project goals, or questions..." className="w-full resize-none rounded-xl border border-[var(--bento-border)] bg-[var(--bento-input)] px-4 py-3 text-sm leading-relaxed text-[var(--bento-text)] transition-colors placeholder:text-[var(--bento-subtle)] focus:border-[var(--accent-color)] focus:outline-none" />
               </label>
               <div className="flex flex-col items-start justify-between gap-4 pt-1 sm:flex-row sm:items-center">
                 <button type="submit" disabled={isSubmitting} className="inline-flex items-center gap-2 rounded-xl bg-theme-accent px-5 py-3 text-sm font-bold shadow-md transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"><Send className="h-4 w-4" />{isSubmitting ? "Dispatching..." : "Send message"}</button>
@@ -119,7 +119,7 @@ export const ContactPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal
               </a>
               <div className="flex items-start gap-3 rounded-2xl border border-[var(--bento-border)] bg-[var(--bento-bg)] p-4">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400"><MapPin className="h-4 w-4" /></div>
-                <div><div className="text-sm font-bold text-[var(--bento-text)]">Studio location</div><div className="mt-1 text-xs text-[var(--bento-muted)]">Lagos, Nigeria · operating globally</div></div>
+                <div><div className="text-sm font-bold text-[var(--bento-text)]">Studio location</div><div className="mt-1 text-xs text-[var(--bento-muted)]">Lagos, Nigeria Â· operating globally</div></div>
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ export const ContactPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModal
         <div className="grid gap-3 sm:grid-cols-2">
           {[
             ["What should I include?", "Share your goal, timeline and any useful links. A rough brief is more than enough."],
-            ["When will I hear back?", "Most messages receive a thoughtful reply within 12–24 business hours."],
+            ["When will I hear back?", "Most messages receive a thoughtful reply within 12â€“24 business hours."],
             ["Can you support teams?", "Yes. We help artists, labels, agencies and growing businesses set up repeatable systems."],
             ["Is my work protected?", "Your creative work and project information remain yours throughout the conversation."],
           ].map(([question, answer]) => (

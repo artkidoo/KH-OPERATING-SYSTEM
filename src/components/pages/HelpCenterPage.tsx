@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { ActiveTab } from "../../types";
 import { 
   LifeBuoy, 
@@ -95,10 +95,10 @@ export const HelpCenterPage: React.FC<PageProps> = ({ onNavigateTab, openBriefMo
               <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <h3 className="font-['Space_Grotesk'] font-bold text-sm sm:text-base text-[var(--bento-text)]">
-              Brand OS & Campaigns
+              Brand Workspace & Projects
             </h3>
             <p className="text-xs text-[var(--bento-muted)] leading-relaxed">
-              Managing brand architecture, typography standards, product launch matrices, and high-conversion marketing sprint playbooks.
+              Managing brand architecture, typography standards, brand kit production and multi-channel marketing systems.
             </p>
             <ul className="space-y-1.5 text-xs text-[var(--bento-text)] pt-2 border-t border-[var(--bento-border)]">
               <li className="hover:text-blue-400 cursor-pointer flex items-center gap-1.5" onClick={() => onNavigateTab("docs")}>

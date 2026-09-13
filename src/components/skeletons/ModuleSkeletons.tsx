@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Sparkles, Disc3, Palette, Video, FileText, PieChart, BookOpen, Music, Activity, Layers, Radio, Briefcase } from "lucide-react";
 
 // ==========================================
@@ -59,148 +59,6 @@ export const SkeletonStatusIndicator: React.FC<{
   </div>
 );
 
-// ==========================================
-// 1. ARTIST CONTENT BRAIN SKELETON
-// ==========================================
-
-export const ArtistBrainSkeleton: React.FC<{
-  isInlineResultOnly?: boolean;
-}> = ({ isInlineResultOnly = false }) => {
-  const resultSkeleton = (
-    <div className="space-y-6 text-left">
-      {/* Campaign Architecture Header Card */}
-      <div className="bento-card p-5 sm:p-6 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="space-y-2 flex-1">
-            <SkeletonBadge width="w-48" className="h-4" />
-            <SkeletonLine width="w-3/4" height="h-6" />
-          </div>
-          <SkeletonRect className="w-28 h-9 rounded-xl" />
-        </div>
-
-        <div className="p-3.5 rounded-2xl bg-[var(--bento-input)] border border-[var(--bento-border)] space-y-2">
-          <SkeletonLine width="w-32" height="h-3.5" />
-          <SkeletonLine width="w-full" height="h-3" />
-          <SkeletonLine width="w-5/6" height="h-3" />
-        </div>
-
-        {/* Phase Tabs */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-[var(--bento-border)]">
-          <SkeletonRect className="w-28 h-8 rounded-xl" />
-          <SkeletonRect className="w-24 h-8 rounded-xl" />
-          <SkeletonRect className="w-28 h-8 rounded-xl" />
-        </div>
-      </div>
-
-      {/* Active Phase Schedule Cards */}
-      <div className="bento-card p-5 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-[var(--bento-border)]">
-          <div className="space-y-1.5 flex-1">
-            <SkeletonLine width="w-48" height="h-5" />
-            <SkeletonLine width="w-72" height="h-3.5" />
-          </div>
-          <SkeletonBadge width="w-24" className="h-6" />
-        </div>
-
-        {/* 3 Action Cards */}
-        <div className="space-y-3">
-          {[1, 2, 3].map((item) => (
-            <div
-              key={item}
-              className="p-4 rounded-2xl bg-[var(--bento-input)] border border-[var(--bento-border)] space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <SkeletonBadge width="w-16" className="h-5" />
-                  <SkeletonLine width="w-32" height="h-4" />
-                </div>
-                <SkeletonBadge width="w-20" className="h-4" />
-              </div>
-              <SkeletonLine width="w-full" height="h-3.5" />
-              <div className="p-2.5 rounded-xl bg-[var(--bento-card)] border border-[var(--bento-border)] space-y-1.5">
-                <SkeletonLine width="w-24" height="h-3" />
-                <SkeletonLine width="90%" height="h-3" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* DSP & Viral Hooks Skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bento-card p-4 space-y-3">
-          <SkeletonLine width="w-36" height="h-4" />
-          <SkeletonLine width="w-full" height="h-3" />
-          <SkeletonLine width="w-4/5" height="h-3" />
-        </div>
-        <div className="bento-card p-4 space-y-3">
-          <SkeletonLine width="w-36" height="h-4" />
-          <SkeletonLine width="w-full" height="h-3" />
-          <SkeletonLine width="w-4/5" height="h-3" />
-        </div>
-      </div>
-    </div>
-  );
-
-  if (isInlineResultOnly) {
-    return resultSkeleton;
-  }
-
-  return (
-    <div className="space-y-8 text-left pb-16">
-      {/* Header Bento Card Skeleton */}
-      <div className="p-6 sm:p-8 bento-card border-[var(--bento-border)] space-y-4">
-        <SkeletonBadge width="w-56" className="h-6" />
-        <SkeletonLine width="w-3/5" height="h-8" />
-        <SkeletonLine width="w-4/5" height="h-4" />
-      </div>
-
-      <SkeletonStatusIndicator
-        label="Synthesizing 30-Day Campaign Architecture..."
-        subtext="Generating TikTok viral hooks, Spotify pitches, release timelines & diaspora angles"
-        icon={<Disc3 className="w-4 h-4 text-[var(--accent-pill-text)] animate-spin" />}
-      />
-
-      {/* 2-Column Matrix */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Form Skeleton */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bento-card p-5 sm:p-6 space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-[var(--bento-border)]">
-              <SkeletonLine width="w-40" height="h-4" />
-              <SkeletonBadge width="w-20" className="h-4" />
-            </div>
-            <div className="flex gap-2">
-              <SkeletonBadge width="w-24" className="h-6" />
-              <SkeletonBadge width="w-24" className="h-6" />
-              <SkeletonBadge width="w-24" className="h-6" />
-            </div>
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <SkeletonLine width="w-28" height="h-3" />
-                <SkeletonRect className="w-full h-10 rounded-xl" />
-              </div>
-              <div className="space-y-1.5">
-                <SkeletonLine width="w-28" height="h-3" />
-                <SkeletonRect className="w-full h-10 rounded-xl" />
-              </div>
-              <div className="space-y-1.5">
-                <SkeletonLine width="w-28" height="h-3" />
-                <SkeletonRect className="w-full h-20 rounded-xl" />
-              </div>
-            </div>
-            <SkeletonRect className="w-full h-12 rounded-2xl" />
-          </div>
-        </div>
-
-        {/* Right Result Skeleton */}
-        <div className="lg:col-span-7">
-          {resultSkeleton}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // ==========================================
 // 2. BRAND ARCHITECTURE OS SKELETON
@@ -347,7 +205,7 @@ export const CoverStudioSkeleton: React.FC = () => (
     </div>
 
     <SkeletonStatusIndicator
-      label="Rendering 3000 × 3000px High-Resolution Canvas..."
+      label="Rendering 3000 Ã— 3000px High-Resolution Canvas..."
       subtext="Calibrating 3D vinyl shaders, typography overlays, parental advisory & streaming badges"
       icon={<Disc3 className="w-4 h-4 text-[var(--accent-pill-text)] animate-spin" />}
     />

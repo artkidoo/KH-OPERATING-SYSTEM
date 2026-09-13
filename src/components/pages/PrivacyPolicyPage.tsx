@@ -42,7 +42,7 @@ export const PrivacyPolicyPage: React.FC<PageProps> = ({ onNavigateTab }) => {
           </p>
           <ul className="list-disc list-inside space-y-1.5 text-xs sm:text-sm text-[var(--bento-muted)] pl-2">
             <li><strong>Account & Profile Credentials:</strong> Full name, stage name, email address, password hashes, and workspace settings.</li>
-            <li><strong>Workspace Content & Creative Assets:</strong> Song titles, lyrics, split sheet participant percentages, marketing briefs, cover artwork files, and campaign timelines.</li>
+            <li><strong>Workspace Content & Creative Assets:</strong> Song titles, lyrics, split sheet participant percentages, marketing briefs, cover artwork files, and project timelines.</li>
             <li><strong>Technical Telemetry:</strong> Browser type, operating system, IP address, and platform usage interactions to diagnose technical performance.</li>
           </ul>
         </div>

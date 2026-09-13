@@ -152,7 +152,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
     content: [
       "The novelty of generic text and image generation has faded. When every creator and company has access to the same foundational models, generic outputs blend into white noise. The differentiator is proprietary context.",
       "In Keedohub, the Creative Brain does not ask you for prompts. It already knows your target demographic, your sonic signatures, your competitive landscape, your current release stage, and your unresolved tasks.",
-      "Formula: Artist/Brand DNA + Active Release/Campaign + Upcoming Deadlines + Catalog History = Operating Intelligence. The system simply surfaces the next best action."
+      "Formula: Artist/Brand DNA + Active Release/Project + Upcoming Deadlines + Catalog History = Operating Intelligence. The system simply surfaces the next best action."
     ],
     takeaways: [
       "Stop wasting hours crafting multi-paragraph prompts into isolated chatbots.",

@@ -40,7 +40,6 @@ import {
   ActivityLog,
   ActiveTab,
   Release,
-  Campaign,
   Project,
   ProductService,
 } from "../types";
@@ -61,7 +60,6 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
   const [deadlines, setDeadlines] = useState<DeadlineReminder[]>([]);
   const [timeline, setTimeline] = useState<ActivityLog[]>([]);
   const [releases, setReleases] = useState<Release[]>([]);
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -82,7 +80,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
     status: "pending" as TaskStatus,
     deadline: "",
     assignedTo: "",
-    entityType: "" as "" | "release" | "campaign" | "project" | "studio" | "content",
+    entityType: "" as "" | "release" | "project" | "studio" | "content",
     entityId: "",
     entityTitle: "",
     actionTab: "" as ActiveTab | "",
@@ -93,7 +91,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
   // Approval Modal State
   const [activeApproval, setActiveApproval] = useState<{
     id: string;
-    type: "studio_quote" | "studio_deliverable" | "campaign_sprint";
+    type: "studio_quote" | "studio_deliverable" | "project_sprint";
     title: string;
     description: string;
   } | null>(null);
@@ -103,13 +101,12 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
     if (!workspaceId) return;
     try {
       setIsLoading(true);
-      const [sumRes, tasksRes, deadRes, timeRes, relRes, campRes, projRes] = await Promise.all([
+      const [sumRes, tasksRes, deadRes, timeRes, relRes, projRes] = await Promise.all([
         api.workflow.getSummary(workspaceId).catch(() => ({ summary: null })),
         api.workflow.getTasks(workspaceId).catch(() => ({ tasks: [] })),
         api.workflow.getDeadlines(workspaceId).catch(() => ({ reminders: [] })),
         api.workflow.getTimeline(workspaceId, undefined, 40).catch(() => ({ activities: [] })),
         api.releases.list(workspaceId).catch(() => ({ releases: [] })),
-        api.campaigns.list(workspaceId).catch(() => ({ campaigns: [] })),
         api.projects.list(workspaceId).catch(() => ({ projects: [] })),
       ]);
 
@@ -118,7 +115,6 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
       if (deadRes.reminders) setDeadlines(deadRes.reminders);
       if (timeRes.activities) setTimeline(timeRes.activities);
       if (relRes.releases) setReleases(relRes.releases);
-      if (campRes.campaigns) setCampaigns(campRes.campaigns);
       if (projRes.projects) setProjects(projRes.projects);
     } catch (err) {
       console.error("Failed to load workflow data", err);
@@ -378,7 +374,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
               Workflow &amp; Notification Engine
             </h1>
             <p className="text-sm text-[var(--bento-muted)] mt-1 max-w-2xl">
-              Cross-ecosystem operational orchestration connecting Releases, Campaigns, Studio production,
+              Cross-ecosystem operational orchestration connecting Releases, Projects, Studio production,
               and Radar signals into a unified execution board.
             </p>
           </div>
@@ -441,7 +437,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
             <div className="p-3.5 rounded-2xl bg-purple-950/20 border border-purple-900/30">
               <div className="text-[11px] text-purple-400 font-mono uppercase">Pending Approvals</div>
               <div className="text-xl font-extrabold text-purple-300 mt-0.5">{summary.pendingApprovals}</div>
-              <div className="text-[10px] text-purple-400/80 mt-1">Studio &amp; Campaigns</div>
+              <div className="text-[10px] text-purple-400/80 mt-1">Studio &amp; Projects</div>
             </div>
           </div>
         )}
@@ -777,7 +773,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
               <span className="text-xs font-bold text-white">Aggregated Timeline &amp; Milestone Reminders</span>
             </div>
             <span className="text-xs text-zinc-500">
-              Auto-calculated from Releases, Campaigns, Milestones, and Unified Tasks.
+              Auto-calculated from Releases, Projects, Milestones, and Unified Tasks.
             </span>
           </div>
 
@@ -855,7 +851,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
               <span className="text-xs font-bold text-white">Pending Governance &amp; Creative Sign-offs</span>
             </div>
             <span className="text-xs text-purple-300">
-              One-click authorization for Studio production quotes, deliverables, and campaign sprints.
+              One-click authorization for Studio production quotes, deliverables, and project sprints.
             </span>
           </div>
 
@@ -905,7 +901,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
             <div className="p-5 rounded-3xl bg-[var(--bento-card)] border border-[var(--bento-border)] shadow-xl">
               <div className="flex items-center justify-between mb-3">
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                  CAMPAIGN SPRINT
+                  CONTENT SPRINT
                 </span>
                 <span className="text-xs text-zinc-500">Ready for Launch</span>
               </div>
@@ -919,8 +915,8 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
                 <button
                   onClick={() =>
                     setActiveApproval({
-                      id: "campaign_demo",
-                      type: "campaign_sprint",
+                      id: "sprint_demo",
+                      type: "project_sprint",
                       title: "Pre-Release Sonic Velocity Sprint",
                       description: "Approve sprint schedule and activate content distribution engine.",
                     })
@@ -934,7 +930,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
                   onClick={() => onNavigateTab("command-center", "brand" as any)}
                   className="py-2 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold transition-colors cursor-pointer"
                 >
-                  Inspect Campaign
+                  Inspect Project
                 </button>
               </div>
             </div>
@@ -1125,8 +1121,6 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
                         actionTab:
                           et === "release"
                             ? "artist-os"
-                            : et === "campaign"
-                            ? "brand-os"
                             : et === "studio"
                             ? "studio"
                             : et === "content"
@@ -1140,7 +1134,6 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
                   >
                     <option value="">None (General Task)</option>
                     <option value="release">Release (Workspace Music)</option>
-                    <option value="campaign">Campaign (Workspace Brand)</option>
                     <option value="studio">Studio Production</option>
                     <option value="content">Content Item</option>
                     <option value="project">Workspace Projects</option>
@@ -1157,7 +1150,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
                     type="text"
                     value={taskForm.entityTitle}
                     onChange={(e) => setTaskForm({ ...taskForm, entityTitle: e.target.value })}
-                    placeholder="e.g., Afro-Fusion Single Drop, Summer Launch Campaign"
+                    placeholder="e.g., Afro-Fusion Single Drop, Brand Identity Launch"
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500"
                   />
                 </div>

@@ -108,7 +108,7 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
           priority: "high",
           whatIsMissing: "High-resolution master cover visual",
           whyItMatters: "DSP platforms require strict 3000x3000px uncompressed artwork",
-          recommendedAction: "Design in Cover Studio",
+          recommendedAction: "Request from KeedoHub Studio",
           actionTab: "studio",
           actionLabel: "Request Cover Design",
         });
@@ -116,10 +116,10 @@ export function CreativeBrainProvider({ children }: { children: ReactNode }) {
         fallbackRecs.push({
           id: `rec_fallback_brand`,
           title: "Establish Brand Visual Direction",
-          category: "Campaign Blocker",
+          category: "Project Blocker",
           priority: "high",
-          whatIsMissing: "Brand design tokens & campaign assets",
-          whyItMatters: "Visual consistency drives audience trust and campaign conversion",
+          whatIsMissing: "Brand design tokens & brand kit assets",
+          whyItMatters: "Visual consistency drives audience trust and brand conversion",
           recommendedAction: "Define in Brand OS",
           actionTab: "brand-os",
           actionLabel: "Open Brand OS",

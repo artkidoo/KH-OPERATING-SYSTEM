@@ -20,11 +20,11 @@ export const BriefModal: React.FC<BriefModalProps> = ({ isOpen, onClose, onNotif
   if (!isOpen) return null;
 
   const projectOptions = {
-    artist: ["Music Cover Art & Release Suite", "30-Day Music Rollout & Content Campaign", "EPK, Studio Production & Release Readiness"],
-    brand: ["Full Brand Identity & Vector System", "Brand OS Strategy & Campaign System", "Web Application & Landing Page"],
+    artist: ["Music Cover Art & Release Suite", "Release Rollout & Content Production", "EPK, Studio Production & Release Readiness"],
+    brand: ["Full Brand Identity & Vector System", "Brand Workspace Strategy & Creative System", "Web Application & Landing Page"],
     other: ["Motion Graphics & Lyric Visualizer", "Web Application & Landing Page", "Custom Creative Direction"],
   };
-  const projectLabels = { artist: "Artist OS", brand: "Brand OS", other: "Other / Custom" };
+  const projectLabels = { artist: "Artist Workspace", brand: "Brand Workspace", other: "Other / Custom" };
   const handleProjectTypeChange = (type: "artist" | "brand" | "other") => {
     setProjectType(type);
     setService(projectOptions[type][0]);
