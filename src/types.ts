@@ -1,44 +1,17 @@
-export type ActiveTab = 
+export type ActiveTab =
   | 'overview'
   | 'command-center'
-  | 'collaboration'
-  | 'workflow'
-  | 'analytics'
   | 'artist-os'
-  | 'content-engine'
-  | 'studio'
-  | 'creative-memory'
-  | 'creative-radar'
-  | 'workspace-hub'
   | 'brand-os'
-  | 'business-studio'
-  | 'epk-builder'
+  | 'workspace-hub'
   | 'project-console'
   | 'resource-vault'
-  | 'intel-hub'
   | 'admin'
   | 'requests'
   | 'membership'
   | 'profile'
   | 'production-center'
-  | 'studio-admin'
-  | 'studio-production'
-  | 'studio-audio-qa'
-  | 'studio-brand'
-  | 'studio-artist'
-  | 'studio-music'
-  | 'studio-motion'
-  | 'studio-documents'
-  | 'studio-presentations'
-  | 'studio-visuals'
-  | 'studio-delivery'
-  | 'studio-queue'
-  | 'studio-brief'
-  | 'studio-files'
-  | 'studio-review'
-  | 'studio-approval'
-  | 'studio-inspector'
-  | 'studio-loudness'
+  | 'studio'
   | 'about'
   | 'vision'
   | 'story'
@@ -53,7 +26,8 @@ export type ActiveTab =
   | 'forum'
   | 'trending'
   | 'journal'
-  | 'integrations';
+  | 'integrations'
+  | 'removed';
 
 export type IdentityType = 'artist' | 'brand';
 
@@ -1129,24 +1103,6 @@ export interface RolloutPlan {
     deadline: string;
     completed: boolean;
   }[];
-}
-
-export interface CoverStudioState {
-  title: string;
-  artist: string;
-  subtitle: string;
-  genreTag: string;
-  themePreset: string;
-  bgGradient: string;
-  textColor: string;
-  accentColor: string;
-  showParentalAdvisory: boolean;
-  parentalAdvisoryStyle: 'white' | 'black' | 'minimal' | 'red';
-  showStreamingBadges: boolean;
-  showBarcode: boolean;
-  showAudioWave: boolean;
-  textureOverlay: 'none' | 'vinyl-dust' | 'plastic-wrap' | 'grain' | 'grid';
-  previewMode: 'canvas' | 'vinyl' | 'cd-jewel' | 'billboard' | 'phone';
 }
 
 export interface BrandColor {

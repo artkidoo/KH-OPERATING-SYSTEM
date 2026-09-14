@@ -50,8 +50,12 @@ const STUDIOS = [
 
 export function ProductionCenter({
   onNotify,
+  initialJobId,
+  onClearJob,
 }: {
   onNotify: (m: string, t?: "success" | "info" | "error") => void;
+  initialJobId?: string | null;
+  onClearJob?: () => void;
 }) {
   const { token, user } = useAuth();
 
@@ -101,7 +105,12 @@ export function ProductionCenter({
         const loaded: ProductionJob[] = data.jobs || [];
         setJobs(loaded);
         if (loaded.length > 0 && !selectedJobId) {
-          setSelectedJobId(loaded[0].id);
+          if (initialJobId && loaded.some((j) => j.id === initialJobId)) {
+            setSelectedJobId(initialJobId);
+            if (onClearJob) onClearJob();
+          } else {
+            setSelectedJobId(loaded[0].id);
+          }
         }
       }
     } catch (err) {

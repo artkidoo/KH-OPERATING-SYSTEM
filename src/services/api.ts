@@ -824,6 +824,50 @@ export const api = {
 
   // Phase 3 — Admin Production Center (cross-workspace, admin-only).
   production: {
+    // §14 Production Queue — unified production jobs (request-driven lifecycle engine).
+    jobs: {
+      list: async (filters?: { status?: string; studio?: string; priority?: string; identity?: string; search?: string }) => {
+        const params = new URLSearchParams();
+        if (filters) Object.entries(filters).forEach(([k, v]) => { if (v) params.append(k, v); });
+        const q = params.toString();
+        return request<{ jobs: any[] }>(`/api/admin/production/jobs${q ? `?${q}` : ""}`);
+      },
+      get: async (jobId: string) => {
+        return request<{ job: any }>(`/api/admin/production/jobs/${encodeURIComponent(jobId)}`);
+      },
+      update: async (jobId: string, data: Record<string, unknown>) => {
+        return request<{ job: any }>(`/api/admin/production/jobs/${encodeURIComponent(jobId)}`, {
+          method: "PUT", body: JSON.stringify(data),
+        });
+      },
+      transition: async (jobId: string, status: string) => {
+        return request<{ job: any }>(`/api/admin/production/jobs/${encodeURIComponent(jobId)}/transition`, {
+          method: "POST", body: JSON.stringify({ status }),
+        });
+      },
+      createDeliverable: async (jobId: string, data: { title: string; category?: string; format?: string; specs?: string; downloadAllowed?: boolean }) => {
+        return request<{ job: any; deliverable: any }>(`/api/admin/production/jobs/${encodeURIComponent(jobId)}/deliverables`, {
+          method: "POST", body: JSON.stringify(data),
+        });
+      },
+      uploadVersion: async (jobId: string, deliverableId: string, data: { title?: string; previewUrl?: string; fileUrl?: string; fileSize?: string; fileType?: string; notes?: string; status?: string }) => {
+        return request<{ job: any; version: any }>(`/api/admin/production/jobs/${encodeURIComponent(jobId)}/deliverables/${encodeURIComponent(deliverableId)}/versions`, {
+          method: "POST", body: JSON.stringify(data),
+        });
+      },
+      resolveRevision: async (jobId: string, revisionId: string) => {
+        return request<{ job: any; revision: any }>(`/api/admin/production/jobs/${encodeURIComponent(jobId)}/revisions/${encodeURIComponent(revisionId)}/resolve`, {
+          method: "POST",
+        });
+      },
+      // §18 Delivery — packages approved deliverable versions into real customer
+      // Library assets (server-side finalizeJobDelivery engine).
+      deliver: async (jobId: string, note?: string) => {
+        return request<{ job: any; createdAssets: any[] }>(`/api/admin/production/jobs/${encodeURIComponent(jobId)}/deliver`, {
+          method: "POST", body: JSON.stringify({ note }),
+        });
+      },
+    },
     list: async (filters?: { status?: string; studio?: string; priority?: string; identity?: string; membership?: string; project?: string }) => {
       const params = new URLSearchParams();
       if (filters) Object.entries(filters).forEach(([k, v]) => { if (v) params.append(k, v); });
@@ -1546,6 +1590,38 @@ export const api = {
       const query = searchParams.toString();
       return request<{ success: boolean; workspaces: any[]; total: number }>(
         `/api/admin/workspaces${query ? `?${query}` : ""}`
+      );
+    },
+
+    // §13 Projects — global project ledger with customer context.
+    getProjects: async (params?: { search?: string; identity?: string; status?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append("search", params.search);
+      if (params?.identity) searchParams.append("identity", params.identity);
+      if (params?.status) searchParams.append("status", params.status);
+      const query = searchParams.toString();
+      return request<{ projects: any[]; total: number }>(
+        `/api/admin/projects${query ? `?${query}` : ""}`
+      );
+    },
+
+    // §27 LIBRARY → Assets — global delivery/asset ledger.
+    getAssets: async (params?: { search?: string; identity?: string; workspaceId?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append("search", params.search);
+      if (params?.identity) searchParams.append("identity", params.identity);
+      if (params?.workspaceId) searchParams.append("workspaceId", params.workspaceId);
+      const query = searchParams.toString();
+      return request<{ assets: any[]; total: number }>(
+        `/api/admin/assets${query ? `?${query}` : ""}`
+      );
+    },
+
+    // §28 Admin Search — scoped search across customers/workspaces/requests/
+    // projects/assets. Server-side, authorization enforced, limited results.
+    search: async (q: string) => {
+      return request<{ query: string; results: { requests: any[]; projects: any[]; workspaces: any[]; users: any[]; assets: any[] } }>(
+        `/api/admin/search?q=${encodeURIComponent(q)}`
       );
     },
 

@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { db, IdentityType, UserRecord, SessionRecord, AssetCategory, CreativeMemoryCategory, CreativeMemoryScope, ProductionDeliverableRecord } from "./db";
+import type { AdminAuditLogRecord } from "./db";
 import { GoogleGenAI } from "@google/genai";
 import { CreativeBrainService, compileWorkspaceContext, executeBrainTool } from "./ai/creativeBrainService";
 import { MemoryRetrievalService } from "./ai/memoryRetrievalService";
@@ -132,6 +133,7 @@ export function requireAdmin(allowedRoles: ('super_admin' | 'admin' | 'support')
 export const apiRouter = Router();
 
 // --- Auth Routes ---
+apiRouter.post("/auth/bootstrap-status", requireAuth, requireAdmin(["super_admin"]), (req, res) => { res.json({ bootstrapConfigured: Boolean((process.env.ADMIN_BOOTSTRAP_EMAIL || "").trim() && (process.env.ADMIN_BOOTSTRAP_PASSWORD || "").trim()) }); });
 apiRouter.post("/auth/signup", (req: Request, res: Response) => {
   const { email, password, fullName, identityType, workspaceName, bio, genreOrNiche } = req.body;
     if (!email || !password || !fullName) {
@@ -204,6 +206,7 @@ apiRouter.post("/auth/login", (req: Request, res: Response) => {
 });
 
 apiRouter.get("/auth/me", requireAuth, (req: AuthenticatedRequest, res: Response) => {
+  try { db.seedBootstrapAdmin(); } catch { /* non-fatal */ }
   const user = req.user!;
   const workspaces = db.getWorkspacesForUser(user.id);
   const activeWorkspace = workspaces.find((w) => w.id === user.defaultWorkspaceId) || workspaces[0] || null;
@@ -266,7 +269,7 @@ apiRouter.post("/auth/demo", async (req: Request, res: Response) => {
     const session = db.createSession(persistedDemoUser.id);
     
     // Create demo workspace
-    const workspaceName = isArtist ? "Demo Artist Workspace" : "Demo Brand Workspace";
+    const workspaceName = isArtist ? "Demo Artist Workspace" : isAdmin ? "KeedoHub Operations (Demo)" : "Demo Brand Workspace";
     const demoWorkspace = db.createWorkspace(
       persistedDemoUser.id,
       workspaceName,
@@ -279,6 +282,7 @@ apiRouter.post("/auth/demo", async (req: Request, res: Response) => {
     );
     
     // Set as default workspace
+    db.updateDefaultWorkspaceId(persistedDemoUser.id, demoWorkspace.id);
     persistedDemoUser.defaultWorkspaceId = demoWorkspace.id;
     
     // Seed demo data
@@ -2729,6 +2733,35 @@ function enrichProductionRequest(r: any) {
   };
 }
 
+// §33 Admin Action Audit Log — every sensitive production mutation performed by
+// an operations admin is recorded (Admin, Action, Target, Workspace, Timestamp).
+function logProductionAudit(
+  req: AuthenticatedRequest,
+  action: string,
+  targetType: AdminAuditLogRecord["targetType"],
+  targetId: string,
+  targetName: string,
+  details: string | Record<string, any>
+) {
+  try {
+    db.createAdminAuditLog({
+      adminUserId: req.user!.id,
+      adminEmail: req.user!.email,
+      adminName: req.user!.fullName,
+      adminRole: (req.user!.systemRole || "admin") as AdminAuditLogRecord["adminRole"],
+      action,
+      targetType,
+      targetId,
+      targetName,
+      details,
+      ipAddress: req.ip || "127.0.0.1",
+      result: "success",
+    });
+  } catch (err) {
+    console.error("[Production Audit Log Error]", err);
+  }
+}
+
 apiRouter.get("/admin/production/requests", requireAuth, requireAdmin(["super_admin", "admin"]), (req: AuthenticatedRequest, res: Response) => {
   const q = req.query as Record<string, string | undefined>;
   let requests = db.getAllCreativeRequests().map(enrichProductionRequest);
@@ -2779,6 +2812,7 @@ apiRouter.post("/admin/production/jobs/:jobId/transition", requireAuth, requireA
   const { status } = req.body || {};
   if (!status) return res.status(400).json({ error: "Status is required" });
   const updated = db.updateProductionJob(job.id, { status });
+  logProductionAudit(req, "PRODUCTION_JOB_TRANSITION", "production_job", job.id, job.serviceName, { from: job.status, to: status, workspaceId: job.workspaceId });
 
   if (status === "CLIENT_REVIEW") {
     try {
@@ -2815,6 +2849,7 @@ apiRouter.post("/admin/production/jobs/:jobId/deliverables/:deliverableId/versio
     uploadedBy: req.user!.fullName || "Studio Producer",
     status: status || "client_review",
   });
+  logProductionAudit(req, "PRODUCTION_VERSION_UPLOADED", "production_job", job.id, job.serviceName, { deliverableId: req.params.deliverableId, version: result.version.versionNumber, workspaceId: job.workspaceId });
 
   if (status === "client_review" || !status) {
     try {
@@ -2842,6 +2877,7 @@ apiRouter.post("/admin/production/jobs/:jobId/deliver", requireAuth, requireAdmi
     deliveredByName: req.user!.fullName || "Studio Admin",
     note,
   });
+  logProductionAudit(req, "PRODUCTION_JOB_DELIVERED", "production_job", job.id, job.serviceName, { workspaceId: job.workspaceId, assetCount: createdAssets.length, assetIds: createdAssets.map((a) => a.id) });
 
   try {
     db.addNotification(
@@ -2879,6 +2915,7 @@ apiRouter.post("/admin/production/jobs/:jobId/deliverables", requireAuth, requir
 
   job.deliverables.push(newDel);
   const updated = db.updateProductionJob(job.id, { deliverables: job.deliverables });
+  logProductionAudit(req, "PRODUCTION_DELIVERABLE_CREATED", "production_job", job.id, job.serviceName, { deliverableId: newDel.id, title: newDel.title, workspaceId: job.workspaceId });
   res.status(201).json({ success: true, job: updated, deliverable: newDel });
 });
 
@@ -2892,6 +2929,7 @@ apiRouter.post("/admin/production/jobs/:jobId/revisions/:revisionId/resolve", re
   rev.status = "RESOLVED";
   rev.resolvedAt = new Date().toISOString();
   const updated = db.updateProductionJob(job.id, { revisions: job.revisions });
+  logProductionAudit(req, "PRODUCTION_REVISION_RESOLVED", "production_job", job.id, job.serviceName, { revisionId: rev.id, workspaceId: job.workspaceId });
   res.json({ success: true, job: updated, revision: rev });
 });
 
@@ -2912,6 +2950,7 @@ apiRouter.post("/admin/production/requests/:requestId/transition", requireAuth, 
   }
   const updated = db.updateCreativeRequestById(found.id, { lifecycleStatus: to });
   db.logActivity(found.workspaceId, req.user!.id, req.user!.email, "PRODUCTION_TRANSITION", "creative_request", found.id, `Production: ${from} → ${to}`);
+  logProductionAudit(req, "PRODUCTION_TRANSITION", "creative_request", found.id, found.title || "Request", { from, to, workspaceId: found.workspaceId });
   res.json({ request: enrichProductionRequest(updated) });
 });
 
@@ -2927,6 +2966,7 @@ apiRouter.post("/admin/production/requests/:requestId/assign", requireAuth, requ
     lifecycleStatus: "ASSIGNED",
   });
   db.logActivity(found.workspaceId, req.user!.id, req.user!.email, "PRODUCTION_ASSIGN", "creative_request", found.id, `Assigned to ${assignedProducer || "producer"} @ ${assignedStudio}`);
+  logProductionAudit(req, "PRODUCTION_ASSIGN", "creative_request", found.id, found.title || "Request", { assignedStudio, assignedProducer: assignedProducer || null, workspaceId: found.workspaceId });
   res.json({ request: enrichProductionRequest(updated) });
 });
 
@@ -2938,6 +2978,7 @@ apiRouter.post("/admin/production/requests/:requestId/notes", requireAuth, requi
   if (typeof internalNotes === "string") updates.internalNotes = internalNotes;
   if (typeof clientVisibleNotes === "string") updates.clientVisibleNotes = clientVisibleNotes;
   const updated = db.updateCreativeRequestById(found.id, updates);
+  logProductionAudit(req, "PRODUCTION_NOTES_UPDATED", "creative_request", found.id, found.title || "Request", { fields: Object.keys(updates), workspaceId: found.workspaceId });
   res.json({ request: enrichProductionRequest(updated) });
 });
 
@@ -2954,6 +2995,7 @@ apiRouter.post("/admin/production/requests/:requestId/revisions", requireAuth, r
     status: "OPEN",
     requestedBy: "admin",
   });
+  logProductionAudit(req, "PRODUCTION_REVISION_REQUESTED", "creative_request", found.id, found.title || "Request", { revisionNumber: used + 1, reason: reason.trim(), workspaceId: found.workspaceId });
   const updated = db.updateCreativeRequestById(found.id, { lifecycleStatus: "REVISION" });
   res.status(201).json({ revision, request: enrichProductionRequest(updated) });
 });
@@ -2998,11 +3040,84 @@ apiRouter.post("/admin/production/requests/:requestId/deliver", requireAuth, req
   });
   const updated = db.updateCreativeRequestById(found.id, { lifecycleStatus: "DELIVERY" });
   db.logActivity(found.workspaceId, req.user!.id, req.user!.email, "PRODUCTION_DELIVER", "creative_request", found.id, `Delivered ${created.length} assets`);
+  logProductionAudit(req, "PRODUCTION_DELIVERED", "creative_request", found.id, found.title || "Request", { workspaceId: found.workspaceId, assetCount: created.length, assetIds: created.map((a) => a.id), deliveredAt: new Date().toISOString(), deliveredBy: req.user!.email });
   res.status(201).json({ assets: created, request: enrichProductionRequest(updated) });
 });
 
 apiRouter.get("/admin/production/usage", requireAuth, requireAdmin(["super_admin", "admin"]), (_req: AuthenticatedRequest, res: Response) => {
   res.json({ usage: db.getProductionUsageOverview() });
+});
+
+// ==========================================
+// ADMIN STUDIO OPERATIONS — Projects (§13) / Library (§27) / Search (§28)
+// ==========================================
+
+// §13 Projects — every authorized customer project with customer context.
+apiRouter.get("/admin/projects", requireAuth, requireAdmin(["super_admin", "admin"]), (req: AuthenticatedRequest, res: Response) => {
+  const q = req.query as Record<string, string | undefined>;
+  let projects = db.getAllProjectsAdmin();
+  if (q.search) {
+    const s = q.search.toLowerCase();
+    projects = projects.filter((p) =>
+      (p.title || "").toLowerCase().includes(s) ||
+      (p.workspaceName || "").toLowerCase().includes(s) ||
+      (p.customerName || "").toLowerCase().includes(s)
+    );
+  }
+  if (q.identity) projects = projects.filter((p) => p.workspaceIdentity === q.identity);
+  if (q.status) projects = projects.filter((p) => (p.status || "") === q.status);
+  res.json({ projects, total: projects.length });
+});
+
+// §27 LIBRARY → Assets — global delivery/asset ledger with ownership context.
+apiRouter.get("/admin/assets", requireAuth, requireAdmin(["super_admin", "admin"]), (req: AuthenticatedRequest, res: Response) => {
+  const q = req.query as Record<string, string | undefined>;
+  let assets = db.getAllAssetsAdmin();
+  if (q.search) {
+    const s = q.search.toLowerCase();
+    assets = assets.filter((a) =>
+      (a.name || "").toLowerCase().includes(s) ||
+      (a.workspaceName || "").toLowerCase().includes(s) ||
+      (a.customerName || "").toLowerCase().includes(s)
+    );
+  }
+  if (q.identity) assets = assets.filter((a) => a.workspaceIdentity === q.identity);
+  if (q.workspaceId) assets = assets.filter((a) => a.workspaceId === q.workspaceId);
+  assets.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+  res.json({ assets: assets.slice(0, 500), total: assets.length });
+});
+
+// §28 Admin Search — scoped, authorization-respecting search. Admin-only and
+// limited result sets; NOT an insecure global database dump.
+apiRouter.get("/admin/search", requireAuth, requireAdmin(["super_admin", "admin", "support"]), (req: AuthenticatedRequest, res: Response) => {
+  const q = ((req.query as Record<string, string | undefined>).q || "").trim().toLowerCase();
+  if (!q) return res.json({ query: "", results: { requests: [], projects: [], workspaces: [], users: [], assets: [] } });
+
+  const limit = 10;
+  const requests = db.getAllCreativeRequests()
+    .filter((r) => (r.title || "").toLowerCase().includes(q) || (r.serviceName || "").toLowerCase().includes(q))
+    .map(enrichProductionRequest)
+    .slice(0, limit)
+    .map((r) => ({ id: r.id, title: r.title, status: r.lifecycleStatus || "SUBMITTED", customerName: r.customerName, workspaceId: r.workspaceId, workspaceName: r.workspaceName, identity: r.workspaceIdentity }));
+  const projects = db.getAllProjectsAdmin()
+    .filter((p) => (p.title || "").toLowerCase().includes(q) || (p.workspaceName || "").toLowerCase().includes(q))
+    .slice(0, limit)
+    .map((p) => ({ id: p.id, title: p.title, status: (p as any).status || null, workspaceId: p.workspaceId, workspaceName: p.workspaceName, customerName: p.customerName, identity: p.workspaceIdentity }));
+  const workspaces = db.getAllAdminWorkspaces({ search: q })
+    .slice(0, limit)
+    .map((w) => ({ id: w.id, name: w.name, identity: w.identityType, customerName: w.ownerName, status: w.status }));
+  const users = db.getAllAdminUsers({ search: q })
+    .slice(0, limit)
+    .map((u) => ({ id: u.id, fullName: u.fullName, email: u.email, systemRole: u.systemRole, status: u.status }));
+  const assets = db.getAllAssetsAdmin()
+    .filter((a) => (a.name || "").toLowerCase().includes(q) || (a.workspaceName || "").toLowerCase().includes(q))
+    .slice(0, limit)
+    .map((a) => ({ id: a.id, name: a.name, workspaceId: a.workspaceId, workspaceName: a.workspaceName, customerName: a.customerName, identity: a.workspaceIdentity }));
+
+  // Record that an admin performed a cross-customer search (sensitive read).
+  logProductionAudit(req, "ADMIN_SEARCH", "system", q, "scoped search", { query: q });
+
+  res.json({ query: q, results: { requests, projects, workspaces, users, assets } });
 });
 
 // --- Admin configurable production / plans (persisted in platform_settings) ---

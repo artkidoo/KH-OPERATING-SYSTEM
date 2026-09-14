@@ -3,13 +3,13 @@ import { ActiveTab, StudioServiceCategory } from "./types";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { WorkspaceProvider } from "./context/WorkspaceContext";
-import { CreativeBrainProvider, useCreativeBrain } from "./context/CreativeBrainContext";
+import { CreativeBrainProvider } from "./context/CreativeBrainContext";
 import { Header } from "./components/Header";
 import { HeroStudioOS } from "./components/HeroStudioOS";
 import { Footer } from "./components/Footer";
 import { CommandPalette } from "./components/CommandPalette";
 import { BriefModal } from "./components/BriefModal";
-import { CreativeBrainSlideOver } from "./components/CreativeBrainSlideOver";
+import { RemovedTools } from "./components/RemovedTools";
 import { OnboardingModal } from "./components/onboarding/OnboardingModal";
 import { Toast, ToastMessage } from "./components/Toast";
 import { AboutPage } from "./components/pages/AboutPage";
@@ -29,24 +29,23 @@ import { JournalPage } from "./components/pages/JournalPage";
 import { AuthGate } from "./components/auth/AuthGate";
 import { AuthModal } from "./components/AuthModal";
 import type { ShellSection } from "./components/workspace/WorkspaceShell";
-import { 
-  Search, 
+import {
+  Search,
   BrainCircuit,
-  Rocket, 
-  Radio, 
-  Disc3, 
-  Sparkles, 
-  Layers, 
-  Palette, 
+  Rocket,
+  Disc3,
+  Sparkles,
+  Layers,
+  Palette,
   HardDrive,
   Home
 } from "lucide-react";
-import { 
-  getTabFromPath, 
-  getPathFromTab, 
+import {
+  getTabFromPath,
+  getPathFromTab,
   getSectionFromPath,
-  isWorkspaceTab, 
-  isStudioTab 
+  isWorkspaceTab,
+  isStudioTab
 } from "./utils/navigation";
 import { hasAdminAccess } from "./utils/adminAccess";
 
@@ -57,29 +56,8 @@ const WorkspaceShell = lazy(() =>
 const Studio = lazy(() =>
   import("./components/Studio").then((m) => ({ default: m.Studio }))
 );
-const IntelHub = lazy(() =>
-  import("./components/IntelHub").then((m) => ({ default: m.IntelHub }))
-);
-const CreativeMemoryDashboard = lazy(() =>
-  import("./components/CreativeMemoryDashboard").then((m) => ({ default: m.CreativeMemoryDashboard }))
-);
-const CreativeRadarDashboard = lazy(() =>
-  import("./components/CreativeRadarDashboard").then((m) => ({ default: m.CreativeRadarDashboard }))
-);
-const AnalyticsView = lazy(() =>
-  import("./components/AnalyticsView").then((m) => ({ default: m.AnalyticsView }))
-);
-const WorkflowHub = lazy(() =>
-  import("./components/WorkflowHub").then((m) => ({ default: m.WorkflowHub }))
-);
-const CollaborationHub = lazy(() =>
-  import("./components/collaboration/CollaborationHub").then((m) => ({ default: m.CollaborationHub }))
-);
 const AdminDashboard = lazy(() =>
   import("./components/admin/AdminDashboard").then((m) => ({ default: m.AdminDashboard }))
-);
-const StudioAdmin = lazy(() =>
-  import("./components/workspace/StudioAdmin").then((m) => ({ default: m.StudioAdmin }))
 );
 const IntegrationsHub = lazy(() =>
   import("./components/integrations/IntegrationsHub").then((m) => ({ default: m.IntegrationsHub }))
@@ -292,9 +270,6 @@ function MainAppContent() {
         adminContext={isAdminRoute}
       />
 
-      {/* Creative Brain Slide-over Assistant */}
-      <CreativeBrainSlideOver setActiveTab={setActiveTab} />
-
       {/* Toast Notifications */}
       <Toast toasts={toasts} onDismiss={removeToast} />
 
@@ -343,22 +318,9 @@ function MainAppContent() {
               />
             )}
 
-        {activeTab === "production-center" && (
-          user && ["admin", "super_admin"].includes(user.systemRole || "user") ? (
-            <ProductionCenter onNotify={addNotification} />
-          ) : (
-            <AuthGate
-              areaName="production-center"
-              onOpenAuth={(mode) => {
-                setAuthModalMode(mode || "login");
-                setIsAuthModalOpen(true);
-              }}
-              onNavigatePublic={setActiveTab}
-            />
-          )
-        )}
+            {activeTab === "removed" && <RemovedTools />}
 
-        {(activeTab === "command-center" ||
+            {(activeTab === "command-center" ||
           activeTab === "workspace-hub" ||
           activeTab === "artist-os" ||
           activeTab === "brand-os" ||
@@ -375,43 +337,12 @@ function MainAppContent() {
           />
         )}
 
-        {activeTab === "workflow" && (
-          <WorkflowHub
-            workspaceId={activeWorkspace?.id}
-            onNavigateTab={setActiveTab}
-          />
-        )}
-
-        {activeTab === "collaboration" && (
-          <CollaborationHub
-            workspaceId={activeWorkspace?.id || ""}
-            currentUser={
-              user
-                ? {
-                    id: user.id,
-                    email: user.email,
-                    name: user.fullName,
-                    role: activeWorkspace?.role || "owner",
-                  }
-                : undefined
-            }
-            onNavigateTab={setActiveTab}
-          />
-        )}
-
-        {activeTab === "analytics" && (
-          <AnalyticsView
-            onNotify={addNotification}
-            onNavigateTab={setActiveTab}
-          />
-        )}
-
         {/* Studio is the internal production engine. Customer-facing DIY tools
             (Cover Studio, Lyrics Studio, Mastering Inspector, Splits Calculator,
             Presave Hub, EPK Builder, Business Documents Studio, Content Engine)
-            have been removed from public navigation. Useful engines are preserved
-            internally and operated through the Studio admin pipeline or the
-            Request Centre. */}
+            have been removed from public navigation and now surface under the
+            "Removed tools" page. Useful engines are preserved internally and
+            operated through the Admin production pipeline or the Request Centre. */}
         {activeTab === "studio" && hasAdminAccess(user?.systemRole) ? (
           <Studio
             onNotify={addNotification}
@@ -430,30 +361,8 @@ function MainAppContent() {
           />
         )}
 
-        {activeTab === "creative-memory" && (
-          <CreativeMemoryDashboard
-            onNotify={addNotification}
-            onNavigateTab={setActiveTab}
-          />
-        )}
-
-        {activeTab === "creative-radar" && (
-          <CreativeRadarDashboard
-            onNotify={addNotification}
-            onNavigateTab={setActiveTab}
-          />
-        )}
-
-        {activeTab === "intel-hub" && (
-          <IntelHub onNotify={addNotification} />
-        )}
-
         {activeTab === "admin" && (
           <AdminDashboard onBackToApp={() => setActiveTab("command-center")} />
-        )}
-
-        {activeTab === "studio-admin" && hasAdminAccess(user?.systemRole) && (
-          <StudioAdmin onNotify={addNotification} />
         )}
 
         {activeTab === "integrations" && (
@@ -516,7 +425,8 @@ function MainAppContent() {
         )}
       </main>
 
-      {/* Floating in-portal assistant trigger */}
+      {/* Floating in-portal assistant trigger — internal KH Chat (CreativeBrain).
+          Kept minimal: slide-over lives in CreativeBrainProvider context. */}
       <button
         id="floating-chat-assistant-btn"
         onClick={toggleBrain}
@@ -570,15 +480,15 @@ function MainAppContent() {
         </button>
 
         <button
-          id="mobile-bottom-nav-radar"
-          onClick={() => setActiveTab("creative-radar")}
+          id="mobile-bottom-nav-admin"
+          onClick={() => setActiveTab("admin")}
           className={`flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer min-w-[50px] min-h-[44px] justify-center transition-all ${
-            activeTab === "creative-radar" ? "text-amber-400 font-bold" : "text-zinc-400 hover:text-zinc-200"
+            activeTab === "admin" ? "text-amber-400 font-bold" : "text-zinc-400 hover:text-zinc-200"
           }`}
-          aria-current={activeTab === "creative-radar" ? "page" : undefined}
+          aria-current={activeTab === "admin" ? "page" : undefined}
         >
-          <Radio className="w-4 h-4" />
-          <span className="text-[10px]">Radar</span>
+          <Sparkles className="w-4 h-4" />
+          <span className="text-[10px]">Ops</span>
         </button>
 
         <button

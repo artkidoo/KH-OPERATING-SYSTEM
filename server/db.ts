@@ -82,7 +82,7 @@ export interface AdminAuditLogRecord {
   adminName: string;
   adminRole: SystemAdminRole;
   action: string;
-  targetType: 'user' | 'workspace' | 'feature_flag' | 'system' | 'support' | 'security';
+  targetType: 'user' | 'workspace' | 'feature_flag' | 'system' | 'support' | 'security' | 'creative_request' | 'production_job' | 'asset';
   targetId: string;
   targetName?: string;
   details: string | Record<string, any>;
@@ -1703,8 +1703,38 @@ class Database {
   }
 
   public deleteSession(token: string) {
-    this.data.sessions = this.data.sessions.filter((s) => s.token !== token);
+    const cryptoMod = crypto;
+    let tokenHash = token;
+    try { tokenHash = cryptoMod.createHash("sha256").update(token).digest("hex"); } catch (e) {}
+    this.data.sessions = this.data.sessions.filter((s) => s.token !== tokenHash && s.token !== token);
     this.save();
+  }
+
+  public updateDefaultWorkspaceId(userId: string, workspaceId: string): boolean {
+    const user = this.data.users.find((u) => u.id === userId);
+    if (!user) return false;
+    user.defaultWorkspaceId = workspaceId;
+    this.save();
+    return true;
+  }
+
+  public seedBootstrapAdmin(): UserRecord | null {
+    const email = (process.env.ADMIN_BOOTSTRAP_EMAIL || "").toLowerCase().trim();
+    const password = process.env.ADMIN_BOOTSTRAP_PASSWORD || "";
+    if (!email || !password) return null;
+    const existing = this.data.users.find((u) => u.email === email);
+    if (existing) {
+      let dirty = false;
+      if (existing.systemRole !== "super_admin") { existing.systemRole = "super_admin"; dirty = true; }
+      if (existing.status !== "active") { existing.status = "active"; dirty = true; }
+      if (dirty) this.save();
+      return existing;
+    }
+    const created = this.createUser(email, password, process.env.ADMIN_BOOTSTRAP_NAME || "KeedoHub Operations");
+    created.systemRole = "super_admin";
+    created.status = "active";
+    this.save();
+    return created;
   }
 
   // --- Workspaces ---
@@ -5517,10 +5547,46 @@ class Database {
         deliverableCount: deliverables.length,
         assetCount: assets.length,
         memoryCount: memories.length,
+        requestCount: (this.data.creative_requests || []).filter((r) => r.workspaceId === w.id).length,
         status: w.status || "active",
         suspendedReason: w.suspendedReason,
         createdAt: w.createdAt,
         updatedAt: w.updatedAt,
+      };
+    });
+  }
+
+  // Admin Studio Operations — global project list (§13 Projects). Returns every
+  // project with customer/workspace context. Admin-only; customers keep using
+  // the workspaceId-scoped getProjects().
+  public getAllProjectsAdmin() {
+    const workspaces = new Map((this.data.workspaces || []).map((w) => [w.id, w]));
+    const users = new Map((this.data.users || []).map((u) => [u.id, u]));
+    return (this.data.projects || []).map((p) => {
+      const w = workspaces.get(p.workspaceId);
+      const owner = w ? users.get(w.ownerId) : undefined;
+      return {
+        ...p,
+        workspaceName: w?.name || "Workspace",
+        workspaceIdentity: w?.identityType || "artist",
+        customerName: owner?.fullName || "Customer",
+      };
+    });
+  }
+
+  // Admin Studio Operations — global asset list (§27 Library). Every asset with
+  // ownership context so Admin can verify delivery/library flow.
+  public getAllAssetsAdmin() {
+    const workspaces = new Map((this.data.workspaces || []).map((w) => [w.id, w]));
+    const users = new Map((this.data.users || []).map((u) => [u.id, u]));
+    return (this.data.assets || []).map((a) => {
+      const w = workspaces.get(a.workspaceId);
+      const owner = w ? users.get(w.ownerId) : undefined;
+      return {
+        ...a,
+        workspaceName: w?.name || "Workspace",
+        workspaceIdentity: w?.identityType || "artist",
+        customerName: owner?.fullName || "Customer",
       };
     });
   }
@@ -5542,10 +5608,23 @@ class Database {
       .filter((l) => l.workspaceId === w.id)
       .slice(0, 20);
 
+    // Production context for the Admin Studio (§10 Workspace Operations, §21/§22 DNA).
+    const artistDNA = this.getArtistDNA(w.id);
+    const brandDNA = this.getBrandDNA(w.id);
+    const requests = this.getAllCreativeRequests()
+      .filter((r) => r.workspaceId === w.id)
+      .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+    const requestAssets = assets.slice(-50).reverse();
+
     return {
       workspace: w,
       owner: owner ? { id: owner.id, email: owner.email, fullName: owner.fullName } : null,
       members,
+      artistDNA,
+      brandDNA,
+      requests,
+      projects,
+      assets: requestAssets,
       counts: {
         members: members.length,
         projects: projects.length,
@@ -5555,6 +5634,7 @@ class Database {
         deliverables: deliverables.length,
         assets: assets.length,
         approvalRequests: approvalRequests.length,
+        requests: requests.length,
       },
       recentActivity,
     };
