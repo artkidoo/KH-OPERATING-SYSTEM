@@ -252,25 +252,32 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = "login", a
             <p className="text-xs text-zinc-400 text-center">Try the product instantly — no account needed</p>
             
             <div className="grid gap-3">
-              {adminContext && (
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin("admin")}
-                  className="group relative flex items-start gap-4 p-4 rounded-xl border border-amber-500/30 bg-amber-950/20 hover:bg-amber-950/30 hover:border-amber-400/60 transition-all cursor-pointer text-left"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 shadow-lg">
-                    <ShieldCheck className="w-5 h-5 text-white" />
+              <button
+                type="button"
+                onClick={() => handleDemoLogin("admin")}
+                className={`group relative flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer text-left ${
+                  adminContext
+                    ? "border-amber-500/50 bg-amber-950/30 hover:bg-amber-950/40 hover:border-amber-400 ring-1 ring-amber-500/30"
+                    : "border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/60 hover:border-amber-500/40"
+                }`}
+              >
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 shadow-lg">
+                  <ShieldCheck className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-white flex items-center gap-2">
+                      <span>Admin Demo</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                        SUPER ADMIN
+                      </span>
+                    </span>
+                    <Sparkles className="w-4 h-4 text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-white">Admin Demo</span>
-                      <Sparkles className="w-4 h-4 text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <p className="text-xs text-zinc-400 mt-0.5">Operations, users, workspaces, audit activity and support</p>
-                    <p className="text-[10px] text-amber-500/70 mt-1.5 font-medium">Temporary staff-level preview session</p>
-                  </div>
-                </button>
-              )}
+                  <p className="text-xs text-zinc-400 mt-0.5">Operations, users, workspaces, audit activity and support</p>
+                  <p className="text-[10px] text-amber-500/70 mt-1.5 font-medium">Instant staff-level preview session</p>
+                </div>
+              </button>
 
               <button
                 type="button"

@@ -1124,7 +1124,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({
                             : et === "studio"
                             ? "studio"
                             : et === "content"
-                            ? "content-engine"
+                            ? "command-center"
                             : et === "project"
                             ? "project-console"
                             : "",

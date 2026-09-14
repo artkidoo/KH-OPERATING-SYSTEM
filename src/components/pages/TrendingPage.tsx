@@ -34,7 +34,7 @@ export const TrendingPage: React.FC<PageProps> = ({ onNavigateTab, openBriefModa
           </p>
           <div className="pt-2 flex flex-wrap items-center gap-3">
             <button
-              onClick={() => onNavigateTab("creative-radar")}
+              onClick={() => onNavigateTab("command-center")}
               className="px-5 py-2.5 rounded-xl bg-theme-accent text-white font-bold text-xs sm:text-sm font-['Space_Grotesk'] flex items-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
             >
               <span>Launch Live Radar</span>

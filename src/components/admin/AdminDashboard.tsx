@@ -3,11 +3,13 @@ import {
   ShieldAlert, ShieldCheck, Shield, LayoutDashboard, Users, HardDrive, Activity,
   LifeBuoy, Cpu, Sliders, Settings, RefreshCw, Sparkles, Lock, ArrowLeft, FileText,
   Factory, PanelLeftClose, PanelLeftOpen, Search, FolderOpen, Music, AudioLines,
-  Database, Eye, Clock, Boxes,
+  Database, Eye, Clock, Boxes, LogIn, LogOut, Info, KeyRound, CheckCircle2,
+  Menu, X
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
 import { AdminOverviewStats, SystemAdminRole } from "../../types";
+import { AuthModal } from "../AuthModal";
 import { AdminOverviewTab } from "./AdminOverviewTab";
 import { UserManagementTab } from "./UserManagementTab";
 import { WorkspaceManagementTab } from "./WorkspaceManagementTab";
@@ -64,12 +66,29 @@ function subTabFromPath(path: string): AdminSubTab {
 interface AdminDashboardProps { onBackToApp?: () => void; }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, demoLogin, logout } = useAuth();
   const [activeSubTab, setActiveSubTabState] = useState<AdminSubTab>(() => (typeof window !== "undefined" ? subTabFromPath(window.location.pathname) : "operations"));
   const [pendingJobId, setPendingJobId] = useState<string | null>(null);
   const [stats, setStats] = useState<AdminOverviewStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSwitchingAdmin, setIsSwitchingAdmin] = useState(false);
+  const [switchError, setSwitchError] = useState<string | null>(null);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [navSearch, setNavSearch] = useState("");
+
+  const handleSwitchToAdminDemo = async () => {
+    setIsSwitchingAdmin(true);
+    setSwitchError(null);
+    try {
+      await demoLogin("admin");
+    } catch (err: any) {
+      setSwitchError(err?.message || "Failed to start Admin Demo session.");
+    } finally {
+      setIsSwitchingAdmin(false);
+    }
+  };
 
   // System role derived strictly from the authenticated user's assigned role.
   const effectiveRole: SystemAdminRole = getEffectiveAdminRole(user?.systemRole);
@@ -104,17 +123,129 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
   }
   if (!hasAdminAccess(effectiveRole)) {
     return (
-      <main className="min-h-screen bg-theme-main text-theme-main flex items-center justify-center p-6">
-        <section className="bento-card w-full max-w-lg p-8 text-center">
-          <Lock className="mx-auto mb-4 size-10 text-theme-accent" aria-hidden="true" />
-          <h1 className="text-2xl font-bold">Admin access required</h1>
-          <p className="mt-2 text-sm text-theme-muted">This control center is restricted to authorized Keedohub operations roles.</p>
-          <p className="mt-3 text-xs text-theme-muted">
-            Signed in as {user?.email || "unknown"} · detected role: <span className="font-mono font-bold">{effectiveRole}</span>.
-            Staff access is granted by assigning a super_admin / admin / support role to your account (Admin user management or ADMIN_BOOTSTRAP_EMAIL on first boot) — customer accounts can never enter here.
-          </p>
-          {onBackToApp && <button onClick={onBackToApp} className="mt-6 rounded-xl bg-theme-accent px-4 py-2 text-sm font-semibold">Return to workspace</button>}
+      <main className="min-h-screen bg-theme-main text-theme-main flex items-center justify-center p-4 sm:p-6">
+        <section className="bento-card w-full max-w-xl p-6 sm:p-8 text-center space-y-6 border-amber-500/30 shadow-2xl">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 shadow-inner">
+            <Lock className="size-8" aria-hidden="true" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>OPERATIONS GATEWAY</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold font-['Space_Grotesk'] tracking-tight">
+              Admin Access Required
+            </h1>
+            <p className="text-sm text-theme-muted max-w-md mx-auto">
+              This control center is restricted to authorized Keedohub operations roles (<span className="font-mono text-zinc-300">super_admin</span>, <span className="font-mono text-zinc-300">admin</span>, <span className="font-mono text-zinc-300">support</span>).
+            </p>
+          </div>
+
+          {/* Current Session Banner */}
+          <div className="p-3.5 rounded-xl bg-zinc-900/70 border border-zinc-800 text-left text-xs space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-theme-muted font-medium">Currently signed in:</span>
+              <span className="font-mono font-bold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+                role: {effectiveRole}
+              </span>
+            </div>
+            <div className="font-mono text-zinc-200 truncate font-semibold">
+              {user?.email || "anonymous / no active session"}
+            </div>
+          </div>
+
+          {switchError && (
+            <div className="p-3 rounded-xl bg-red-950/40 border border-red-500/40 text-red-200 text-xs text-left">
+              {switchError}
+            </div>
+          )}
+
+          {/* Primary Action: 1-Click Instant Admin Demo */}
+          <div className="space-y-2 pt-1">
+            <button
+              onClick={handleSwitchToAdminDemo}
+              disabled={isSwitchingAdmin}
+              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold text-sm shadow-lg shadow-amber-950/50 flex items-center justify-center gap-2.5 transition-all cursor-pointer disabled:opacity-50"
+            >
+              {isSwitchingAdmin ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Provisioning Super Admin session…</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Login as Admin Demo (Super Admin)</span>
+                </>
+              )}
+            </button>
+            <p className="text-[11px] text-theme-muted">
+              Instant 1-click preview: grants full Super Admin privileges to test operations, user management, production queues & telemetry.
+            </p>
+          </div>
+
+          {/* Secondary Actions */}
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="w-full sm:flex-1 py-2.5 px-4 rounded-xl bg-theme-elevated hover:bg-theme-border border border-theme-border text-xs sm:text-sm font-semibold text-theme-main flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <LogIn className="w-4 h-4 text-theme-accent" />
+              <span>Sign In with Staff Account</span>
+            </button>
+
+            <button
+              onClick={async () => {
+                await logout();
+              }}
+              className="w-full sm:w-auto py-2.5 px-4 rounded-xl border border-zinc-800 hover:bg-zinc-900 text-xs font-semibold text-zinc-400 hover:text-red-400 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+
+          {onBackToApp && (
+            <div className="pt-2 border-t border-theme-border/60">
+              <button
+                onClick={onBackToApp}
+                className="text-xs text-theme-muted hover:text-theme-main flex items-center justify-center gap-1.5 mx-auto transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Return to Customer Workspace</span>
+              </button>
+            </div>
+          )}
+
+          {/* How Admin Authentication Works Guide */}
+          <div className="pt-4 border-t border-theme-border/40 text-left">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-theme-muted mb-2 flex items-center gap-1.5">
+              <Info className="w-3.5 h-3.5 text-theme-accent" />
+              <span>How to Authenticate as Admin</span>
+            </h2>
+            <ul className="text-xs text-theme-muted space-y-2 leading-relaxed">
+              <li className="flex items-start gap-2">
+                <span className="w-4 h-4 rounded-full bg-theme-elevated text-center shrink-0 font-mono font-bold text-[10px] text-theme-main flex items-center justify-center mt-0.5">1</span>
+                <span><strong>Instant Testing:</strong> Click <em>&ldquo;Login as Admin Demo&rdquo;</em> above for zero-configuration, full Super Admin operations privileges.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-4 h-4 rounded-full bg-theme-elevated text-center shrink-0 font-mono font-bold text-[10px] text-theme-main flex items-center justify-center mt-0.5">2</span>
+                <span><strong>Promoting Your Own Account:</strong> From the Admin Demo, go to <em>Customer Accounts</em> (<code className="text-amber-400">/admin/account</code>), search your email, and promote your role to <code className="text-purple-400">super_admin</code> or <code className="text-blue-400">admin</code>.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-4 h-4 rounded-full bg-theme-elevated text-center shrink-0 font-mono font-bold text-[10px] text-theme-main flex items-center justify-center mt-0.5">3</span>
+                <span><strong>Production Environment Bootstrap:</strong> Set <code className="text-emerald-400">ADMIN_BOOTSTRAP_EMAIL</code> and <code className="text-emerald-400">ADMIN_BOOTSTRAP_PASSWORD</code> in your <code className="text-zinc-300">.env</code> file. On startup/login, Keedohub guarantees that account is an active Super Admin.</span>
+              </li>
+            </ul>
+          </div>
         </section>
+
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          adminContext={true}
+        />
       </main>
     );
   }
@@ -170,82 +301,433 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToApp }) =
     ] },
   ];
 
+  const TAB_METADATA: Record<string, { title: string; category: string; description: string }> = {
+    operations: { title: "Command Center", category: "Command Center", description: "Real-time production pipeline, live requests & operations telemetry" },
+    customers: { title: "Customers", category: "Customers", description: "Customer roster, user profiles & subscription tier tracking" },
+    workspaces: { title: "Workspaces", category: "Customers", description: "Multi-tenant studio & brand workspaces overview" },
+    requests: { title: "Creative Requests", category: "Production", description: "Client project and asset requests pending operations triage" },
+    projects: { title: "Production Projects", category: "Production", description: "Active multi-discipline artist & brand production initiatives" },
+    queue: { title: "Production Queue", category: "Production", description: "Live jobs passing through automated & engineer production pipelines" },
+    review: { title: "Quality Review", category: "Production", description: "Asset approvals, QA checks, client revisions & final sign-offs" },
+    deliveries: { title: "Deliveries", category: "Production", description: "Delivered releases, brand kits and client asset bundles" },
+    library: { title: "Asset Vault", category: "Library", description: "Centralized repository of master audio, vectors, covers & documents" },
+    studio: { title: "Creative Engines", category: "Studio", description: "Internal operations tooling: audio engine, stems & cover automation" },
+    audio: { title: "Audio QA & DSP", category: "Studio", description: "LUFS normalization, True Peak analysis & delivery validation" },
+    attention: { title: "Needs Attention", category: "Operations", description: "Bottlenecks, stale revisions, unassigned jobs & SLA alerts" },
+    search: { title: "Admin Search", category: "Studio", description: "Global operational index across users, workspaces, requests and files" },
+    users: { title: "Customer Accounts", category: "System", description: "User system roles, elevation, suspension & access control" },
+    "ws-mgmt": { title: "Workspace Management", category: "System", description: "Tenant administration, storage quotas & member governance" },
+    overview: { title: "Operations Pulse", category: "System", description: "Macro platform analytics, resource utilization & performance metrics" },
+    "production-jobs": { title: "Version Engine", category: "System", description: "Automated engine orchestration, builds & job distribution" },
+    "production-config": { title: "Services, Plans & Usage", category: "System", description: "Service catalogue, pricing rules & workspace quota ceilings" },
+    "document-templates": { title: "Documents & Templates", category: "System", description: "Official contracts, brand guidelines & document generator presets" },
+    activity: { title: "Logs & Activity", category: "System", description: "Immutable audit trail of staff actions, role updates & file events" },
+    support: { title: "Support Console", category: "System", description: "Ticket queues, customer inquiries & operations dispute resolution" },
+    "system-health": { title: "System Health", category: "System", description: "API gateways, database connectivity & service worker heartbeats" },
+    "feature-flags": { title: "Feature Flags", category: "System", description: "Runtime operational toggles and canary rollout toggles" },
+    settings: { title: "Platform Settings", category: "System", description: "Global environment variables, branding and studio constants" },
+  };
+
+  const currentMeta = TAB_METADATA[activeSubTab] || {
+    title: activeSubTab,
+    category: "Operations",
+    description: "Operational management and system administration",
+  };
+
   return (
-    <div className="min-h-screen bg-theme-main text-theme-main flex flex-col">
-      <div className="sticky top-0 z-40 border-b border-theme-main bg-theme-card/90 backdrop-blur-md px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-theme-main text-theme-main flex flex-col antialiased">
+      {/* 1. TOP HEADER BAR */}
+      <header className="sticky top-0 z-40 border-b border-theme-main bg-theme-card/95 backdrop-blur-md px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3 shadow-sm">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          {/* Mobile Hamburger to expand drawer */}
+          <button
+            onClick={() => setIsMobileDrawerOpen(true)}
+            className="p-2 rounded-xl border border-theme-main hover:bg-theme-elevated text-theme-muted hover:text-theme-main lg:hidden transition-colors cursor-pointer shrink-0"
+            aria-label="Open navigation menu"
+            title="Browse all admin sections"
+          >
+            <Menu className="w-4 h-4 text-theme-accent" />
+          </button>
+
           {onBackToApp && (
-            <button onClick={onBackToApp} className="p-2 rounded-xl border border-theme-main hover:bg-theme-elevated text-theme-muted hover:text-theme-main transition-colors flex items-center gap-1.5 text-xs font-semibold mr-1" title="Return to Keedohub Workspace">
-              <ArrowLeft className="w-4 h-4" /><span className="hidden sm:inline">Workspace OS</span>
+            <button
+              onClick={onBackToApp}
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-theme-main hover:bg-theme-elevated text-theme-muted hover:text-theme-main transition-colors flex items-center gap-1.5 text-xs font-semibold shrink-0 cursor-pointer"
+              title="Return to Keedohub Workspace"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Workspace OS</span>
             </button>
           )}
-          <div className="w-8 h-8 rounded-xl bg-theme-accent flex items-center justify-center font-bold shadow-md"><ShieldAlert className="w-4 h-4" /></div>
-          <div>
-            <div className="flex items-center gap-2"><h1 className="text-base font-extrabold tracking-tight text-theme-main">KEEDOHUB OPERATIONS</h1><span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">ADMIN</span></div>
-            <p className="text-[11px] text-theme-muted">Admin / Studio — production control center</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-accent/30 p-1.5 rounded-xl border border-border/50 text-xs">
-            <span className="text-[11px] text-theme-muted font-medium pl-1 hidden sm:inline">Authority Role:</span>{getRoleBadge(effectiveRole)}
-          </div>
-        </div>
-      </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row max-w-[1600px] w-full mx-auto p-4 sm:p-6 gap-6">
-        <aside className={`${sidebarCollapsed ? "lg:w-16" : "lg:w-64"} w-full flex-shrink-0 space-y-1 bg-theme-card border border-theme-main rounded-2xl p-3 h-fit transition-[width]`}>
-          <div className="flex items-center justify-between px-2 py-2">
-            {!sidebarCollapsed && <div className="text-[10px] font-bold uppercase tracking-wider text-theme-muted">Admin Navigation</div>}
-            <button onClick={() => setSidebarCollapsed((c) => !c)} className="ml-auto rounded-lg p-1.5 text-theme-muted hover:bg-theme-elevated hover:text-theme-main" aria-label={sidebarCollapsed ? "Expand admin navigation" : "Collapse admin navigation"}>
-              {sidebarCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
-            </button>
+          <div className="w-8 h-8 rounded-xl bg-theme-accent flex items-center justify-center font-bold shadow-md text-white shrink-0">
+            <ShieldAlert className="w-4 h-4" />
           </div>
-          {navGroups.map((group) => {
-            const visibleItems = group.items.filter((item) => canAccessProduction || !item.productionOnly);
-            if (!visibleItems.length) return null;
-            return (
-              <div key={group.label} className="flex flex-col gap-1">
-                {!sidebarCollapsed && <div className="px-3 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-theme-muted">{group.label}</div>}
-                {visibleItems.map((tab) => {
-                  const isActive = activeSubTab === tab.id;
-                  return (
-                    <button key={tab.id} onClick={() => setActiveSubTab(tab.id)} aria-current={isActive ? "page" : undefined} title={sidebarCollapsed ? tab.label : undefined}
-                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition-colors ${isActive ? "bg-theme-accent shadow-md" : "text-theme-muted hover:bg-theme-elevated hover:text-theme-main"}`}>
-                      <span className="flex items-center gap-2.5">{tab.icon}{!sidebarCollapsed && <span>{tab.label}</span>}</span>
-                      {!sidebarCollapsed && tab.badge && <span className={`rounded px-1.5 py-0.5 text-[10px] font-mono font-bold ${isActive ? "bg-white/20" : "bg-theme-elevated text-theme-muted"}`}>{tab.badge}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            );
-          })}
-          <div className="pt-4 mt-4 border-t border-theme-main px-3 text-[11px] text-theme-muted space-y-1.5">
-            <div className="font-bold text-foreground flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Role Scope</div>
-            <p className="leading-relaxed">
-              {effectiveRole === "super_admin" && "Full root access: users, workspaces, production, audits & settings."}
-              {effectiveRole === "admin" && "Standard operations control: customers, workspaces, requests, projects, production & delivery."}
-              {effectiveRole === "support" && "Support tier: non-destructive telemetry, diagnostics, inspection & ticket resolution."}
+
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h1 className="text-xs sm:text-sm font-extrabold tracking-tight text-theme-main uppercase font-['Space_Grotesk'] truncate">
+                KEEDOHUB OPERATIONS
+              </h1>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30 shrink-0">
+                ADMIN
+              </span>
+            </div>
+            <p className="text-[10px] text-theme-muted truncate hidden sm:block">
+              Internal studio production control & system console
             </p>
           </div>
+        </div>
+
+        {/* Header Right: Active view pill + Role badge */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-theme-card border border-theme-main text-[11px] text-theme-main">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-theme-muted">Tab:</span>
+            <span className="font-semibold text-theme-main">{currentMeta.title}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 bg-theme-card p-1 sm:px-2 sm:py-1 rounded-xl border border-theme-main text-xs">
+            {getRoleBadge(effectiveRole)}
+          </div>
+        </div>
+      </header>
+
+      {/* 2. MAIN ADMIN GRID: DEDICATED SIDE-NAVIGATION COLUMN AND MAIN CONTENT AREA */}
+      <div
+        id="admin-container"
+        className={`flex-1 w-full overflow-hidden grid transition-all duration-200 ${
+          sidebarCollapsed
+            ? "grid-cols-[3.5rem_1fr] sm:grid-cols-[4rem_1fr]"
+            : "grid-cols-[3.5rem_1fr] sm:grid-cols-[4rem_1fr] lg:grid-cols-[16rem_1fr]"
+        }`}
+      >
+        {/* DEDICATED SIDE-NAVIGATION COLUMN */}
+        <aside
+          id="admin-sidebar"
+          className="w-full min-w-0 border-r border-theme-main bg-theme-card flex flex-col h-[calc(100vh-57px)] sticky top-[57px] overflow-hidden z-20"
+        >
+          {/* Top of Sidebar: Expand/Collapse button on Desktop */}
+          <div className="p-2 sm:p-2.5 border-b border-theme-main flex items-center justify-between gap-1">
+            <button
+              onClick={() => setIsMobileDrawerOpen(true)}
+              className="lg:hidden w-full flex items-center justify-center p-2 rounded-xl text-theme-muted hover:text-theme-main hover:bg-theme-elevated transition-colors cursor-pointer"
+              title="Open full navigation list"
+            >
+              <Menu className="w-4 h-4 text-theme-accent" />
+            </button>
+
+            <div className="hidden lg:flex items-center justify-between w-full">
+              {!sidebarCollapsed && (
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-theme-muted pl-1">
+                  Ops Navigation
+                </span>
+              )}
+              <button
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="p-1.5 rounded-lg text-theme-muted hover:text-theme-main hover:bg-theme-elevated transition-colors ml-auto cursor-pointer"
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-label={sidebarCollapsed ? "Expand admin navigation" : "Collapse admin navigation"}
+              >
+                {sidebarCollapsed ? (
+                  <PanelLeftOpen className="w-4 h-4" />
+                ) : (
+                  <PanelLeftClose className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Nav Items List: Always on the left, scrollable */}
+          <div className="flex-1 overflow-y-auto p-1.5 sm:p-2 space-y-4 scrollbar-thin">
+            {navGroups.map((group) => {
+              const visibleItems = group.items.filter(
+                (item) => canAccessProduction || !item.productionOnly
+              );
+              if (!visibleItems.length) return null;
+
+              return (
+                <div key={group.label} className="space-y-1">
+                  {!sidebarCollapsed && (
+                    <div className="hidden lg:block px-2.5 pt-2 pb-1 text-[10px] font-mono font-bold uppercase tracking-wider text-theme-muted">
+                      {group.label}
+                    </div>
+                  )}
+
+                  {visibleItems.map((tab) => {
+                    const isActive = activeSubTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveSubTab(tab.id)}
+                        title={tab.label}
+                        aria-current={isActive ? "page" : undefined}
+                        className={`w-full group flex items-center rounded-xl transition-all cursor-pointer ${
+                          sidebarCollapsed
+                            ? "justify-center p-2.5"
+                            : "justify-center p-2.5 lg:justify-between lg:px-3 lg:py-2.5"
+                        } ${
+                          isActive
+                            ? "bg-theme-accent text-white shadow-md font-semibold"
+                            : "text-theme-muted hover:text-theme-main hover:bg-theme-elevated"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={`shrink-0 transition-transform group-hover:scale-105 ${
+                              isActive ? "text-white" : "text-theme-muted group-hover:text-theme-main"
+                            }`}
+                          >
+                            {tab.icon}
+                          </span>
+                          {!sidebarCollapsed && (
+                            <span className="hidden lg:inline text-xs font-medium truncate">
+                              {tab.label}
+                            </span>
+                          )}
+                        </div>
+
+                        {!sidebarCollapsed && tab.badge && (
+                          <span
+                            className={`hidden lg:inline-flex px-1.5 py-0.5 rounded text-[9px] font-mono font-bold shrink-0 ${
+                              isActive
+                                ? "bg-white/20 text-white"
+                                : "bg-theme-elevated text-theme-muted group-hover:text-theme-main"
+                            }`}
+                          >
+                            {tab.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Authority Scope summary on Desktop */}
+          {!sidebarCollapsed && (
+            <div className="hidden lg:block p-3 border-t border-theme-main bg-theme-card/60 text-[11px] text-theme-muted space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-theme-main">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Role Scope</span>
+              </div>
+              <p className="text-[10px] text-theme-muted leading-tight">
+                {effectiveRole === "super_admin" && "Full root operations access active."}
+                {effectiveRole === "admin" && "Standard production operations control."}
+                {effectiveRole === "support" && "Telemetry and support tier inspection."}
+              </p>
+            </div>
+          )}
         </aside>
 
-        <div className="flex-1 min-w-0">
-          {OPS_SECTIONS.includes(activeSubTab as OpsSection) && (
-            <OpsConsole section={activeSubTab as OpsSection} canProduction={canAccessProduction} openProduction={(jobId) => { setPendingJobId(jobId); setActiveSubTab("production-jobs"); }} />
-          )}
-          {activeSubTab === "overview" && <AdminOverviewTab stats={stats} loading={loading} onRefresh={fetchOverviewStats} onNavigateTab={(tabId) => setActiveSubTab(tabId as AdminSubTab)} />}
-          {activeSubTab === "production-jobs" && <ProductionCenter onNotify={(_m, _t) => {}} initialJobId={pendingJobId} onClearJob={() => setPendingJobId(null)} />}
-          {activeSubTab === "users" && <UserManagementTab currentUserRole={effectiveRole} onRefreshStats={fetchOverviewStats} />}
-          {activeSubTab === "ws-mgmt" && <WorkspaceManagementTab currentUserRole={effectiveRole} onRefreshStats={fetchOverviewStats} />}
-          {activeSubTab === "activity" && <PlatformActivityTab currentUserRole={effectiveRole} />}
-          {activeSubTab === "support" && <SupportViewTab currentUserRole={effectiveRole} />}
-          {activeSubTab === "system-health" && <SystemHealthTab />}
-          {activeSubTab === "feature-flags" && <FeatureFlagsTab currentUserRole={effectiveRole} />}
-          {activeSubTab === "settings" && <PlatformSettingsTab currentUserRole={effectiveRole} />}
-          {activeSubTab === "document-templates" && <DocumentTemplateManagementTab currentUserRole={effectiveRole} />}
-          {activeSubTab === "production-config" && <ProductionConfigTab currentUserRole={effectiveRole} />}
-        </div>
+        {/* DEDICATED MAIN CONTENT AREA (GRID COLUMN 2) */}
+        <main
+          id="admin-main-content"
+          className="w-full min-w-0 h-[calc(100vh-57px)] overflow-y-auto bg-theme-main flex flex-col"
+        >
+          {/* Top Breadcrumb & Section Header of Display */}
+          <div className="border-b border-theme-main bg-theme-card/40 px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <div>
+              <div className="flex items-center gap-1.5 text-xs text-theme-muted font-medium">
+                <span>Operations</span>
+                <span>/</span>
+                <span className="text-theme-muted">{currentMeta.category}</span>
+                <span>/</span>
+                <span className="text-theme-accent font-semibold">{currentMeta.title}</span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold font-['Space_Grotesk'] text-theme-main mt-0.5 tracking-tight flex items-center gap-2">
+                <span>{currentMeta.title}</span>
+                {activeSubTab === "operations" && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    LIVE PIPELINE
+                  </span>
+                )}
+              </h2>
+              <p className="text-xs text-theme-muted mt-0.5">
+                {currentMeta.description}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => fetchOverviewStats()}
+                disabled={loading}
+                className="px-3 py-1.5 rounded-xl border border-theme-main hover:bg-theme-elevated text-xs font-semibold text-theme-muted hover:text-theme-main flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Refresh operations stats"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-theme-accent" : ""}`} />
+                <span className="hidden sm:inline">Refresh Data</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Active Tab View Body */}
+          <div className="flex-1 p-3 sm:p-6 lg:p-8 space-y-6">
+            {OPS_SECTIONS.includes(activeSubTab as OpsSection) && (
+              <OpsConsole
+                section={activeSubTab as OpsSection}
+                canProduction={canAccessProduction}
+                openProduction={(jobId) => {
+                  setPendingJobId(jobId);
+                  setActiveSubTab("production-jobs");
+                }}
+              />
+            )}
+            {activeSubTab === "overview" && (
+              <AdminOverviewTab
+                stats={stats}
+                loading={loading}
+                onRefresh={fetchOverviewStats}
+                onNavigateTab={(tabId) => setActiveSubTab(tabId as AdminSubTab)}
+              />
+            )}
+            {activeSubTab === "production-jobs" && (
+              <ProductionCenter
+                onNotify={(_m, _t) => {}}
+                initialJobId={pendingJobId}
+                onClearJob={() => setPendingJobId(null)}
+              />
+            )}
+            {activeSubTab === "users" && (
+              <UserManagementTab
+                currentUserRole={effectiveRole}
+                onRefreshStats={fetchOverviewStats}
+              />
+            )}
+            {activeSubTab === "ws-mgmt" && (
+              <WorkspaceManagementTab
+                currentUserRole={effectiveRole}
+                onRefreshStats={fetchOverviewStats}
+              />
+            )}
+            {activeSubTab === "activity" && (
+              <PlatformActivityTab currentUserRole={effectiveRole} />
+            )}
+            {activeSubTab === "support" && (
+              <SupportViewTab currentUserRole={effectiveRole} />
+            )}
+            {activeSubTab === "system-health" && <SystemHealthTab />}
+            {activeSubTab === "feature-flags" && (
+              <FeatureFlagsTab currentUserRole={effectiveRole} />
+            )}
+            {activeSubTab === "settings" && (
+              <PlatformSettingsTab currentUserRole={effectiveRole} />
+            )}
+            {activeSubTab === "document-templates" && (
+              <DocumentTemplateManagementTab currentUserRole={effectiveRole} />
+            )}
+            {activeSubTab === "production-config" && (
+              <ProductionConfigTab currentUserRole={effectiveRole} />
+            )}
+          </div>
+        </main>
       </div>
+
+      {/* 3. MOBILE SLIDE-OVER DRAWER (For full labels & search on phone/tablet) */}
+      {isMobileDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          {/* Dark Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsMobileDrawerOpen(false)}
+          />
+
+          {/* Drawer Container */}
+          <div className="relative w-72 max-w-[85vw] bg-theme-card border-r border-theme-main flex flex-col h-full shadow-2xl z-10">
+            <div className="p-4 border-b border-theme-main flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-theme-accent flex items-center justify-center text-white font-bold">
+                  <ShieldAlert className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold font-['Space_Grotesk'] text-theme-main">
+                    ADMIN NAVIGATION
+                  </h3>
+                  <p className="text-[10px] text-theme-muted">All Operations Sections</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsMobileDrawerOpen(false)}
+                className="p-1.5 rounded-lg text-theme-muted hover:text-theme-main hover:bg-theme-elevated transition-colors cursor-pointer"
+                title="Close drawer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Quick search inside mobile drawer */}
+            <div className="p-3 border-b border-theme-main">
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-theme-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={navSearch}
+                  onChange={(e) => setNavSearch(e.target.value)}
+                  placeholder="Filter sections…"
+                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-theme-input border border-theme-main text-xs text-theme-main placeholder:text-theme-muted focus:outline-none focus:border-theme-accent"
+                />
+              </div>
+            </div>
+
+            {/* Drawer Items */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-4">
+              {navGroups.map((group) => {
+                const visibleItems = group.items.filter(
+                  (item) =>
+                    (canAccessProduction || !item.productionOnly) &&
+                    (!navSearch || item.label.toLowerCase().includes(navSearch.toLowerCase()))
+                );
+                if (!visibleItems.length) return null;
+
+                return (
+                  <div key={group.label} className="space-y-1">
+                    <div className="px-2 pt-1 pb-1 text-[10px] font-mono font-bold uppercase tracking-wider text-theme-muted">
+                      {group.label}
+                    </div>
+                    {visibleItems.map((tab) => {
+                      const isActive = activeSubTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            setActiveSubTab(tab.id);
+                            setIsMobileDrawerOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                            isActive
+                              ? "bg-theme-accent text-white shadow-md font-bold"
+                              : "text-theme-muted hover:text-theme-main hover:bg-theme-elevated"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className={isActive ? "text-white" : "text-theme-muted"}>
+                              {tab.icon}
+                            </span>
+                            <span>{tab.label}</span>
+                          </div>
+                          {tab.badge && (
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold ${
+                                isActive
+                                  ? "bg-white/20 text-white"
+                                  : "bg-theme-elevated text-theme-muted"
+                              }`}
+                            >
+                              {tab.badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

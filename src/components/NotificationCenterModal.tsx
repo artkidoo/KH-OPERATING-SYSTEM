@@ -127,7 +127,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
       // Intelligent fallback routing based on category
       switch (notif.category) {
         case "radar":
-          onNavigateTab("creative-radar", notif.entityId);
+          onNavigateTab("command-center", "home" as any);
           break;
         case "approval":
         case "studio":
@@ -141,7 +141,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
           break;
         case "task":
         case "workflow":
-          onNavigateTab("workflow", notif.entityId);
+          onNavigateTab("command-center", "projects" as any);
           break;
         default:
           onNavigateTab("command-center");
@@ -463,11 +463,11 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
           <button
             onClick={() => {
               onClose();
-              onNavigateTab("workflow");
+              onNavigateTab("command-center", "projects" as any);
             }}
             className="text-red-400 hover:text-red-300 font-bold flex items-center gap-1 cursor-pointer"
           >
-            <span>Open Unified Workflow Hub</span>
+            <span>Open Projects & Tasks</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </button>
         </div>

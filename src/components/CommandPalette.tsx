@@ -164,10 +164,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     {
       id: "nav-creative-memory",
       title: "Creative Memory System",
-      description: "Multi-scope persistent learning, narrative principles, rules & decision history",
+      description: "Retired tool — view deprecation status",
       icon: <BookOpen className="w-4 h-4 text-cyan-400" />,
       action: () => {
-        setActiveTab("creative-memory");
+        setActiveTab("removed");
         onClose();
       },
     },

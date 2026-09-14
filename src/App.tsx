@@ -31,7 +31,6 @@ import { AuthModal } from "./components/AuthModal";
 import type { ShellSection } from "./components/workspace/WorkspaceShell";
 import {
   Search,
-  BrainCircuit,
   Rocket,
   Disc3,
   Sparkles,
@@ -111,7 +110,6 @@ function MainAppContent() {
   const [studioServiceCategory, setStudioServiceCategory] = useState<StudioServiceCategory | undefined>();
 
   const { activeWorkspace, user, isLoading: isAuthLoading } = useAuth();
-  const { toggleBrain } = useCreativeBrain();
 
 
   // URL synchronization helper — guarantees ONE WORKSPACE ONLY
@@ -424,18 +422,6 @@ function MainAppContent() {
           </Suspense>
         )}
       </main>
-
-      {/* Floating in-portal assistant trigger — internal KH Chat (CreativeBrain).
-          Kept minimal: slide-over lives in CreativeBrainProvider context. */}
-      <button
-        id="floating-chat-assistant-btn"
-        onClick={toggleBrain}
-        className="fixed bottom-16 sm:bottom-6 left-4 sm:left-6 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--accent-border)] bg-theme-accent text-white shadow-lg transition-all hover:scale-105"
-        title="Open KH Chat assistant"
-      >
-        <BrainCircuit className="h-4 w-4" />
-        <span className="sr-only">KH Chat</span>
-      </button>
 
       {/* Mobile Sticky Bottom Navigation Bar */}
       <nav 

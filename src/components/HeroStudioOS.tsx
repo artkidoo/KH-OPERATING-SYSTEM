@@ -260,7 +260,7 @@ export const HeroStudioOS: React.FC<HeroStudioOSProps> = ({
 
             {/* Module 0B: Creative Radar */}
             <div
-              onClick={() => setActiveTab("creative-radar")}
+              onClick={() => setActiveTab("removed")}
               className="bento-card p-3.5 sm:p-5 transition-all group cursor-pointer text-left flex flex-col justify-between relative overflow-hidden shadow-sm border-amber-500/40 hover:border-amber-500 bg-amber-950/10 hover:bg-amber-950/20"
             >
               <div className="space-y-2.5 sm:space-y-3.5">

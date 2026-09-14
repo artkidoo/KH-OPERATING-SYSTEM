@@ -58,11 +58,6 @@ export const WORKSPACE_TABS: ActiveTab[] = [
   "requests",
   "membership",
   "profile",
-  "workflow",
-  "collaboration",
-  "analytics",
-  "intel-hub",
-  "creative-memory",
   // NOTE: "production-center" is intentionally NOT in customer navigation.
   // It is admin-only and accessible via direct URL for admin users.
 ];

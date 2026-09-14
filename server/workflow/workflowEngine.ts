@@ -409,7 +409,7 @@ export class WorkflowEngine {
           category: 'task',
           entityId: t.id,
           entityTitle: t.text,
-          actionTab: 'workflow',
+          actionTab: 'command-center',
           actionLabel: 'Complete Task',
         });
       }

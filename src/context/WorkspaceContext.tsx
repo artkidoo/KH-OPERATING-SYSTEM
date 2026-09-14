@@ -169,7 +169,7 @@ export function computeReleaseReadiness(
       weight: 15,
       completed: hasContent,
       category: 'content',
-      actionTab: 'content-engine',
+      actionTab: 'command-center',
       actionLabel: 'Plan Content Pipeline',
       detail: hasContent ? `${linkedContent.length} items scheduled` : 'Pipeline empty',
     },

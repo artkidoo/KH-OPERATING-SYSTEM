@@ -881,7 +881,7 @@ export const ContextualRadarBanner: React.FC<{
       <div className="flex items-center gap-2 shrink-0">
         {onNavigateTab && (
           <button
-            onClick={() => onNavigateTab("creative-radar")}
+            onClick={() => onNavigateTab("removed")}
             className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
           >
             <span>View Radar</span>

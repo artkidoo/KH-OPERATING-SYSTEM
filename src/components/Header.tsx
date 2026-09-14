@@ -406,7 +406,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </div>
 
                     <div className="pt-2 border-t border-zinc-800 space-y-1">
-                      {hasAdminAccess(user?.systemRole) && (
+                      {hasAdminAccess(user?.systemRole) ? (
                         <button
                           onClick={() => {
                             setActiveTab("admin");
@@ -416,6 +416,17 @@ export const Header: React.FC<HeaderProps> = ({
                         >
                           <ShieldAlert className="w-3.5 h-3.5" />
                           <span>Admin Control Center</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setActiveTab("admin");
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 transition-colors cursor-pointer font-semibold"
+                        >
+                          <ShieldAlert className="w-3.5 h-3.5" />
+                          <span>Admin / Ops Portal</span>
                         </button>
                       )}
 

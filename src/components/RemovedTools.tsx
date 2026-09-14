@@ -12,7 +12,7 @@ import { hasAdminAccess } from "../utils/adminAccess";
 
 export function RemovedTools() {
   const { user } = useAuth();
-  const role = user?.systemRole || "anonymous";
+  const role = user?.systemRole;
 
   return (
     <div className="min-h-screen bg-[var(--bento-bg)] text-[var(--bento-text)]">
